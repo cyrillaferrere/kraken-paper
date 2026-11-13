@@ -4,3 +4,4 @@
 __pycache__/
 *.pyc
 .netlify/
+site/version.json
