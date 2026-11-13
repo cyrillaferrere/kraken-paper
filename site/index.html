@@ -13,9 +13,13 @@
   <div class="brand"><span class="logo" aria-hidden="true">🐙</span>
     <div><h1>Kraken Paper</h1><p class="sub">Simulation de trading — argent fictif, prix réels Kraken</p></div>
   </div>
-  <span class="badge paper" title="Aucun ordre réel n'est jamais passé">PAPER</span>
+  <div class="badges">
+    <span id="env-badge" class="badge env env-local" title="Environnement du site">LOCAL</span>
+    <span class="badge paper" title="Aucun ordre réel n'est jamais passé">PAPER</span>
+  </div>
 </header>
 
+<div id="build" class="build" aria-label="Version du site"><span id="b-version">version inconnue</span> · <a id="b-commit" href="https://github.com/cyrillaferrere/kraken-paper" rel="noopener">commit —</a> · <span id="b-branch"></span><span id="b-time"></span></div>
 <div id="status" class="status" role="status" aria-live="polite">
   <span id="st-prices" class="pill">Prix : chargement…</span>
   <span id="st-cycle" class="pill">Dernier cycle : …</span>
@@ -86,10 +90,12 @@
   </section>
 
   <section class="card">
-    <div class="card-h"><h2>Ordres ouverts</h2></div>
-    <div class="tbl-wrap"><table id="orders"><thead><tr>
-      <th>Ordre</th><th>Sens</th><th class="r">Quantité</th><th class="r">Niveau</th><th class="r">Prix</th><th class="r">Distance</th>
+    <div class="card-h"><h2>Ordres ouverts</h2><span class="muted">Montants nets de frais (maker 0,40 %, stop en taker 0,80 % + 0,1 % de glissement)</span></div>
+    <div class="tbl-wrap"><table id="orders" class="orders"><thead><tr>
+      <th scope="col">Ordre</th><th scope="col" class="c-s">Sens</th><th scope="col" class="r">Engagé</th><th scope="col" class="r c-x">Prix limite<br><span class="th-sub">actuel</span></th><th scope="col" class="r">Distance</th>
+      <th scope="col" class="r c-x">Stop</th><th scope="col" class="r c-x">Objectif</th><th scope="col" class="r c-x">Perte max</th><th scope="col" class="r c-x">Gain visé</th><th scope="col" class="r c-x">Gain / risque</th>
     </tr></thead><tbody></tbody></table></div>
+    <p class="hint">Distance : variation du prix nécessaire pour déclencher. Perte max : si le stop est touché (vente au stop −0,1 %, frais taker). Gain visé : si l'objectif est atteint (frais maker). Le stop et l'objectif d'un achat s'activent une fois l'achat exécuté. Sur mobile, touchez un ordre pour le détail.</p>
   </section>
 
   <section class="card">

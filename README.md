@@ -3,10 +3,22 @@
 Simulateur de trading crypto **PAPER** (argent fictif) avec de **vrais prix Kraken**, et un tableau de bord en direct.
 
 - 💰 Capital de départ : **6 606,42 USDC** (fictifs).
-- 🧠 Les décisions sont prises par Grok Bot aux sessions du matin et du soir.
+- 🧠 Les décisions sont prises par Grok Bot lors de ses sessions (environ toutes les 5 heures).
 - ⚙️ Un petit moteur Python tourne **toutes les heures** sur GitHub Actions et exécute ce qui a été décidé.
 - 📱 Une notification arrive sur le téléphone (ntfy) à chaque exécution d'ordre.
 - 📊 Tableau de bord : site statique sur Netlify, prix en direct depuis l'API publique Kraken.
+
+## 📚 Documentation
+
+| Document | Pour quoi |
+| --- | --- |
+| [docs/HANDOFF.md](docs/HANDOFF.md) | **Reprendre le projet** : architecture, flux de données, règles du moteur, contrat des décisions, rôles |
+| [docs/RUNBOOK.md](docs/RUNBOOK.md) | Déployer prod / préprod, lancer un cycle, réparer un cycle, changer le canal ntfy, problèmes fréquents |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Branches, PR, versions, commits, tests, règles à ne jamais enfreindre |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | Choix techniques et leurs raisons (ADR) |
+| [CHANGELOG.md](CHANGELOG.md) | Historique des versions (version courante dans `VERSION`) |
+
+Environnements : **prod** https://kraken-paper.netlify.app (`main`) · **préprod** https://kraken-paper-preprod.netlify.app (`preprod`).
 
 ## ⚠️ PAPER uniquement
 
@@ -96,6 +108,7 @@ Le nom du canal est secret (quiconque le connaît peut lire les notifications) :
 
 ```bash
 python -m unittest -v      # tests sans réseau
+node --test tests/site/*.test.js   # calcul des ordres du dash
 python engine/run.py       # un cycle (modifie state/)
 ```
 

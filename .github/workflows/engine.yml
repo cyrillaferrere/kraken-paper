@@ -17,6 +17,9 @@ concurrency:
 
 jobs:
   cycle:
+    # Le moteur ne tourne que depuis main (le cron GitHub ne part déjà que de la branche par défaut ;
+    # ce garde-fou bloque aussi un lancement manuel depuis preprod ou une branche feature).
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
