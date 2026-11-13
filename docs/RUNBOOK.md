@@ -4,35 +4,44 @@ Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
 ## Déployer
 
-Le site n'est **pas** relié à GitHub sur Netlify : on déploie à la main avec `scripts/deploy.sh`, qui exporte le commit
+Il n'y a **qu'un seul site Netlify, `kraken-paper`**, non relié à GitHub : on déploie à la main avec `scripts/deploy.sh`, qui exporte le commit
 **poussé** sur `origin` (`git archive`, donc aucun fichier local ou ignoré, ni `.ntfy_topic`), écrit
 `site/version.json` (version, environnement, commit, branche, heure) et envoie le dossier.
 
 | Environnement | Branche | Site Netlify | Commande |
 | --- | --- | --- | --- |
-| préprod | `preprod` | kraken-paper-preprod (`0944cc97-d70c-43cd-ab59-eeebead34718`) | `scripts/deploy.sh preprod` |
-| feature | `feature/<nom>` | kraken-paper-preprod (badge FEATURE) | `scripts/deploy.sh feature feature/<nom>` |
-| **prod** | `main` | kraken-paper (`01cb62cb-bc97-4b2c-be7e-21960b44bfd5`) | `CONFIRM_PROD=oui scripts/deploy.sh prod` **après l'accord de Cyril** |
+| préprod | `preprod` | https://preprod--kraken-paper.netlify.app (alias, non production) | `scripts/deploy.sh preprod` |
+| feature | `feature/<nom>` | `https://feature-<nom>--kraken-paper.netlify.app` (alias) | `scripts/deploy.sh feature feature/<nom>` |
+| **prod** | `main` | https://kraken-paper.netlify.app (déploiement de production) | `CONFIRM_PROD=oui scripts/deploy.sh prod` **après l'accord de Cyril** |
 
-Moyen d'envoi (un des deux) :
-- **Grok Bot** : appeler l'outil `deploy-site` du connecteur Netlify avec le site id ; il renvoie une commande
-  `npx @netlify/mcp ... --proxy-path "<chemin>"`. Lancer `NETLIFY_MCP_PROXY="<chemin>" scripts/deploy.sh <env>`.
-  Le chemin est à usage court, ne pas le commiter.
-- **Netlify CLI** : `NETLIFY_AUTH_TOKEN=<jeton personnel> scripts/deploy.sh <env>` (jeton jamais commité).
+Site id Netlify : `01cb62cb-bc97-4b2c-be7e-21960b44bfd5`. Le badge d'environnement de l'en-tête se déduit de l'adresse.
 
-Après déploiement : ouvrir le site, vérifier le badge d'environnement, la version et le commit dans l'en-tête,
-et que la console du navigateur est sans erreur.
+Moyen d'envoi :
+- **Préprod et features : Netlify CLI obligatoire** : `NETLIFY_AUTH_TOKEN=<jeton personnel> scripts/deploy.sh preprod`
+  (`netlify deploy --alias preprod`, **sans** `--prod` : la prod n'est pas touchée). Jeton créé dans Netlify → User settings
+  → Applications → Personal access tokens, jamais commité.
+- **Prod** : la même CLI (`--prod`), ou le connecteur Netlify de Grok Bot : l'outil `deploy-site` renvoie une commande
+  `npx @netlify/mcp ... --proxy-path "<chemin>"` ; lancer `NETLIFY_MCP_PROXY="<chemin>" CONFIRM_PROD=oui scripts/deploy.sh prod`.
+  **Ce connecteur ne fait que des déploiements de production** : ne jamais l'utiliser pour la préprod (le script le refuse).
 
-Mise en prod complète :
+Après déploiement : ouvrir l'adresse, vérifier le badge d'environnement, la version et le commit dans l'en-tête, et que
+la console du navigateur est sans erreur. Après un déploiement de préprod, vérifier aussi que la prod n'a pas changé :
+`curl -s https://kraken-paper.netlify.app/app.js | cmp - <(git show origin/main:site/app.js)`.
+Accès public : dans Netlify → Site configuration → Access & security → Visitor access, la protection doit être désactivée
+pour les déploiements non production (sinon la préprod demande une connexion).
+
+## Mettre en prod une release
+
+**L'état vit uniquement sur `main`, écrit seulement par le moteur ; le dash est en lecture seule ; une release ne livre
+que du code.** Après l'accord de Cyril :
 ```bash
-git checkout main && git pull --rebase
-git merge --no-ff preprod -m "release: vX.Y.Z"
-python -m unittest -v && node --test tests/site/*.test.js
-git push origin main
-git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z
-CONFIRM_PROD=oui scripts/deploy.sh prod
+# sur preprod : VERSION et CHANGELOG à jour ([X.Y.Z] - date), poussés
+scripts/release.sh X.Y.Z                 # fusionne preprod dans main, tests, tag vX.Y.Z, push
+CONFIRM_PROD=oui scripts/deploy.sh prod  # déploie main en production
 ```
-Toujours `git pull --rebase` avant de pousser sur `main` : le moteur y commite l'état toutes les heures.
+`release.sh` s'arrête si `git diff origin/main...origin/preprod` touche `state/` ou `decisions/`, puis contrôle la fusion
+elle-même (`git diff --cached` contre `main`) avant de commiter. Si l'un des deux contrôles échoue : retirer ces fichiers
+de `preprod` (`git checkout origin/main -- state/ decisions/` sur preprod, commit, push), puis relancer.
 
 ## Lancer un cycle à la main
 
@@ -80,4 +89,5 @@ Puis donner le nouveau nom à Cyril pour qu'il s'abonne dans l'app ntfy et suppr
 | Graphiques vides, message « bibliothèque » | CDN jsDelivr injoignable | Le tableau des marqueurs reste utilisable ; réessayer plus tard. |
 | « Bougies Kraken indisponibles » ou marqueurs « indisponible » | Limite publique Kraken ou API en panne | Nouvel essai automatique (1 à 3 min). |
 | Décision non appliquée | `id` déjà utilisé, JSON invalide, ou API Kraken absente pendant le cycle | Lire le journal ; si API absente, elle sera retentée automatiquement. |
+| Le contrôle CI `guard-state` échoue | La branche modifie `state/` ou `decisions/` | Retirer ces changements (`git checkout origin/main -- state/ decisions/`), ils n'ont rien à faire hors `main`. |
 | Un ordre affiche « Niveau atteint en direct » | Le prix live a touché le niveau, mais le moteur n'exécute qu'à la clôture de la bougie 1 h | Attendre le cycle suivant. |

@@ -9,13 +9,12 @@
 ## Vérifications
 - [ ] `python -m unittest -v` passe
 - [ ] `node --test tests/site/*.test.js` passe (si le site change)
-- [ ] Testé sur la préprod (https://kraken-paper-preprod.netlify.app), bureau et mobile, console sans erreur
+- [ ] Testé sur la préprod (https://preprod--kraken-paper.netlify.app), bureau et mobile, console sans erreur
 - [ ] Animations conformes au skill kraken-motion-ux (opacity/transform, pas de rejouage au polling, prefers-reduced-motion)
 
 ## Règles (à cocher toutes)
 - [ ] Aucun ordre réel, aucun endpoint privé Kraken, aucune clé dans le dépôt ni dans les secrets
-- [ ] `state/` non modifié à la main (sauf procédure de récupération du RUNBOOK, expliquée ici)
-- [ ] `decisions/` non modifié (réservé à Grok Bot)
+- [ ] Aucun fichier sous `state/` ni `decisions/` dans la PR (le contrôle CI `guard-state` le vérifie)
 - [ ] Aucun autre dépôt ni site touché
 
 ## Relecture

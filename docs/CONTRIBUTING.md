@@ -5,16 +5,26 @@
 | Branche | Rôle |
 | --- | --- |
 | `main` | **Prod**. Code du site en ligne sur kraken-paper.netlify.app, moteur, et **seul** emplacement de `state/` et `decisions/` vivants. |
-| `preprod` | Intégration et test. Déployée sur kraken-paper-preprod.netlify.app. |
+| `preprod` | Intégration et test. Déployée sur https://preprod--kraken-paper.netlify.app (alias non production du site unique). |
 | `feature/<nom>` | Une évolution, partie de `preprod` (ex. `feature/stop-suiveur`). |
 | `fix/<nom>` | Correction, même circuit qu'une feature. |
 
 Circuit : `feature/<nom>` → PR vers `preprod` (relue par Grok Bot) → `scripts/deploy.sh preprod` → Cyril teste →
-PR `preprod` → `main` → **accord de Cyril** → déploiement prod et tag. Pas de push direct sur `main`, sauf les commits
+**accord de Cyril** → `scripts/release.sh X.Y.Z` (preprod → `main`, tag) → `CONFIRM_PROD=oui scripts/deploy.sh prod`. Pas de push direct sur `main`, sauf les commits
 automatiques du moteur (`chore: cycle ...`) et les décisions de Grok Bot (`decision: <id>`).
 
 Avant de créer une branche ou de fusionner : `git pull --rebase` (le moteur commite sur `main` toutes les heures).
-Garder `preprod` à jour avec `main` (`git checkout preprod && git merge main`) pour récupérer l'état et les décisions.
+Garder `preprod` à jour avec `main` (`git checkout preprod && git merge origin/main`) : on récupère les fichiers d'état
+de `main` tels quels, sans jamais les modifier.
+
+## L'état et les décisions : uniquement sur main
+
+- `state/` vit **uniquement sur `main`** et n'est **écrit que par le moteur** (workflow `engine`).
+- `decisions/` n'est écrit que par Grok Bot, par des commits `decision: <id>` poussés directement sur `main`.
+- Le dash (prod, préprod, features) est **en lecture seule** : il lit l'état de `main` et n'écrit rien.
+- **Une release ne livre que du code.** Aucune branche `preprod`, `feature/*` ou `fix/*` ne commite dans `state/` ou
+  `decisions/`. Le contrôle CI **guard-state** échoue sur toute PR (vers `main` ou `preprod`) et tout push hors `main`
+  qui les modifie ; `scripts/release.sh` refuse aussi la fusion. Besoin de données de test ? Les mettre dans `tests/`.
 
 ## Versions (SemVer)
 
