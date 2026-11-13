@@ -13,10 +13,10 @@
   "last_decision": null,
   "pairs": {},
   "last_candle": {
-    "XBTUSDC": 1794600000
+    "XBTUSDC": 1794603600
   },
   "last_prices": {
-    "XBTUSDC": 68300.0
+    "XBTUSDC": 68229.29
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -30,8 +30,8 @@
     "order": 0,
     "trade": 0
   },
-  "last_cycle": "2026-11-13T22:58:01+01:00",
-  "last_cycle_ts": 1794607081,
+  "last_cycle": "2026-11-13T23:30:39+01:00",
+  "last_cycle_ts": 1794609039,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
