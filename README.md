@@ -98,3 +98,20 @@ Le nom du canal est secret (quiconque le connaît peut lire les notifications) :
 python -m unittest -v      # tests sans réseau
 python engine/run.py       # un cycle (modifie state/)
 ```
+
+## Tableau de bord : graphiques et marqueurs
+
+- **Marchés** : bougies 1 h / 4 h / 1 j, moyennes mobiles 20 et 50, volume et RSI 14, pour les cryptos détenues, celles qui ont un ordre et une liste de suivi (BTC, ETH, SOL, XRP en USDC). Sur le graphique : ordres limites, stops et objectifs en lignes horizontales, prix de revient, et flèches ▲ / ▼ des exécutions lues dans `journal.jsonl`.
+- **Marqueurs** : prix, variation 24 h, tendance (prix vs MA20 et MA50 en 4 h et en 1 j), RSI 14 en 4 h, volatilité (ATR 14 journalier en % du prix), force relative vs BTC (performance 7 jours moins celle du BTC). Chaque couleur est doublée d'un texte ou d'une flèche.
+- Tout est calculé dans le navigateur (`site/markets.js`) avec l'**API publique** Kraken (`OHLC`, `AssetPairs?country_code=FR`, `Ticker`) : aucune clé, aucun coût. Les requêtes passent en file (une toutes les 450 ms) avec un cache de 1 à 10 min, pour rester sous la limite publique.
+- Bibliothèque : **TradingView Lightweight Charts 5.3.0** (Apache 2.0) par CDN jsDelivr, version figée et contrôle d'intégrité SRI. Choisie car légère (~200 ko), rapide sur mobile, et gère nativement bougies, plusieurs volets (prix, volume, RSI), lignes de prix et marqueurs, sans animation ni lissage des cours. Le logo TradingView affiché sur le graphique est l'attribution demandée par la licence. Si le CDN ne répond pas, le tableau des marqueurs continue de fonctionner.
+
+### Choix d'animation (skill kraken-motion-ux)
+
+- Jetons communs (`--motion-fast` 140 ms, `--motion-normal` 200 ms, `--motion-panel` 240 ms, décalage 30 ms plafonné), seulement `opacity` et `transform`.
+- Les panneaux entrent une seule fois au premier affichage, jamais au rafraîchissement des prix (15 s) ou de l'état (2 min).
+- Une valeur réellement modifiée (KPI, prix du tableau) reçoit un bref voile violet neutre de 220 ms qui s'efface ; la vraie valeur est affichée immédiatement, sans interpolation, et la couleur ne suggère ni gain ni perte.
+- Boutons et puces : pression `scale(.97)`. Onglets 1 h / 4 h / 1 j : curseur qui glisse en 200 ms (`translateX`), navigation au clavier par flèches.
+- Pendant le chargement d'une autre période ou crypto, le graphique passe à 55 % d'opacité, reflet d'une vraie requête en cours.
+- Les graphiques ne sont jamais animés : les bougies sont celles de Kraken, la dernière est marquée « en cours ». Les alertes d'erreur s'affichent sans animation.
+- `prefers-reduced-motion: reduce` coupe tous ces mouvements ; le tableau de bord reste entièrement utilisable.
