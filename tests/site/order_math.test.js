@@ -9,7 +9,7 @@ const vm = require("vm");
 const noop = () => {};
 const el = () => ({ textContent: "", className: "", hidden: false, title: "", href: "", style: { setProperty: noop }, classList: { add: noop, remove: noop, toggle: noop }, tBodies: [{}], querySelectorAll: () => [] });
 const ctx = { window: { addEventListener: noop }, document: { getElementById: el, addEventListener: noop, querySelectorAll: () => [] },
-  Intl, Math, Date, JSON, console, setTimeout, setInterval: noop, fetch: () => Promise.reject(new Error("hors ligne")) };
+  location: { hostname: "localhost" }, Intl, Math, Date, JSON, console, setTimeout, setInterval: noop, fetch: () => Promise.reject(new Error("hors ligne")) };
 vm.createContext(ctx);
 try { vm.runInContext(fs.readFileSync(path.join(__dirname, "../../site/app.js"), "utf8"), ctx); } catch (e) { /* DOM absent : seules les fonctions pures nous intéressent */ }
 const orderMath = ctx.window.KP_ORDER_MATH;
@@ -50,4 +50,12 @@ test("vente de sortie : base = prix de revient de la position", () => {
   assert.strictEqual(m.engaged, 670);
   assert.strictEqual(m.gain, Math.round((700 - 700 * 0.004 - 670) * 100) / 100);
   assert.strictEqual(m.loss, Math.round((639.36 - 639.36 * 0.008 - 670) * 100) / 100);
+});
+
+test("environnement déduit de l'adresse (un seul site Netlify)", () => {
+  const env = ctx.window.KP_ENV_FROM_HOST;
+  assert.strictEqual(env("kraken-paper.netlify.app"), "prod");
+  assert.strictEqual(env("preprod--kraken-paper.netlify.app"), "preprod");
+  assert.strictEqual(env("feature-ordres--kraken-paper.netlify.app"), "feature");
+  assert.strictEqual(env("localhost"), null);
 });

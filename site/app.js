@@ -264,10 +264,20 @@
 
   // ---------- version du site (écrite au déploiement par scripts/deploy.sh) ----------
   const ENV_LBL = { prod: "PROD", preprod: "PRÉPROD", feature: "FEATURE", local: "LOCAL" };
+  // L'environnement se déduit d'abord de l'adresse (un seul site Netlify) :
+  // kraken-paper.netlify.app = prod, preprod--kraken-paper... = préprod, feature-<nom>--kraken-paper... = feature.
+  function envFromHost(h) {
+    if (h === "kraken-paper.netlify.app") return "prod";
+    if (/^preprod--kraken-paper\.netlify\.app$/.test(h)) return "preprod";
+    if (/^feature-[a-z0-9-]+--kraken-paper\.netlify\.app$/.test(h)) return "feature";
+    if (/--kraken-paper\.netlify\.app$/.test(h)) return "feature"; // autre déploiement non production (aperçu, lien unique)
+    return null;
+  }
+  window.KP_ENV_FROM_HOST = envFromHost;
   async function loadVersion() {
     let v = null;
     try { const r = await fetch("version.json", { cache: "no-store" }); if (r.ok) v = await r.json(); } catch (e) { /* site local : pas de version.json */ }
-    const env = v && ENV_LBL[v.env] ? v.env : "local";
+    const env = envFromHost(location.hostname) || (v && ENV_LBL[v.env] ? v.env : "local");
     const b = $("env-badge"); b.textContent = ENV_LBL[env]; b.className = "badge env env-" + env;
     b.title = env === "prod" ? "Production" : env === "preprod" ? "Préproduction : site de test" : env === "feature" ? "Branche de développement" : "Version locale non déployée";
     if (!v) return;

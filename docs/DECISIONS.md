@@ -47,12 +47,29 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
   `/contents` ; repli sur raw en cas de 403/429, de limite épuisée ou d'erreur.
 - **Conséquences** : état frais à 2 min près ; limite de 60 requêtes/h par IP partagée entre onglets.
 
-## ADR-9 : environnements prod / préprod, version affichée (14/11/2026)
+## ADR-9 : environnements prod / préprod, version affichée (14/11/2026) — remplacée en partie par ADR-11
 - **Décision** : `main` = prod, `preprod` = site kraken-paper-preprod, branches `feature/*` ; l'état reste unique sur `main` et
   le moteur ne tourne que depuis `main`. `scripts/deploy.sh` écrit `site/version.json` affiché dans l'en-tête (version,
   badge PROD / PRÉPROD / FEATURE, commit).
 - **Conséquences** : on peut tester sans risque pour la prod ; la préprod montre le vrai portefeuille ; il faut maintenir
   `preprod` à jour avec `main`.
+
+## ADR-11 : un seul site Netlify, préprod en alias (14/11/2026) — remplace la partie « deux sites » d'ADR-9
+- **Contexte** : un second site `kraken-paper-preprod` dispersait la configuration (futur stockage, variables d'environnement).
+- **Décision** : un seul site `kraken-paper`. Prod = déploiement de production depuis `main`. Préprod = déploiement non
+  production avec l'alias `preprod` (https://preprod--kraken-paper.netlify.app), features = alias `feature-<nom>`. Le badge
+  d'environnement se déduit du nom d'hôte. Déploiement des alias avec la Netlify CLI (`--alias`, sans `--prod`).
+- **Conséquences** : toute la configuration au même endroit ; un jeton Netlify personnel est nécessaire pour la préprod,
+  car le connecteur de Grok Bot ne fait que des déploiements de production (le script refuse de l'utiliser pour un alias).
+  L'ancien site kraken-paper-preprod est à supprimer à la main.
+
+## ADR-12 : l'état ne voyage jamais dans une release (14/11/2026)
+- **Contexte** : passer la préprod en prod ne doit jamais écraser le portefeuille ni les ordres.
+- **Décision** : `state/` vit uniquement sur `main` et n'est écrit que par le moteur ; `decisions/` que par Grok Bot sur `main`.
+  Le dash est en lecture seule. Contrôle CI `guard-state` sur les PR (vers `main` et `preprod`) et les push hors `main` ;
+  `scripts/release.sh` contrôle le diff `main...preprod` et la fusion elle-même.
+- **Conséquences** : une release ne livre que du code ; les commits du moteur et de Grok Bot, poussés directement sur `main`,
+  ne passent pas par les PR et ne sont donc pas bloqués.
 
 ## ADR-10 : rôles (13/11/2026)
 - **Décision** : Grok Bot garde la main technique et les décisions de trading ; GPT maintient et fait évoluer le code par PR

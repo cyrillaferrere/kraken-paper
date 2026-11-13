@@ -19,7 +19,10 @@ Première version numérotée. Elle regroupe tout ce qui a été construit depui
 - Lecture de l'état via l'API GitHub (sha + If-None-Match), repli sur raw.githubusercontent.com.
 - En-tête : version, badge d'environnement (PROD / PRÉPROD / FEATURE / LOCAL) et commit déployé (`site/version.json` écrit par `scripts/deploy.sh`).
 - Ordres ouverts détaillés : montant engagé, distance au déclenchement, stop, objectif, perte max et gain visé nets de frais, ratio gain / risque, date de création, décision d'origine ; lignes dépliables sur mobile.
-- Environnements prod / préprod, script de déploiement, documentation de reprise (`docs/`), modèle de PR, tests du calcul des ordres (`tests/site/`).
+- Un seul site Netlify : prod en production, préprod et features en alias (`preprod--`, `feature-<nom>--`), badge d'environnement déduit de l'adresse ; script de déploiement, documentation de reprise (`docs/`), modèle de PR, tests du calcul des ordres (`tests/site/`).
+
+### Sécurité
+- L'état ne voyage jamais dans une release : contrôle CI `guard-state` (PR et branches hors `main`), `scripts/release.sh` qui refuse toute fusion touchant `state/` ou `decisions/`.
 
 ### Modifié
 - Le workflow du moteur ne s'exécute que depuis `main` (garde-fou contre un lancement manuel depuis une autre branche).

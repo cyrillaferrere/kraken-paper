@@ -18,7 +18,9 @@ Simulateur de trading crypto **PAPER** (argent fictif) avec de **vrais prix Krak
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Choix techniques et leurs raisons (ADR) |
 | [CHANGELOG.md](CHANGELOG.md) | Historique des versions (version courante dans `VERSION`) |
 
-Environnements : **prod** https://kraken-paper.netlify.app (`main`) · **préprod** https://kraken-paper-preprod.netlify.app (`preprod`).
+Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app (`main`) · **préprod** https://preprod--kraken-paper.netlify.app (`preprod`, déploiement non production) · features : `https://feature-<nom>--kraken-paper.netlify.app`.
+
+**L'état vit uniquement sur `main` et n'est écrit que par le moteur ; le dash est en lecture seule ; une release ne livre que du code** (voir [RUNBOOK](docs/RUNBOOK.md#mettre-en-prod-une-release)).
 
 ## ⚠️ PAPER uniquement
 

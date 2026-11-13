@@ -1,0 +1,35 @@
+name: guard-state
+
+# L'état (state/) et les décisions (decisions/) vivent uniquement sur main.
+# state/ n'est écrit que par le workflow « engine », decisions/ que par Grok Bot (commits « decision: <id> » poussés sur main).
+# Toute PR et toute branche autre que main doit donc livrer du code seulement.
+on:
+  pull_request:
+    branches: [main, preprod]
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  code-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Aucun changement de state/ ni de decisions/ hors main
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'origin/main' }}
+        run: |
+          git fetch -q origin main ${{ github.base_ref }}
+          echo "Comparaison : $BASE...HEAD"
+          CHANGED="$(git diff --name-only "$BASE...HEAD" | grep -E '^(state|decisions)/' || true)"
+          if [ -n "$CHANGED" ]; then
+            echo "::error::Ces fichiers ne doivent changer que sur main (moteur ou décision de Grok Bot) :"
+            echo "$CHANGED"
+            exit 1
+          fi
+          echo "OK : code seulement."

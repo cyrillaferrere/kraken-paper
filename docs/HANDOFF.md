@@ -18,7 +18,8 @@ une justification écrite pour chaque décision et un bilan hebdomadaire des le�
 | --- | --- |
 | https://github.com/cyrillaferrere/kraken-paper | Dépôt public (code, état, décisions) |
 | https://kraken-paper.netlify.app | Tableau de bord **prod** (branche `main`) |
-| https://kraken-paper-preprod.netlify.app | Tableau de bord **préprod** (branche `preprod`) |
+| https://preprod--kraken-paper.netlify.app | Tableau de bord **préprod** (branche `preprod`, déploiement non production du même site) |
+| `https://feature-<nom>--kraken-paper.netlify.app` | Aperçu d'une branche `feature/<nom>` |
 | https://github.com/cyrillaferrere/kraken-paper/actions | Cycles du moteur |
 
 ## 2. Qui fait quoi
@@ -49,8 +50,16 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
                               ntfy.sh ──▶ téléphone de Cyril
 ```
 
-- **Un seul état, sur `main`.** Prod et préprod lisent le même `state/` de `main`. Les branches `preprod` et
-  `feature/*` ne servent qu'au code du site (et aux évolutions du moteur avant validation).
+- **Un seul site Netlify** (`kraken-paper`) : la prod est son déploiement de production, la préprod et les features sont
+  des déploiements non production avec un alias (`preprod--`, `feature-<nom>--`). Un futur stockage ou des variables
+  d'environnement seront donc au même endroit.
+- **L'état vit uniquement sur `main`, et il n'est écrit que par le moteur** (workflow `engine`). Les décisions
+  (`decisions/`) ne sont écrites que par Grok Bot, directement sur `main`. Prod, préprod et features lisent le même état de
+  `main` via l'API GitHub : **le dash est en lecture seule**, il n'écrit jamais rien.
+- **Une release ne livre que du code.** Les branches `preprod` et `feature/*` ne modifient jamais `state/` ni
+  `decisions/` : le contrôle CI `guard-state` bloque toute PR ou tout push qui le ferait, et `scripts/release.sh` refuse
+  une fusion vers `main` qui toucherait ces dossiers. Passer la préprod en prod ne peut donc pas écraser le portefeuille
+  ni les ordres.
 - Le moteur ne tourne **que depuis `main`** (cron GitHub = branche par défaut ; garde-fou `if:` dans le workflow).
 
 ## 4. Fichiers
@@ -69,7 +78,10 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 | `site/app.js` | Lecture de l'état, KPI, positions, ordres (calcul perte/gain), trades, journal, courbe, version. |
 | `site/markets.js` | Graphiques en bougies, indicateurs (MA, RSI, ATR), tableau des marqueurs. |
 | `site/version.json` | **Généré au déploiement** par `scripts/deploy.sh` (absent du dépôt). |
-| `scripts/deploy.sh` | Déploiement prod / préprod / feature. |
+| `scripts/deploy.sh` | Déploiement prod / préprod / feature sur le site unique. |
+| `scripts/release.sh` | Mise en prod du code (preprod → main) avec garde-fou state/decisions. |
+| `scripts/netlify-build.sh` | Commande de build Netlify : écrit `version.json` s'il manque. |
+| `.github/workflows/guard-state` (`guard.yml`) | Échoue si une PR ou une branche autre que main modifie `state/` ou `decisions/`. |
 | `VERSION`, `CHANGELOG.md` | Version SemVer et historique. |
 | `docs/` | Ce document, RUNBOOK, CONTRIBUTING, décisions techniques (ADR). |
 | `.ntfy_topic` | Canal ntfy, **local uniquement** (gitignoré), copie du secret Actions `NTFY_TOPIC`. |
@@ -131,7 +143,7 @@ Chaque semaine : bilan des leçons (quels styles et quels marqueurs ont fonction
 
 ## 8. Environnements et cycle de livraison
 
-`feature/<nom>` → PR vers `preprod` → déploiement préprod → **Cyril teste** → PR `preprod` → `main` →
+`feature/<nom>` → PR vers `preprod` → déploiement préprod (alias) → **Cyril teste** → `scripts/release.sh X.Y.Z` (preprod → `main`, code seulement) →
 déploiement prod **après l'accord de Cyril** → tag `vX.Y.Z`. Détails : [RUNBOOK](RUNBOOK.md), [CONTRIBUTING](CONTRIBUTING.md).
 
 ## 9. Ce qu'il ne faut jamais faire
