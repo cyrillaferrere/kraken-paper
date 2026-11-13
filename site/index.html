@@ -30,8 +30,42 @@
     <article class="kpi"><h2>Frais payés</h2><p id="k-fees" class="v">—</p><p id="k-fees-sub" class="s"></p></article>
   </section>
 
+  <section class="card" id="market-card" aria-labelledby="market-h">
+    <div class="card-h"><h2 id="market-h">Marchés</h2>
+      <div id="tf-tabs" class="seg" role="tablist" aria-label="Unité de temps des bougies">
+        <span class="seg-thumb" aria-hidden="true"></span>
+        <button type="button" role="tab" class="motion-button" data-tf="1h" aria-selected="false">1 h</button>
+        <button type="button" role="tab" class="motion-button" data-tf="4h" aria-selected="true">4 h</button>
+        <button type="button" role="tab" class="motion-button" data-tf="1d" aria-selected="false">1 j</button>
+      </div>
+    </div>
+    <div id="pair-chips" class="chips" aria-label="Choix de la crypto"></div>
+    <div id="mlegend" class="mlegend" aria-live="off"></div>
+    <div id="mchart-wrap" class="mchart-wrap">
+      <div id="mchart" class="mchart" role="img" aria-label="Graphique en bougies avec moyennes mobiles 20 et 50, volume et RSI 14"></div>
+      <p id="mchart-msg" class="mchart-msg" role="status" hidden></p>
+    </div>
+    <div class="legend mkeys">
+      <span class="lg ma20">MA20</span><span class="lg ma50">MA50</span><span class="lg vol">Volume</span><span class="lg rsi">RSI 14 (30 / 70)</span>
+      <span class="key">▲ achat exécuté</span><span class="key">▼ vente exécutée</span><span class="key">┄ ordre, stop ou objectif</span>
+    </div>
+    <p id="moverlay-note" class="hint"></p>
+    <p class="hint">Bougies réelles de l'API publique Kraken, la dernière est encore en cours. Heures de Paris. Rien n'est lissé ni interpolé.</p>
+  </section>
+
+  <section class="card" aria-labelledby="markers-h">
+    <div class="card-h"><h2 id="markers-h">Marqueurs</h2><span class="muted">Touchez une crypto pour son graphique</span></div>
+    <div class="tbl-wrap"><table id="markers"><thead><tr>
+      <th scope="col">Crypto</th><th scope="col" class="r">Prix</th><th scope="col" class="r">24 h</th><th scope="col" class="r">Tendance 4 h</th><th scope="col" class="r">Tendance 1 j</th><th scope="col" class="r">RSI 14 (4 h)</th><th scope="col" class="r">Volatilité (ATR 1 j)</th><th scope="col" class="r">Force vs BTC (7 j)</th>
+    </tr></thead><tbody></tbody></table></div>
+    <p id="markers-note" class="hint" role="status"></p>
+    <details class="hint how"><summary>Comment lire ces marqueurs</summary>
+      <p><b>Tendance</b> : haussière si le prix est au-dessus des moyennes mobiles 20 et 50 bougies, baissière s'il est en dessous des deux, mixte sinon. <b>RSI 14</b> sur bougies 4 h : au-dessus de 70 le prix a beaucoup monté d'un coup (suracheté), sous 30 il a beaucoup baissé (survendu). <b>Volatilité</b> : taille moyenne d'une bougie journalière (ATR 14) en % du prix ; faible sous 3 %, forte au-delà de 6 %. <b>Force vs BTC</b> : performance sur 7 jours moins celle du BTC, en points. Aucun marqueur n'est fiable seul.</p>
+    </details>
+  </section>
+
   <section class="card">
-    <div class="card-h"><h2>Courbe du portefeuille</h2>
+    <div class="card-h"><h2>Portefeuille vs BTC conservé</h2>
       <div class="legend"><span class="lg eq">Portefeuille</span><span class="lg bh">BTC conservé</span></div></div>
     <div id="chart" class="chart" aria-label="Courbe de valeur du portefeuille comparée à BTC conservé"></div>
     <p class="hint">Un point par cycle du moteur (toutes les heures). Aucun point n'est inventé entre deux cycles.</p>
@@ -69,8 +103,10 @@
   </section>
 </main>
 <footer>
-  Simulation PAPER uniquement · données : <a id="repo-link" href="https://github.com/cyrillaferrere/kraken-paper">GitHub</a> · prix : API publique Kraken · frais Kraken Pro palier 1 (maker 0,40 %, taker 0,80 %)
+  Simulation PAPER uniquement · données : <a id="repo-link" href="https://github.com/cyrillaferrere/kraken-paper">GitHub</a> · prix et bougies : API publique Kraken · graphiques <a href="https://www.tradingview.com/" rel="noopener">TradingView Lightweight Charts</a> · frais Kraken Pro palier 1 (maker 0,40 %, taker 0,80 %)
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@5.3.0/dist/lightweight-charts.standalone.production.js" integrity="sha384-qGyrXqhWsMe1Lr86L5fJi0yolgjPNWh66KdDZpqJs28GQzwhNfqrIi26VP6NJ0EP" crossorigin="anonymous"></script>
+<script src="markets.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

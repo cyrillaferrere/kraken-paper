@@ -16,7 +16,7 @@ h1 { margin: 0; font-size: 22px; letter-spacing: .3px; background: linear-gradie
 .badge { font-weight: 700; font-size: 12px; padding: 5px 10px; border-radius: 999px; letter-spacing: 1px; }
 .badge.paper { background: rgba(251,191,36,.12); color: var(--warn); border: 1px solid rgba(251,191,36,.4); }
 .status { display: flex; flex-wrap: wrap; gap: 8px; max-width: 1100px; margin: 4px auto 0; padding: 0 16px; }
-.pill { font-size: 12.5px; color: var(--mu); background: var(--bg2); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; transition: color var(--motion-normal) var(--ease-standard), border-color var(--motion-normal) var(--ease-standard); }
+.pill { font-size: 12.5px; color: var(--mu); background: var(--bg2); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; }
 .pill.ok::before, .pill.warn::before, .pill.err::before { content: "●"; margin-right: 6px; }
 .pill.ok::before { color: var(--up); } .pill.warn { color: var(--warn); border-color: rgba(251,191,36,.4); } .pill.warn::before { color: var(--warn); }
 .pill.err { color: var(--dn); border-color: rgba(248,113,113,.5); } .pill.err::before { color: var(--dn); }
@@ -54,15 +54,53 @@ td.empty { color: var(--mu); text-align: center; white-space: normal; }
 footer { max-width: 1100px; margin: 0 auto; padding: 0 16px 30px; color: var(--mu); font-size: 12px; }
 a { color: var(--ac2); }
 
-/* Mouvement : sobre, unique, jamais rejoue au polling */
+/* ---------- Marchés ---------- */
+.seg { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); --idx: 1; }
+.seg-thumb { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 3); border-radius: 7px; background: rgba(124,92,255,.22); border: 1px solid rgba(124,92,255,.55); transform: translateX(calc(var(--idx) * 100%)); transition: transform var(--motion-normal) var(--ease-standard); }
+.seg button { position: relative; z-index: 1; min-width: 48px; min-height: 34px; padding: 4px 12px; border: 0; background: none; color: var(--mu); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 7px; }
+.seg button[aria-selected="true"] { color: var(--tx); }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg2); color: var(--mu); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.chip[aria-pressed="true"] { color: var(--tx); border-color: rgba(34,211,238,.7); background: rgba(34,211,238,.1); }
+.chip[aria-pressed="true"]::before { content: "●"; color: var(--ac2); font-size: 9px; }
+.chip-tag { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--warn); }
+.mlegend { min-height: 54px; font-size: 12.5px; line-height: 1.5; font-variant-numeric: tabular-nums; color: var(--tx); }
+.sw::before { content: ""; display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+.sw { margin-right: 10px; color: var(--mu); } .sw.ma20::before { background: var(--ac2); } .sw.ma50::before { background: #f472b6; } .sw.rsi::before { background: var(--warn); }
+.mchart-wrap { position: relative; }
+.mchart { width: 100%; height: 460px; transition: opacity var(--motion-fast) var(--ease-standard); }
+.mchart-wrap.is-loading .mchart { opacity: .55; }
+.mchart-msg { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); margin: 0; max-width: 90%; padding: 10px 14px; border-radius: 10px; background: rgba(11,15,26,.92); border: 1px solid rgba(251,191,36,.45); color: var(--warn); font-size: 13px; text-align: center; }
+.mkeys { flex-wrap: wrap; margin-top: 8px; row-gap: 4px; }
+.lg.ma20::before { background: var(--ac2); } .lg.ma50::before { background: #f472b6; } .lg.vol::before { background: rgba(52,211,153,.5); height: 8px; } .lg.rsi::before { background: var(--warn); }
+.key { color: var(--mu); }
+#markers th[scope="row"] { font-size: 14px; text-transform: none; letter-spacing: 0; position: sticky; left: 0; background: var(--card); z-index: 1; }
+#markers tr.sel th[scope="row"] { box-shadow: inset 3px 0 0 var(--ac2); }
+.linkbtn { border: 0; background: none; padding: 4px 2px; color: var(--tx); font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline dotted var(--mu); text-underline-offset: 3px; }
+.tr { font-weight: 600; } .tr.up { color: var(--up); } .tr.dn { color: var(--dn); } .tr.mx { color: var(--mu); }
+.rsi-v { font-weight: 700; } .rsi-v.hot { color: var(--dn); } .rsi-v.cold { color: var(--up); }
+.how summary { cursor: pointer; color: var(--ac2); }
+.how p { margin: 6px 0 0; }
+button:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+
+/* ---------- Mouvement (skill kraken-motion-ux) : opacity et transform uniquement ---------- */
+.motion-button { transition: transform var(--motion-fast) var(--ease-enter); }
+.motion-button:active { transform: scale(.97); }
 .motion-panel-enter { animation: panel-in var(--motion-panel) var(--ease-enter) both; animation-delay: calc(var(--i, 0) * var(--motion-stagger)); }
 @keyframes panel-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.motion-row-new { animation: row-in var(--motion-normal) var(--ease-enter) both; }
+.motion-row-new { animation: row-in var(--motion-normal) var(--ease-enter) both; animation-delay: min(calc(var(--row-index, 0) * var(--motion-stagger)), 150ms); }
 @keyframes row-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.kpi-updated { animation: kpi-flash 220ms var(--ease-enter) 1; }
-@keyframes kpi-flash { from { background: rgba(124,92,255,.22); } to { background: transparent; } }
+/* Valeur réellement mise à jour : bref voile neutre (violet, ni vert ni rouge) qui s'efface. La vraie valeur est affichée tout de suite. */
+.kpi .v, .val { position: relative; }
+.val { display: inline-block; border-radius: 4px; }
+.kpi-updated::after { content: ""; position: absolute; inset: -2px -4px; border-radius: 6px; background: rgba(124,92,255,.22); opacity: 0; pointer-events: none; animation: kpi-flash 220ms var(--ease-enter) 1; }
+@keyframes kpi-flash { from { opacity: 1; } to { opacity: 0; } }
+.motion-critical-alert, .alert { animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  .motion-panel-enter, .motion-row-new, .kpi-updated, .pill { animation: none !important; transition: none !important; transform: none !important; }
+  .motion-button, .motion-panel-enter, .motion-row-new, .seg-thumb, .mchart { animation: none !important; transition: none !important; }
+  .motion-button:active, .motion-panel-enter, .motion-row-new { transform: none !important; }
+  .kpi-updated::after { animation: none !important; }
 }
-@media (max-width: 820px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi.big { grid-column: 1 / -1; } }
-@media (max-width: 420px) { .kpi .v { font-size: 20px; } .kpi.big .v { font-size: 26px; } th, td { padding: 7px 6px; font-size: 13px; } }
+@media (max-width: 820px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi.big { grid-column: 1 / -1; } .mchart { height: 400px; } }
+@media (max-width: 420px) { .kpi .v { font-size: 20px; } .kpi.big .v { font-size: 26px; } th, td { padding: 7px 6px; font-size: 13px; } .mchart { height: 360px; } .mlegend { font-size: 12px; } }

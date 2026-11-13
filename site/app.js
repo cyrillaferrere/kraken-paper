@@ -55,8 +55,8 @@
   }
 
   function pairsNeeded() {
-    if (!S) return [BENCH];
-    const s = new Set([BENCH, ...Object.keys(S.positions), ...S.open_orders.map((o) => o.pair)]);
+    if (!S) return [BENCH, ...(window.KP_WATCH || [])];
+    const s = new Set([BENCH, ...(window.KP_WATCH || []), ...Object.keys(S.positions), ...S.open_orders.map((o) => o.pair)]);
     return [...s];
   }
 
@@ -120,9 +120,11 @@
 
     renderPositions(); renderOrders(); renderTrades(); renderJournal(); renderChart(hold, missing ? null : total);
     if (firstRender) {
+      // Entrée des panneaux : une seule fois au premier rendu, jamais au polling.
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });
       firstRender = false;
     }
+    if (window.KPMarkets) window.KPMarkets.onState({ S, journal, price });
   }
 
   function renderPositions() {
