@@ -21,9 +21,9 @@ h1 { margin: 0; font-size: 22px; letter-spacing: .3px; background: linear-gradie
 .pill.ok::before { color: var(--up); } .pill.warn { color: var(--warn); border-color: rgba(251,191,36,.4); } .pill.warn::before { color: var(--warn); }
 .pill.err { color: var(--dn); border-color: rgba(248,113,113,.5); } .pill.err::before { color: var(--dn); }
 .alert { max-width: 1068px; margin: 10px auto 0; padding: 10px 14px; border-radius: 12px; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.45); color: #fecaca; animation: none; }
-main { max-width: 1100px; margin: 0 auto; padding: 14px 16px 30px; display: grid; gap: 14px; }
-.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.kpi, .card { background: linear-gradient(180deg, rgba(255,255,255,.025), transparent), var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+main { max-width: 1100px; margin: 0 auto; padding: 14px 16px 30px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi, .card { min-width: 0; background: linear-gradient(180deg, rgba(255,255,255,.025), transparent), var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
 .kpi h2, .card h2 { margin: 0; font-size: 13px; font-weight: 600; color: var(--mu); text-transform: uppercase; letter-spacing: .6px; }
 .kpi .v { margin: 8px 0 2px; font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; border-radius: 6px; }
 .kpi.big .v { font-size: 28px; }
@@ -64,5 +64,5 @@ a { color: var(--ac2); }
 @media (prefers-reduced-motion: reduce) {
   .motion-panel-enter, .motion-row-new, .kpi-updated, .pill { animation: none !important; transition: none !important; transform: none !important; }
 }
-@media (max-width: 820px) { .kpis { grid-template-columns: 1fr 1fr; } .kpi.big { grid-column: 1 / -1; } }
+@media (max-width: 820px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi.big { grid-column: 1 / -1; } }
 @media (max-width: 420px) { .kpi .v { font-size: 20px; } .kpi.big .v { font-size: 26px; } th, td { padding: 7px 6px; font-size: 13px; } }
