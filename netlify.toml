@@ -1,0 +1,13 @@
+# Site statique : pas de build. Les donnees sont lues sur GitHub (raw),
+# donc pas besoin de redeployer a chaque cycle du moteur.
+[build]
+  publish = "site"
+  command = ""
+  # Ne construit que si site/ ou netlify.toml change (economise les minutes Netlify).
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- site/ netlify.toml"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

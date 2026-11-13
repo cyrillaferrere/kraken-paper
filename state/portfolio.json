@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "mode": "PAPER",
+  "quote": "USDC",
+  "start_capital": 6606.42,
+  "start_time": "2026-11-13T22:56:24+01:00",
+  "start_ts": 1794606984,
+  "cash": 6606.42,
+  "positions": {},
+  "open_orders": [],
+  "closed_trades": [],
+  "processed_decisions": [],
+  "last_decision": null,
+  "pairs": {},
+  "last_candle": {},
+  "last_prices": {},
+  "benchmark": {
+    "pair": "XBTUSDC",
+    "btc_qty": null,
+    "start_price": null
+  },
+  "fees_total": 0.0,
+  "realized_pnl": 0.0,
+  "seq": {
+    "order": 0,
+    "trade": 0
+  },
+  "last_cycle": null,
+  "last_cycle_ts": null,
+  "last_cycle_errors": [],
+  "fees": {
+    "maker": 0.004,
+    "taker": 0.008,
+    "slippage": 0.001
+  }
+}

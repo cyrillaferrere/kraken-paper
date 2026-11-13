@@ -1,0 +1,6 @@
+.ntfy_topic
+.env
+*.tmp
+__pycache__/
+*.pyc
+.netlify/
