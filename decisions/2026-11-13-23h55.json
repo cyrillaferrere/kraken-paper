@@ -1,0 +1,7 @@
+{"id":"2026-11-13-23h55","timestamp":"2026-11-13T23:55:00+01:00",
+"rationale":"Premier passage. Marché baissier : BTC ~68 300 (−6 % sur 7 j), ETH −10 %, SOL −9 %, XRP −14 %, tous sous MA20/MA50 en 4h et 1j, RSI journalier 22-30 (survendu). Pas d'achat au marché pour ne pas rattraper un couteau qui tombe. Trois achats limites sous les derniers plus bas, avec stop et objectif, environ un tiers du capital engagé au maximum, deux tiers en cash. XRP écarté (le plus faible face au BTC). Test du style achat sur repli en tendance baissière.",
+"actions":[
+{"type":"place_limit","pair":"BTC/USDC","side":"buy","quote_amount":1000,"price":66800,"stop_loss":63500,"take_profit":71500},
+{"type":"place_limit","pair":"ETH/USDC","side":"buy","quote_amount":700,"price":1870,"stop_loss":1755,"take_profit":2040},
+{"type":"place_limit","pair":"SOL/USDC","side":"buy","quote_amount":500,"price":75.5,"stop_loss":70.5,"take_profit":83},
+{"type":"note","text":"Leçon à vérifier : en marché survendu, un repli supplémentaire de 2-3 % sous les plus bas récents se produit-il avant un rebond ?"}]}
