@@ -115,3 +115,7 @@ python engine/run.py       # un cycle (modifie state/)
 - Pendant le chargement d'une autre période ou crypto, le graphique passe à 55 % d'opacité, reflet d'une vraie requête en cours.
 - Les graphiques ne sont jamais animés : les bougies sont celles de Kraken, la dernière est marquée « en cours ». Les alertes d'erreur s'affichent sans animation.
 - `prefers-reduced-motion: reduce` coupe tous ces mouvements ; le tableau de bord reste entièrement utilisable.
+
+### Lecture de l'état par le dash
+
+Le dash lit `state/portfolio.json`, `state/equity.csv` et `state/journal.jsonl` via l'**API GitHub** (`/contents/...?ref=<sha>`, en-tête `Accept: application/vnd.github.raw`, sans jeton), pour éviter le cache d'environ 5 min de raw.githubusercontent.com. Toutes les 2 min, il demande seulement le sha du dernier commit de `main` avec `If-None-Match` : une réponse 304 ne compte pas dans la limite de 60 requêtes/h par IP, et les trois fichiers ne sont relus que si le sha a changé. Si l'API répond 403/429, si la limite est épuisée (`X-RateLimit-Remaining`) ou en cas d'erreur, le dash repasse sur raw.githubusercontent.com, affiche « Source de secours » dans la barre d'état, et réessaie l'API après la remise à zéro de la limite (au moins 10 min).

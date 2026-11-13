@@ -1,7 +1,10 @@
 /* Kraken Paper - tableau de bord (lecture seule, aucune donnee inventee). */
 (() => {
   "use strict";
+  // État lu via l'API GitHub (pas de cache de 5 min), sans jeton. Repli sur raw.githubusercontent.com si la limite est atteinte.
+  const GH_API = "https://api.github.com/repos/cyrillaferrere/kraken-paper/";
   const RAW = "https://raw.githubusercontent.com/cyrillaferrere/kraken-paper/main/state/";
+  const FILES = ["portfolio.json", "equity.csv", "journal.jsonl"];
   const TICKER = "https://api.kraken.com/0/public/Ticker?pair=";
   const BENCH = "XBTUSDC";
   const PRICE_EVERY = 15000, STATE_EVERY = 120000, STALE_MS = 2 * 3600 * 1000;
@@ -32,15 +35,64 @@
   }
 
   // ---------- données ----------
-  async function loadState() {
+  // gh.mode : "api" ou "raw" (repli). On interroge d'abord le sha du dernier commit de main avec If-None-Match :
+  // une réponse 304 ne compte pas dans la limite de 60 requêtes/h. Les 3 fichiers ne sont relus que si le sha change.
+  const gh = { mode: "api", sha: null, etag: null, retryAt: 0, remaining: null };
+  class RateLimited extends Error { constructor(reset) { super("limite API GitHub atteinte"); this.reset = reset; } }
+  function noteLimit(r) {
+    const rem = r.headers.get("X-RateLimit-Remaining"), reset = r.headers.get("X-RateLimit-Reset");
+    if (rem != null) gh.remaining = +rem;
+    if (r.status === 403 || r.status === 429 || (r.status !== 304 && !r.ok && gh.remaining === 0)) throw new RateLimited(reset ? +reset * 1000 : 0);
+    return r;
+  }
+  async function fromApi() {
+    const h = { Accept: "application/vnd.github.sha" };
+    if (gh.etag && S) h["If-None-Match"] = gh.etag;
+    const r = noteLimit(await fetch(GH_API + "commits/main", { headers: h, cache: "no-store" }));
+    if (r.status === 304) return null;
+    if (!r.ok) throw new Error("API GitHub " + r.status);
+    const sha = (await r.text()).trim();
+    gh.etag = r.headers.get("ETag") || gh.etag;
+    if (sha === gh.sha && S) return null;
+    if (gh.remaining != null && gh.remaining < FILES.length) throw new RateLimited(0);
+    const texts = await Promise.all(FILES.map(async (f) => {
+      const x = noteLimit(await fetch(GH_API + "contents/state/" + f + "?ref=" + sha, { headers: { Accept: "application/vnd.github.raw" }, cache: "no-store" }));
+      if (!x.ok) { if (f === "portfolio.json") throw new Error("API GitHub " + x.status); return ""; }
+      return x.text();
+    }));
+    gh.sha = sha;
+    return texts;
+  }
+  async function fromRaw() {
     const bust = "?t=" + Date.now();
+    return Promise.all(FILES.map((f) => fetch(RAW + f + bust, { cache: "no-store" }).then((r) => {
+      if (!r.ok) { if (f === "portfolio.json") throw new Error(r.status); return ""; }
+      return r.text();
+    })));
+  }
+  function setSource() {
+    const el = $("st-src");
+    if (gh.mode === "api") { el.hidden = true; return; }
+    el.hidden = false;
+    el.textContent = "Source de secours : copie GitHub, jusqu'à 5 min de retard";
+    el.title = gh.retryAt ? "Retour à l'API GitHub vers " + new Date(gh.retryAt).toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" }) : "";
+  }
+
+  async function loadState() {
     try {
-      const [p, e, j] = await Promise.all([
-        fetch(RAW + "portfolio.json" + bust, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); }),
-        fetch(RAW + "equity.csv" + bust, { cache: "no-store" }).then((r) => r.ok ? r.text() : ""),
-        fetch(RAW + "journal.jsonl" + bust, { cache: "no-store" }).then((r) => r.ok ? r.text() : ""),
-      ]);
-      S = p;
+      let texts = null;
+      if (gh.mode === "api" || Date.now() >= gh.retryAt) {
+        try { texts = await fromApi(); gh.mode = "api"; }
+        catch (e) {
+          // Limite atteinte (403/429), réseau ou erreur de l'API : on passe sur la copie raw et on réessaie l'API plus tard.
+          gh.mode = "raw"; gh.retryAt = Math.max(e.reset || 0, Date.now() + 10 * 60 * 1000);
+          texts = await fromRaw();
+        }
+      } else texts = await fromRaw();
+      setSource();
+      if (!texts) return; // rien de neuf depuis le dernier commit : pas de rendu inutile
+      const [p, e, j] = texts;
+      S = JSON.parse(p);
       equity = e.trim().split("\n").slice(1).filter(Boolean).map((l) => {
         const [time, eq, cash, pos, btc, hold] = l.split(",");
         return { t: new Date(time).getTime(), eq: +eq, hold: hold === "" ? null : +hold };
