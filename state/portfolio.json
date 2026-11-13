@@ -12,12 +12,17 @@
   "processed_decisions": [],
   "last_decision": null,
   "pairs": {},
-  "last_candle": {},
-  "last_prices": {},
+  "last_candle": {
+    "XBTUSDC": 1794600000
+  },
+  "last_prices": {
+    "XBTUSDC": 68358.17
+  },
   "benchmark": {
     "pair": "XBTUSDC",
-    "btc_qty": null,
-    "start_price": null
+    "btc_qty": 0.09625761368392395,
+    "start_price": 68358.17,
+    "start_time": "2026-11-13T22:56:49+01:00"
   },
   "fees_total": 0.0,
   "realized_pnl": 0.0,
@@ -25,8 +30,8 @@
     "order": 0,
     "trade": 0
   },
-  "last_cycle": null,
-  "last_cycle_ts": null,
+  "last_cycle": "2026-11-13T22:56:49+01:00",
+  "last_cycle_ts": 1794607009,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
