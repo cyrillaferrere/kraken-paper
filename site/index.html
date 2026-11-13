@@ -54,10 +54,11 @@
   </section>
 
   <section class="card" aria-labelledby="markers-h">
-    <div class="card-h"><h2 id="markers-h">Marqueurs</h2><span class="muted">Touchez une crypto pour son graphique</span></div>
+    <div class="card-h"><h2 id="markers-h">Marqueurs</h2><span class="muted">Touchez une crypto pour son graphique<span class="swipe-hint"> · glissez → pour les autres colonnes</span></span></div>
     <div class="tbl-wrap"><table id="markers"><thead><tr>
       <th scope="col">Crypto</th><th scope="col" class="r">Prix</th><th scope="col" class="r">24 h</th><th scope="col" class="r">Tendance 4 h</th><th scope="col" class="r">Tendance 1 j</th><th scope="col" class="r">RSI 14 (4 h)</th><th scope="col" class="r">Volatilité (ATR 1 j)</th><th scope="col" class="r">Force vs BTC (7 j)</th>
     </tr></thead><tbody></tbody></table></div>
+    <p id="markers-load" class="hint" aria-live="polite"></p>
     <p id="markers-note" class="hint" role="status"></p>
     <details class="hint how"><summary>Comment lire ces marqueurs</summary>
       <p><b>Tendance</b> : haussière si le prix est au-dessus des moyennes mobiles 20 et 50 bougies, baissière s'il est en dessous des deux, mixte sinon. <b>RSI 14</b> sur bougies 4 h : au-dessus de 70 le prix a beaucoup monté d'un coup (suracheté), sous 30 il a beaucoup baissé (survendu). <b>Volatilité</b> : taille moyenne d'une bougie journalière (ATR 14) en % du prix ; faible sous 3 %, forte au-delà de 6 %. <b>Force vs BTC</b> : performance sur 7 jours moins celle du BTC, en points. Aucun marqueur n'est fiable seul.</p>

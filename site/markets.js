@@ -5,9 +5,13 @@
   "use strict";
   const API = "https://api.kraken.com/0/public/";
   const BENCH = "XBTUSDC";
-  const WATCH = ["XBTUSDC", "ETHUSDC", "SOLUSDC", "XRPUSDC"];
+  // Liste de suivi : paires USDC ouvertes en France, classées par volume 24 h (Ticker public, 13/11/2026),
+  // hors stablecoins et memecoins. Le site revérifie chaque paire via AssetPairs?country_code=FR.
+  const WATCH = ["XBTUSDC", "ETHUSDC", "SOLUSDC", "XRPUSDC", "LINKUSDC", "AVAXUSDC", "ADAUSDC", "XDCUSDC",
+    "LTCUSDC", "BNBUSDC", "XDGUSDC", "TONUSDC", "DOTUSDC", "BCHUSDC"];
+  const BASE_NAMES = { XBT: "BTC", XDG: "DOGE" };
   const TF = { "1h": 60, "4h": 240, "1d": 1440 };
-  const TTL = { 60: 60e3, 240: 120e3, 1440: 600e3 };
+  const TTL = { 60: 180e3, 240: 300e3, 1440: 900e3 };
   const C = { up: "#34d399", dn: "#f87171", mu: "#8a96b3", line: "#243049", ac: "#7c5cff", ac2: "#22d3ee", warn: "#fbbf24", tx: "#e8ecf6", ma50: "#f472b6" };
   window.KP_WATCH = WATCH;
 
@@ -76,16 +80,17 @@
   }
 
   // ---------- paires suivies ----------
-  let meta = {}; // altname -> {base, dec}
+  let meta = {}, metaLoaded = false; // altname -> {base, dec}
   async function loadMeta(pairs) {
     const miss = pairs.filter((p) => !meta[p]);
     if (!miss.length) return;
     // country_code=FR : Kraken ne renvoie que les paires accessibles depuis la France.
     const res = await apiGet(`AssetPairs?pair=${miss.join(",")}&country_code=FR`);
+    metaLoaded = true;
     for (const v of Object.values(res)) {
       if (v.quote !== "USDC" && !v.altname.endsWith("USDC")) continue;
       const b = (v.wsname || v.altname).split("/")[0];
-      meta[v.altname] = { base: b === "XBT" ? "BTC" : b, dec: +v.pair_decimals, ok: v.status === "online" };
+      meta[v.altname] = { base: BASE_NAMES[b] || b, dec: +v.pair_decimals, ok: v.status === "online" };
     }
   }
   let ctx = { S: null, journal: [], price: () => null };
@@ -96,9 +101,11 @@
     const add = (p) => { if (p && !out.includes(p)) out.push(p); };
     if (S) { Object.keys(S.positions || {}).forEach(add); (S.open_orders || []).forEach((o) => add(o.pair)); }
     WATCH.forEach(add);
-    return out.filter((p) => !meta[p] || meta[p].ok !== false || (S && S.positions[p]));
+    const mine = (p) => S && (S.positions[p] || (S.open_orders || []).some((o) => o.pair === p));
+    // Une paire de la liste absente de la réponse France (ou hors ligne) est écartée ; on garde toujours ce qu'on détient.
+    return out.filter((p) => mine(p) || (meta[p] ? meta[p].ok !== false : !metaLoaded));
   }
-  const baseOf = (p) => (meta[p] && meta[p].base) || (ctx.S && ctx.S.pairs[p] && ctx.S.pairs[p].base) || (p === BENCH ? "BTC" : p.replace(/USDC$/, ""));
+  const baseOf = (p) => (meta[p] && meta[p].base) || (ctx.S && ctx.S.pairs[p] && ctx.S.pairs[p].base) || (BASE_NAMES[p.replace(/USDC$/, "")] || p.replace(/USDC$/, ""));
   const decOf = (p) => (meta[p] && meta[p].dec) ?? (ctx.S && ctx.S.pairs[p] && ctx.S.pairs[p].pair_decimals) ?? 2;
   const pxf = (p, x) => x == null || isNaN(x) ? "—" : nf(Math.min(decOf(p), x >= 1000 ? 2 : 8)).format(x);
 
@@ -321,37 +328,38 @@
   }
   const cellChg = (x) => x == null ? "—" : `<span class="${x >= 0 ? "up" : "dn"}">${x >= 0 ? "▲" : "▼"} ${signed(x)} %</span>`;
 
-  let tableMounted = false;
   function setCell(td, html, flash) {
     if (td.dataset.v === html) return;
-    const had = td.dataset.v != null && td.dataset.v !== "…";
+    const had = td.dataset.v != null && td.dataset.v !== "indisponible";
     td.dataset.v = html;
     td.innerHTML = `<span class="val">${html}</span>`;
     if (flash && had) td.firstChild.classList.add("kpi-updated");
   }
+  // Les lignes apparaissent au fil des données reçues ; l'animation d'entrée ne joue qu'à la première insertion.
+  const failed = new Set();
   function renderTable() {
-    const tb = $("markers").tBodies[0], pairs = trackedPairs();
-    const ids = [...tb.rows].map((r) => r.dataset.pair).join(",");
-    if (ids !== pairs.join(",")) {
-      const old = new Map([...tb.rows].map((r) => [r.dataset.pair, r]));
-      tb.innerHTML = "";
-      pairs.forEach((p, i) => {
-        let tr = old.get(p);
-        if (!tr) {
-          tr = document.createElement("tr"); tr.dataset.pair = p;
-          tr.innerHTML = `<th scope="row"><button type="button" class="linkbtn motion-button" data-pair="${esc(p)}" title="Voir le graphique">${esc(baseOf(p))}</button></th>` + '<td class="r"></td>'.repeat(7);
-          if (tableMounted) { tr.classList.add("motion-row-new"); tr.style.setProperty("--row-index", i); }
-        }
-        tb.appendChild(tr);
-      });
-      tableMounted = true;
-    }
+    const tb = $("markers").tBodies[0], all = trackedPairs();
+    const pairs = all.filter((p) => metrics[p] || failed.has(p));
+    const want = new Set(pairs);
+    [...tb.rows].forEach((r) => { if (!want.has(r.dataset.pair)) r.remove(); });
+    pairs.forEach((p, i) => {
+      let tr = [...tb.rows].find((r) => r.dataset.pair === p);
+      if (!tr) {
+        tr = document.createElement("tr"); tr.dataset.pair = p;
+        tr.innerHTML = `<th scope="row"><button type="button" class="linkbtn motion-button" data-pair="${esc(p)}" title="Voir le graphique">${esc(baseOf(p))}</button></th>` + '<td class="r"></td>'.repeat(7);
+        tr.classList.add("motion-row-new");
+        tr.addEventListener("animationend", () => tr.classList.remove("motion-row-new"), { once: true });
+      }
+      if (tb.rows[i] !== tr) tb.insertBefore(tr, tb.rows[i] || null);
+    });
+    const left = all.length - pairs.length;
+    $("markers-load").textContent = left > 0 ? `Chargement des marqueurs : ${pairs.length} / ${all.length} cryptos…` : "";
     for (const tr of tb.rows) {
       const p = tr.dataset.pair, r = row(p), td = tr.cells;
       tr.classList.toggle("sel", p === selected.pair);
       td[0].querySelector("button").textContent = baseOf(p);
       setCell(td[1], r.price == null ? "—" : pxf(p, r.price), true);
-      if (r.loading) { for (let i = 2; i < 8; i++) setCell(td[i], "…"); continue; }
+      if (r.loading) { for (let i = 2; i < 8; i++) setCell(td[i], "indisponible"); continue; }
       setCell(td[2], cellChg(r.ch24)); setCell(td[3], cellTrend(r.t4)); setCell(td[4], cellTrend(r.t1));
       setCell(td[5], cellRsi(r.rsi)); setCell(td[6], cellVol(r.atrp)); setCell(td[7], cellRs(r.rs));
     }
@@ -364,10 +372,10 @@
     let err = null;
     // BTC d'abord : sert de référence pour la force relative.
     for (const p of [BENCH, ...pairs.filter((x) => x !== BENCH)]) {
-      try { await computeMetrics(p); } catch (e) { err = e; }
+      try { await computeMetrics(p); failed.delete(p); } catch (e) { err = e; if (!metrics[p]) failed.add(p); }
       renderTable();
     }
-    $("markers-note").textContent = err ? "Certaines données Kraken n'ont pas pu être lues (" + err.message + "), nouvel essai dans 2 min." : "";
+    $("markers-note").textContent = err ? "Certaines données Kraken n'ont pas pu être lues (" + err.message + "), nouvel essai dans 3 min." : "";
   }
 
   // ---------- interactions ----------
@@ -411,8 +419,8 @@
       if (!started) {
         started = true; bind(); selectTf(selected.tf);
         renderChips(); renderTable(); loadChart(); refreshMetrics();
-        setInterval(() => { if (!document.hidden) loadChart(); }, 60e3);
-        setInterval(() => { if (!document.hidden) refreshMetrics(); }, 120e3);
+        setInterval(() => { if (!document.hidden) loadChart(true); }, 60e3);
+        setInterval(() => { if (!document.hidden) refreshMetrics(); }, 180e3);
         return;
       }
       renderChips(); renderTable(); overlays();
