@@ -7,16 +7,98 @@
   "start_ts": 1794606984,
   "cash": 6606.42,
   "positions": {},
-  "open_orders": [],
+  "open_orders": [
+    {
+      "id": "O0001",
+      "pair": "XBTUSDC",
+      "side": "buy",
+      "qty": 0.01491041,
+      "price": 66800.0,
+      "stop_loss": 63500.0,
+      "take_profit": 71500.0,
+      "created": "2026-11-13T23:52:41+01:00",
+      "active_from": 1794610800,
+      "parent": null,
+      "decision_id": "2026-11-13-23h55"
+    },
+    {
+      "id": "O0002",
+      "pair": "ETHUSDC",
+      "side": "buy",
+      "qty": 0.37284019,
+      "price": 1870.0,
+      "stop_loss": 1755.0,
+      "take_profit": 2040.0,
+      "created": "2026-11-13T23:52:41+01:00",
+      "active_from": 1794610800,
+      "parent": null,
+      "decision_id": "2026-11-13-23h55"
+    },
+    {
+      "id": "O0003",
+      "pair": "SOLUSDC",
+      "side": "buy",
+      "qty": 6.59613202,
+      "price": 75.5,
+      "stop_loss": 70.5,
+      "take_profit": 83.0,
+      "created": "2026-11-13T23:52:41+01:00",
+      "active_from": 1794610800,
+      "parent": null,
+      "decision_id": "2026-11-13-23h55"
+    }
+  ],
   "closed_trades": [],
-  "processed_decisions": [],
-  "last_decision": null,
-  "pairs": {},
+  "processed_decisions": [
+    "2026-11-13-23h55"
+  ],
+  "last_decision": {
+    "id": "2026-11-13-23h55",
+    "timestamp": "2026-11-13T23:55:00+01:00",
+    "rationale": "Premier passage. Marché baissier : BTC ~68 300 (−6 % sur 7 j), ETH −10 %, SOL −9 %, XRP −14 %, tous sous MA20/MA50 en 4h et 1j, RSI journalier 22-30 (survendu). Pas d'achat au marché pour ne pas rattraper un couteau qui tombe. Trois achats limites sous les derniers plus bas, avec stop et objectif, environ un tiers du capital engagé au maximum, deux tiers en cash. XRP écarté (le plus faible face au BTC). Test du style achat sur repli en tendance baissière.",
+    "applied": "2026-11-13T23:52:41+01:00"
+  },
+  "pairs": {
+    "XBTUSDC": {
+      "key": "XBTUSDC",
+      "altname": "XBTUSDC",
+      "wsname": "XBT/USDC",
+      "base": "BTC",
+      "lot_decimals": 8,
+      "pair_decimals": 2,
+      "ordermin": 6e-05,
+      "costmin": 0.5
+    },
+    "ETHUSDC": {
+      "key": "ETHUSDC",
+      "altname": "ETHUSDC",
+      "wsname": "ETH/USDC",
+      "base": "ETH",
+      "lot_decimals": 8,
+      "pair_decimals": 2,
+      "ordermin": 0.002,
+      "costmin": 0.5
+    },
+    "SOLUSDC": {
+      "key": "SOLUSDC",
+      "altname": "SOLUSDC",
+      "wsname": "SOL/USDC",
+      "base": "SOL",
+      "lot_decimals": 8,
+      "pair_decimals": 2,
+      "ordermin": 0.05,
+      "costmin": 0.5
+    }
+  },
   "last_candle": {
-    "XBTUSDC": 1794603600
+    "XBTUSDC": 1794603600,
+    "ETHUSDC": 1794603600,
+    "SOLUSDC": 1794603600
   },
   "last_prices": {
-    "XBTUSDC": 68229.29
+    "XBTUSDC": 68362.64,
+    "ETHUSDC": 1927.57,
+    "SOLUSDC": 78.27
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -27,11 +109,11 @@
   "fees_total": 0.0,
   "realized_pnl": 0.0,
   "seq": {
-    "order": 0,
+    "order": 3,
     "trade": 0
   },
-  "last_cycle": "2026-11-13T23:30:39+01:00",
-  "last_cycle_ts": 1794609039,
+  "last_cycle": "2026-11-13T23:52:41+01:00",
+  "last_cycle_ts": 1794610361,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
