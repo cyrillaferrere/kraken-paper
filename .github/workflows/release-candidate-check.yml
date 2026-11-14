@@ -30,5 +30,29 @@ jobs:
         run: node --test tests/site/*.test.js
       - name: Functions tests
         run: node --test tests/functions/*.test.mjs
+      - name: Restore snapshot to isolated temporary directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin backup/pre-v0.3.1-main-snapshot
+          SNAP="$(git rev-parse FETCH_HEAD)"
+          test "$SNAP" = "a91a1575dbd1aaa8cfebf25824ce62c31fb5178e"
+          TMP="$(mktemp -d)"
+          for path in state/portfolio.json state/journal.jsonl state/equity.csv decisions/2026-11-14-20h20.json; do
+            mkdir -p "$TMP/$(dirname "$path")"
+            git show "$SNAP:$path" > "$TMP/$path"
+            test "$(git hash-object "$TMP/$path")" = "$(git rev-parse "$SNAP:$path")"
+          done
+          python3 - "$TMP" <<'PY'
+          import csv, json, pathlib, sys
+          p = pathlib.Path(sys.argv[1])
+          json.loads((p / "state/portfolio.json").read_text())
+          json.loads((p / "decisions/2026-11-14-20h20.json").read_text())
+          for line in (p / "state/journal.jsonl").read_text().splitlines():
+              if line.strip():
+                  json.loads(line)
+          list(csv.reader((p / "state/equity.csv").open()))
+          print("Snapshot restored and parsed in isolated temporary directory")
+          PY
       - name: Shell syntax
         run: bash -n scripts/deploy.sh scripts/release.sh
