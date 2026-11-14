@@ -1,5 +1,10 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette du scanner : progression et nouvelles paires
+- Vérifier que la progression augmente à chaque réponse Kraken et disparaît à la fin, même en cas de panne partielle.
+- Ajouter dans un état fictif de test une paire absente de la watchlist et déclencher `onState` : le scanner doit la charger immédiatement.
+- Vérifier les erreurs, la récupération automatique et l'absence de rafales de requêtes. Exécuter `node --test tests/site/*.test.js`.
+
 ## Recette scanner de marchés
 - Ouvrir les marqueurs, vérifier la progression et le calcul BTC avant les autres paires.
 - Déclencher deux rafraîchissements rapprochés : ils doivent être regroupés, sans multiplier les vagues de requêtes simultanées.
