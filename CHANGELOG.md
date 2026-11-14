@@ -1,5 +1,10 @@
 # Changelog
 
+## Préproduction v0.2.1 — garde-fous des données publiques
+- Validation stricte des historiques equity.csv et journal.jsonl : pas de suppression silencieuse d'événements corrompus.
+- Prix Kraken non positifs ou non numériques rejetés, statut partiel explicite et repli sur les prix du cycle moteur.
+- Tests exécutables et ADR-18.
+
 ## Stabilisation des historiques longs (préproduction, v0.2.1)
 - Rendu SVG plafonné selon la largeur, extrema et données manquantes préservés ; aucun cycle modifié.
 - Tests de charge sur 100 000 points et ADR-17.
