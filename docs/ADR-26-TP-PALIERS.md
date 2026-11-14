@@ -22,3 +22,10 @@ Le moteur actuel lie un stop et un seul objectif à une quantité entière. Grok
 - Dashboard : afficher chaque TP, stop résiduel, gain/risque global net depuis le PRU, lignes TP1/TP2 et fills partiels horodatés.
 - Tests : TP1→TP2, TP1→stop remonté, stop avant TP1, collision dans une 5 min, ordres historiques, arrondis, mise à jour des sorties et rejet de fractions invalides.
 - Brancher `feature/v0.3-paliers` depuis `preprod`, PR vers `preprod`, CI et revue Grok Bot avant fusion. Aucune modification de `main`, `state/` ou `decisions/`.
+
+## Complément après revue Grok Bot — activation différée
+- `update_exits` sur un groupe de sorties existant conserve ce groupe (et son stop) jusqu'à la prochaine heure d'activation ; la modification est stockée comme `pending_exits` sur cet ordre. Un second changement pendant l'attente est refusé.
+- À l'activation, les nouvelles fractions sont recalculées sur la quantité réellement restante, notamment si un TP historique a été exécuté entre-temps. Le compteur `tp_filled` est préservé.
+- Si l'ancien stop liquide la position avant l'activation, aucune nouvelle sortie n'est créée.
+- Un stop en gap est exécuté au minimum entre le niveau du stop et le prix d'ouverture de la bougie concernée, puis glissement 0,1 %. Cette règle corrige aussi le moteur historique, mais uniquement sur cette branche avant validation.
+- Les décisions `update_exits` sont contrôlées au dernier cours : stop strictement inférieur au marché, TP strictement supérieur ; break-even exige un stop.
