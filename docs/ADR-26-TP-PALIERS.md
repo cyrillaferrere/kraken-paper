@@ -34,3 +34,8 @@ Le moteur actuel lie un stop et un seul objectif à une quantité entière. Grok
 - La quantité réservée lors de l'activation est limitée au solde du groupe de sorties historique (`old.qty`) et à la position encore détenue ; les achats intervenus pendant l'attente ne sont pas ajoutés au groupe.
 - Les nouveaux paliers sont validés **avant** le retrait de l'ancien groupe. Si une quantité devient inférieure aux minimums Kraken, la mise à jour est abandonnée, l'ancien stop et ses objectifs restent en place, et un événement `note` explicite est inscrit au journal.
 - La compatibilité historique `take_profit` unique conserve, pour les décisions anciennes, la tolérance d'un objectif sous le prix d'entrée ; les nouveaux `take_profits` sont strictement validés.
+
+## Complément v0.3.1 — validation du break-even sur les nouveaux achats
+- Pour `market_buy` et `place_limit` achat, `breakeven_after_tp1: true` sans `stop_loss` est rejeté explicitement : aucun stop ne peut être remonté après TP1 s’il n’existe pas.
+- Les décisions historiques déjà exécutées ne sont pas modifiées ; les données de simulation existantes restent intactes.
+- Le dashboard signale les sorties en attente tout en affichant les protections actuellement actives.
