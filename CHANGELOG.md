@@ -6,7 +6,7 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-11-14 (en préprod, en attente de validation de Cyril pour la prod)
+## [0.1.0] - 2026-11-14
 
 Première version numérotée. Elle regroupe tout ce qui a été construit depuis le lancement le 13/11/2026.
 
