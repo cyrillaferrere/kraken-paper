@@ -96,13 +96,14 @@
   "processed_decisions": [
     "2026-11-13-23h55",
     "2026-11-14-04h10",
-    "2026-11-14-09h05"
+    "2026-11-14-09h05",
+    "2026-11-14-14h10"
   ],
   "last_decision": {
-    "id": "2026-11-14-09h05",
-    "timestamp": "2026-11-14T09:05:00+01:00",
-    "rationale": "Session 09h. Achat BTC exécuté à 66 800 sur la bougie de 05h (0,0149 BTC, frais maker 3,98 USDC), le plus bas 24 h est 66 424. SOL acheté à 75,5 est à 75,2 (−0,4 %), BTC à 67 180 (+0,6 %). ETH à 1 898, plus bas 1 877, mon achat à 1 870 attend toujours. Le marché se stabilise depuis 5 h dans un petit range (BTC 66 400 à 67 400) mais reste sous les MA20/MA50 en 1h, 4h et 1j, RSI 1h remontés vers 30, RSI 4h 23 à 29. Je ne touche à rien : stops (BTC 63 500, SOL 70,5) et objectifs (71 500, 83) gardent un ratio gain/risque d'environ 1,4 à 1,6, et resserrer maintenant ferait sauter les positions sur le simple bruit d'un samedi peu liquide. Portefeuille 6 604,56 USDC contre 6 466,82 pour le BTC gardé, soit environ +2,1 %.",
-    "applied": "2026-11-14T09:04:45+01:00"
+    "id": "2026-11-14-14h10",
+    "timestamp": "2026-11-14T14:10:00+01:00",
+    "rationale": "Session 14h. BTC 66 780 (achat 66 800, quasi à plat), SOL 75,45 (achat 75,5), ETH 1 894, plus bas 24 h 1 877 donc mon achat à 1 870 attend. Le range de la matinée tient (BTC 66 424 à 67 400) mais les prix restent sous les MA20/MA50 en 1h et 4h, RSI 4h très bas (BTC 15, SOL 23, ETH 25) : survente marquée sans signal de retournement. Je ne touche à rien : stops et objectifs gardent un ratio gain/risque correct, et tout ajustement coûterait des frais sans avantage clair. J'apprends que le déclencheur Netlify assure désormais un cycle toutes les heures à :09, le cron GitHub restant un secours irrégulier. Portefeuille environ 6 603 USDC contre environ 6 435 pour le BTC gardé, soit +2,6 %.",
+    "applied": "2026-11-14T14:09:32+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -158,8 +159,8 @@
     "order": 5,
     "trade": 2
   },
-  "last_cycle": "2026-11-14T14:09:13+01:00",
-  "last_cycle_ts": 1794661753,
+  "last_cycle": "2026-11-14T14:09:32+01:00",
+  "last_cycle_ts": 1794661772,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
