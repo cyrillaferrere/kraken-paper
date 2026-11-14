@@ -1,5 +1,7 @@
 # Kraken Paper : document de reprise
 
+> Lot UX portefeuille v0.2.1 : tri des positions (valeur, P&L signé, nom), recherche crypto, recherche et filtre achat/vente dans l'historique des trades, compteurs et réinitialisation, affichage mobile. Opérations uniquement visuelles, aucun changement moteur, stratégie, état ou décisions. Branche `feature/v0.2.1-portfolio-workspace` vers `preprod`, à valider par CI et recette visuelle.
+
 > Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie. Branche `feature/v0.2.1-chart-workspace` à valider avant fusion.
 
 > Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Branche `fix/v0.2.1-filter-reliability`, PR à valider vers `preprod`.
