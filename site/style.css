@@ -320,3 +320,15 @@ html { scroll-behavior: smooth; }
   #positions-panel .table-tools, #trades-panel .table-tools { align-items: stretch; }
   #positions-panel .table-tools select, #trades-panel .table-tools select { flex: 1 1 130px; }
 }
+
+/* Analyse de performance et journal : commandes alignées avec les autres tableaux. */
+.equity-range { min-height: 36px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg2); color: var(--tx); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.equity-range[aria-pressed="true"] { border-color: var(--ac2); background: rgba(34,211,238,.1); color: var(--ac2); }
+.equity-range:hover { border-color: var(--ac2); }
+.equity-range:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+#journal-panel .table-tools { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+#journal li[hidden] { display: none; }
+@media (max-width: 600px) {
+  #journal-panel .table-tools { align-items: stretch; }
+  #journal-panel .table-tools select { flex: 1 1 150px; }
+}
