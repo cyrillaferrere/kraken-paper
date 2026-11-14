@@ -1,3 +1,9 @@
+## Recherche R-01 — plateaux pré-rebond (14/11/2026)
+- Branche `feature/research-plateaux` depuis `preprod`. Projet limité à `docs/research/`, `scripts/research_plateaux.py`, `tests/test_research_plateaux.py` et à cette documentation.
+- Protocole figé : 1 h / 4 h, BTC/ETH/SOL spot Kraken, baisse initiale de 2 %, étiquette +1,5 ATR / -1 ATR sur 48 h, contrôle apparié régime + volatilité, walk-forward purgé et frais maker/taker + slippage.
+- Archives officielles Kraken encore indisponibles dans l'environnement de travail : **ne publier aucun résultat Kraken comme vérifié** tant que les ZIP, MANIFEST et SHA-256 n'ont pas été acquis et que le script n'a pas produit ses sorties avec données officielles. Voir `docs/research/2026-11-14-plateaux-kraken.md`.
+- Aucun changement `engine/`, `state/`, `decisions/` ni déploiement ; revue Grok Bot puis validation Cyril obligatoires avant ADR d'intégration éventuelle.
+
 ## Refonte visuelle v0.3.1 — Nocturne Signal
 - Branche feature/v0.3.1-nocturne-signal ; design CSS, palette graphique Lightweight Charts, monogramme K/, VERSION 0.3.1.
 - ADR : docs/ADR-21-NOCTURNE-SIGNAL.md. La préproduction seule reçoit cette version ; main et PAPER restent intacts.
