@@ -136,3 +136,8 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 - **Contexte** : un changement rapide de paire ou d'unité de temps pouvait laisser une requête OHLC précédente modifier le graphique, son message d'erreur ou son indicateur de chargement ; des bougies invalides entraient dans le cache.
 - **Décision** : numéroter chaque demande de graphique et autoriser seulement la plus récente à mettre à jour les séries et les états d'interface. Valider les OHLC (chronologie, valeurs finies, cohérence haut/bas, volume) avant mise en cache ; conserver le dernier graphique valide en cas d'erreur.
 - **Conséquences** : navigation rapide stable et erreurs explicites, sans modifier les ordres, les prix de simulation ou la stratégie. Le cache est protégé contre les réponses incohérentes ; une requête périmée peut se terminer mais ne peut pas écraser le rendu courant.
+
+## ADR-20 : préférences locales du chandelier sans impact sur le moteur (14/11/2026)
+- **Contexte** : les choix de paire, d'unité de temps et de fenêtre visible sont perdus au rechargement ; l'utilisateur ne peut pas demander explicitement une relecture OHLC ni voir quand les bougies ont été chargées.
+- **Décision** : mémoriser uniquement les préférences du graphique en `sessionStorage` avec validation stricte et repli sur BTC/1 h/120 bougies ; afficher un bouton d'actualisation et l'heure de dernière lecture des bougies. Ne mémoriser aucun ordre, capital, décision ni secret.
+- **Conséquences** : les préférences survivent au rechargement de l'onglet mais pas à une nouvelle session ; le bouton relit les bougies Kraken sans modifier la simulation ; l'heure correspond à la lecture réussie, pas à l'horodatage du dernier trade.

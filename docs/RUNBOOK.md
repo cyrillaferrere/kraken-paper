@@ -1,5 +1,11 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette — session du chandelier
+- Sélectionner ETH, 4 h, 240 bougies ; recharger l'onglet et vérifier la conservation de ces trois choix.
+- Ouvrir une nouvelle session et vérifier le défaut BTC/1 h/120 ; tester la disparition d'une paire et le repli BTC.
+- Cliquer Actualiser : la dernière heure de lecture ne change qu'après une réponse OHLC valide ; contrôler la stabilité du survol et du zoom.
+- Vérifier clavier, mobile et `node --test tests/site/*.test.js`.
+
 ## Recette du chandelier en préproduction
 - Changer rapidement BTC/ETH/SOL puis 5 min/15 min/1 h pendant le chargement ; le dernier choix doit toujours gagner.
 - Déconnecter momentanément l'API OHLC : le dernier graphique valide reste visible, le message indique l'échec, le prochain rafraîchissement réessaie.

@@ -97,7 +97,10 @@
     }
   }
   let ctx = { S: null, journal: [], price: () => null };
-  const selected = { pair: BENCH, tf: "1h" };
+  const chartStorage = (() => { try { return window.sessionStorage; } catch { return null; } })();
+  const prefs = window.KPChartPrefs.read(chartStorage);
+  const selected = { pair: prefs.pair, tf: prefs.tf };
+  const saveChartPrefs = () => window.KPChartPrefs.write(chartStorage, { pair: selected.pair, tf: selected.tf, bars: viewBars });
 
   function trackedPairs() {
     const S = ctx.S, out = [];
@@ -130,7 +133,7 @@
   let levelPrices = [];
   let chart = null, sCandle, sMa20, sMa50, sVol, sRsi, markersApi, priceLines = [], linesSig = "", markersSig = "";
   let shown = { key: null, lastT: null, bars: [] };
-  let viewBars = 120;
+  let viewBars = prefs.bars;
   function applyChartRange() {
     if (!chart || !shown.bars.length) return;
     const total = shown.bars.length;
@@ -255,6 +258,8 @@
         }
       }
       shown = { key, lastT: bars.length ? bars[bars.length - 1].t : null, bars };
+      const stamp = $("chart-updated");
+      if (stamp) stamp.textContent = "Bougies lues à " + new Date().toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" });
       syncChartRange();
       legendData = { bars, data: d, idx: new Map(bars.map((b, i) => [b.t, i])) };
       legend(); // Conserver la bougie survolée pendant le rafraîchissement des cours.
@@ -471,6 +476,7 @@
     if (!p || p === selected.pair) return;
     hoveredCandleTime = null;
     selected.pair = p;
+    saveChartPrefs();
     renderChips(); renderTable(); loadChart();
   }
   function selectTf(tf, focus) {
@@ -483,11 +489,12 @@
     });
     if (tf === selected.tf) return;
     hoveredCandleTime = null;
-    selected.tf = tf; loadChart();
+    selected.tf = tf; saveChartPrefs(); loadChart();
   }
   function bind() {
     document.querySelectorAll(".chart-range").forEach((button) => button.addEventListener("click", () => {
       viewBars = Number(button.dataset.bars);
+      saveChartPrefs();
       syncChartRange();
       applyChartRange();
     }));
@@ -498,6 +505,7 @@
     });
     syncChartRange();
     $("pair-chips").addEventListener("click", (e) => { const b = e.target.closest("[data-pair]"); if (b) selectPair(b.dataset.pair); });
+    $("chart-refresh").addEventListener("click", () => loadChart(true));
     $("markers").addEventListener("click", (e) => {
       const b = e.target.closest("[data-pair]"); if (!b) return;
       selectPair(b.dataset.pair);
@@ -517,6 +525,8 @@
   window.KPMarkets = {
     onState(c) {
       ctx = c;
+      // Une paire mémorisée peut avoir disparu de la liste Kraken ou du portefeuille.
+      if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); }
       if (!started) {
         started = true; bind(); selectTf(selected.tf);
         renderChips(); renderTable(); loadChart(); refreshMetrics();
