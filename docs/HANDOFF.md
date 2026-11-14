@@ -1,3 +1,9 @@
+## Concept alternatif Analog / Robotic — branche d'essai
+- Branche `feature/analog-robotic-concept` créée depuis `preprod` v0.3.1 ; pas de remplacement de la préproduction actuelle.
+- `site/analog.css` est la surcouche expérimentale isolée ; `site/index.html` lie le CSS, le monogramme K⌁P et une graduation VU sur la barre d'exposition existante. `site/markets.js` ne change que les couleurs.
+- ADR : `docs/ADR-22-ANALOG-ROBOTIC.md`. Tests : `tests/site/analog-robotic-concept.test.js`.
+- À faire : recette en navigateur desktop/iPhone, décision de Cyril sur l'identité avant fusion. Version inchangée : 0.3.1.
+
 ## Refonte visuelle v0.3.1 — Nocturne Signal
 - Branche feature/v0.3.1-nocturne-signal ; design CSS, palette graphique Lightweight Charts, monogramme K/, VERSION 0.3.1.
 - ADR : docs/ADR-21-NOCTURNE-SIGNAL.md. La préproduction seule reçoit cette version ; main et PAPER restent intacts.
