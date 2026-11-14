@@ -89,6 +89,7 @@
 
   <section class="card" id="orders-panel">
     <div class="card-h"><h2>Ordres ouverts</h2><span class="muted">Montants nets de frais (maker 0,40 %, stop en taker 0,80 % + 0,1 % de glissement)</span></div>
+    <div class="table-tools" role="group" aria-label="Filtrer les ordres"><label for="orders-search">Rechercher</label><input id="orders-search" type="search" placeholder="Crypto ou identifiant" autocomplete="off"><label for="orders-side">Sens</label><select id="orders-side"><option value="all">Tous les ordres</option><option value="buy">Achats</option><option value="sell">Ventes</option></select><span id="orders-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="orders" class="orders"><thead><tr>
       <th scope="col">Ordre</th><th scope="col" class="c-s">Sens</th><th scope="col" class="r">Engagé</th><th scope="col" class="r c-x">Prix limite<br><span class="th-sub">actuel</span></th><th scope="col" class="r">Distance</th>
       <th scope="col" class="r c-x">Stop</th><th scope="col" class="r c-x">Objectif</th><th scope="col" class="r c-x">Perte max</th><th scope="col" class="r c-x">Gain visé</th><th scope="col" class="r c-x">Gain / risque</th>
@@ -98,6 +99,7 @@
 
   <section class="card" aria-labelledby="markers-h">
     <div class="card-h"><h2 id="markers-h">Marqueurs</h2><span class="muted">Touchez une crypto pour son graphique<span class="swipe-hint"> · glissez → pour les autres colonnes</span></span></div>
+    <div class="table-tools" role="group" aria-label="Filtrer les marqueurs"><label for="markers-search">Rechercher</label><input id="markers-search" type="search" placeholder="BTC, SOL, ETH…" autocomplete="off"><label for="markers-trend">Tendance</label><select id="markers-trend"><option value="all">Toutes</option><option value="up">Haussière</option><option value="down">Baissière</option><option value="mixed">Mixte</option></select><span id="markers-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="markers"><thead><tr>
       <th scope="col">Crypto</th><th scope="col" class="r">Prix</th><th scope="col" class="r">24 h</th><th scope="col" class="r">Tendance 4 h</th><th scope="col" class="r">Tendance 1 j</th><th scope="col" class="r">RSI 14 (4 h)</th><th scope="col" class="r">Volatilité (ATR 1 j)</th><th scope="col" class="r">Force vs BTC (7 j)</th>
     </tr></thead><tbody></tbody></table></div>
@@ -153,5 +155,6 @@
 <script src="extras.js"></script>
 <script src="app.js"></script>
 <script src="navigation.js"></script>
+<script src="workspace.js"></script>
 </body>
 </html>
