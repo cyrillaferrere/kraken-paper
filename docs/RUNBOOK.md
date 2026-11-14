@@ -1,5 +1,12 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette ciblée — historiques volumineux
+- Ouvrir Performance sur 24 h, 1 an et Tout ; vérifier que le nombre de cycles correspond aux données et que les extrema sont visibles.
+- Avec une série BTC incomplète, vérifier que le graphique ne relie pas deux segments séparés par une lacune.
+- Vérifier le rendu sur mobile et l'absence de ralentissement avec un historique long ; `node --test tests/site/*.test.js`.
+- Vérifier que la préproduction affiche le SHA fusionné après déploiement ; aucune opération sur `main` ni sur `state/` ou `decisions/`.
+
+
 Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
 ## Contrôles UX v0.2.1 (branche feature)
