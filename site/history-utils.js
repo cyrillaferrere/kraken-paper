@@ -28,6 +28,14 @@
         if (highIdx >= 0) selected.add(highIdx);
       }
     }
+    // Preserve missing-data boundaries; never draw a line across unavailable history.
+    for (let i = 1; i < points.length; i++) {
+      for (const key of ["eq", "hold"]) {
+        if (Number.isFinite(points[i - 1][key]) !== Number.isFinite(points[i][key])) {
+          selected.add(i - 1); selected.add(i);
+        }
+      }
+    }
     return [...selected].sort((a, b) => a - b).map((i) => points[i]);
   }
   function path(points, key, x, y) {
