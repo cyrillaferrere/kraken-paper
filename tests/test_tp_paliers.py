@@ -90,6 +90,34 @@ class TieredExitTests(unittest.TestCase):
                 {"take_profits": [{"price": 69000, "fraction": 0.4},
                                   {"price": 72000, "fraction": 0.4}]}, 65000, 0.02)
 
+    def test_gap_under_stop_uses_open(self):
+        fills = self.candle(T0, 64000, 60000,
+                            bars5(T0, [64000] * 12, [60000] * 12))
+        self.assertEqual(fills[0]["price"], round(65000 * 0.999, 2))
+        self.assertEqual(fills[0]["reason"], "stop_loss")
+
+    def test_update_exits_stop_above_live_rejected(self):
+        a = {"type": "update_exits", "pair": self.pair, "stop_loss": 64500,
+             "take_profits": [{"price": 70000, "fraction": 1.0}]}
+        events, _, _ = run.run_cycle(self.state, [decision("unsafe", a)],
+                                      FakeMarket(last=60000), T0 + 60)
+        self.assertTrue(any(e["type"] == "rejected" for e in events))
+        self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
+
+    def test_update_exits_nonboolean_breakeven_rejected(self):
+        a = {"type": "update_exits", "pair": self.pair, "stop_loss": 61000,
+             "breakeven_after_tp1": "false"}
+        events, _, _ = run.run_cycle(self.state, [decision("bad-be", a)],
+                                      FakeMarket(last=65000), T0 + 60)
+        self.assertTrue(any(e["type"] == "rejected" for e in events))
+
+    def test_update_exits_after_tp1_preserves_numbering(self):
+        self.candle(T0, 70000, 64000)
+        a = {"type": "update_exits", "pair": self.pair, "stop_loss": 63000,
+             "take_profits": [{"price": 74000, "fraction": 1.0}]}
+        run.run_cycle(self.state, [decision("rework", a)], FakeMarket(last=68000), T0 + H + 60)
+        self.assertEqual(self.state["open_orders"][0]["tp_filled"], 1)
+
     def test_legacy_single_tp(self):
         st = run.new_state(T0 - 10)
         action = {"type": "market_buy", "pair": self.pair, "qty": 0.01,
