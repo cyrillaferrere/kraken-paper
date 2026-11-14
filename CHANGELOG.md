@@ -1,3 +1,8 @@
+## [Unreleased] — v0.3.1 : préparation de la publication
+- Les sorties différées détaillent le nouveau stop et les paliers TP dans Ordres ouverts.
+- Tests du texte des sorties différées, du journal multi-TP et TP historique ; test du comportement historique de la vente limite avec option break-even sans stop.
+- `VERSION` aligné à `0.3.1` sur la branche de préproduction. Aucun déploiement de production autorisé.
+
 ## [Unreleased] — v0.3.1 : finitions sorties par paliers
 - Ordres ouverts : signalement explicite des modifications de sorties différées, ancien stop conservé.
 - Journal : affichage des TP fractionnés dès la pose d’un ordre.

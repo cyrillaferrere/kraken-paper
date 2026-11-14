@@ -253,6 +253,22 @@
   const expanded = new Set();
   const distTxt = (d, lbl) => d == null ? "—" : `${lbl ? lbl + " " : ""}${d < 0 ? "↓" : "↑"} ${pct(d)}`;
   let nearPrev = new Map(), nearNow = new Map();
+  // Texte pur partagé par la table des ordres et les tests de non-régression.
+  function pendingExitText(pending) {
+    if (!pending || !pending.active_from) return "";
+    const stop = pending.stop_loss != null ? "nouveau stop " + px(pending.stop_loss) : "nouveau stop absent";
+    const tiers = Array.isArray(pending.action && pending.action.take_profits)
+      ? pending.action.take_profits.map((tp, i) => "TP" + (i + 1) + " " + px(tp.price) + " (" + nf(2).format(tp.fraction * 100) + " %)").join(" · ")
+      : "";
+    const when = dt(new Date(Number(pending.active_from) * 1000).toISOString());
+    return "Sorties programmées pour " + when + " · " + stop + (tiers ? " · " + tiers : "") + " · ancien stop maintenu jusque-là";
+  }
+  function orderPlacedText(o) {
+    const tiers = Array.isArray(o.take_profits) && o.take_profits.length
+      ? o.take_profits.map((tp, i) => " · TP" + (i + 1) + " " + px(tp.price) + " (" + nf(2).format(tp.fraction * 100) + " %)").join("")
+      : "";
+    return `Ordre ${esc(o.id)} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${tiers || (o.take_profit ? " · TP " + px(o.take_profit) : "")}`;
+  }
   function renderOrders() {
     const tb = $("orders").tBodies[0];
     nearPrev = nearNow; nearNow = new Map();
@@ -280,7 +296,7 @@
       const prox = near ? `<span class="prox${flash ? " kpi-updated" : ""}">◎ à ${nf(1).format(near.dist * 100)} % du déclenchement (${near.kind})</span>` : "";
       const pending = o.pending_exits;
       const pendingNote = pending && pending.active_from
-        ? `<span class="pending-exits">Sorties modifiées à partir de ${dt(new Date(Number(pending.active_from) * 1000).toISOString())} · ancien stop maintenu jusque-là</span>`
+        ? `<span class="pending-exits">${pendingExitText(pending)}</span>`
         : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
       const main = `<tr class="o-row${hit ? " reached" : ""}">
@@ -353,7 +369,7 @@
     switch (e.type) {
       case "start": return `Départ de la simulation avec ${usdc(e.capital)}`;
       case "decision": return `Décision ${esc(e.decision_id)} : ${esc(e.rationale)}`;
-      case "order_placed": { const o = e.order; const tiers = Array.isArray(o.take_profits) && o.take_profits.length ? o.take_profits.map((tp, i) => " · TP" + (i + 1) + " " + px(tp.price) + " (" + nf(2).format(tp.fraction * 100) + " %)").join("") : ""; return `Ordre ${esc(o.id)} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${tiers || (o.take_profit ? " · TP " + px(o.take_profit) : "")}`; }
+      case "order_placed": return orderPlacedText(e.order);
       case "fill": { const t = e.trade; return `✅ Exécuté : ${t.side === "buy" ? "achat" : "vente"} ${qty(t.qty)} ${esc(t.base)} à ${px(t.price)} (${t.tp_index ? "TP" + t.tp_index + " · " : ""}${REASON[t.reason] || t.reason})`; }
       case "exits_updated": return `Sorties mises à jour pour ${esc(base(e.pair))} : ${(e.order.take_profits || []).length} palier(s), stop ${px(e.order.stop_loss)}`;
       case "exits_update_scheduled": return `Modification des sorties de ${esc(base(e.pair))} programmée pour le prochain créneau ; ancien stop conservé jusque-là`;
