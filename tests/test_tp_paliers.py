@@ -92,8 +92,8 @@ class TieredExitTests(unittest.TestCase):
 
     def test_gap_under_stop_uses_open(self):
         fills = self.candle(T0, 64000, 60000,
-                            bars5(T0, [64000] * 12, [60000] * 12))
-        self.assertEqual(fills[0]["price"], round(62000 * 0.999, 2))
+                            [(T0 + i * 300, 60000, 64000, 59000, 60000) for i in range(12)])
+        self.assertEqual(fills[0]["price"], round(60000 * 0.999, 2))
         self.assertEqual(fills[0]["reason"], "stop_loss")
 
     def test_update_exits_stop_above_live_rejected(self):
