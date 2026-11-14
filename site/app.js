@@ -184,7 +184,10 @@
     const cb = window.KPLib ? window.KPLib.cashBreakdown(S, orderMath) : { total: S.cash, reserved: 0, available: S.cash };
     $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
 
-    renderPositions(); renderOrders(); renderTrades(); renderJournal(); renderChart(hold, missing ? null : total);
+    // Les prix bougent toutes les 15 s ; les historiques ne changent qu'avec un nouveau snapshot.
+    // Éviter de reconstruire le journal et le SVG à chaque ticker préserve filtres et interactions.
+    renderPositions(); renderOrders();
+    if (stateChanged) { renderTrades(); renderJournal(); renderChart(); }
     if (firstRender) {
       // Entrée des panneaux : une seule fois au premier rendu, jamais au polling.
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });
