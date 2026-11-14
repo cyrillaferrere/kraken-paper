@@ -1,3 +1,8 @@
+## v0.2.2 — commandes du chandelier (fix/v0.2.2-chart-control-clarity)
+- État actif des périodes renforcé, boutons tactiles sur mobile et libellés mieux différenciés.
+- Recette requise : desktop, iPhone Safari, clavier, contraste et reduced motion. Tests CI et revue Grok Bot avant fusion vers preprod.
+- Aucun changement moteur, état PAPER, décisions ou production.
+
 # Kraken Paper : document de reprise
 
 ## Cause racine du débordement mobile

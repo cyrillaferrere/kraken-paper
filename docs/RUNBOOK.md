@@ -1,3 +1,8 @@
+## v0.2.2 — commandes du chandelier (fix/v0.2.2-chart-control-clarity)
+- État actif des périodes renforcé, boutons tactiles sur mobile et libellés mieux différenciés.
+- Recette requise : desktop, iPhone Safari, clavier, contraste et reduced motion. Tests CI et revue Grok Bot avant fusion vers preprod.
+- Aucun changement moteur, état PAPER, décisions ou production.
+
 # Kraken Paper : runbook (opérations)
 
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.

@@ -476,3 +476,18 @@ html { scroll-behavior: smooth; }
   .journal time { flex: 1 0 100%; }
   .dec > summary { overflow-wrap: anywhere; }
 }
+
+
+/* v0.2.2 — lecture des commandes du chandelier */
+#market-card .chart-tools { gap: 8px; }
+#market-card .chart-tools-label { color: var(--tx); }
+#market-card .chart-range[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px var(--ac2);
+  font-weight: 750;
+}
+#market-card .chart-view-note { line-height: 1.5; }
+@media (max-width: 600px) {
+  #market-card .chart-tools { align-items: stretch; }
+  #market-card .chart-range { flex: 1 1 auto; min-height: 44px; }
+  #market-card .chart-tools-label { flex: 0 0 100%; }
+}
