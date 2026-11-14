@@ -39,7 +39,7 @@
         if (show) visible++;
       }
     }
-    $(config.count).textContent = visible + " / " + total + " affiché" + (visible > 1 ? "s" : "");
+    $(config.count).textContent = visible + " / " + total + " affiché" + (visible > 1 ? "s" : "") + (total && !visible ? " — aucun résultat, modifiez les filtres" : "");
   };
   for (const config of tables) {
     const tb = $(config.name)?.tBodies[0];
