@@ -340,7 +340,7 @@ def process_candle(state, pair, candle, rejects=None, market=None):
         if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
             continue
         try:
-            _check_order(state, pair, order, t, high, low, fills, m5)
+            _check_order(state, pair, order, t, high, low, fills, m5, o_)
         except Rejected as e:   # ne devrait pas arriver (fonds reserves), on annule proprement
             state["open_orders"].remove(order)
             if rejects is not None:
@@ -360,7 +360,7 @@ def _date_fill(m5, level, which, hour_start):
     return hour_start, "hour_open"
 
 
-def _check_order(state, pair, order, t, high, low, fills, m5=None):
+def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=None):
     if order["side"] == "buy":
         if low <= order["price"]:
             ts, source = _date_fill(m5, order["price"], "below", t)
@@ -377,7 +377,7 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
         return
 
     if "take_profits" in order:
-        _check_tiered_exit(state, pair, order, t, high, low, fills, m5)
+        _check_tiered_exit(state, pair, order, t, high, low, fills, m5, hour_open)
         return
 
     stop = order.get("stop_loss")
@@ -396,14 +396,15 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
         limit_ts = first_touch_ts(m5, limit, "above") if limit_1h else None
         if stop_ts is not None and (limit_ts is None or stop_ts <= limit_ts):
             reason, level, which, liq = "stop_loss", stop, "below", "taker"
-            px = round(stop * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
+            opening = next((bar[1] for bar in m5 if bar[0] == stop_ts), hour_open)
+            px = round(min(stop, opening if opening is not None else stop) * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
         elif limit_ts is not None:
             reason = "take_profit" if order.get("parent") or stop else "limit"
             level, which, px, liq = limit, "above", limit, "maker"
     if reason is None:
         if stop_1h:
             reason, level, which, liq = "stop_loss", stop, "below", "taker"
-            px = round(stop * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
+            px = round(min(stop, hour_open if hour_open is not None else stop) * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
         else:
             reason = "take_profit" if order.get("parent") or stop else "limit"
             level, which, px, liq = limit, "above", limit, "maker"
@@ -415,14 +416,14 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
     fills.append(tr)
 
 
-def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5):
+def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hour_open=None):
     """Exécute les niveaux dans l'ordre des 5 min ; stop prioritaire à égalité."""
     meta = state["pairs"][pair]
-    bars = m5 if m5 is not None else [(hour_start, None, high, low, None)]
+    bars = m5 if m5 is not None else [(hour_start, hour_open, high, low, None)]
     for ts, _opening, bar_high, bar_low, _closing in bars:
         stop = order.get("stop_loss")
         if stop is not None and bar_low <= stop + EPS:
-            px = round(stop * (1 - SLIP), meta["pair_decimals"])
+            px = round(min(stop, _opening if _opening is not None else stop) * (1 - SLIP), meta["pair_decimals"])
             tr = execute_fill(state, pair, "sell", order["qty"], px, "taker",
                               "stop_loss", ts, order["id"])
             tr["time_source"] = "m5" if m5 is not None else "hour_open"
@@ -536,18 +537,30 @@ def apply_action(state, a, ctx, now, decision_id):
         if any(not o.get("parent") for o in existing):
             raise Rejected("annuler d'abord les ventes independantes sur cette paire")
         entry = pos["avg_cost"]
+        live = ctx.last_price(meta)
+        state["last_prices"][pair] = live
+        be = a.get("breakeven_after_tp1", False)
+        if not isinstance(be, bool):
+            raise Rejected("breakeven_after_tp1 doit etre booleen")
         levels = normalize_take_profits(meta, a, entry, pos["qty"])
         stop = round(float(a["stop_loss"]), meta["pair_decimals"]) if a.get("stop_loss") is not None else None
-        if stop is not None and (not math.isfinite(stop) or stop <= 0 or stop >= entry):
-            raise Rejected("stop_loss doit etre positif et sous le PRU")
+        if stop is not None and (not math.isfinite(stop) or stop <= 0 or stop >= live):
+            raise Rejected("stop_loss doit etre positif et sous le cours actuel")
+        if be and stop is None:
+            raise Rejected("breakeven_after_tp1 requiert stop_loss")
+        if any(tier["price"] <= live for tier in levels):
+            raise Rejected("take_profits doit etre au-dessus du cours actuel")
         if not stop and not levels:
             raise Rejected("au moins un stop ou un TP requis")
+        previous_filled = max((o.get("tp_filled", 0) for o in existing), default=0)
         for old in existing:
             state["open_orders"].remove(old)
         order = attach_exit(state, pair, pos["qty"], stop, None, now,
                             decision_id, take_profits=levels,
-                            breakeven_after_tp1=a.get("breakeven_after_tp1", False),
+                            breakeven_after_tp1=be,
                             entry_price=entry)
+        if order is not None:
+            order["tp_filled"] = previous_filled
         return {"type": "exits_updated", "pair": pair, "order": dict(order)}, []
     if typ not in ("place_limit", "market_buy", "market_sell"):
         raise Rejected(f"type d'action inconnu : {typ}")
