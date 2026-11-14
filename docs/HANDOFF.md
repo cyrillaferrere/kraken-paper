@@ -1,3 +1,9 @@
+## Développement v0.3.0 — paliers (ADR-26)
+- Branche `feature/v0.3-paliers` depuis `preprod` ; moteur et tests en cours, aucune fusion.
+- Un groupe de sortie représente le stop et tous les TP sans double réservation ; `take_profits` et `tp_filled` suivent la quantité résiduelle.
+- À finaliser : affichage Ordres, gain/risque global, lignes graphiques, historique et journal, tests et CI ; revue Grok Bot avant fusion.
+- Ne jamais modifier `state/`, `decisions/` ou `main`.
+
 ## Retour au dashboard de production — ADR-25
 - Branche de travail `fix/restore-prod-ui-preprod` basée sur `preprod` : fichiers du site remis à l'identique de `main`, sans reprendre l'état vivant ni les décisions.
 - Les tests créés pour les workspaces de `preprod` peuvent devoir être adaptés ou retirés dans un lot de nettoyage contrôlé. Vérifier CI et rendu Netlify avant toute fusion.
