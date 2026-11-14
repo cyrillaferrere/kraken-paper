@@ -476,3 +476,15 @@ html { scroll-behavior: smooth; }
   .journal time { flex: 1 0 100%; }
   .dec > summary { overflow-wrap: anywhere; }
 }
+
+
+/* v0.2.2 — ordres : risque et déclenchement mieux différenciés */
+#orders .o-row.reached { box-shadow: inset 3px 0 0 var(--warn); }
+#orders .reached-note { font-weight: 700; line-height: 1.45; }
+#orders .o-detail:not([hidden]) { background: rgba(138,150,179,.055); }
+#orders .o-toggle[aria-expanded="true"] { color: var(--ac2); border-color: var(--ac2); }
+@media (max-width: 680px) {
+  #orders .o-row.reached { box-shadow: inset 3px 0 0 var(--warn); }
+  #orders .o-row > td:nth-child(5) { font-weight: 650; }
+  #orders .o-row > td:first-child .reached-note { font-weight: 700; }
+}
