@@ -28,7 +28,7 @@
 <div id="alert" class="alert" hidden role="alert"></div>
 
 <button id="nav-toggle" class="nav-toggle motion-button" type="button" aria-controls="dash-nav" aria-expanded="false" aria-label="Ouvrir le menu">☰ <span>Menu</span></button>
-<nav id="dash-nav" class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue générale</span></a><a href="#market-card"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a><a href="#positions-panel"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Positions</span></a><a href="#orders-panel"><span class="nav-ico" aria-hidden="true">≡</span><span class="nav-label">Ordres</span></a><a href="#dec-h"><span class="nav-ico" aria-hidden="true">✎</span><span class="nav-label">Décisions</span></a><a href="#journal-panel"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Journal</span></a></nav>
+<nav id="dash-nav" class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue générale</span></a><a href="#market-card"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a><a href="#positions-panel"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Positions</span></a><a href="#orders-panel"><span class="nav-ico" aria-hidden="true">≡</span><span class="nav-label">Ordres</span></a><a href="#performance-panel"><span class="nav-ico" aria-hidden="true">↗</span><span class="nav-label">Performance</span></a><a href="#trades-panel"><span class="nav-ico" aria-hidden="true">⇄</span><span class="nav-label">Historique</span></a><a href="#dec-h"><span class="nav-ico" aria-hidden="true">✎</span><span class="nav-label">Décisions</span></a><a href="#journal-panel"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Journal</span></a></nav>
 <main id="overview">
   <section class="kpis" aria-label="Chiffres clés">
     <article class="kpi big"><h2>Valeur totale</h2><p id="k-value" class="v">—</p><p id="k-value-sub" class="s"></p></article>
@@ -119,7 +119,7 @@
     </details>
   </section>
 
-  <section class="card">
+  <section class="card" id="performance-panel">
     <div class="card-h"><h2>Portefeuille vs BTC conservé</h2>
       <div class="legend"><span class="lg eq">Portefeuille</span><span class="lg bh">BTC conservé</span></div></div>
     <div class="chart-tools" role="group" aria-label="Période de performance"><span class="chart-tools-label">Période</span><button type="button" class="equity-range motion-button" data-period="1d" aria-pressed="false">24 h</button><button type="button" class="equity-range motion-button" data-period="7d" aria-pressed="false">7 j</button><button type="button" class="equity-range motion-button" data-period="30d" aria-pressed="false">30 j</button><button type="button" class="equity-range motion-button" data-period="all" aria-pressed="true">Tout</button><span id="equity-period-note" class="chart-view-note" role="status"></span></div>
