@@ -11,7 +11,7 @@
 <body>
 <header class="top">
   <div class="brand"><span class="logo" aria-hidden="true">🐙</span>
-    <div><h1>Kraken Paper</h1><p class="sub">Simulation de trading — argent fictif, prix réels Kraken</p></div>
+    <div><h1>Kraken Paper</h1><p class="sub">Simulation PAPER · prix Kraken</p></div>
   </div>
   <div class="badges">
     <span id="env-badge" class="badge env env-local" title="Environnement du site">LOCAL</span>
@@ -29,23 +29,24 @@
 
 <button id="nav-toggle" class="nav-toggle motion-button" type="button" aria-controls="dash-nav" aria-expanded="false" aria-label="Ouvrir le menu">☰ <span>Menu</span></button>
 <nav id="dash-nav" class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue générale</span></a><a href="#market-card"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a><a href="#positions-panel"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Positions</span></a><a href="#orders-panel"><span class="nav-ico" aria-hidden="true">≡</span><span class="nav-label">Ordres</span></a><a href="#performance-panel"><span class="nav-ico" aria-hidden="true">↗</span><span class="nav-label">Performance</span></a><a href="#trades-panel"><span class="nav-ico" aria-hidden="true">⇄</span><span class="nav-label">Historique</span></a><a href="#dec-h"><span class="nav-ico" aria-hidden="true">✎</span><span class="nav-label">Décisions</span></a><a href="#journal-panel"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Journal</span></a></nav>
+<nav class="workspace-tabs" aria-label="Rubriques"><a href="#overview" data-view-link="overview">Vue d’ensemble</a><a href="#market-card" data-view-link="markets">Marchés</a><a href="#orders-panel" data-view-link="orders">Ordres</a><a href="#performance-panel" data-view-link="history">Historique</a></nav>
 <main id="overview">
-  <section class="kpis" aria-label="Chiffres clés">
+  <section class="kpis" aria-label="Chiffres clés" data-workspace="overview">
     <article class="kpi big"><h2>Valeur totale</h2><p id="k-value" class="v">—</p><p id="k-value-sub" class="s"></p></article>
     <article class="kpi"><h2>P&amp;L depuis le départ</h2><p id="k-pnl" class="v">—</p><p id="k-pnl-pct" class="s"></p></article>
     <article class="kpi"><h2>Écart vs BTC conservé</h2><p id="k-bench" class="v">—</p><p id="k-bench-sub" class="s"></p></article>
     <article class="kpi"><h2>Frais payés</h2><p id="k-fees" class="v">—</p><p id="k-fees-sub" class="s"></p></article>
   </section>
 
-  <section class="duo">
+  <section class="duo" data-workspace="overview">
     <article class="card" aria-labelledby="exp-h">
-      <div class="card-h"><h2 id="exp-h">Cash et exposition</h2><span class="muted">positions aux prix en direct</span></div>
+      <div class="card-h"><h2 id="exp-h">Cash et exposition</h2></div>
       <div id="exp-bar" class="exp-bar" role="img" aria-label="Répartition investi, réservé dans les ordres et cash disponible"></div>
       <ul id="exp-txt" class="exp-txt"></ul>
       <p id="exp-risk" class="exp-risk"></p>
     </article>
     <article class="card" aria-labelledby="cd-h">
-      <div class="card-h"><h2 id="cd-h">Prochains passages</h2><span class="muted">heure de Paris</span></div>
+      <div class="card-h"><h2 id="cd-h">Prochains passages</h2></div>
       <dl class="cd">
         <div><dt>Cycle du moteur</dt><dd id="cd-cycle">—</dd><dd id="cd-cycle-note" class="muted small"></dd></div>
         <div><dt>Session de gestion</dt><dd id="cd-session">—</dd><dd id="cd-session-note" class="muted small"></dd></div>
@@ -53,7 +54,7 @@
     </article>
   </section>
 
-  <section class="card" id="market-card" aria-labelledby="market-h">
+  <section class="card" data-workspace="overview markets" id="market-card" aria-labelledby="market-h">
     <div class="card-h"><h2 id="market-h">Marchés</h2>
       <div id="tf-tabs" class="seg" role="tablist" aria-label="Unité de temps des bougies">
         <span class="seg-thumb" aria-hidden="true"></span>
@@ -87,11 +88,11 @@
       <span class="key">▲ achat exécuté</span><span class="key">▼ vente exécutée</span><span class="key">┄ ordre, stop ou objectif</span>
     </div>
     <p id="moverlay-note" class="hint"></p>
-    <p id="mchart-a11y" class="hint">Graphique de marché en lecture seule. Sélectionnez une crypto et une unité de temps avec les boutons précédents. Les informations chiffrées complémentaires figurent dans les tableaux Marqueurs et Ordres ouverts.</p>
+    <p id="mchart-a11y" class="sr-only">Graphique de marché en lecture seule. Sélectionnez une crypto et une unité de temps avec les boutons précédents. Les informations chiffrées complémentaires figurent dans les tableaux Marqueurs et Ordres ouverts.</p>
     <p class="hint">Bougies réelles de l'API publique Kraken, la dernière est encore en cours. Heures de Paris. Rien n'est lissé ni interpolé.</p>
   </section>
 
-  <section class="card" id="positions-panel">
+  <section class="card" data-workspace="orders" id="positions-panel">
     <div class="card-h"><h2>Positions</h2><span id="cash" class="muted"></span></div>
     <div class="table-tools" role="group" aria-label="Explorer les positions"><label for="positions-search">Crypto</label><input id="positions-search" type="search" placeholder="Rechercher une position" autocomplete="off"><label for="positions-sort">Trier</label><select id="positions-sort"><option value="default">Ordre initial</option><option value="value">Valeur décroissante</option><option value="pnl">P&L décroissant</option><option value="name">Crypto A–Z</option></select><button type="button" id="positions-reset" class="filter-reset motion-button">Réinitialiser</button><span id="positions-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="positions"><thead><tr>
@@ -99,8 +100,8 @@
     </tr></thead><tbody></tbody></table></div>
   </section>
 
-  <section class="card" id="orders-panel">
-    <div class="card-h"><h2>Ordres ouverts</h2><span class="muted">Montants nets de frais (maker 0,40 %, stop en taker 0,80 % + 0,1 % de glissement)</span></div>
+  <section class="card" data-workspace="orders" id="orders-panel">
+    <div class="card-h"><h2>Ordres ouverts</h2></div>
     <div class="table-tools" role="group" aria-label="Filtrer les ordres"><label for="orders-search">Rechercher</label><input id="orders-search" type="search" placeholder="Crypto ou identifiant" autocomplete="off"><label for="orders-side">Sens</label><select id="orders-side"><option value="all">Tous les ordres</option><option value="buy">Achats</option><option value="sell">Ventes</option></select><button type="button" id="orders-reset" class="filter-reset motion-button">Effacer les filtres</button><span id="orders-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="orders" class="orders"><thead><tr>
       <th scope="col">Ordre</th><th scope="col" class="c-s">Sens</th><th scope="col" class="r">Engagé</th><th scope="col" class="r c-x">Prix limite<br><span class="th-sub">actuel</span></th><th scope="col" class="r">Distance</th>
@@ -109,7 +110,7 @@
     <p class="hint">Distance : variation du prix nécessaire pour déclencher. Perte max : si le stop est touché (vente au stop −0,1 %, frais taker). Gain visé : si l'objectif est atteint (frais maker). Le stop et l'objectif d'un achat s'activent une fois l'achat exécuté. Ouvrez « Détails » sur une ligne pour consulter les prix, le risque, le gain visé et la décision associée.</p>
   </section>
 
-  <section class="card" aria-labelledby="markers-h">
+  <section class="card" data-workspace="markets" aria-labelledby="markers-h">
     <div class="card-h"><h2 id="markers-h">Marqueurs</h2><span class="muted">Touchez une crypto pour son graphique<span class="swipe-hint"> · glissez → pour les autres colonnes</span></span></div>
     <div class="table-tools" role="group" aria-label="Filtrer les marqueurs"><label for="markers-search">Rechercher</label><input id="markers-search" type="search" placeholder="BTC, SOL, ETH…" autocomplete="off"><label for="markers-trend">Tendance</label><select id="markers-trend"><option value="all">Toutes</option><option value="up">Haussière</option><option value="down">Baissière</option><option value="mixed">Mixte</option></select><button type="button" id="markers-reset" class="filter-reset motion-button">Effacer les filtres</button><span id="markers-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="markers"><thead><tr>
@@ -122,7 +123,7 @@
     </details>
   </section>
 
-  <section class="card" id="performance-panel">
+  <section class="card" data-workspace="history" id="performance-panel">
     <div class="card-h"><h2>Portefeuille vs BTC conservé</h2>
       <div class="legend"><span class="lg eq">Portefeuille</span><span class="lg bh">BTC conservé</span></div></div>
     <div class="chart-tools" role="group" aria-label="Période de performance"><span class="chart-tools-label">Période</span><button type="button" class="equity-range motion-button" data-period="1d" aria-pressed="false">24 h</button><button type="button" class="equity-range motion-button" data-period="7d" aria-pressed="false">7 j</button><button type="button" class="equity-range motion-button" data-period="30d" aria-pressed="false">30 j</button><button type="button" class="equity-range motion-button" data-period="90d" aria-pressed="false">90 j</button><button type="button" class="equity-range motion-button" data-period="180d" aria-pressed="false">6 mois</button><button type="button" class="equity-range motion-button" data-period="365d" aria-pressed="false">1 an</button><button type="button" class="equity-range motion-button" data-period="all" aria-pressed="true">Tout</button><span id="equity-period-note" class="chart-view-note" role="status"></span></div>
@@ -130,19 +131,19 @@
     <p class="hint">Un point par cycle du moteur (toutes les heures). Aucun point n'est inventé entre deux cycles.</p>
   </section>
 
-  <section class="card" aria-labelledby="cal-h">
+  <section class="card" data-workspace="history" aria-labelledby="cal-h">
     <div class="card-h"><h2 id="cal-h">Performance par jour</h2><span class="muted">portefeuille vs BTC conservé, jours de Paris</span></div>
     <div id="cal" class="cal" role="list"></div>
     <p id="cal-note" class="hint"></p>
     <p class="hint">Variation entre la clôture de la veille (dernier cycle du jour précédent) et le dernier cycle du jour. Le premier jour part du premier cycle.</p>
   </section>
 
-  <section class="card" aria-labelledby="dec-h">
+  <section class="card" data-workspace="history" aria-labelledby="dec-h">
     <div class="card-h"><h2 id="dec-h">💬 Décisions de Grok Bot</h2><span class="muted">plus récente en haut</span></div>
     <div id="dec-feed" class="dec-feed"><p class="muted">Chargement…</p></div>
   </section>
 
-  <section class="card" id="trades-panel">
+  <section class="card" data-workspace="history" id="trades-panel">
     <div class="card-h"><h2>Historique des trades</h2></div>
     <div class="table-tools" role="group" aria-label="Explorer les trades"><label for="trades-search">Rechercher</label><input id="trades-search" type="search" placeholder="Crypto ou motif" autocomplete="off"><label for="trades-side">Sens</label><select id="trades-side"><option value="all">Tous</option><option value="buy">Achats</option><option value="sell">Ventes</option></select><button type="button" id="trades-reset" class="filter-reset motion-button">Réinitialiser</button><span id="trades-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="trades"><thead><tr>
@@ -150,14 +151,14 @@
     </tr></thead><tbody></tbody></table></div>
   </section>
 
-  <section class="card" id="journal-panel">
+  <section class="card" data-workspace="history" id="journal-panel">
     <div class="card-h"><h2>Journal</h2></div>
     <div class="table-tools" role="group" aria-label="Explorer le journal"><label for="journal-search">Rechercher</label><input id="journal-search" type="search" placeholder="Ordre, décision, événement" autocomplete="off"><label for="journal-type">Type</label><select id="journal-type"><option value="all">Tous les événements</option><option value="decision">Décisions</option><option value="order">Ordres et exécutions</option><option value="warning">Alertes</option><option value="note">Notes</option></select><label for="journal-limit">Afficher</label><select id="journal-limit"><option value="40">40 récents</option><option value="100">100 récents</option><option value="250">250 récents</option><option value="all">Tout</option></select><button type="button" id="journal-reset" class="filter-reset motion-button">Réinitialiser</button><span id="journal-count" class="table-count" role="status" aria-live="polite"></span></div>
     <p id="journal-scope" class="hint" aria-live="polite"></p>
     <ul id="journal" class="journal"></ul>
   </section>
 
-  <section class="card" aria-labelledby="les-h">
+  <section class="card" data-workspace="history" aria-labelledby="les-h">
     <div class="card-h"><h2 id="les-h">📚 Leçons</h2><span class="muted">docs/LESSONS.md</span></div>
     <div id="lessons" class="md"><p class="muted">Chargement…</p></div>
   </section>
@@ -175,6 +176,7 @@
 <script src="extras.js"></script>
 <script src="app.js"></script>
 <script src="navigation.js"></script>
+<script src="workspace-tabs.js"></script>
 <script src="workspace.js"></script>
 <script src="portfolio-workspace.js"></script>
 <script src="journal-workspace.js"></script>
