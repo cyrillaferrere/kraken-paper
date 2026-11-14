@@ -446,7 +446,7 @@
       if (tb.rows[i] !== tr) tb.insertBefore(tr, tb.rows[i] || null);
     });
     const left = all.length - pairs.length;
-    $("markers-load").textContent = left > 0 ? `Chargement des marqueurs : ${pairs.length} / ${all.length} cryptos…` : "";
+    $("markers-load").textContent = scannerBusy ? `Analyse en cours : ${scannerCompleted} / ${scannerTotal} cryptos…` : left > 0 ? `Données indisponibles : ${left} / ${all.length} cryptos.` : "";
     for (const tr of tb.rows) {
       const p = tr.dataset.pair, r = row(p), td = tr.cells;
       tr.classList.toggle("sel", p === selected.pair);
@@ -458,7 +458,8 @@
     }
   }
 
-  let scannerBusy = false, scannerPending = false;
+  let scannerBusy = false, scannerPending = false, scannerCompleted = 0, scannerTotal = 0;
+  let lastTrackedSignature = "";
   async function refreshMetrics() {
     // Une lecture des marqueurs dure parfois plusieurs secondes. Ne jamais lancer
     // une seconde vague de requêtes en parallèle de la première.
@@ -468,6 +469,9 @@
       do {
         scannerPending = false;
         const pairs = trackedPairs();
+        lastTrackedSignature = pairs.join("|");
+        scannerCompleted = 0;
+        scannerTotal = pairs.length;
         try { await loadMeta(pairs); } catch (e) { /* métadonnées facultatives */ }
         renderChips(); renderTable();
         let err = null, completed = 0;
@@ -476,6 +480,7 @@
         try { await computeMetrics(BENCH); failed.delete(BENCH); }
         catch (e) { err = e; if (!metrics[BENCH]) failed.add(BENCH); }
         completed++;
+        scannerCompleted = completed;
         renderTable();
         const queue = pairs.filter((x) => x !== BENCH);
         // Deux lectures simultanées maximum : pas de rafale de 42 requêtes OHLC.
@@ -485,6 +490,7 @@
             try { await computeMetrics(p); failed.delete(p); }
             catch (e) { err = e; if (!metrics[p]) failed.add(p); }
             completed++;
+            scannerCompleted = completed;
             // Un seul rendu par lot de données terminées, et non par réponse HTTP.
             if (completed % 4 === 0 || completed === pairs.length) renderTable();
           }
@@ -495,6 +501,7 @@
       } while (scannerPending);
     } finally {
       scannerBusy = false;
+      renderTable();
     }
   }
 
@@ -565,6 +572,9 @@
         return;
       }
       renderChips(); renderTable(); overlays();
+      // Les nouvelles positions/ordres ajoutent parfois une paire hors WATCH.
+      // La charger sans attendre les trois minutes du prochain balayage.
+      if (trackedPairs().join("|") !== lastTrackedSignature) refreshMetrics();
     },
   };
 })();
