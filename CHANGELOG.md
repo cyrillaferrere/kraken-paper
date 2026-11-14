@@ -70,6 +70,10 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 
 ## [Unreleased]
 
+### Correctifs prévus pour v0.2.2
+- Rejeter dans le dashboard les cycles equity.csv à valeur négative ou vide (espaces seuls), ainsi que les benchmarks BTC négatifs ; conserver le dernier snapshot valide en cas d'erreur. Tests de non-régression ajoutés. Aucune modification du moteur ou des données PAPER.
+
+
 ### UX/UI — v0.2.1 (en préparation)
 - Navigation compacte par ancres vers les zones du dashboard, accessible au clavier et sur mobile.
 - Positions et ordres ouverts remontés immédiatement après le graphique principal.
