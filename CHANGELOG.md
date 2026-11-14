@@ -1,3 +1,8 @@
+## [Unreleased] — v0.3.1 Nocturne Signal (préproduction)
+- Identité graphique graphite et jade, monogramme K/, surfaces plates, graphiques harmonisés, navigation desktop sans doublon.
+- Version de préproduction `VERSION=0.3.1`, source du bandeau de build Netlify (`version.json`). Voir ADR-21.
+- Aucun changement de calcul, d'ordres, de stratégie ou de données PAPER.
+
 ## [Unreleased] — v0.3.0 UX (proposition)
 - Navigation du dashboard en quatre rubriques, synthèse mobile plus compacte et conservation des données en direct. Voir ADR-20 et PR #37.
 
