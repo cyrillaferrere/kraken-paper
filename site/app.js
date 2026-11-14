@@ -327,13 +327,26 @@
   }
   function renderJournal() {
     const items = journal.slice().reverse().map((e) => [e, journalText(e)]).filter(([, t]) => t).slice(0, 40);
-    $("journal").innerHTML = items.map(([e, t]) => `<li><time>${dt(e.time)}</time><span>${t}</span></li>`).join("") || "<li>Journal vide.</li>";
+    $("journal").innerHTML = items.map(([e, t]) => `<li data-event-type="${esc(e.type)}"><time>${dt(e.time)}</time><span>${t}</span></li>`).join("") || "<li>Journal vide.</li>";
   }
 
+  let equityPeriod = "all";
+  const equityWindows = { "1d": 86400000, "7d": 604800000, "30d": 2592000000 };
+  function setEquityPeriod(period) {
+    if (period !== "all" && !equityWindows[period]) return;
+    equityPeriod = period;
+    document.querySelectorAll(".equity-range").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.period === period)));
+    renderChart();
+  }
+  document.querySelectorAll(".equity-range").forEach((b) => b.addEventListener("click", () => setEquityPeriod(b.dataset.period)));
   function renderChart() {
     const el = $("chart");
-    const pts = equity;
-    if (pts.length < 2) { el.innerHTML = `<div class="empty">La courbe apparaîtra après quelques cycles horaires du moteur.<br>${pts.length} point${pts.length > 1 ? "s" : ""} pour l'instant.</div>`; return; }
+    const end = equity.length ? equity[equity.length - 1].t : 0;
+    const start = equityPeriod === "all" ? -Infinity : end - equityWindows[equityPeriod];
+    const pts = equity.filter((p) => p.t >= start);
+    const note = $("equity-period-note");
+    if (note) note.textContent = pts.length + " / " + equity.length + " cycles affichés";
+    if (pts.length < 2) { el.innerHTML = `<div class="empty">Pas assez de cycles sur cette période (${pts.length} point${pts.length > 1 ? "s" : ""}). Choisissez une période plus longue.</div>`; return; }
     const W = el.clientWidth || 600, H = el.clientHeight || 240, pl = 58, pr = 10, pt = 10, pb = 24;
     const vals = pts.flatMap((p) => [p.eq, p.hold]).filter((v) => v != null);
     let lo = Math.min(...vals), hi = Math.max(...vals);
