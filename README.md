@@ -27,7 +27,7 @@ Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app
 
 - **Aucun ordre réel n'est jamais passé.** Le moteur n'utilise que l'API **publique** de Kraken (`https://api.kraken.com/0/public/...`) : AssetPairs, OHLC, Ticker.
 - Aucune clé API Kraken n'est utilisée, ni dans le dépôt ni dans les secrets GitHub.
-- Le seul secret est `NTFY_TOPIC` (le nom du canal de notifications).
+- Les seuls secrets sont `NTFY_TOPIC` (canal de notifications, secret GitHub Actions) et `GITHUB_DISPATCH_TOKEN` (jeton GitHub pour la fonction planifiée Netlify). Aucun des deux n'est dans le dépôt.
 
 ## Comment ça marche
 
@@ -39,9 +39,9 @@ Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app
 | `state/journal.jsonl` | Journal en ajout seul : décisions, ordres, exécutions, annulations, refus, notes. |
 | `state/equity.csv` | Un point par cycle : valeur du portefeuille et valeur de « BTC conservé ». |
 | `site/` | Le tableau de bord (HTML/CSS/JS, sans framework). |
-| `tests/test_engine.py` | Tests rapides, sans réseau : `python -m unittest -v` |
+| `tests/test_engine.py`, `tests/test_reservations.py` | Tests rapides, sans réseau : `python -m unittest -v` |
 
-À chaque cycle (minute 7 de chaque heure, et à chaque push dans `decisions/`), le moteur :
+À chaque cycle (fonction planifiée Netlify à la minute 9 UTC une fois la v0.2.0 en prod, cron GitHub à la minute 7 UTC en secours, et à chaque push dans `decisions/`), le moteur :
 
 1. charge l'état ;
 2. applique les nouvelles décisions (chacune une seule fois, grâce à son `id`) ;
@@ -110,8 +110,9 @@ Le nom du canal est secret (quiconque le connaît peut lire les notifications) :
 ## Lancer en local
 
 ```bash
-python -m unittest -v      # tests sans réseau
-node --test tests/site/*.test.js   # fonctions du dash (ordres, exposition, calendrier, markdown…)
+python -m unittest -v                    # moteur, sans réseau
+node --test tests/site/*.test.js         # fonctions du dash (ordres, exposition, calendrier, markdown…)
+node --test tests/functions/*.test.mjs   # fonction planifiée Netlify (fetch mocké)
 python engine/run.py       # un cycle (modifie state/)
 ```
 

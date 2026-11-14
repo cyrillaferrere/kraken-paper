@@ -44,8 +44,9 @@ Réservés : `chore: cycle ...` (moteur), `decision: <id>` (Grok Bot), `release:
 ## Tests à lancer
 
 ```bash
-python -m unittest -v                  # moteur, sans réseau (obligatoire, aussi lancé par chaque cycle)
-node --test tests/site/*.test.js       # calcul des ordres du dash
+python -m unittest -v                    # moteur, sans réseau (obligatoire, aussi lancé par chaque cycle)
+node --test tests/site/*.test.js         # calcul des ordres du dash
+node --test tests/functions/*.test.mjs   # fonction planifiée Netlify (fetch mocké)
 ```
 Pour le site : servir `site/` (`python -m http.server -d site 8000`), vérifier bureau et mobile, console sans erreur,
 puis tester sur la préprod. Les animations suivent le skill **kraken-motion-ux** : jetons CSS communs, `opacity` et
@@ -56,7 +57,7 @@ respecté, aucune donnée de prix inventée ou interpolée, aucune animation qui
 
 1. **Aucun ordre réel.** Le moteur et le site n'utilisent que l'API **publique** Kraken (`/0/public/...`).
 2. **Aucune clé Kraken** (ni privée ni en lecture seule) dans le dépôt, les secrets GitHub, Netlify ou un fichier déployé.
-   Le seul secret est `NTFY_TOPIC`.
+   Les seuls secrets sont `NTFY_TOPIC` (GitHub Actions) et `GITHUB_DISPATCH_TOKEN` (variable Netlify, scope functions). Aucun des deux n'est dans le dépôt ni dans un fichier déployé.
 3. **Ne jamais modifier `state/` à la main**, sauf la procédure de récupération du [RUNBOOK](RUNBOOK.md), avec l'accord de Cyril.
 4. **`decisions/` est réservé à Grok Bot.** Un `id` n'est jamais réutilisé, un fichier appliqué n'est jamais modifié.
 5. **Pas de prod sans l'accord de Cyril.**

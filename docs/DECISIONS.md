@@ -74,3 +74,20 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 ## ADR-10 : rôles (13/11/2026)
 - **Décision** : Grok Bot garde la main technique et les décisions de trading ; GPT maintient et fait évoluer le code par PR
   relues par Grok Bot ; Cyril valide la prod. Pas d'équipe de bots en discussion permanente (double la consommation).
+
+## ADR-13 : déclencheur externe Netlify, cron GitHub en secours (14/11/2026)
+- **Contexte** : le cron GitHub Actions (`'7 * * * *'` dans `engine.yml`) est peu fiable sur un dépôt public gratuit :
+  il peut partir en retard ou sauter des créneaux (aucun cycle planifié entre 03h15 et 09h03 heure de Paris le 14/11/2026).
+  Changer l'horaire n'y change pas grand-chose.
+- **Décision** : une fonction planifiée Netlify (`netlify/functions/engine-trigger.mjs`, cron `'9 * * * *'` UTC, légèrement
+  décalée) appelle l'API GitHub `workflow_dispatch` du workflow `engine.yml` sur `ref: main`. Le cron GitHub reste en
+  secours. Le jeton `GITHUB_DISPATCH_TOKEN` (fine-grained, dépôt `cyrillaferrere/kraken-paper` seulement, permission
+  Actions lecture/écriture) est une variable d'environnement du **même** site `kraken-paper`, scope `functions`, tous
+  contextes ; il n'est jamais commité ni journalisé. Netlify n'exécute les fonctions planifiées que sur le déploiement
+  de production publié.
+- **Conséquences** : le moteur continue de ne tourner que depuis `main` (garde-fou `if:` du workflow). Un double
+  déclenchement (Netlify + cron, ou deux appels rapprochés) est sans risque : le moteur est idempotent (rejeu des bougies
+  déjà traitées ignoré via `last_candle`, décisions déjà appliquées ignorées via `processed_decisions`), le workflow a
+  un groupe de concurrence `kraken-paper-engine` (`cancel-in-progress: false`), et la fonction ne dispatch pas si un run
+  est déjà `in_progress` ou `queued`. Le jeton expire (90 jours, vers le 12/02/2027) : procédure de rotation dans le
+  [RUNBOOK](RUNBOOK.md). La fonction ne commencera à tourner qu'après la mise en prod de la v0.2.0.
