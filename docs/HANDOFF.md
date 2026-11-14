@@ -1,3 +1,8 @@
+## Retour au dashboard de production — ADR-25
+- Branche de travail `fix/restore-prod-ui-preprod` basée sur `preprod` : fichiers du site remis à l'identique de `main`, sans reprendre l'état vivant ni les décisions.
+- Les tests créés pour les workspaces de `preprod` peuvent devoir être adaptés ou retirés dans un lot de nettoyage contrôlé. Vérifier CI et rendu Netlify avant toute fusion.
+- PR #41 Analog / Robotic exclue. `main` et `preprod` inchangées tant que la PR de restauration n'est pas validée.
+
 ## Refonte visuelle v0.3.1 — Nocturne Signal
 - Branche feature/v0.3.1-nocturne-signal ; design CSS, palette graphique Lightweight Charts, monogramme K/, VERSION 0.3.1.
 - ADR : docs/ADR-21-NOCTURNE-SIGNAL.md. La préproduction seule reçoit cette version ; main et PAPER restent intacts.
