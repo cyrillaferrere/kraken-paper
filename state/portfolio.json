@@ -7,7 +7,34 @@
   "start_ts": 1794606984,
   "cash": 6461.403989,
   "positions": {},
-  "open_orders": [],
+  "open_orders": [
+    {
+      "id": "O0013",
+      "pair": "XBTUSDC",
+      "side": "buy",
+      "qty": 0.00475803,
+      "price": 62800.0,
+      "stop_loss": 61500.0,
+      "take_profit": null,
+      "created": "2026-11-15T00:09:13+01:00",
+      "active_from": 1794700800,
+      "parent": null,
+      "decision_id": "2026-11-15-00h15",
+      "take_profits": [
+        {
+          "price": 65000.0,
+          "fraction": 0.5,
+          "qty": 0.00237901
+        },
+        {
+          "price": 68500.0,
+          "fraction": 0.5,
+          "qty": 0.00237902
+        }
+      ],
+      "breakeven_after_tp1": true
+    }
+  ],
   "closed_trades": [
     {
       "id": "T0001",
@@ -110,13 +137,14 @@
     "2026-11-14-09h05",
     "2026-11-14-14h10",
     "2026-11-14-19h10",
-    "2026-11-14-20h20"
+    "2026-11-14-20h20",
+    "2026-11-15-00h15"
   ],
   "last_decision": {
-    "id": "2026-11-14-20h20",
-    "timestamp": "2026-11-14T20:20:00+01:00",
-    "rationale": "Correction immédiate des sorties. En rapprochant les objectifs à 19h (BTC 68 400, SOL 77,5, ETH 1 930) tout en gardant des stops lointains, le ratio gain/risque net de frais est tombé à 0,26 / 0,23 / 0,32. C'est insuffisant : à ce niveau il faudrait plus de trois trades gagnants sur quatre rien que pour ne pas perdre. Règle désormais permanente : chaque position doit afficher un gain/risque d'au moins 1,5 : 1, idéalement 2 : 1, mesuré depuis le PRU, frais compris (objectif en maker 0,40 %, stop en taker 0,80 % plus 0,1 % de glissement), comme le calcule le dash. Je remplace les trois OCO. BTC : stop remonté à 64 000, juste sous le support de 65 000 touché à 17h, avec un coussin d'environ 1 000 USDC (0,8 ATR 4h) pour ne pas se faire sortir par le bruit, objectif 74 700 sous le plus haut du 11 novembre (74 736), ratio 2,01. ETH : le prix colle au plus bas de 3 mois (1 811), je ne remonte pas le stop (1 755, encore 1,3 ATR 4h sous ce plus bas, près du plus bas journalier du 13 juillet à 1 750), objectif 2 173 sur l'ancien plus bas journalier du 30 octobre, ratio 2,07. SOL : stop inchangé à 70,50, juste sous le plus bas journalier du 1er août (70,59) ; le prix vient de faire un nouveau plus bas de 3 mois à 71,81, remonter le stop le ferait sauter au moindre bruit. Objectif 88,22 sur l'ancien plus bas journalier du 5 novembre, ratio 2,03. Aucune vente au marché : les trois couples stop/objectif tiennent techniquement et respectent la règle, vendre maintenant au taker figerait une perte de 3 à 6 % pile sur les plus bas.",
-    "applied": "2026-11-14T20:20:40+01:00"
+    "id": "2026-11-15-00h15",
+    "timestamp": "2026-11-15T00:15:00+01:00",
+    "rationale": "Test demandé par Cyril pour vérifier l'affichage des sorties par paliers (v0.3.1) sur le dash. Petit montant (300 USDC) et achat limite posé sur le plancher, pas au marché, pour rester cohérent avec la leçon du 14/11 : pas d'achat dans la baisse sans signal. BTC à 63 465, plus bas 3 mois à 62 714 : achat limite à 62 800, juste au-dessus. Stop à 61 500, sous le plancher 3 mois avec un coussin pour le bruit. Palier 1 : moitié à 65 000 (environ 1:1, retour sur le support cassé), puis stop remonté au prix d'entrée sur le reste. Palier 2 : l'autre moitié à 68 500. Ratio gain/risque net de frais sur la position entière environ 1,6, au-dessus du minimum de 1,5.",
+    "applied": "2026-11-15T00:09:13+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -151,12 +179,12 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794690000,
+    "XBTUSDC": 1794693600,
     "ETHUSDC": 1794690000,
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 63746.25,
+    "XBTUSDC": 63461.56,
     "ETHUSDC": 1774.47,
     "SOLUSDC": 70.48
   },
@@ -169,11 +197,11 @@
   "fees_total": 25.337387,
   "realized_pnl": -145.016011,
   "seq": {
-    "order": 12,
+    "order": 13,
     "trade": 6
   },
-  "last_cycle": "2026-11-14T23:09:14+01:00",
-  "last_cycle_ts": 1794694154,
+  "last_cycle": "2026-11-15T00:09:13+01:00",
+  "last_cycle_ts": 1794697753,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
