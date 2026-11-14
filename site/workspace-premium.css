@@ -40,7 +40,7 @@ main {padding:8px 28px 36px;gap:16px}
 .kpis .kpi,.kpis .kpi.big {background:transparent;border:0;border-radius:0;box-shadow:none;padding:8px 22px 6px;min-width:0}
 .kpis .kpi:first-child {padding-left:0}
 .kpis .kpi + .kpi {border-left:1px solid #33424a}
-.kpi h2 {font:650 11px/1.4 inherit;color:#9fb2bd;letter-spacing:.04em}
+.kpi h2 {font:650 11px/1.4 var(--signal-sans);color:#9fb2bd;letter-spacing:.04em}
 .kpi .v {font-family:inherit;font-size:clamp(22px,2.1vw,32px);letter-spacing:-.04em;font-weight:700;color:#e9f0f3;margin:11px 0 5px}
 .kpi.big .v {font-size:clamp(31px,3vw,46px);color:#f2f6f8}
 .kpi .s {font-family:inherit;font-size:12px;color:#9fb2bd}
@@ -48,7 +48,7 @@ main {padding:8px 28px 36px;gap:16px}
 .card,.kpi {box-shadow:none}
 .card {background:#192229;border:1px solid #2c3b44;border-radius:11px;padding:20px 22px}
 .card-h {border-bottom:0;padding-bottom:0;margin-bottom:14px}
-.card-h h2 {font:650 15px/1.35 inherit;letter-spacing:-.015em;text-transform:none;color:#e8f0f3}
+.card-h h2 {font:650 15px/1.35 var(--signal-sans);letter-spacing:-.015em;text-transform:none;color:#e8f0f3}
 .card-h::before,#market-card .card-h::before {content:none}
 .duo {gap:14px;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr)}
 #market-card {background:#151e24;border:1px solid #31424b;border-radius:12px;padding:22px 24px}
@@ -61,8 +61,8 @@ main {padding:8px 28px 36px;gap:16px}
 .exp-bar::after {background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(15,21,26,.7) 9px 11px)}
 .exp-risk {color:#bbcbd2}
 .analog-scale {font-size:10px;color:#91a8b5}
-.cd dt {font:650 11px/1.5 inherit;color:#96aeb9}
-.cd dd {font:650 16px/1.5 inherit;color:#eaf1f4}
+.cd dt {font:650 11px/1.5 var(--signal-sans);color:#96aeb9}
+.cd dd {font:650 16px/1.5 var(--signal-sans);color:#eaf1f4}
 .chip,.seg,.chart-range,.chart-reset,.equity-range,.filter-reset,.tgl {border-radius:7px;font-family:inherit}
 .chip {background:#202c34;border-color:#35464f;color:#bacbd3;min-height:36px}
 .chip[aria-pressed="true"] {background:#2a3e40;border-color:#65988f;color:#edf8f5}
