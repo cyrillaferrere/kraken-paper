@@ -1,5 +1,10 @@
 # Kraken Paper : document de reprise
 
+## Intégration dashboard : contrat de bout en bout
+- Branche `fix/v0.2.1-integrated-dashboard-contracts` : `site/markets.js` et `tests/site/integrated-dashboard-contracts.test.js`.
+- Une paire disparue pendant la session déclenche désormais une nouvelle lecture du graphique BTC ; avant, seule la sélection visuelle changeait.
+- Les tests couvrent les contrats statiques et de cohérence ; une recette interactive sur le site déployé reste indispensable. Aucun changement du moteur PAPER ni de production.
+
 ## Scanner : intégration et récupération des paires
 - Branche `fix/v0.2.1-scanner-failure-recovery` vers `preprod`. Le scanner indique `scannerCompleted/scannerTotal` pendant la lecture, et distingue les paires indisponibles en fin de cycle.
 - Les nouvelles paires provenant des positions ou ordres déclenchent une nouvelle analyse. Tests `tests/site/scanner-recovery.test.js`.
