@@ -9,7 +9,7 @@
     return {
       pair: typeof o.pair === "string" && /^[A-Z0-9]{2,20}USDC$/.test(o.pair) ? o.pair : "XBTUSDC",
       tf: intervals.includes(o.tf) ? o.tf : "1h",
-      bars: (typeof o.bars === "number" && ranges.includes(o.bars)) ? o.bars : 120,
+      bars: ranges.includes(Number(o.bars)) ? Number(o.bars) : 120,
     };
   }
   function read(storage) {
