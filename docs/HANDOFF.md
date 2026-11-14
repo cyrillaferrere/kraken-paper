@@ -1,3 +1,7 @@
+## v0.2.2 — Préférences graphiques robustes (branche fix/v0.2.2-chart-preferences)
+- Rejet explicite des tableaux JSON comme objet de préférences. Les valeurs stockées valides restent compatibles. Tests et CI à faire.
+- Périmètre interface uniquement, aucune modification de production, de state/, decisions/ ou du moteur. Relecture Grok Bot et recette navigateur avant fusion.
+
 # Kraken Paper : document de reprise
 
 ## Cause racine du débordement mobile
