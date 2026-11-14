@@ -107,5 +107,11 @@
       "zip_crc32": "5be90e27",
       "sha256": "8e223ba40708314039ed95dfdff9c833d8f5341b43b59a95d73bc8aba132baed"
     }
-  ]
+  ],
+  "official_manifest": {
+    "source_entry": "MANIFEST.json",
+    "size": 360,
+    "zip_crc32": "830b6e58",
+    "sha256": "2e3eef939692f2520847674dc2e69b00796f1c230429509cb8c12649458853bd"
+  }
 }
