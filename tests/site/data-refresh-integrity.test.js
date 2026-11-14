@@ -23,7 +23,7 @@ test("portfolio, equity and journal parse before publication", () => {
 
 test("out-of-order price responses cannot overwrite newer prices or error status", () => {
   assert.match(app, /const request = \+\+priceRequest;/);
-  assert.match(app, /if \(request !== priceRequest\) return;\s*live = out/);
+  assert.match(app, /if \(request !== priceRequest\) return;\s*live = parsed\\.values/);
   assert.match(app, /if \(request === priceRequest\) liveOk = false;/);
 });
 
