@@ -1,3 +1,9 @@
+## PR finition v0.3.1 — préparation publication
+- Branche `fix/v0.3.1-release-polish` issue de `preprod`, après fusion PR #46 (`d2942a0`).
+- `VERSION=0.3.1` ; affichage du nouveau stop et des TP dans `pending_exits`, formateurs testables dans `site/app.js`.
+- Trois tests JS ciblés et un test Python de compatibilité de vente limite (break-even ignoré sur vente indépendante).
+- Vérifier CI, déploiement preprod et affichage mobile. Ne pas toucher à `main` ni aux données vivantes sans autorisation explicite.
+
 ## PR v0.3.1 — trois P2 de la revue Grok Bot
 - Branche `feature/v0.3.1-p2-finishing` depuis `preprod`.
 - `site/app.js` : sorties en attente et TP dans `order_placed` ; `site/style.css` : signal visuel accessible.
