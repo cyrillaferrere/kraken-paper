@@ -450,6 +450,7 @@
   // ---------- interactions ----------
   function selectPair(p) {
     if (!p || p === selected.pair) return;
+    hoveredCandleTime = null;
     selected.pair = p;
     renderChips(); renderTable(); loadChart();
   }
