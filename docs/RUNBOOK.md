@@ -1,3 +1,9 @@
+## Recette finale v0.3.1 avant proposition de production
+- Vérifier VERSION 0.3.1, commit affiché, bandeau pending avec nouveau stop et TP1/TP2, ancien stop actif.
+- Vérifier journal ordre à deux TP et TP unique historique ; vente limite avec break-even sans stop conservée sans effet.
+- Lancer les tests Python, site, functions et la CI ; inspecter le déploiement Netlify preprod sur mobile.
+- Demander l'accord explicite de Cyril avant toute fusion dans main ou déploiement de production.
+
 ## Recette v0.3.1 — finitions TP (P2)
 - Sur un ordre de vente avec `pending_exits`, vérifier la mention de la date d’activation et la visibilité du stop actuellement actif.
 - Sur un événement `order_placed` avec `take_profits`, vérifier chaque TP et sa fraction.
