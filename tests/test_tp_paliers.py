@@ -82,7 +82,11 @@ class TieredExitTests(unittest.TestCase):
         events, _, _ = run.run_cycle(self.state, [decision("update", action)], FakeMarket(), T0 + 60)
         self.assertFalse(any(e["type"] == "rejected" for e in events))
         self.assertEqual(len(self.state["open_orders"]), 1)
+        self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
+        self.assertIn("pending_exits", self.state["open_orders"][0])
+        self.candle(T0 + H, 68000, 64000)
         self.assertEqual([x["qty"] for x in self.state["open_orders"][0]["take_profits"]], [0.005, 0.015])
+        self.assertEqual(self.state["open_orders"][0]["stop_loss"], 61000)
 
     def test_invalid_fractions_rejected(self):
         with self.assertRaises(run.Rejected):
@@ -117,6 +121,18 @@ class TieredExitTests(unittest.TestCase):
              "take_profits": [{"price": 74000, "fraction": 1.0}]}
         run.run_cycle(self.state, [decision("rework", a)], FakeMarket(last=68000), T0 + H + 60)
         self.assertEqual(self.state["open_orders"][0]["tp_filled"], 1)
+        self.candle(T0 + 2 * H, 69000, 65000)
+        self.assertEqual(self.state["open_orders"][0]["tp_filled"], 1)
+        self.assertEqual(self.state["open_orders"][0]["take_profits"][0]["price"], 74000)
+
+    def test_pending_update_keeps_old_stop(self):
+        action = {"type": "update_exits", "pair": self.pair, "stop_loss": 60000,
+                  "take_profits": [{"price": 75000, "fraction": 1.0}]}
+        run.run_cycle(self.state, [decision("pending", action)], FakeMarket(last=65000), T0 + 60)
+        self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
+        fills = self.candle(T0, 65000, 61000)
+        self.assertEqual(fills[0]["reason"], "stop_loss")
+        self.assertEqual(self.state["open_orders"], [])
 
     def test_legacy_single_tp(self):
         st = run.new_state(T0 - 10)
