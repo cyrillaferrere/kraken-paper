@@ -191,3 +191,13 @@ le dash attend 10 min et affiche les décisions depuis le journal.
 **Pour Grok Bot** : lire la PR de cette branche vers `preprod`, inspecter les checks GitHub, vérifier les chemins protégés et confirmer que les tests passent. Ne pas confondre tests verts et blocage des merges : configuration cible : PR et checks obligatoires uniquement sur `preprod` ; sur `main`, ni PR ni checks obligatoires, car le moteur et Grok Bot poussent directement. Sur `main`, interdire force-push/suppression et, si techniquement réalisable, restreindre les pushes à `github-actions[bot]` et `cyrillaferrere` ; ne pas activer de règle sans accord explicite de Cyril. Une fois les checks et la revue validés, intégrer dans `preprod` et tester. Aucune release `main` ni prod sans validation de Cyril.
 
 **Reste à faire** : vérifier les checks CI à nouveau après ces corrections documentaires, passer la PR Ready et fusionner en squash dans `preprod` après validation ; ne configurer les règles GitHub qu'après accord explicite de Cyril, et uniquement selon la matrice `preprod`/`main` documentée dans le RUNBOOK. Puis lancer les développements UX v0.3.0. Les tests navigateur/visuels restent manuels à ce stade.
+
+## 12. Déploiement préprod autonome par GPT (ADR-16, 14/11/2026)
+
+**Pourquoi** : la préprod v0.2.0 commit `7f58759` a été déployée et vérifiée par Grok Bot ; l'objectif est de permettre à GPT de déployer les prochains changements sans consommer le forfait Grok Bot.
+
+**Implémentation** : branche `feature/preprod-deploy-actions`, PR vers `preprod` ; nouveau workflow `.github/workflows/deploy-preprod.yml`, déclenchement manuel seulement sur `preprod`, environnement GitHub `preprod`, secret `NETLIFY_AUTH_TOKEN`, script existant `scripts/deploy.sh preprod`, vérification du commit via `version.json`. Pas de déclencheur sur `main`, pas de `--prod`, pas d'écriture dans `state/` ou `decisions/`, pas de changement de logique de trading.
+
+**Reprise Grok Bot / GPT** : après revue et CI vertes, fusionner la PR dans `preprod` ; Cyril configure une seule fois le secret GitHub de l'environnement `preprod` sans jamais le partager en chat. Déclencher le workflow sur la branche `preprod` via GitHub Actions et vérifier que le SHA du dashboard correspond au commit de `preprod`. Si le run est ignoré, vérifier la branche choisie ; si le run échoue, consulter les logs sans afficher le secret. Le jeton Netlify n'est pas intrinsèquement restreint à la préprod : la sécurité repose aussi sur le workflow et les permissions du compte Netlify. **Aucun déploiement prod sans accord de Cyril.**
+
+**Statut** : workflow proposé, non activé tant que la PR n'est pas fusionnée et que le secret n'est pas configuré. Aucune règle GitHub changée.
