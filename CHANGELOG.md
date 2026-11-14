@@ -1,5 +1,11 @@
 # Changelog
 
+## Préproduction v0.2.1 — fiabilité du chandelier
+- Les réponses OHLC tardives ne peuvent plus écraser la paire ou l'unité de temps actuellement sélectionnée.
+- Validation stricte des bougies Kraken avant leur mise en cache : horodatage, prix, volumes et chronologie.
+- Conservation du dernier graphique valide en cas d'erreur réseau ou de données.
+- Tests de non-régression et ADR-19.
+
 ## Préproduction v0.2.1 — garde-fous des données publiques
 - Validation stricte des historiques equity.csv et journal.jsonl : pas de suppression silencieuse d'événements corrompus.
 - Prix Kraken non positifs ou non numériques rejetés, statut partiel explicite et repli sur les prix du cycle moteur.

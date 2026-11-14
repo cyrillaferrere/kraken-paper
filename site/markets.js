@@ -74,8 +74,7 @@
     if (c && c.pending) return c.pending;
     if (c && !force && Date.now() - c.at < TTL[iv]) return c.bars;
     const pending = apiGet(`OHLC?pair=${pair}&interval=${iv}`).then((res) => {
-      const key = Object.keys(res).find((x) => x !== "last");
-      const bars = (res[key] || []).map((r) => ({ t: +r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[6] }));
+      const bars = window.KPOHLC.parse(res);
       cache.set(k, { at: Date.now(), bars });
       return bars;
     }).catch((e) => { if (c) cache.set(k, c); else cache.delete(k); throw e; });
@@ -225,12 +224,14 @@
 
   function setChartMsg(msg) { const m = $("mchart-msg"); m.textContent = msg || ""; m.hidden = !msg; }
 
-  let lastChartLoad = 0, chartBusy = false;
+  let lastChartLoad = 0, chartBusy = false, chartRequest = 0;
   async function loadChart(force) {
+    const request = ++chartRequest;
     chartBusy = true;
-    try { await loadChartInner(force); } finally { chartBusy = false; }
+    try { await loadChartInner(force, request); }
+    finally { if (request === chartRequest) chartBusy = false; }
   }
-  async function loadChartInner(force) {
+  async function loadChartInner(force, request) {
     const p = selected.pair, iv = TF[selected.tf], key = p + "|" + iv;
     lastChartLoad = Date.now();
     if (!initChart()) { setChartMsg("La bibliothèque de graphiques n'a pas pu se charger (CDN injoignable). Le tableau des marqueurs reste à jour."); return; }
@@ -239,7 +240,7 @@
     if (switching) wrap.classList.add("is-loading");
     try {
       const bars = await ohlc(p, iv, force);
-      if (selected.pair !== p || TF[selected.tf] !== iv) return; // l'utilisateur a changé entre-temps
+      if (request !== chartRequest || selected.pair !== p || TF[selected.tf] !== iv) return; // réponse ancienne : ne jamais écraser la sélection courante
       const d = seriesData(bars);
       if (switching || !shown.lastT) {
         setPriceFormat(p);
@@ -260,9 +261,9 @@
       overlays();
       setChartMsg("");
     } catch (e) {
-      setChartMsg("Bougies Kraken indisponibles pour l'instant (" + e.message + "). Nouvel essai automatique.");
+      if (request === chartRequest) setChartMsg("Bougies Kraken indisponibles pour l'instant (" + e.message + "). Nouvel essai automatique.");
     } finally {
-      if (selected.pair === p && TF[selected.tf] === iv) wrap.classList.remove("is-loading");
+      if (request === chartRequest) wrap.classList.remove("is-loading");
     }
   }
 

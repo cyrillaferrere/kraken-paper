@@ -131,3 +131,8 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 - **Contexte** : le navigateur supprimait silencieusement les lignes de journal JSONL malformées et les cycles CSV invalides ; des prix Kraken absents ou non numériques pouvaient être interprétés comme disponibles.
 - **Décision** : valider les trois sources avant publication, rejeter le snapshot entier en cas d'historique incohérent, ignorer les prix de marché non positifs/non finis et afficher le nombre de paires effectivement reçues. Conserver les valeurs du dernier cycle pour les paires sans prix direct.
 - **Conséquences** : aucun événement d'audit perdu silencieusement ; l'ancien snapshot reste affiché avec une alerte jusqu'au prochain essai ; les données live partielles sont explicitement signalées. Aucun changement moteur ni stratégie.
+
+## ADR-19 : isoler les chargements de chandeliers concurrents (14/11/2026)
+- **Contexte** : un changement rapide de paire ou d'unité de temps pouvait laisser une requête OHLC précédente modifier le graphique, son message d'erreur ou son indicateur de chargement ; des bougies invalides entraient dans le cache.
+- **Décision** : numéroter chaque demande de graphique et autoriser seulement la plus récente à mettre à jour les séries et les états d'interface. Valider les OHLC (chronologie, valeurs finies, cohérence haut/bas, volume) avant mise en cache ; conserver le dernier graphique valide en cas d'erreur.
+- **Conséquences** : navigation rapide stable et erreurs explicites, sans modifier les ordres, les prix de simulation ou la stratégie. Le cache est protégé contre les réponses incohérentes ; une requête périmée peut se terminer mais ne peut pas écraser le rendu courant.
