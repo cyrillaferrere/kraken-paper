@@ -4,6 +4,8 @@ Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
 ## Contrôles UX v0.2.1 (branche feature)
 
+Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie. Vérifier le choix de fenêtre sur BTC et SOL, le recentrage après zoom/déplacement manuel, le survol pendant un rafraîchissement, les dimensions mobiles et le clavier.
+
 Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Vérifier aussi le retour du focus dans le champ de recherche après « Effacer les filtres ».
 
 Lot `feature/v0.2.1-market-workspace` : tester recherche d'une crypto et d'un identifiant d'ordre, filtre achat/vente, filtre de tendance 4 h / 1 j, compteurs affichés, réinitialisation des filtres, stabilité après rafraîchissement des données, détails d'ordre ouverts, affichage à 375/820/1440 px, navigation clavier. Les filtres n'agissent que sur les lignes HTML et ne doivent pas changer les ordres ni les indicateurs.

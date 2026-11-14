@@ -67,6 +67,14 @@
       <button type="button" id="ord-toggle" class="tgl motion-button" aria-pressed="true" title="Afficher ou masquer les lignes d'ordres, stops et objectifs">Ordres : affichés</button>
     </div>
     <div id="pair-chips" class="chips" aria-label="Choix de la crypto"></div>
+    <div class="chart-tools" role="group" aria-label="Fenêtre visible du graphique">
+      <span class="chart-tools-label">Vue</span>
+      <button type="button" class="chart-range motion-button" data-bars="60" aria-pressed="false">60 bougies</button>
+      <button type="button" class="chart-range motion-button" data-bars="120" aria-pressed="true">120 bougies</button>
+      <button type="button" class="chart-range motion-button" data-bars="240" aria-pressed="false">240 bougies</button>
+      <button type="button" id="chart-reset" class="chart-reset motion-button" title="Recentrer sur les dernières bougies">Recentrer</button>
+      <span id="chart-view-note" class="chart-view-note" aria-live="polite">120 dernières bougies</span>
+    </div>
     <div id="mlegend" class="mlegend" aria-live="off"></div>
     <div id="mchart-wrap" class="mchart-wrap">
       <div id="mchart" class="mchart" role="img" aria-label="Graphique en bougies avec moyennes mobiles 20 et 50, volume et RSI 14"></div>

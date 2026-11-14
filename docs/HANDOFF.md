@@ -1,5 +1,7 @@
 # Kraken Paper : document de reprise
 
+> Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie. Branche `feature/v0.2.1-chart-workspace` à valider avant fusion.
+
 > Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Branche `fix/v0.2.1-filter-reliability`, PR à valider vers `preprod`.
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
