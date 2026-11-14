@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   deploy:
+    environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -34,7 +35,7 @@ jobs:
           python3 - <<'PY'
           import json, os, re
           p = json.load(open('.github/prod-release-request.json'))
-          assert p.get('approved_by') == 'Cyril', 'Missing explicit release approval'
+          assert p.get('approved_by') == 'Cyril', 'Missing release requester identity (not authorization)'
           assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', p.get('version', '')), 'Invalid version'
           assert re.fullmatch(r'[0-9a-f]{40}', p.get('approved_commit', '')), 'Invalid approved commit'
           assert p.get('environment') == 'production', 'Wrong environment'
@@ -82,7 +83,7 @@ jobs:
           CI: 'true'
         run: |
           set -euo pipefail
-          test -n "$NETLIFY_AUTH_TOKEN" || { echo "::error::NETLIFY_AUTH_TOKEN missing; configure repository secret"; exit 1; }
+          test -n "$NETLIFY_AUTH_TOKEN" || { echo "::error::NETLIFY_AUTH_TOKEN missing; configure production environment secret"; exit 1; }
           bash scripts/deploy.sh prod
       - name: Verify published production version and commit
         shell: bash
