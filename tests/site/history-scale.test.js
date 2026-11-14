@@ -15,7 +15,7 @@ test("100k cycles compute extrema without argument-spread overflow", () => {
   const points = Array.from({ length: 100000 }, (_, i) => ({ t: i, eq: i === 75321 ? -42 : 100 + i / 1000, hold: i === 54021 ? 900 : null }));
   const bounds = extent(points);
   assert.equal(bounds.min, -42);
-  assert.equal(bounds.max, 1099.99);
+  assert.equal(bounds.max, 900);
   const out = sample(points, 1200);
   assert.ok(out.length < 1250, "SVG point budget");
   assert.equal(out[0].t, 0);
