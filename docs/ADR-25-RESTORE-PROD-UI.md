@@ -16,3 +16,8 @@ Cyril abandonne les pistes Analog / Robotic et Graphite / Signal et demande de r
 ## Risques
 - Tests propres aux espaces de préproduction devenus incompatibles avec la version production.
 - Le déploiement Netlify doit être contrôlé ; ne pas confondre retour au code production et retour à l'état vivant de trading.
+
+## Ajustements de validation
+- Conserver `site/data-validators.js` et `site/chart-preferences.js` de `preprod` : les validations strictes des valeurs négatives et préférences malformées ne sont pas des changements de style et ne doivent pas être perdues.
+- Adapter les tests de navigation et de structure aux éléments réellement présents dans la production.
+- Les deploy previews Netlify sont toujours construits ; la règle d'ignorance des builds de production reste inchangée pour les cycles de données.
