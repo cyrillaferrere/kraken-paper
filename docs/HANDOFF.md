@@ -1,5 +1,10 @@
 # Kraken Paper : document de reprise
 
+## Lot unique de refonte mobile — à valider sur appareil
+- Branche `feature/v0.2.1-mobile-dashboard-overhaul` : CSS responsive des quatre tableaux, filtres, KPI, chandelier et journal ; tests `mobile-dashboard-layout.test.js`.
+- Les tableaux desktop et le calcul des ordres sont inchangés. Sous 680 px, les lignes sont des fiches ; les détails des ordres restent pilotés par le bouton existant.
+- Avant validation Grok Bot : contrôler iPhone Safari (320/375/430 px), Android Chrome, tablette 768 px, desktop, clavier/VoiceOver, filtres, détails et mise à jour en direct. La CI ne constitue pas une recette visuelle.
+
 ## Intégration dashboard : contrat de bout en bout
 - Branche `fix/v0.2.1-integrated-dashboard-contracts` : `site/markets.js` et `tests/site/integrated-dashboard-contracts.test.js`.
 - Une paire disparue pendant la session déclenche désormais une nouvelle lecture du graphique BTC ; avant, seule la sélection visuelle changeait.
