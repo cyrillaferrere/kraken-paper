@@ -278,3 +278,10 @@ le dash attend 10 min et affiche les décisions depuis le journal.
 **Reprise Grok Bot / GPT** : après revue et CI vertes, fusionner la PR dans `preprod` ; Cyril configure une seule fois le secret GitHub de l'environnement `preprod` sans jamais le partager en chat. La fusion dans `preprod` déclenche le workflow automatiquement ; vérifier que le SHA du dashboard correspond au commit de `preprod`. Si aucun run ne démarre, vérifier le push vers `preprod` et la présence du workflow ; si le run échoue, consulter les logs sans afficher le secret. Le jeton Netlify n'est pas intrinsèquement restreint à la préprod : la sécurité repose aussi sur le workflow et les permissions du compte Netlify. **Aucun déploiement prod sans accord de Cyril.**
 
 **Statut** : workflow proposé, secret GitHub `preprod` configuré le 14/11/2026 ; attendre la revue Grok Bot, la fusion et le premier run réussi. Le déclencheur manuel a été remplacé par `push` sur `preprod` pour éviter l'exigence GitHub de présence sur la branche par défaut. Aucune règle GitHub changée.
+
+
+## Publication production pilotable depuis GitHub
+- Workflow `.github/workflows/deploy-production-controlled.yml` : une demande explicite `.github/prod-release-request.json` poussée sur `deploy/prod-request` déclenche tests et publication du code `main`, puis vérification du `version.json` public.
+- Ne jamais modifier `state/` ni `decisions/`. Les cycles moteur sur `main` peuvent continuer entre l'approbation et le déploiement ; seuls ces changements sont autorisés après le SHA approuvé.
+- Secret requis : `NETLIFY_AUTH_TOKEN` dans les secrets GitHub accessibles au workflow. Si absent, le job échoue sans déployer ; demander une configuration par l'administrateur, jamais le jeton dans le chat.
+- Une autorisation de Cyril reste nécessaire pour chaque version. Le workflow n'est pas déclenché par les cycles horaires ni par les PR ordinaires.
