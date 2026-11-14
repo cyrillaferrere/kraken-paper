@@ -1,5 +1,11 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette intégrée du dashboard
+- Vérifier commit affiché, sources GitHub, cours Kraken, chandelier 1 h par défaut et changement rapide de paire/période.
+- Supprimer une paire sélectionnée de l'ensemble des paires disponibles dans un état fictif : le graphique doit revenir effectivement sur BTC.
+- Contrôler simultanément scanner, portefeuille, journal et historique sur plusieurs actualisations, puis simuler une panne Kraken et une panne de source d'état.
+- Tests automatisés : `node --test tests/site/*.test.js`. Les tests statiques ne remplacent pas la recette navigateur.
+
 ## Recette du scanner : progression et nouvelles paires
 - Vérifier que la progression augmente à chaque réponse Kraken et disparaît à la fin, même en cas de panne partielle.
 - Ajouter dans un état fictif de test une paire absente de la watchlist et déclencher `onState` : le scanner doit la charger immédiatement.
