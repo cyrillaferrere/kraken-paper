@@ -46,3 +46,12 @@ test("mobile table bodies and cards cannot grow beyond the panel", () => {
   assert.match(css, /width: 100%; max-width: 100%; min-width: 0/);
   assert.match(css, /#positions-panel \.tbl-wrap/);
 });
+
+test("phone layout overrides legacy tablet table minimum widths with stronger selectors", () => {
+  assert.match(css, /#positions-panel table \{ min-width: 620px; \}/);
+  assert.match(css, /#markers table \{ min-width: 760px; \}/);
+  const mobile = css.slice(css.indexOf("@media (max-width: 680px)"));
+  assert.match(mobile, /#positions-panel #positions, #market-card #markers,/);
+  assert.match(mobile, /#trades-panel #trades, #orders-panel #orders/);
+  assert.match(mobile, /display: block; width: 100%; min-width: 0; max-width: 100%/);
+});
