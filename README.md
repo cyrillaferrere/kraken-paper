@@ -16,6 +16,7 @@ Simulateur de trading crypto **PAPER** (argent fictif) avec de **vrais prix Krak
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | Déployer prod / préprod, lancer un cycle, réparer un cycle, changer le canal ntfy, problèmes fréquents |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Branches, PR, versions, commits, tests, règles à ne jamais enfreindre |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Choix techniques et leurs raisons (ADR) |
+| [docs/LESSONS.md](docs/LESSONS.md) | Leçons apprises (affichées dans le dash) |
 | [CHANGELOG.md](CHANGELOG.md) | Historique des versions (version courante dans `VERSION`) |
 
 Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app (`main`) · **préprod** https://preprod--kraken-paper.netlify.app (`preprod`, déploiement non production) · features : `https://feature-<nom>--kraken-paper.netlify.app`.
@@ -110,13 +111,14 @@ Le nom du canal est secret (quiconque le connaît peut lire les notifications) :
 
 ```bash
 python -m unittest -v      # tests sans réseau
-node --test tests/site/*.test.js   # calcul des ordres du dash
+node --test tests/site/*.test.js   # fonctions du dash (ordres, exposition, calendrier, markdown…)
 python engine/run.py       # un cycle (modifie state/)
 ```
 
 ## Tableau de bord : graphiques et marqueurs
 
-- **Marchés** : bougies 1 h / 4 h / 1 j, moyennes mobiles 20 et 50, volume et RSI 14, pour les cryptos détenues, celles qui ont un ordre et une liste de suivi de 14 paires USDC ouvertes en France, choisies par volume 24 h (hors stablecoins et memecoins) : BTC, ETH, SOL, XRP, LINK, AVAX, ADA, XDC, LTC, BNB, DOGE, TON, DOT, BCH. Le site revérifie chaque paire avec `AssetPairs?country_code=FR` et écarte celles qui ne sont plus disponibles. Sur le graphique : ordres limites, stops et objectifs en lignes horizontales, prix de revient, et flèches ▲ / ▼ des exécutions lues dans `journal.jsonl`.
+- **Marchés** : bougies 1 h / 4 h / 1 j, moyennes mobiles 20 et 50, volume et RSI 14, pour les cryptos détenues, celles qui ont un ordre et une liste de suivi de 14 paires USDC ouvertes en France, choisies par volume 24 h (hors stablecoins et memecoins) : BTC, ETH, SOL, XRP, LINK, AVAX, ADA, XDC, LTC, BNB, DOGE, TON, DOT, BCH. Le site revérifie chaque paire avec `AssetPairs?country_code=FR` et écarte celles qui ne sont plus disponibles. Sur le graphique : ordres limites, stops et objectifs en lignes pointillées avec leur nom posé à gauche (petite étiquette de prix seule sur l'échelle), prix de revient (PRU), et flèches ▲ / ▼ des exécutions lues dans `journal.jsonl`. Le bouton « Ordres » masque ou affiche ces lignes (choix gardé dans le navigateur).
+- **Suivi** : exposition (investi, réservé, cash libre, perte si tous les stops sont touchés), prochains passages (cycle du moteur, session estimée), performance par jour vs BTC conservé, alertes de proximité sous 1 % dans les ordres, fil des décisions et leçons (`docs/LESSONS.md`).
 - **Marqueurs** : prix, variation 24 h, tendance (prix vs MA20 et MA50 en 4 h et en 1 j), RSI 14 en 4 h, volatilité (ATR 14 journalier en % du prix), force relative vs BTC (performance 7 jours moins celle du BTC). Chaque couleur est doublée d'un texte ou d'une flèche.
 - Tout est calculé dans le navigateur (`site/markets.js`) avec l'**API publique** Kraken (`OHLC`, `AssetPairs?country_code=FR`, `Ticker`) : aucune clé, aucun coût. Les requêtes passent en file (une toutes les 450 ms) avec un cache de 3 à 15 min, pour rester sous la limite publique. Le tableau se remplit au fil des réponses (environ 20 s pour 14 cryptos au premier chargement) ; chaque ligne n'est animée qu'à sa première apparition.
 - Bibliothèque : **TradingView Lightweight Charts 5.3.0** (Apache 2.0) par CDN jsDelivr, version figée et contrôle d'intégrité SRI. Choisie car légère (~200 ko), rapide sur mobile, et gère nativement bougies, plusieurs volets (prix, volume, RSI), lignes de prix et marqueurs, sans animation ni lissage des cours. Le logo TradingView affiché sur le graphique est l'attribution demandée par la licence. Si le CDN ne répond pas, le tableau des marqueurs continue de fonctionner.
