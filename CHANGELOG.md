@@ -1,5 +1,5 @@
 ## [Unreleased] — recherche R-01
-- Recherche R-01 : protocole Kraken spot des plateaux pré-rebond, script hors moteur et tests offline ; collecte historique et résultats Kraken à effectuer, aucune modification PAPER.
+- Recherche R-01 : protocole pré-enregistré et **backtest exécuté** sur archives Kraken spot officielles (2020/2021–30/09/2026), BTC/ETH/SOL en 1 h et 4 h ; rapport complet, synthèse des IC95 hebdomadaires, simulations de frais, provenance CRC/SHA et workflow isolé. Conclusion : absence d'avantage global établi et espérances économiques négatives. **Aucun changement PAPER, aucun déploiement.**
 
 ## [Unreleased] — v0.3.1 Nocturne Signal (préproduction)
 - Identité graphique graphite et jade, monogramme K/, surfaces plates, graphiques harmonisés, navigation desktop sans doublon.
