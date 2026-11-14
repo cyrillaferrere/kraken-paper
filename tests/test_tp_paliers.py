@@ -186,6 +186,7 @@ class TieredExitTests(unittest.TestCase):
                                    {"price": 75000, "fraction": 0.003}]}
         # Installer un changement dont les niveaux deviennent non negociables
         # apres une vente partielle, sans bloquer le cycle.
+        self.candle(T0, 70000, 64000)  # TP1 reduit le groupe a 0,01 BTC
         old = self.state["open_orders"][0]
         old["pending_exits"] = {
             "active_from": T0 + H, "action": {"take_profits": action["take_profits"]},
