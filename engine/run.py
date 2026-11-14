@@ -244,13 +244,59 @@ def execute_fill(state, pair, side, qty, price, liquidity, reason, ts, order_id=
     return trade
 
 
-def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent):
-    if not stop_loss and not take_profit:
+def normalize_take_profits(meta, action, entry_price, qty):
+    """Valide les objectifs, alloue les lots et conserve la compatibilité take_profit."""
+    if action.get("take_profits") is not None and action.get("take_profit") is not None:
+        raise Rejected("take_profit et take_profits sont mutuellement exclusifs")
+    raw = action.get("take_profits")
+    if raw is None:
+        raw = ([{"price": action["take_profit"], "fraction": 1.0}]
+               if action.get("take_profit") is not None else [])
+    if not isinstance(raw, list):
+        raise Rejected("take_profits doit etre une liste")
+    if not raw:
+        return []
+    try:
+        fractions = [float(x["fraction"]) for x in raw]
+        prices = [round(float(x["price"]), meta["pair_decimals"]) for x in raw]
+    except (KeyError, ValueError, TypeError, OverflowError):
+        raise Rejected("palier invalide : price et fraction requis")
+    if (not all(math.isfinite(v) and v > 0 for v in fractions + prices)
+            or abs(sum(fractions) - 1) > 1e-9):
+        raise Rejected("fractions des paliers : valeurs positives, somme egale a 1")
+    if any(prices[i] <= prices[i - 1] for i in range(1, len(prices))):
+        raise Rejected("prix des paliers strictement croissants requis")
+    if any(p <= entry_price for p in prices):
+        raise Rejected("chaque TP doit etre au-dessus du prix d'entree")
+    remaining = qty
+    result = []
+    for i, (price, fraction) in enumerate(zip(prices, fractions)):
+        part = remaining if i == len(prices) - 1 else floor_dec(qty * fraction, meta["lot_decimals"])
+        if part <= 0 or part + EPS < meta["ordermin"] or part * price + EPS < meta["costmin"]:
+            raise Rejected("palier sous le minimum Kraken")
+        result.append({"price": price, "fraction": fraction, "qty": part})
+        remaining = round(remaining - part, meta["lot_decimals"])
+    return result
+
+
+def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
+                take_profits=None, breakeven_after_tp1=False, entry_price=None):
+    if not stop_loss and not take_profit and not take_profits:
         return None
+    meta = state["pairs"][pair]
+    entry = entry_price or state["positions"][pair]["avg_cost"]
+    levels = (take_profits if take_profits is not None else
+              normalize_take_profits(meta, {"take_profit": take_profit}, entry, qty))
     o = {"id": next_id(state, "order"), "pair": pair, "side": "sell", "qty": qty,
-         "price": take_profit, "stop_loss": stop_loss, "take_profit": None,
+         "price": levels[0]["price"] if levels else None,
+         "stop_loss": stop_loss, "take_profit": None,
          "created": iso(ts), "active_from": next_hour(ts), "parent": parent,
          "decision_id": None}
+    if levels:
+        o["take_profits"] = levels
+        o["entry_price"] = entry
+        o["breakeven_after_tp1"] = bool(breakeven_after_tp1)
+        o["tp_filled"] = 0
     state["open_orders"].append(o)
     return o
 
