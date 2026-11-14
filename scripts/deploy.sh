@@ -13,6 +13,8 @@
 #     Netlify, jamais commité). Le connecteur Netlify de Grok Bot ne sait faire que des déploiements de production :
 #     il est refusé ici pour la préprod, pour ne jamais écraser la prod par erreur.
 #   - prod : NETLIFY_AUTH_TOKEN (CLI, --prod) ou NETLIFY_MCP_PROXY="<proxy-path>" (outil deploy-site du connecteur).
+#   - si netlify/functions/ est présent, il est envoyé avec `--functions` (fonction planifiée engine-trigger).
+#     Netlify n'exécute les crons que sur le déploiement de production.
 #
 # L'état (state/) et les décisions (decisions/) ne sont jamais déployés ni modifiés : le site les lit sur main.
 set -euo pipefail
@@ -50,6 +52,11 @@ fi
 if [ -s .ntfy_topic ] && grep -rqF "$(tr -d '[:space:]' < .ntfy_topic)" "$OUT"; then
   echo "Refus : le canal ntfy apparaît dans l'export" >&2; exit 1
 fi
+# Motif assemblé pour que ce script ne se fasse pas refuser lui-même.
+_GH_PAT="git""hub""_pat_"
+if grep -rIlE "${_GH_PAT}[A-Za-z0-9_]+|ghp_[A-Za-z0-9]{20,}" "$OUT" >/dev/null 2>&1; then
+  echo "Refus : ce qui ressemble à un jeton GitHub a été trouvé dans l'export" >&2; exit 1
+fi
 
 VERSION="$(tr -d '[:space:]' < "$OUT/VERSION")"
 BUILT="$(TZ=Europe/Paris date '+%Y-%m-%dT%H:%M:%S%:z')"
@@ -60,11 +67,15 @@ URL="https://${ALIAS:+$ALIAS--}$SITE_NAME.netlify.app"
 echo "Prêt : $OUT (v$VERSION, $ENVNAME, $BRANCH @ ${SHA:0:7}) -> $URL"
 
 cd "$OUT"
+FUNCS=()
+if [ -d netlify/functions ]; then
+  FUNCS=(--functions netlify/functions)
+fi
 if [ -n "$ALIAS" ]; then
   [ -n "${NETLIFY_AUTH_TOKEN:-}" ] || { echo "Préprod / feature : NETLIFY_AUTH_TOKEN requis (déploiement --alias sans --prod). Dossier prêt : $OUT" >&2; exit 2; }
-  npx -y netlify-cli deploy --dir site --site "$SITE" --alias "$ALIAS" --message "v$VERSION $ENVNAME ${SHA:0:7}"
+  npx -y netlify-cli deploy --dir site "${FUNCS[@]}" --site "$SITE" --alias "$ALIAS" --message "v$VERSION $ENVNAME ${SHA:0:7}"
 elif [ -n "${NETLIFY_AUTH_TOKEN:-}" ]; then
-  npx -y netlify-cli deploy --dir site --site "$SITE" --prod --message "v$VERSION prod ${SHA:0:7}"
+  npx -y netlify-cli deploy --dir site "${FUNCS[@]}" --site "$SITE" --prod --message "v$VERSION prod ${SHA:0:7}"
 elif [ -n "${NETLIFY_MCP_PROXY:-}" ]; then
   npx -y @netlify/mcp@latest --site-id "$SITE" --proxy-path "$NETLIFY_MCP_PROXY"
 else

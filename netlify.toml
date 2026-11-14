@@ -1,10 +1,19 @@
-# Site statique, sans framework. Le build ne fait qu ecrire site/version.json s il manque. Les donnees sont lues sur GitHub (API),
-# donc pas besoin de redeployer a chaque cycle du moteur.
+# Site statique, sans framework, plus une fonction planifiée (déclenchement du moteur).
+# Le build ne fait qu'écrire site/version.json s'il manque. Les données du dash sont lues
+# sur GitHub (API), donc pas besoin de redéployer à chaque cycle du moteur.
 [build]
   publish = "site"
   command = "sh scripts/netlify-build.sh"
-  # Ne construit que si site/ ou netlify.toml change (economise les minutes Netlify).
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- site/ netlify.toml"
+  # Ne construit que si le site, la config ou les fonctions changent (économise les minutes Netlify).
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- site/ netlify.toml netlify/ scripts/netlify-build.sh"
+
+[functions]
+  directory = "netlify/functions"
+
+# Minute 9 UTC, légèrement après le cron GitHub (minute 7). Exécutée seulement sur le
+# déploiement de production publié (voir docs/RUNBOOK.md et ADR-13).
+[functions."engine-trigger"]
+  schedule = "9 * * * *"
 
 [[headers]]
   for = "/*"

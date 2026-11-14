@@ -1,7 +1,7 @@
 # Kraken Paper : document de reprise
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
-> Dernière mise à jour : 14/11/2026, version 0.1.0.
+> Dernière mise à jour : 14/11/2026, version 0.2.0 (en attente de validation).
 
 ## 1. Le projet en bref
 
@@ -37,17 +37,21 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 ## 3. Architecture
 
 ```
- Grok Bot (session)                    GitHub (dépôt public)                       Netlify (statique)
+ Grok Bot (session)                    GitHub (dépôt public)                       Netlify (site unique)
  ───────────────────                   ─────────────────────                       ──────────────────
  lit l'état, analyse le      push      decisions/<id>.json                         site/ (HTML/CSS/JS)
- marché (API publique) ────────────▶   │                                           │
-                                       ▼                                           │ lit l'état sur main
-                              GitHub Actions « engine »                            │ via l'API GitHub
-                              (minute 7 de chaque heure,  ── commit ──▶ state/ ◀───┘ (repli raw)
-                               + à chaque push decisions/)                         │
-                                       │                                           │ prix en direct et bougies :
-                                       ▼                                           ▼ API publique Kraken
+ marché (API publique) ────────────▶   │                                           │ lit l'état sur main
+                                       ▼                                           │ via l'API GitHub (repli raw)
+                              GitHub Actions « engine »   ── commit ──▶ state/ ◀───┘
+                              déclenché par :                                      │
+                               • fonction Netlify, min. 9 UTC (principal, prod)    │ engine-trigger
+                               • cron GitHub, min. 7 UTC (secours)                 │ (schedule, prod seulement)
+                               • push dans decisions/     ◀── workflow_dispatch ───┘
+                               • lancement manuel
+                                       │
+                                       ▼
                               ntfy.sh ──▶ téléphone de Cyril
+ Le dash lit aussi les prix et bougies sur l'API publique Kraken.
 ```
 
 - **Un seul site Netlify** (`kraken-paper`) : la prod est son déploiement de production, la préprod et les features sont
@@ -60,7 +64,9 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
   `decisions/` : le contrôle CI `guard-state` bloque toute PR ou tout push qui le ferait, et `scripts/release.sh` refuse
   une fusion vers `main` qui toucherait ces dossiers. Passer la préprod en prod ne peut donc pas écraser le portefeuille
   ni les ordres.
-- Le moteur ne tourne **que depuis `main`** (cron GitHub = branche par défaut ; garde-fou `if:` dans le workflow).
+- Le moteur ne tourne **que depuis `main`** (garde-fou `if:` dans le workflow ; les déclencheurs, y compris la fonction
+  Netlify, demandent toujours `ref: main`). Déclencheur principal : fonction planifiée Netlify `engine-trigger`
+  (minute 9 UTC), qui n'est exécutée que sur le déploiement de production. Secours : cron GitHub (minute 7 UTC).
 
 ## 4. Fichiers
 
@@ -68,8 +74,11 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 | --- | --- |
 | `engine/run.py` | Moteur, Python stdlib. Un appel = un cycle. |
 | `tests/test_engine.py` | Tests du moteur, sans réseau : `python -m unittest -v`. |
+| `tests/test_reservations.py` | Tests de réservation du cash et des quantités. |
 | `tests/site/*.test.js` | Tests du calcul des ordres du dash : `node --test tests/site/*.test.js`. |
-| `.github/workflows/engine.yml` | Cycle horaire + sur push `decisions/**` + manuel. |
+| `tests/functions/*.test.mjs` | Tests de la fonction planifiée (fetch mocké) : `node --test tests/functions/*.test.mjs`. |
+| `.github/workflows/engine.yml` | Cycle : fonction Netlify + cron GitHub (secours) + push `decisions/**` + manuel. |
+| `netlify/functions/engine-trigger.mjs` | Fonction planifiée Netlify (minute 9 UTC) : `workflow_dispatch` sur `main`. |
 | `decisions/*.json` | Décisions de Grok Bot, une par session, appliquées une seule fois par `id`. |
 | `state/portfolio.json` | **Source de vérité** : cash, positions, ordres ouverts, trades, frais, décisions traitées. |
 | `state/journal.jsonl` | Journal en ajout seul (décisions, ordres, exécutions, refus, notes, alertes). |
@@ -88,6 +97,7 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 | `VERSION`, `CHANGELOG.md` | Version SemVer et historique. |
 | `docs/` | Ce document, RUNBOOK, CONTRIBUTING, décisions techniques (ADR). |
 | `.ntfy_topic` | Canal ntfy, **local uniquement** (gitignoré), copie du secret Actions `NTFY_TOPIC`. |
+| `GITHUB_DISPATCH_TOKEN` | Variable d'environnement Netlify (scopes builds/functions/runtime, secret), **jamais dans le dépôt**. Voir [RUNBOOK](RUNBOOK.md). |
 
 ## 5. Règles du moteur (résumé)
 
