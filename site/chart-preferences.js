@@ -5,11 +5,11 @@
   const intervals = ["5m", "15m", "30m", "1h", "4h", "1d"];
   const ranges = [60, 120, 240];
   function normalize(input) {
-    const o = input && typeof input === "object" ? input : {};
+    const o = input && typeof input === "object" && !Array.isArray(input) ? input : {};
     return {
       pair: typeof o.pair === "string" && /^[A-Z0-9]{2,20}USDC$/.test(o.pair) ? o.pair : "XBTUSDC",
       tf: intervals.includes(o.tf) ? o.tf : "1h",
-      bars: ranges.includes(Number(o.bars)) ? Number(o.bars) : 120,
+      bars: (typeof o.bars === "number" && ranges.includes(o.bars)) ? o.bars : 120,
     };
   }
   function read(storage) {
