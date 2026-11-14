@@ -13,10 +13,12 @@ T0 = 1_800_000_000 // H * H   # un debut d'heure
 class FakeMarket:
     """Marche factice : AssetPairs, bougies et ticker fournis par le test."""
 
-    def __init__(self, candles=None, last=65500.0, fail=False):
+    def __init__(self, candles=None, last=65500.0, fail=False, candles5=None, fail5=False):
         self.candles = candles or {}
+        self.candles5 = candles5 or {}
         self.last = last
         self.fail = fail
+        self.fail5 = fail5
 
     def asset_pairs(self):
         if self.fail:
@@ -30,10 +32,11 @@ class FakeMarket:
                         "ordermin": "0.00005", "costmin": "0.5"},
         }
 
-    def ohlc(self, pair, since):
-        if self.fail:
+    def ohlc(self, pair, since, interval=60):
+        if self.fail or (interval == 5 and self.fail5):
             raise run.APIError("panne simulee")
-        return self.candles.get(pair, [])
+        src = self.candles5 if interval == 5 else self.candles
+        return [c for c in src.get(pair, []) if c[0] >= since]
 
     def ticker(self, pairs):
         if self.fail:

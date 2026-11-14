@@ -292,7 +292,12 @@
     const S = ctx.S, p = selected.pair, iv = TF[selected.tf] * 60;
     const lines = [];
     const pos = S.positions[p];
-    if (pos) lines.push({ price: pos.avg_cost, color: C.mu, lineStyle: 1, label: "PRU (prix de revient)" });
+    if (pos) {
+      const live = ctx.price(p) ?? (shown.bars.length ? shown.bars[shown.bars.length - 1].c : null);
+      const pru = (window.KPLib && window.KPLib.pruLabel) ? window.KPLib.pruLabel(pos, live) : { label: "PRU (prix de revient)", tone: "mu" };
+      const col = C[pru.tone] || C.mu;
+      lines.push({ price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
+    }
     for (const o of S.open_orders || []) {
       if (o.pair !== p) continue;
       if (o.side === "buy") {
@@ -305,26 +310,33 @@
       }
     }
     const vis = showOrders ? lines : [];
-    const lsig = p + showOrders + JSON.stringify(lines);
+    // La signature des lignes de prix ignore le texte du P&L (il change toutes les 15 s) :
+    // on recrée les traits seulement si un niveau change, et on rafraîchit toujours les étiquettes.
+    const lsig = p + showOrders + JSON.stringify(vis.map((l) => [l.price, l.color, l.lineStyle]));
     if (lsig !== linesSig) {
       priceLines.forEach((l) => sCandle.removePriceLine(l));
       levelPrices = vis.map((l) => l.price).filter((x) => x > 0);
       // Sur l'échelle : seulement la petite étiquette de prix, sans titre ; le texte va sur la ligne (primitive).
       priceLines = vis.map((l) => sCandle.createPriceLine({ price: l.price, color: l.color, lineStyle: l.lineStyle, lineWidth: 1, axisLabelVisible: true, title: "" }));
-      labels.set(vis);
       linesSig = lsig;
     }
-    // exécutions : journal (événements "fill"), complété par closed_trades
+    labels.set(vis);
+    // exécutions : journal (événements "fill"), complété par closed_trades.
+    // Les fills anciens (sans time_source, datés à la fermeture 1 h) sont recalés sur la
+    // première bougie affichée qui touche le prix dans l'heure précédant le ts ; l'état n'est pas modifié.
     const trades = new Map();
     for (const e of ctx.journal) if (e.type === "fill" && e.trade) trades.set(e.trade.id, e.trade);
     for (const t of S.closed_trades || []) if (!trades.has(t.id)) trades.set(t.id, t);
     const first = shown.bars[0].t, last = shown.bars[shown.bars.length - 1].t;
+    const markTs = (window.KPLib && window.KPLib.fillMarkerTs)
+      ? (tr) => window.KPLib.fillMarkerTs(tr, shown.bars, iv)
+      : (tr) => Math.floor(tr.ts / iv) * iv;
     const mk = [...trades.values()].filter((t) => t.pair === p && t.ts).map((t) => {
-      const bt = Math.floor(t.ts / iv) * iv;
+      const bt = markTs(t);
       const buy = t.side === "buy";
       return { time: bt, position: buy ? "belowBar" : "aboveBar", shape: buy ? "arrowUp" : "arrowDown", color: buy ? C.up : C.dn,
         text: (buy ? "Achat " : "Vente ") + pxf(p, t.price) };
-    }).filter((m) => m.time >= first && m.time <= last).sort((a, b) => a.time - b.time);
+    }).filter((m) => m.time != null && m.time >= first && m.time <= last).sort((a, b) => a.time - b.time);
     const msig = p + iv + JSON.stringify(mk);
     if (msig !== markersSig) { markersApi.setMarkers(mk); markersSig = msig; }
     const n = lines.length, m = mk.length;

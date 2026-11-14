@@ -78,8 +78,11 @@
   }
 
   // ---------- comptes à rebours ----------
-  function nextCycle(now, lastCycleMs) {
-    const d = new Date(now); d.setUTCMinutes(7, 0, 0); // :07 à Paris = :07 UTC (décalage d'heures entières)
+  // Minute 9 : fonction planifiée Netlify (cron UTC '9 * * * *'). Paris est décalé d'un nombre
+  // entier d'heures, donc la minute affichée est aussi :09 heure de Paris. Le cron GitHub (minute 7)
+  // reste en secours. La fonction ne tourne que sur le déploiement de production.
+  function nextCycle(now, lastCycleMs, minute = 9) {
+    const d = new Date(now); d.setUTCMinutes(minute, 0, 0);
     let next = d.getTime(); if (next <= now) next += HOUR;
     const age = lastCycleMs ? now - lastCycleMs : null;
     return { next, inMs: next - now, late: age != null && age > 75 * 60e3, ageMs: age };
@@ -136,7 +139,55 @@
     return best;
   }
 
-  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, duration, exposure, cashBreakdown, proximity };
+  // ---------- P&L latent d'une position (frais d'entrée déjà dans avg_cost) ----------
+  function unrealizedPnl(pos, live) {
+    if (!pos || live == null || isNaN(live) || !pos.avg_cost || !pos.qty) return null;
+    const usdc = pos.qty * (live - pos.avg_cost);
+    const pct = live / pos.avg_cost - 1;
+    return { usdc, pct };
+  }
+  function signedFr(x, d) {
+    if (x == null || isNaN(x)) return "—";
+    const s = (x > 0 ? "+" : x < 0 ? "−" : "");
+    return s + nf(d).format(Math.abs(x));
+  }
+  function pruLabel(pos, live) {
+    const pnl = unrealizedPnl(pos, live);
+    if (!pnl) return { label: "PRU (prix de revient)", tone: "mu" };
+    return {
+      label: "PRU  " + signedFr(pnl.pct * 100, 1) + " % / " + signedFr(pnl.usdc, 2) + " USDC",
+      tone: pnl.usdc > 1e-9 ? "up" : pnl.usdc < -1e-9 ? "dn" : "mu",
+      pnl,
+    };
+  }
+
+  // ---------- position du marqueur d'une exécution sur le graphique ----------
+  // Fills récents : time_source "m5" ou "hour_open", on utilise ts tel quel.
+  // Fills anciens (datés à la fermeture de la bougie 1 h, sans time_source) : première
+  // bougie affichée qui touche le prix dans l'heure précédant le ts, sans réécrire l'état.
+  const SLIP = 0.001;
+  function fillTouches(bar, trade) {
+    const px = trade.price;
+    if (px == null || !bar) return false;
+    if (trade.reason === "stop_loss") return bar.l <= px / (1 - SLIP) + 1e-9;
+    if (trade.side === "buy") return bar.l <= px + 1e-9;
+    return bar.h >= px - 1e-9;
+  }
+  function fillMarkerTs(trade, bars, ivSec) {
+    const ts = trade && trade.ts;
+    if (!ts) return null;
+    const iv = ivSec || 3600;
+    if (trade.time_source || ts % 3600 !== 0 || trade.reason === "market") {
+      return Math.floor(ts / iv) * iv;
+    }
+    const hourStart = ts - 3600;
+    const overlap = (bars || []).filter((b) => b.t < ts && b.t + iv > hourStart).slice().sort((a, b) => a.t - b.t);
+    const hit = overlap.find((b) => fillTouches(b, trade));
+    return Math.floor((hit ? hit.t : hourStart) / iv) * iv;
+  }
+
+  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, duration, exposure, cashBreakdown, proximity, unrealizedPnl, pruLabel, fillMarkerTs, fillTouches };
+
   if (typeof window !== "undefined") window.KPLib = api;
   if (typeof module !== "undefined") module.exports = api;
 })();

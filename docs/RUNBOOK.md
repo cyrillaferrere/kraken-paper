@@ -69,6 +69,19 @@ gh run list --workflow engine.yml -L 3
 Ou GitHub → Actions → engine → Run workflow (branche **main** ; depuis une autre branche le job est ignoré).
 Un push dans `decisions/` sur `main` lance aussi un cycle.
 
+Sur le dash, la carte « Prochains passages » vise la minute 9 (heure de Paris comme de UTC) et rappelle que le cron
+GitHub (minute 7) prend le relais si besoin. La fonction planifiée ne tourne qu'en production : en préprod le texte le
+dit, c'est attendu.
+
+## Datation des exécutions
+
+Le moteur décide toujours sur les bougies 1 h clôturées, mais date le fill à l'ouverture de la première bougie 5 min
+de cette heure qui touche le niveau (`time_source: m5`). Kraken ne garde qu'environ 60 h de bougies 5 min : au-delà,
+ou en cas d'erreur API, repli sur l'ouverture de la bougie 1 h (`time_source: hour_open`), sans changer le prix ni les
+frais. Ne pas réécrire `state/` ni le journal pour corriger un ancien horaire : le dash (`fillMarkerTs`) place le
+marqueur des fills sans `time_source` (T0001, T0002) sur la première bougie affichée qui touche le prix dans l'heure
+précédant le ts enregistré.
+
 ## Un cycle a échoué
 
 1. `gh run list --workflow engine.yml -L 5` puis `gh run view <id> --log-failed`.

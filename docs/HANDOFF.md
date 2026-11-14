@@ -107,7 +107,8 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 - **Achat limite** exécuté si le plus bas de la bougie ≤ prix limite, au prix limite, **maker 0,40 %**.
 - **Vente limite / objectif** exécutée si le plus haut ≥ prix, au prix, **maker 0,40 %**.
 - **Stop** exécuté si le plus bas ≤ stop, au **stop − 0,1 %**, **taker 0,80 %**.
-- **Stop et objectif dans la même bougie : le stop gagne** (cas prudent).
+- **Stop et objectif dans la même heure** : le premier touché en bougie 5 min gagne ; le stop l'emporte seulement s'ils sont dans la **même bougie 5 min** (si les 5 min manquent : stop prioritaire sur la bougie 1 h, comme avant).
+- Le fill est daté à l'ouverture de la première bougie 5 min qui touche le niveau ; repli : ouverture de la bougie 1 h. Prix et frais inchangés. L'état déjà écrit n'est pas modifié (le dash ajuste l'affichage des anciens marqueurs).
 - **Ordre au marché** : dernier prix ± 0,1 %, taker 0,80 %.
 - Un ordre ne regarde que les bougies qui **commencent après sa pose** (`active_from`).
 - Un achat limite avec `stop_loss` / `take_profit` crée, une fois exécuté, l'ordre de sortie (OCO).

@@ -13,7 +13,7 @@ En préprod (https://preprod--kraken-paper.netlify.app), pas encore en prod : la
 ### Ajouté
 - Fil « Décisions de Grok Bot » : une carte dépliable par décision (date de Paris, id, justification, actions résumées en français avec leur résultat : ordre créé ou refus et sa raison, notes), la plus récente en haut. Source : `decisions/` sur `main` via l'API GitHub (liste avec ETag, fichiers lus une seule fois par sha et gardés en cache local) ; repli sur le journal si l'API est limitée.
 - Carte « Exposition » : part investie aux prix en direct, cash réservé par les achats en attente, cash libre, perte totale si tous les stops sont touchés (positions et achats en attente, frais compris, même calcul que le tableau des ordres), alerte si une position ou un achat n'a pas de stop.
-- Carte « Prochains passages » : prochain cycle du moteur (:07 heure de Paris, retard signalé honnêtement si le dernier cycle a plus de 75 min) et prochaine session de gestion estimée (dernière décision + 5 h).
+- Carte « Prochains passages » : prochain cycle du moteur à la minute 9 (fonction Netlify, uniquement en production ; le cron GitHub à la minute 7 prend le relais si besoin), retard signalé si le dernier cycle a plus de 75 min, et prochaine session de gestion estimée (dernière décision + 5 h).
 - « Performance par jour » : variation du portefeuille et de BTC conservé par jour de Paris (base : dernier cycle de la veille), avec texte et flèches en plus de la couleur ; fonctionne avec un seul jour de données.
 - Alerte de proximité dans les ordres ouverts : badge « à 0,6 % du déclenchement (achat limite / stop / objectif) » sous 1 %, surlignage bref unique quand un ordre entre dans la zone, jamais de clignotement.
 - Section « Leçons » : rendu de `docs/LESSONS.md` (markdown minimal, HTML échappé, liens http(s) seulement) ; première leçon sur le repli de 2-3 % en marché survendu.
@@ -28,6 +28,8 @@ En préprod (https://preprod--kraken-paper.netlify.app), pas encore en prod : la
 - Bouton « Ordres » sur le graphique pour masquer ou afficher toutes les lignes d'ordres, stops et objectifs (choix gardé dans le navigateur).
 - La carte « Dernière décision » est remplacée par le fil des décisions.
 - `scripts/deploy.sh` envoie aussi `netlify/functions/` quand le dossier est présent. `netlify.toml` déclare le répertoire des fonctions et le cron de `engine-trigger`.
+- Datation des exécutions : quand une bougie 1 h déclenche un ordre, le moteur lit les bougies 5 min de cette heure et date le fill à l'ouverture de la première qui touche le niveau. Prix et frais inchangés. Si stop et objectif tombent dans la même heure, le premier touché en 5 min gagne ; le stop l'emporte seulement s'ils sont dans la même bougie 5 min. Repli (données 5 min absentes ou incomplètes, Kraken n'en garde que ~60 h) : même décision qu'avant sur la bougie 1 h, mais datée à l'ouverture et non plus à la fermeture. L'état déjà enregistré (T0001, T0002) n'est pas réécrit : le dash recolle le marqueur sur la première bougie affichée qui touche le prix dans l'heure précédant le ts.
+- Étiquette PRU du graphique : P&L latent en % et en USDC (frais d'entrée inclus), vert ou rouge, mis à jour avec le prix en direct.
 
 ## [0.1.0] - 2026-11-14
 
