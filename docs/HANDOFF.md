@@ -1,3 +1,8 @@
+## v0.2.2 — visibilité du risque des ordres (fix/v0.2.2-orders-risk-visibility)
+- Ordres proches/atteints et détails ouverts mieux identifiables, sans modifier les ordres.
+- Recette requise : desktop, iPhone Safari, clavier, contraste et reduced motion. Tests CI et revue Grok Bot avant fusion vers preprod.
+- Aucun changement moteur, état PAPER, décisions ou production.
+
 # Kraken Paper : document de reprise
 
 ## Cause racine du débordement mobile
