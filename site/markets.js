@@ -560,7 +560,8 @@
     onState(c) {
       ctx = c;
       // Une paire mémorisée peut avoir disparu de la liste Kraken ou du portefeuille.
-      if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); }
+      let chartPairReset = false;
+      if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); chartPairReset = true; }
       if (!started) {
         started = true; bind(); selectTf(selected.tf);
         renderChips(); renderTable(); loadChart(); refreshMetrics();
@@ -571,7 +572,9 @@
         setInterval(() => { if (!document.hidden) refreshMetrics(); }, 180e3);
         return;
       }
-      renderChips(); renderTable(); overlays();
+      renderChips(); renderTable();
+      if (chartPairReset) { hoveredCandleTime = null; loadChart(); }
+      else overlays();
       // Les nouvelles positions/ordres ajoutent parfois une paire hors WATCH.
       // La charger sans attendre les trois minutes du prochain balayage.
       if (trackedPairs().join("|") !== lastTrackedSignature) refreshMetrics();
