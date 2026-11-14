@@ -82,8 +82,9 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 - **Décision** : une fonction planifiée Netlify (`netlify/functions/engine-trigger.mjs`, cron `'9 * * * *'` UTC, légèrement
   décalée) appelle l'API GitHub `workflow_dispatch` du workflow `engine.yml` sur `ref: main`. Le cron GitHub reste en
   secours. Le jeton `GITHUB_DISPATCH_TOKEN` (fine-grained, dépôt `cyrillaferrere/kraken-paper` seulement, permission
-  Actions lecture/écriture) est une variable d'environnement du **même** site `kraken-paper`, scope `functions`, tous
-  contextes ; il n'est jamais commité ni journalisé. Netlify n'exécute les fonctions planifiées que sur le déploiement
+  Actions lecture/écriture) est une variable d'environnement du **même** site `kraken-paper`, scopes `builds` +
+  `functions` + `runtime` (le plan actuel refuse un scope `functions` seul), contextes production / branch-deploy /
+  deploy-preview / dev, marquée secret ; il n'est jamais commité ni journalisé. Netlify n'exécute les fonctions planifiées que sur le déploiement
   de production publié.
 - **Conséquences** : le moteur continue de ne tourner que depuis `main` (garde-fou `if:` du workflow). Un double
   déclenchement (Netlify + cron, ou deux appels rapprochés) est sans risque : le moteur est idempotent (rejeu des bougies

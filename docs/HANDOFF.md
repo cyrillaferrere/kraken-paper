@@ -97,7 +97,7 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 | `VERSION`, `CHANGELOG.md` | Version SemVer et historique. |
 | `docs/` | Ce document, RUNBOOK, CONTRIBUTING, décisions techniques (ADR). |
 | `.ntfy_topic` | Canal ntfy, **local uniquement** (gitignoré), copie du secret Actions `NTFY_TOPIC`. |
-| `GITHUB_DISPATCH_TOKEN` | Variable d'environnement Netlify (scope functions, tous contextes), **jamais dans le dépôt**. Voir [RUNBOOK](RUNBOOK.md). |
+| `GITHUB_DISPATCH_TOKEN` | Variable d'environnement Netlify (scopes builds/functions/runtime, secret), **jamais dans le dépôt**. Voir [RUNBOOK](RUNBOOK.md). |
 
 ## 5. Règles du moteur (résumé)
 

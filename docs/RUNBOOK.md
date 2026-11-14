@@ -100,8 +100,10 @@ Puis donner le nouveau nom à Cyril pour qu'il s'abonne dans l'app ntfy et suppr
 ## Jeton GITHUB_DISPATCH_TOKEN (fonction Netlify)
 
 Variable d'environnement du site `kraken-paper` (id `01cb62cb-bc97-4b2c-be7e-21960b44bfd5`), nom
-`GITHUB_DISPATCH_TOKEN`, scope **functions**, tous les contextes, marquée secret. Jamais dans le dépôt, jamais dans
-les logs, jamais en argument visible d'une commande.
+`GITHUB_DISPATCH_TOKEN`, scopes **builds**, **functions** et **runtime** (le plan Netlify actuel refuse un scope limité
+à `functions` seulement ; `post_processing` est exclu car incompatible avec un secret), contextes `production`,
+`branch-deploy`, `deploy-preview` et `dev` (un secret n'accepte pas le contexte unique « all »), marquée secret.
+Jamais dans le dépôt, jamais dans les logs, jamais en argument visible d'une commande.
 
 C'est un jeton GitHub **fine-grained** : accès au seul dépôt `cyrillaferrere/kraken-paper`, permission **Actions** en
 lecture et écriture, rien d'autre. Expiration actuelle : **90 jours, vers le 12/02/2027**.
@@ -112,8 +114,8 @@ Rotation, avant expiration (ou si le jeton a fuité) :
    (nom `kraken-paper-dispatch`, dépôt `kraken-paper` seulement, Actions : Read and write).
 2. Le poser à la place de l'ancien, sans afficher la valeur, par l'API Netlify ou le tableau de bord
    (Project configuration → Environment variables). En CLI, seulement si la valeur vient d'une variable d'environnement
-   et n'est pas échoée : `netlify env:set GITHUB_DISPATCH_TOKEN --secret --scope functions --site 01cb62cb-bc97-4b2c-be7e-21960b44bfd5`.
-   Ne pas lancer `netlify env:list` sans masquer les valeurs.
+   et n'est pas échoée, avec `--secret` et les scopes `builds`, `functions`, `runtime` (pas `functions` seul : le plan
+   l'interdit) et les quatre contextes explicites. Ne pas lancer `netlify env:list` sans masquer les valeurs.
 3. Vérifier un dispatch (logs ci-dessous, ou un `workflow_dispatch` manuel).
 4. Révoquer l'ancien jeton sur GitHub.
 
