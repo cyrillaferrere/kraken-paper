@@ -224,7 +224,8 @@ html { scroll-behavior: smooth; }
   body.nav-collapsed .dash-nav { width: 56px; }
   body.nav-collapsed .nav-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   body.nav-collapsed .dash-nav a { justify-content: center; padding-left: 0; padding-right: 0; }
-  .top, .build, .status, .alert, main, footer { margin-left: max(var(--nav-width), calc((100vw - 1360px + var(--nav-width)) / 2)); margin-right: 16px; max-width: 1360px; }
+  .top, .build, .status, .alert, main, footer { width: calc(100% - var(--nav-width) - 32px); margin-left: var(--nav-width); margin-right: 16px; max-width: 1360px; }
+  .dash-nav a { position: relative; }
   .top { padding-left: 16px; }
   .nav-toggle { top: 12px; }
 }
@@ -232,7 +233,10 @@ html { scroll-behavior: smooth; }
   .nav-toggle { top: 8px; left: 8px; }
   .nav-toggle span { display: none; }
   .top { padding-left: 60px; }
+  body.nav-open::before { content: ""; position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 29; pointer-events: none; }
   .dash-nav { top: 56px; left: 8px; bottom: 8px; width: min(250px, calc(100vw - 16px)); transform: translateX(calc(-100% - 16px)); visibility: hidden; }
   body.nav-open .dash-nav { transform: translateX(0); visibility: visible; }
 }
 @media (prefers-reduced-motion: reduce) { .dash-nav { transition: none; } }
+
+@media (min-width: 1025px) and (max-width: 1160px) { .sub { max-width: 390px; } }
