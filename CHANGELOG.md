@@ -1,5 +1,7 @@
 # Changelog
 
+- Correction complémentaire mobile : neutralisation des anciennes largeurs minimales tablette (620 px Positions, 760 px Marqueurs) sous 680 px, avec sélecteurs plus spécifiques.
+
 - Correctif UX mobile : les fiches des tableaux sont contraintes à la largeur du panneau, évitant le débordement constaté sur iPhone dans Positions.
 
 ## UX mobile — refonte groupée v0.2.1 (préproduction)
