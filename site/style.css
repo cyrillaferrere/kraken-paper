@@ -308,3 +308,15 @@ html { scroll-behavior: smooth; }
   .chart-view-note { width: 100%; margin-left: 0; }
   #mlegend { font-size: 12.5px; line-height: 1.65; }
 }
+
+/* Portefeuille : lecture des montants et outils de tri sans cartes supplémentaires. */
+#positions-panel .table-tools, #trades-panel .table-tools { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+#positions tbody td, #trades tbody td { font-variant-numeric: tabular-nums; }
+#positions tbody tr[hidden], #trades tbody tr[hidden] { display: none; }
+#positions tbody tr:hover, #trades tbody tr:hover { background: rgba(138,150,179,.065); }
+#positions tbody td:first-child, #trades tbody td:nth-child(2) { font-weight: 600; }
+@media (max-width: 820px) {
+  #trades { min-width: 680px; }
+  #positions-panel .table-tools, #trades-panel .table-tools { align-items: stretch; }
+  #positions-panel .table-tools select, #trades-panel .table-tools select { flex: 1 1 130px; }
+}
