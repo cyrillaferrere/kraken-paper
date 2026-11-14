@@ -153,3 +153,13 @@ jamais apparaître. Puis vérifier le run GitHub : `gh run list --workflow engin
 | Décision non appliquée | `id` déjà utilisé, JSON invalide, ou API Kraken absente pendant le cycle | Lire le journal ; si API absente, elle sera retentée automatiquement. |
 | Le contrôle CI `guard-state` échoue | La branche modifie `state/` ou `decisions/` | Retirer ces changements (`git checkout origin/main -- state/ decisions/`), ils n'ont rien à faire hors `main`. |
 | Un ordre affiche « Niveau atteint en direct » | Le prix live a touché le niveau, mais le moteur n'exécute qu'à la clôture de la bougie 1 h | Attendre le cycle suivant. |
+
+## Contrôle qualité des PR (v0.3.0, préparation)
+
+Le workflow `.github/workflows/quality.yml` (`quality-gates / quality`) s'exécute sur les PR vers `preprod` et `main`, les pushes sur `preprod`, `feature/*`, `fix/*`, et manuellement. Il teste le moteur **sans exécuter de cycle**, les calculs du dash, la fonction planifiée, la syntaxe JS/Bash et les invariants de déploiement. Sur PR, `CHANGELOG.md` et `docs/HANDOFF.md` doivent être modifiés. Le workflow historique `guard-state / code-only` continue de protéger `state/` et `decisions/`.
+
+**Activation manuelle indispensable dans GitHub** : Settings → Rules → Rulesets (ou Branch protection rules), cibler `preprod` et `main`, exiger une PR et les checks `quality-gates / quality` et `guard-state / code-only`. Vérifier les noms exacts dans Actions après la première PR. Le fichier de workflow seul ne rend pas ces contrôles obligatoires. Ne pas activer une règle qui empêcherait le moteur de pousser ses commits horaires sur `main` ou Grok Bot de publier ses décisions : configurer les exceptions adaptées et faire valider par Cyril avant activation. Si le plan GitHub ne permet pas les rulesets requis, conserver une revue humaine stricte et signaler l'absence de blocage technique.
+
+**Avant fusion** : vérifier les deux checks verts, relire les fichiers modifiés (aucun `state/`, `decisions/`), obtenir la revue Grok Bot, puis déployer la préprod via `scripts/deploy.sh preprod`. Après déploiement, vérifier l'alias `preprod--`, le commit affiché, le navigateur mobile/bureau, les graphiques et l'absence de changement du site de production. Aucun passage en prod sans accord explicite de Cyril.
+
+**Limites** : le workflow n'effectue pas de tests de navigateur de bout en bout ni de déploiement Netlify ; la vérification de secrets est partielle et ne remplace pas la revue. Les tests CI doivent être observés sur GitHub avant de déclarer le dispositif opérationnel.
