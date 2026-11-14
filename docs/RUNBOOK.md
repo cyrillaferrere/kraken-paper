@@ -1,3 +1,10 @@
+## Recette v0.3.0 — rubriques mobiles
+- Ouvrir `#overview`, `#market-card`, `#orders-panel`, `#performance-panel` sur iPhone et desktop ; vérifier les quatre rubriques et le retour navigateur.
+- Vérifier que le chandelier se met à jour et que les données restent cohérentes lorsque la rubrique est masquée puis affichée.
+- Vérifier les liens historiques `#positions-panel`, `#trades-panel`, `#journal-panel`, `#dec-h`, l'accès clavier et VoiceOver.
+- Exécuter `node --test tests/site/*.test.js` et `python -m unittest -v`, puis recette Safari réelle.
+- Ne pas déployer en production sans accord explicite.
+
 ## v0.2.2 — lot d'intégration UX (PR #28–#35)
 - Référentiels modern-web-guidance et kraken-motion-ux, checklist UX.
 - Navigation mobile : fermeture et restitution du focus, tests unitaires.
