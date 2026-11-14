@@ -1,5 +1,7 @@
 # Changelog
 
+- Correctif UX mobile : les fiches des tableaux sont contraintes à la largeur du panneau, évitant le débordement constaté sur iPhone dans Positions.
+
 ## UX mobile — refonte groupée v0.2.1 (préproduction)
 - Les quatre tableaux denses (ordres, positions, trades et marqueurs) deviennent des fiches compactes sous 680 px, sans dégrader les tableaux desktop.
 - Les ordres affichent en priorité crypto, sens, montant et distance ; prix, stop, objectif et risque restent accessibles par « Détails ».

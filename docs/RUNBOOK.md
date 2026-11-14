@@ -1,5 +1,7 @@
 # Kraken Paper : runbook (opérations)
 
+- Régression mobile : sur iPhone, vérifier que chaque fiche SOL/BTC/ETH tient entièrement à l'intérieur de Positions, sans bande noire à droite, puis contrôler Ordres, Trades et Marqueurs.
+
 ## Recette groupée UX mobile
 - Tester largeur 320, 375, 390, 430, 680, 768 et 1280 px : aucun débordement horizontal du contenu principal.
 - Ordres : crypto/sens/montant/distance visibles immédiatement ; bouton Détails ouvre prix/stop/objectif/risque ; filtres et statut proche/atteint lisibles sans occuper toute la fiche.
