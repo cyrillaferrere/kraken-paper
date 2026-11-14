@@ -21,8 +21,8 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin main
-          ! git diff --name-only origin/main...HEAD | grep -E '^(state|decisions)/'
-          ! git diff --name-only origin/main...HEAD | grep -E '^.github/workflows/'
+          ! git diff --name-only origin/main...${{ github.event.pull_request.head.sha }} | grep -E '^(state|decisions)/'
+          ! git diff --name-only origin/main...${{ github.event.pull_request.head.sha }} | grep -E '^.github/workflows/'
           test "$(tr -d '[:space:]' < VERSION)" = "0.3.1"
       - name: Python engine tests
         run: python3 -m unittest -q
