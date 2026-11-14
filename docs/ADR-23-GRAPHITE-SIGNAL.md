@@ -18,3 +18,6 @@ Le prototype Analog / Robotic est jugé trop terne, monochrome et industriel ; l
 - Tests Node/Python, quality-gates et guard-state sur la PR.
 - Recette desktop/mobile sur la Deploy Preview Netlify, contraste, focus, bargraphe d'exposition et interactions du chandelier.
 - Aucune fusion ni publication production avant validation explicite de Cyril. La revue Grok Bot est attendue avant intégration.
+
+## ADR-24
+La proposition initiale avec accents verts en bordure et juxtaposition de cartes a été rejetée. L’architecture Trading Workspace × Minimal Precision remplace cette direction pour la suite de la PR #41 ; voir ADR-24.
