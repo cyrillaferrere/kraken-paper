@@ -1,5 +1,11 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette ciblée v0.2.2 — intégrité equity
+- Vérifier avec des fixtures locales qu'une equity négative, une valeur vide/espaces et un benchmark BTC négatif sont refusés.
+- Confirmer que les cycles valides, y compris un benchmark absent, restent affichés et que le dashboard conserve son dernier snapshot valide en cas de rejet.
+- Exécuter les tests Node et Python, puis une recette navigateur sur la branche de préproduction. Aucun déploiement production sans validation.
+
+
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
 
 - Régression mobile : sur iPhone, vérifier que chaque fiche SOL/BTC/ETH tient entièrement à l'intérieur de Positions, sans bande noire à droite, puis contrôler Ordres, Trades et Marqueurs.
