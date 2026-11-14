@@ -1,3 +1,8 @@
+## [Unreleased] — correctif UX cours sélectionné (PR #45)
+- Affichage grand format du cours Kraken de la paire choisie au-dessus du graphique, responsive mobile.
+- Actualisation sur le ticker existant (15 s), horodatage et signalement explicite du cours de repli non temps réel.
+- Aucun changement moteur, état ou décisions ; préproduction uniquement.
+
 ## [Unreleased] — v0.3.0 sorties par paliers
 - Moteur PAPER : objectifs fractionnés, stop sur quantité restante, option break-even après TP1 et action `update_exits`.
 - Tests de non-régression : TP1/TP2, stop, bougies 5 min, décisions historiques et validation des fractions.
