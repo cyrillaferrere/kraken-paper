@@ -97,9 +97,10 @@
     }
   }
   let ctx = { S: null, journal: [], price: () => null };
-  const prefs = window.KPChartPrefs.read(window.sessionStorage);
+  const chartStorage = (() => { try { return window.sessionStorage; } catch { return null; } })();
+  const prefs = window.KPChartPrefs.read(chartStorage);
   const selected = { pair: prefs.pair, tf: prefs.tf };
-  const saveChartPrefs = () => window.KPChartPrefs.write(window.sessionStorage, { pair: selected.pair, tf: selected.tf, bars: viewBars });
+  const saveChartPrefs = () => window.KPChartPrefs.write(chartStorage, { pair: selected.pair, tf: selected.tf, bars: viewBars });
 
   function trackedPairs() {
     const S = ctx.S, out = [];
