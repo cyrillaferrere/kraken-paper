@@ -1,3 +1,8 @@
+## [Unreleased] — expérimentation Analog / Robotic (alternative à Nocturne Signal)
+- Nouvelle direction graphique sur branche indépendante : surfaces graphite/métal, cuivre, typographie Unicode monospace, bargraph analogique basé sur l'exposition réelle, palette du chandelier harmonisée.
+- Charge `site/analog.css` après `site/style.css`, sans changement du moteur PAPER ni de VERSION (0.3.1). Voir ADR-22.
+- Non fusionné en préproduction : soumis au choix esthétique de Cyril.
+
 ## [Unreleased] — v0.3.1 Nocturne Signal (préproduction)
 - Identité graphique graphite et jade, monogramme K/, surfaces plates, graphiques harmonisés, navigation desktop sans doublon.
 - Version de préproduction `VERSION=0.3.1`, source du bandeau de build Netlify (`version.json`). Voir ADR-21.
