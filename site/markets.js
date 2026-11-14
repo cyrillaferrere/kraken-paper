@@ -330,8 +330,15 @@
         if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite` });
         if (o.stop_loss) lines.push({ price: o.stop_loss, color: "rgba(248,113,113,.6)", lineStyle: 3, label: `${o.id} stop prévu` });
         if (o.take_profit) lines.push({ price: o.take_profit, color: "rgba(124,92,255,.75)", lineStyle: 3, label: `${o.id} objectif prévu` });
+        if (Array.isArray(o.take_profits)) o.take_profits.forEach((tp, i) =>
+          lines.push({ price: tp.price, color: C.ac, lineStyle: 3, label: `${o.id} TP${i + 1} prévu` }));
       } else {
-        if (o.price != null) lines.push({ price: o.price, color: C.ac, lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
+        if (Array.isArray(o.take_profits) && o.take_profits.length) {
+          o.take_profits.forEach((tp, i) =>
+            lines.push({ price: tp.price, color: C.ac, lineStyle: 2, label: `${o.id} TP${(o.tp_filled || 0) + i + 1}` }));
+        } else if (o.price != null) {
+          lines.push({ price: o.price, color: C.ac, lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
+        }
         if (o.stop_loss) lines.push({ price: o.stop_loss, color: C.dn, lineStyle: 2, label: `${o.id} stop` });
       }
     }
@@ -361,7 +368,7 @@
       const bt = markTs(t);
       const buy = t.side === "buy";
       return { time: bt, position: buy ? "belowBar" : "aboveBar", shape: buy ? "arrowUp" : "arrowDown", color: buy ? C.up : C.dn,
-        text: (buy ? "Achat " : "Vente ") + pxf(p, t.price) };
+        text: (buy ? "Achat " : (t.tp_index ? "TP" + t.tp_index + " " : "Vente ")) + pxf(p, t.price) };
     }).filter((m) => m.time != null && m.time >= first && m.time <= last).sort((a, b) => a.time - b.time);
     const msig = p + iv + JSON.stringify(mk);
     if (msig !== markersSig) { markersApi.setMarkers(mk); markersSig = msig; }
