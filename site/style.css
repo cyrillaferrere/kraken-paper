@@ -380,7 +380,12 @@ html { scroll-behavior: smooth; }
   /* Semantic table is retained for assistive technologies; each row becomes a compact card. */
   #orders-panel .tbl-wrap, #positions-panel .tbl-wrap,
   #trades-panel .tbl-wrap, #market-card .tbl-wrap { overflow-x: visible; max-width: 100%; }
-  #orders, #positions, #trades, #markers { display: block; width: 100%; min-width: 0; }
+  /* Override older tablet rules (#positions-panel table / #markers table)
+     whose specificity otherwise keeps 620/760px min-width on phones. */
+  #positions-panel #positions, #market-card #markers,
+  #trades-panel #trades, #orders-panel #orders {
+    display: block; width: 100%; min-width: 0; max-width: 100%;
+  }
   #orders thead, #positions thead, #trades thead, #markers thead { display: none; }
   #orders tbody, #positions tbody, #trades tbody, #markers tbody {
     display: grid; grid-template-columns: minmax(0, 1fr);
