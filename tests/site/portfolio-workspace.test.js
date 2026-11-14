@@ -35,7 +35,7 @@ function setup() {
   vm.runInNewContext(source, {
     document: { getElementById: (id) => elements[id] },
     requestAnimationFrame: (fn) => fn(),
-    MutationObserver: class { observe() {} }
+    MutationObserver: class { observe() {} disconnect() {} }
   });
   return { e: elements, p1, p2, p3, t1, t2 };
 }

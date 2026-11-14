@@ -136,13 +136,17 @@
     if (!chart || !shown.bars.length) return;
     const total = shown.bars.length;
     chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, total - viewBars), to: total + 3 });
+    syncChartRange();
   }
   function syncChartRange() {
     document.querySelectorAll(".chart-range").forEach((button) => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.bars) === viewBars));
     });
     const note = $("chart-view-note");
-    if (note) note.textContent = viewBars + " dernières bougies";
+    if (note) {
+      const available = shown.bars.length;
+      note.textContent = available ? Math.min(viewBars, available) + " / " + available + " bougies disponibles" : "En attente des bougies";
+    }
   }
   const LW = () => window.LightweightCharts;
 
@@ -250,6 +254,7 @@
         }
       }
       shown = { key, lastT: bars.length ? bars[bars.length - 1].t : null, bars };
+      syncChartRange();
       legendData = { bars, data: d, idx: new Map(bars.map((b, i) => [b.t, i])) };
       legend(); // Conserver la bougie survolée pendant le rafraîchissement des cours.
       overlays();
