@@ -1,5 +1,9 @@
 # Kraken Paper : document de reprise
 
+## Cause racine du débordement mobile
+- L'ancien CSS tablette `#positions-panel table { min-width: 620px; }` et `#markers table { min-width: 760px; }` était plus spécifique que la règle mobile par identifiant simple. Les cartes s'étendaient donc malgré les contraintes de grille.
+- Correctif : sélecteurs combinés `#positions-panel #positions` et `#market-card #markers` dans la media query téléphone. Tests de cascade ajoutés ; vérifier Safari après déploiement du nouveau SHA.
+
 ## Correctif mobile Positions
 - Capture iPhone du 14/11 : fiches Positions débordant à droite malgré le conteneur étroit.
 - Correction des contraintes intrinsèques CSS grid sur les corps et lignes de tableaux mobiles ; même garde-fou pour Ordres, Trades et Marqueurs.
