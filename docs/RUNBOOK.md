@@ -1,3 +1,8 @@
+## Recette UX v0.2.2 — nouveaux référentiels
+- Lire `.agents/skills/kraken-motion-ux/SKILL.md`, `.agents/skills/modern-web-guidance/SKILL.md` et `docs/UX_WEB_CHECKLIST.md` avant une modification UX.
+- Vérifier les navigateurs cibles, clavier/VoiceOver, `prefers-reduced-motion`, absence de débordement et fidélité des données.
+- Ce lot n'installe aucune dépendance et ne modifie pas l'application. Tester chaque changement ultérieur sur une PR dédiée vers `preprod`.
+
 # Kraken Paper : runbook (opérations)
 
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
