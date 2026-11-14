@@ -523,6 +523,32 @@ def apply_action(state, a, ctx, now, decision_id):
                 state["open_orders"].remove(o)
                 return {"type": "cancel", "order_id": oid, "pair": o["pair"]}, []
         raise Rejected(f"ordre {oid} introuvable ou deja execute")
+    if typ == "update_exits":
+        if not a.get("pair"):
+            raise Rejected("il faut 'pair'")
+        meta = ctx.meta(state, a["pair"])
+        pair = meta["altname"]
+        pos = state["positions"].get(pair)
+        if not pos or pos["qty"] <= EPS:
+            raise Rejected("aucune position ouverte sur cette paire")
+        existing = [o for o in state["open_orders"]
+                    if o["pair"] == pair and o["side"] == "sell"]
+        if any(not o.get("parent") for o in existing):
+            raise Rejected("annuler d'abord les ventes independantes sur cette paire")
+        entry = pos["avg_cost"]
+        levels = normalize_take_profits(meta, a, entry, pos["qty"])
+        stop = round(float(a["stop_loss"]), meta["pair_decimals"]) if a.get("stop_loss") is not None else None
+        if stop is not None and (not math.isfinite(stop) or stop <= 0 or stop >= entry):
+            raise Rejected("stop_loss doit etre positif et sous le PRU")
+        if not stop and not levels:
+            raise Rejected("au moins un stop ou un TP requis")
+        for old in existing:
+            state["open_orders"].remove(old)
+        order = attach_exit(state, pair, pos["qty"], stop, None, now,
+                            decision_id, take_profits=levels,
+                            breakeven_after_tp1=a.get("breakeven_after_tp1", False),
+                            entry_price=entry)
+        return {"type": "exits_updated", "pair": pair, "order": dict(order)}, []
     if typ not in ("place_limit", "market_buy", "market_sell"):
         raise Rejected(f"type d'action inconnu : {typ}")
     if not a.get("pair"):
@@ -532,6 +558,12 @@ def apply_action(state, a, ctx, now, decision_id):
     pd = meta["pair_decimals"]
     sl = round(float(a["stop_loss"]), pd) if a.get("stop_loss") else None
     tp = round(float(a["take_profit"]), pd) if a.get("take_profit") else None
+    if a.get("take_profits") is not None and typ == "place_limit" and a.get("side") != "buy":
+        raise Rejected("take_profits reserve aux achats")
+    if a.get("take_profits") is not None and typ == "market_sell":
+        raise Rejected("take_profits reserve aux achats")
+    if a.get("breakeven_after_tp1") is not None and not isinstance(a["breakeven_after_tp1"], bool):
+        raise Rejected("breakeven_after_tp1 doit etre booleen")
 
     if typ == "place_limit":
         side = a.get("side")
@@ -561,10 +593,14 @@ def apply_action(state, a, ctx, now, decision_id):
                 raise Rejected("stop_loss doit etre sous le prix de vente")
             if qty > available_qty(state, pair) + EPS:
                 raise Rejected(f"quantite disponible insuffisante ({fr(max(available_qty(state, pair), 0), 8)} {meta['base']})")
+        levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
         o = {"id": next_id(state, "order"), "pair": pair, "side": side, "qty": qty,
              "price": price, "stop_loss": sl, "take_profit": tp if side == "buy" else None,
              "created": iso(now), "active_from": hour_ceil(now), "parent": None,
              "decision_id": decision_id}
+        if levels:
+            o["take_profits"] = levels
+            o["breakeven_after_tp1"] = a.get("breakeven_after_tp1", False)
         state["open_orders"].append(o)
         return {"type": "order_placed", "order": dict(o)}, []
 
@@ -580,9 +616,13 @@ def apply_action(state, a, ctx, now, decision_id):
             raise Rejected(f"cash disponible insuffisant ({fr(available_cash(state), 2)} USDC) pour {fr(need, 2)} USDC")
     elif qty > available_qty(state, pair) + EPS:
         raise Rejected(f"quantite disponible insuffisante ({fr(max(available_qty(state, pair), 0), 8)} {meta['base']})")
+    levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
     tr = execute_fill(state, pair, side, qty, price, "taker", "market", now)
     if side == "buy":
-        attach_exit(state, pair, qty, sl, tp, now, tr["id"])
+        attach_exit(state, pair, qty, sl, tp, now, tr["id"],
+                    take_profits=levels if levels else None,
+                    breakeven_after_tp1=a.get("breakeven_after_tp1", False),
+                    entry_price=state["positions"][pair]["avg_cost"])
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 
