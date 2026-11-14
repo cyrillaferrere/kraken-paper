@@ -1,5 +1,12 @@
 # Kraken Paper : document de reprise
 
+## Démarrage v0.2.2 — fiabilité des données
+- Branche `fix/v0.2.2-dashboard-reliability`, issue de `preprod`, destinée à une PR vers `preprod`.
+- Premier correctif : le validateur de `equity.csv` refuse les valeurs de portefeuille ou benchmark négatives et les champs equity vides/espaces ; les erreurs préservent le dernier snapshot valide.
+- Contrôler `node --test tests/site/*.test.js`, puis les tests Python et Netlify, et vérifier les données valides ainsi que le comportement sur un CSV malformé. Revue Grok Bot requise.
+- Aucun changement du moteur, de la stratégie, de `state/`, de `decisions/` ou de `main`.
+
+
 ## Cause racine du débordement mobile
 - L'ancien CSS tablette `#positions-panel table { min-width: 620px; }` et `#markers table { min-width: 760px; }` était plus spécifique que la règle mobile par identifiant simple. Les cartes s'étendaient donc malgré les contraintes de grille.
 - Correctif : sélecteurs combinés `#positions-panel #positions` et `#market-card #markers` dans la media query téléphone. Tests de cascade ajoutés ; vérifier Safari après déploiement du nouveau SHA.
