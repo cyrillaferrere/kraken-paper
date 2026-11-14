@@ -4,6 +4,8 @@ Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
 ## Contrôles UX v0.2.1 (branche feature)
 
+Lot UX portefeuille v0.2.1 : tri des positions (valeur, P&L signé, nom), recherche crypto, recherche et filtre achat/vente dans l'historique des trades, compteurs et réinitialisation, affichage mobile. Opérations uniquement visuelles, aucun changement moteur, stratégie, état ou décisions. Vérifier tri P&L avec pertes négatives françaises (−), retour à l'ordre initial, filtres et réinitialisation après rafraîchissement, colonnes mobiles à 375/820 px et navigation clavier.
+
 Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie. Vérifier le choix de fenêtre sur BTC et SOL, le recentrage après zoom/déplacement manuel, le survol pendant un rafraîchissement, les dimensions mobiles et le clavier.
 
 Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Vérifier aussi le retour du focus dans le champ de recherche après « Effacer les filtres ».
