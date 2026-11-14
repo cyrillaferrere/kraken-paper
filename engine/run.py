@@ -336,6 +336,25 @@ def process_candle(state, pair, candle, rejects=None, market=None):
     t, o_, high, low, close = candle
     fills = []
     m5 = _m5_bars(market, pair, t)
+    # Conserver les anciennes sorties jusqu'au créneau d'activation.
+    for old in list(state["open_orders"]):
+        pending = old.get("pending_exits")
+        if not pending or old["pair"] != pair or t < pending["active_from"]:
+            continue
+        state["open_orders"].remove(old)
+        remaining = state["positions"].get(pair, {}).get("qty", 0)
+        if remaining <= EPS:
+            continue
+        levels = normalize_take_profits(state["pairs"][pair], pending["action"],
+                                         pending["entry_price"], remaining)
+        new = attach_exit(state, pair, remaining, pending["stop_loss"], None,
+                          pending["active_from"], pending["parent"],
+                          take_profits=levels,
+                          breakeven_after_tp1=pending["breakeven_after_tp1"],
+                          entry_price=pending["entry_price"])
+        if new:
+            new["active_from"] = pending["active_from"]
+            new["tp_filled"] = old.get("tp_filled", 0)
     for order in list(state["open_orders"]):
         if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
             continue
@@ -553,12 +572,25 @@ def apply_action(state, a, ctx, now, decision_id):
         if not stop and not levels:
             raise Rejected("au moins un stop ou un TP requis")
         previous_filled = max((o.get("tp_filled", 0) for o in existing), default=0)
-        for old in existing:
-            state["open_orders"].remove(old)
+        if existing:
+            if len(existing) != 1:
+                raise Rejected("update_exits requiert un seul groupe de sorties")
+            old = existing[0]
+            if old.get("pending_exits"):
+                raise Rejected("une mise a jour des sorties est deja en attente")
+            old["pending_exits"] = {
+                "active_from": hour_ceil(now),
+                "action": {"take_profits": [
+                    {"price": level["price"], "fraction": level["fraction"]}
+                    for level in levels]},
+                "stop_loss": stop, "breakeven_after_tp1": be,
+                "entry_price": entry, "parent": decision_id}
+            return {"type": "exits_update_scheduled", "pair": pair,
+                    "active_from": old["pending_exits"]["active_from"],
+                    "order_id": old["id"]}, []
         order = attach_exit(state, pair, pos["qty"], stop, None, now,
                             decision_id, take_profits=levels,
-                            breakeven_after_tp1=be,
-                            entry_price=entry)
+                            breakeven_after_tp1=be, entry_price=entry)
         if order is not None:
             order["tp_filled"] = previous_filled
         return {"type": "exits_updated", "pair": pair, "order": dict(order)}, []
