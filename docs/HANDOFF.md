@@ -1,3 +1,12 @@
+## v0.2.2 — lot d'intégration UX (PR #28–#35)
+- Référentiels modern-web-guidance et kraken-motion-ux, checklist UX.
+- Navigation mobile : fermeture et restitution du focus, tests unitaires.
+- Chandelier : aide textuelle, préférences normalisées, tests de régression et commandes plus lisibles.
+- Ordres et scanner : meilleure hiérarchie des états visuels ; cibles tactiles et focus renforcés.
+- Les changements concernent uniquement la présentation du dashboard ; aucun moteur, état ou décision modifié.
+- Validation : `node --test tests/site/*.test.js`, `python -m unittest -v`, contrôle CI et recette sur Safari iPhone / desktop, sans mouvement imposé.
+- Intégration de remplacement des PR #28–#35 : ne pas les fusionner à nouveau. Aucun déploiement de production autorisé.
+
 # Kraken Paper : document de reprise
 
 ## Démarrage v0.2.2 — fiabilité des données
