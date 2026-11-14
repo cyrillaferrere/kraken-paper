@@ -458,17 +458,44 @@
     }
   }
 
+  let scannerBusy = false, scannerPending = false;
   async function refreshMetrics() {
-    const pairs = trackedPairs();
-    try { await loadMeta(pairs); } catch (e) { /* méta facultative : décimales par défaut */ }
-    renderChips(); renderTable();
-    let err = null;
-    // BTC d'abord : sert de référence pour la force relative.
-    for (const p of [BENCH, ...pairs.filter((x) => x !== BENCH)]) {
-      try { await computeMetrics(p); failed.delete(p); } catch (e) { err = e; if (!metrics[p]) failed.add(p); }
-      renderTable();
+    // Une lecture des marqueurs dure parfois plusieurs secondes. Ne jamais lancer
+    // une seconde vague de requêtes en parallèle de la première.
+    if (scannerBusy) { scannerPending = true; return; }
+    scannerBusy = true;
+    try {
+      do {
+        scannerPending = false;
+        const pairs = trackedPairs();
+        try { await loadMeta(pairs); } catch (e) { /* métadonnées facultatives */ }
+        renderChips(); renderTable();
+        let err = null, completed = 0;
+        // BTC d'abord pour calculer la force relative des autres actifs.
+        // Calculer le BTC avant les autres pour que la force relative soit fiable.
+        try { await computeMetrics(BENCH); failed.delete(BENCH); }
+        catch (e) { err = e; if (!metrics[BENCH]) failed.add(BENCH); }
+        completed++;
+        renderTable();
+        const queue = pairs.filter((x) => x !== BENCH);
+        // Deux lectures simultanées maximum : pas de rafale de 42 requêtes OHLC.
+        const workers = Array.from({ length: Math.min(2, queue.length) }, async () => {
+          while (queue.length) {
+            const p = queue.shift();
+            try { await computeMetrics(p); failed.delete(p); }
+            catch (e) { err = e; if (!metrics[p]) failed.add(p); }
+            completed++;
+            // Un seul rendu par lot de données terminées, et non par réponse HTTP.
+            if (completed % 4 === 0 || completed === pairs.length) renderTable();
+          }
+        });
+        await Promise.all(workers);
+        renderTable();
+        $("markers-note").textContent = err ? "Certaines données Kraken n'ont pas pu être lues (" + err.message + "), nouvel essai dans 3 min." : "";
+      } while (scannerPending);
+    } finally {
+      scannerBusy = false;
     }
-    $("markers-note").textContent = err ? "Certaines données Kraken n'ont pas pu être lues (" + err.message + "), nouvel essai dans 3 min." : "";
   }
 
   // ---------- interactions ----------

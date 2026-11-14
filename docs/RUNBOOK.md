@@ -1,5 +1,11 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette scanner de marchés
+- Ouvrir les marqueurs, vérifier la progression et le calcul BTC avant les autres paires.
+- Déclencher deux rafraîchissements rapprochés : ils doivent être regroupés, sans multiplier les vagues de requêtes simultanées.
+- Tester une panne Kraken et son retour ; les derniers marqueurs valides restent visibles, l'erreur est signalée.
+- Exécuter `node --test tests/site/*.test.js` et vérifier le SHA de préproduction après fusion.
+
 ## Recette — session du chandelier
 - Sélectionner ETH, 4 h, 240 bougies ; recharger l'onglet et vérifier la conservation de ces trois choix.
 - Ouvrir une nouvelle session et vérifier le défaut BTC/1 h/120 ; tester la disparition d'une paire et le repli BTC.

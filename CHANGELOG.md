@@ -1,5 +1,10 @@
 # Changelog
 
+## Préproduction v0.2.1 — scanner de marchés optimisé
+- Suppression des rafales de lectures concurrentes lors des actualisations : un seul scanner actif, une demande de reprise regroupée.
+- BTC calculé en premier, puis au plus deux actifs simultanément ; rendu des marqueurs groupé par quatre résultats pour limiter les reflows.
+- Tests de non-régression du scanner ; aucun changement de stratégie ou de moteur.
+
 ## Préproduction v0.2.1 — session de graphique et rafraîchissement explicite
 - Mémorisation dans l'onglet des choix de crypto, timeframe et 60/120/240 bougies, avec valeurs validées et repli si la paire n'est plus disponible.
 - Bouton Actualiser pour relire les chandeliers Kraken et heure de dernière lecture réussie.
