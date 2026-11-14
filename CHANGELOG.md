@@ -1,3 +1,6 @@
+## [Unreleased] — v0.3.0 UX (proposition)
+- Navigation du dashboard en quatre rubriques, synthèse mobile plus compacte et conservation des données en direct. Voir ADR-20 et PR #37.
+
 ## v0.2.2 — lot d'intégration UX (PR #28–#35)
 - Référentiels modern-web-guidance et kraken-motion-ux, checklist UX.
 - Navigation mobile : fermeture et restitution du focus, tests unitaires.
