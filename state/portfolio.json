@@ -5,8 +5,15 @@
   "start_capital": 6606.42,
   "start_time": "2026-11-13T22:56:24+01:00",
   "start_ts": 1794606984,
-  "cash": 6606.42,
-  "positions": {},
+  "cash": 6106.42,
+  "positions": {
+    "SOLUSDC": {
+      "base": "SOL",
+      "qty": 6.59613202,
+      "avg_cost": 75.80200001970245,
+      "fees_paid": 1.992032
+    }
+  },
   "open_orders": [
     {
       "id": "O0001",
@@ -35,28 +42,45 @@
       "decision_id": "2026-11-13-23h55"
     },
     {
-      "id": "O0003",
+      "id": "O0004",
       "pair": "SOLUSDC",
+      "side": "sell",
+      "qty": 6.59613202,
+      "price": 83.0,
+      "stop_loss": 70.5,
+      "take_profit": null,
+      "created": "2026-11-14T04:00:00+01:00",
+      "active_from": 1794625200,
+      "parent": "O0003",
+      "decision_id": null
+    }
+  ],
+  "closed_trades": [
+    {
+      "id": "T0001",
+      "order_id": "O0003",
+      "pair": "SOLUSDC",
+      "base": "SOL",
       "side": "buy",
       "qty": 6.59613202,
       "price": 75.5,
-      "stop_loss": 70.5,
-      "take_profit": 83.0,
-      "created": "2026-11-13T23:52:41+01:00",
-      "active_from": 1794610800,
-      "parent": null,
-      "decision_id": "2026-11-13-23h55"
+      "fee": 1.992032,
+      "liquidity": "maker",
+      "reason": "limit",
+      "time": "2026-11-14T04:00:00+01:00",
+      "ts": 1794625200,
+      "realized_pnl": null
     }
   ],
-  "closed_trades": [],
   "processed_decisions": [
-    "2026-11-13-23h55"
+    "2026-11-13-23h55",
+    "2026-11-14-04h10"
   ],
   "last_decision": {
-    "id": "2026-11-13-23h55",
-    "timestamp": "2026-11-13T23:55:00+01:00",
-    "rationale": "Premier passage. Marché baissier : BTC ~68 300 (−6 % sur 7 j), ETH −10 %, SOL −9 %, XRP −14 %, tous sous MA20/MA50 en 4h et 1j, RSI journalier 22-30 (survendu). Pas d'achat au marché pour ne pas rattraper un couteau qui tombe. Trois achats limites sous les derniers plus bas, avec stop et objectif, environ un tiers du capital engagé au maximum, deux tiers en cash. XRP écarté (le plus faible face au BTC). Test du style achat sur repli en tendance baissière.",
-    "applied": "2026-11-13T23:52:41+01:00"
+    "id": "2026-11-14-04h10",
+    "timestamp": "2026-11-14T04:10:00+01:00",
+    "rationale": "Session 04h. Aucun ordre exécuté. La baisse continue : BTC ~67 600 (plus bas 24 h 66 900, à 0,15 % de mon achat à 66 800), ETH ~1 910 (plus bas 1 877, ordre à 1 870), SOL ~76,1 (ordre à 75,5). RSI 4h extrêmement survendu (BTC 10, ETH 20, SOL 18), tous sous MA20/MA50 en 1h, 4h et 1j. Je garde les trois achats limites tels quels : ils sont placés juste sous les plus bas, ce qui teste exactement l'hypothèse d'un dernier repli avant rebond. Pas d'achat au marché (taker 0,80 %) ni de remontée des prix d'achat pour courir après le marché. Cash 6 606,42 USDC, soit environ +1,5 % devant le BTC gardé (~6 507).",
+    "applied": "2026-11-14T04:09:08+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -91,14 +115,14 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794618000,
-    "ETHUSDC": 1794618000,
-    "SOLUSDC": 1794618000
+    "XBTUSDC": 1794621600,
+    "ETHUSDC": 1794621600,
+    "SOLUSDC": 1794621600
   },
   "last_prices": {
-    "XBTUSDC": 68127.81,
-    "ETHUSDC": 1921.57,
-    "SOLUSDC": 76.6
+    "XBTUSDC": 67601.19,
+    "ETHUSDC": 1909.35,
+    "SOLUSDC": 76.11
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -106,14 +130,14 @@
     "start_price": 68358.17,
     "start_time": "2026-11-13T22:56:49+01:00"
   },
-  "fees_total": 0.0,
+  "fees_total": 1.992032,
   "realized_pnl": 0.0,
   "seq": {
-    "order": 3,
-    "trade": 0
+    "order": 4,
+    "trade": 1
   },
-  "last_cycle": "2026-11-14T03:15:09+01:00",
-  "last_cycle_ts": 1794622509,
+  "last_cycle": "2026-11-14T04:09:08+01:00",
+  "last_cycle_ts": 1794625748,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
