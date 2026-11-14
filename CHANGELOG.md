@@ -1,3 +1,7 @@
+## v0.2.2 — Préférences graphiques robustes (branche fix/v0.2.2-chart-preferences)
+- Rejet explicite des tableaux JSON comme objet de préférences. Les valeurs stockées valides restent compatibles. Tests et CI à faire.
+- Périmètre interface uniquement, aucune modification de production, de state/, decisions/ ou du moteur. Relecture Grok Bot et recette navigateur avant fusion.
+
 # Changelog
 
 - Correction complémentaire mobile : neutralisation des anciennes largeurs minimales tablette (620 px Positions, 760 px Marqueurs) sous 680 px, avec sélecteurs plus spécifiques.
