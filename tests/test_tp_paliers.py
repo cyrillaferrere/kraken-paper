@@ -5,7 +5,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "engine"))
 import run
-from test_engine import FakeMarket, T0, H, decision
+from tests.test_engine import FakeMarket, T0, H, decision
 
 
 def bars5(hour, highs, lows):
