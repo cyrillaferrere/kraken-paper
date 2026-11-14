@@ -1,5 +1,7 @@
 # Changelog
 
+> Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur.
+
 > Complément en validation : filtres de recherche et de tendance sur les marqueurs, filtres d'ordres par sens et crypto, améliorations mobiles du graphique et des tableaux. Filtres uniquement visuels, sans modification des données.
 >
 > Compléments UX 0.2.1 : navigation latérale rétractable publiée en préproduction (`0e744d8`) ; refonte de lisibilité des tableaux Positions et Ordres en préparation sur branche `feature/v0.2.1-readable-orders`. Aucun changement moteur ni de données.
