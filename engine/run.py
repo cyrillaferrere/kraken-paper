@@ -41,6 +41,7 @@ MAKER = 0.0040   # Kraken Pro palier 1
 TAKER = 0.0080
 SLIP = 0.001     # 0,1 % de glissement (stops et ordres au marche)
 HOUR = 3600
+MIN5 = 300          # datation des fills : première bougie 5 min qui touche le niveau
 EPS = 1e-9
 
 
@@ -86,6 +87,11 @@ def hour_ceil(ts):
     return -(-int(ts) // HOUR) * HOUR
 
 
+def next_hour(ts):
+    """Début de la bougie 1 h strictement suivante (même si ts tombe pile sur une heure)."""
+    return hour_floor(ts) + HOUR
+
+
 # --------------------------------------------------------------------------
 # Acces marche (API publique uniquement)
 # --------------------------------------------------------------------------
@@ -111,8 +117,8 @@ class Market:
     def asset_pairs(self):
         return self._get("AssetPairs", country_code="FR")
 
-    def ohlc(self, pair, since):
-        res = self._get("OHLC", pair=pair, interval=60, since=int(since))
+    def ohlc(self, pair, since, interval=60):
+        res = self._get("OHLC", pair=pair, interval=int(interval), since=int(since))
         rows = next(v for k, v in res.items() if k != "last")
         return [(int(c[0]), float(c[1]), float(c[2]), float(c[3]), float(c[4])) for c in rows]
 
@@ -243,21 +249,52 @@ def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent):
         return None
     o = {"id": next_id(state, "order"), "pair": pair, "side": "sell", "qty": qty,
          "price": take_profit, "stop_loss": stop_loss, "take_profit": None,
-         "created": iso(ts), "active_from": hour_ceil(ts), "parent": parent,
+         "created": iso(ts), "active_from": next_hour(ts), "parent": parent,
          "decision_id": None}
     state["open_orders"].append(o)
     return o
 
 
-def process_candle(state, pair, candle, rejects=None):
+def _m5_bars(market, pair, hour_start):
+    """Bougies 5 min de l'heure [hour_start, hour_start+HOUR), ou None si indisponibles / incomplètes.
+
+    Kraken ne conserve qu'environ 720 bougies 5 min (~60 h) : au-delà, on se rabat sur la bougie 1 h.
+    """
+    if market is None:
+        return None
+    try:
+        rows = market.ohlc(pair, hour_start - 1, interval=5)
+    except APIError:
+        return None
+    bars = [c for c in rows if hour_start <= c[0] < hour_start + HOUR]
+    expected = {hour_start + i * MIN5 for i in range(12)}
+    if {c[0] for c in bars} < expected:
+        return None
+    return sorted(bars, key=lambda c: c[0])
+
+
+def first_touch_ts(bars5, level, which):
+    """Ouverture de la première bougie 5 min qui touche le niveau ('below' : low <=, 'above' : high >=)."""
+    if level is None or not bars5:
+        return None
+    for t, _o, high, low, _c in bars5:
+        if which == "below" and low <= level + EPS:
+            return t
+        if which == "above" and high >= level - EPS:
+            return t
+    return None
+
+
+def process_candle(state, pair, candle, rejects=None, market=None):
     """Rejoue une bougie 1 h CLOTUREE. Retourne la liste des trades."""
     t, o_, high, low, close = candle
     fills = []
+    m5 = _m5_bars(market, pair, t)
     for order in list(state["open_orders"]):
         if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
             continue
         try:
-            _check_order(state, pair, order, t, high, low, fills)
+            _check_order(state, pair, order, t, high, low, fills, m5)
         except Rejected as e:   # ne devrait pas arriver (fonds reserves), on annule proprement
             state["open_orders"].remove(order)
             if rejects is not None:
@@ -268,30 +305,61 @@ def process_candle(state, pair, candle, rejects=None):
     return fills
 
 
-def _check_order(state, pair, order, t, high, low, fills):
+def _date_fill(m5, level, which, hour_start):
+    """Horodatage du fill : ouverture de la 1re bougie 5 min qui touche, sinon ouverture de l'heure."""
+    if m5:
+        ts = first_touch_ts(m5, level, which)
+        if ts is not None:
+            return ts, "m5"
+    return hour_start, "hour_open"
+
+
+def _check_order(state, pair, order, t, high, low, fills, m5=None):
     if order["side"] == "buy":
         if low <= order["price"]:
+            ts, source = _date_fill(m5, order["price"], "below", t)
             tr = execute_fill(state, pair, "buy", order["qty"], order["price"],
-                              "maker", "limit", t + HOUR, order["id"])
+                              "maker", "limit", ts, order["id"])
+            tr["time_source"] = source
             state["open_orders"].remove(order)
             fills.append(tr)
             attach_exit(state, pair, order["qty"], order.get("stop_loss"),
-                        order.get("take_profit"), t + HOUR, order["id"])
-    else:
-        stop = order.get("stop_loss")
-        limit = order.get("price")
-        if stop and low <= stop:   # stop prioritaire (cas conservateur)
+                        order.get("take_profit"), ts, order["id"])
+        return
+
+    stop = order.get("stop_loss")
+    limit = order.get("price")
+    stop_1h = bool(stop and low <= stop)
+    limit_1h = bool(limit and high >= limit)
+    if not stop_1h and not limit_1h:
+        return
+
+    # Avec des bougies 5 min complètes : le premier niveau touché gagne ;
+    # stop et objectif dans la même bougie 5 min → le stop gagne (cas prudent).
+    # Sans données 5 min : on garde la règle 1 h (stop prioritaire) mais on date à l'ouverture.
+    reason, level, which, px, liq = None, None, None, None, None
+    if m5 is not None:
+        stop_ts = first_touch_ts(m5, stop, "below") if stop_1h else None
+        limit_ts = first_touch_ts(m5, limit, "above") if limit_1h else None
+        if stop_ts is not None and (limit_ts is None or stop_ts <= limit_ts):
+            reason, level, which, liq = "stop_loss", stop, "below", "taker"
             px = round(stop * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
-            tr = execute_fill(state, pair, "sell", order["qty"], px, "taker",
-                              "stop_loss", t + HOUR, order["id"])
-        elif limit and high >= limit:
-            tr = execute_fill(state, pair, "sell", order["qty"], limit, "maker",
-                              "take_profit" if order.get("parent") or stop else "limit",
-                              t + HOUR, order["id"])
+        elif limit_ts is not None:
+            reason = "take_profit" if order.get("parent") or stop else "limit"
+            level, which, px, liq = limit, "above", limit, "maker"
+    if reason is None:
+        if stop_1h:
+            reason, level, which, liq = "stop_loss", stop, "below", "taker"
+            px = round(stop * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
         else:
-            return
-        state["open_orders"].remove(order)
-        fills.append(tr)
+            reason = "take_profit" if order.get("parent") or stop else "limit"
+            level, which, px, liq = limit, "above", limit, "maker"
+
+    ts, source = _date_fill(m5, level, which, t)
+    tr = execute_fill(state, pair, "sell", order["qty"], px, liq, reason, ts, order["id"])
+    tr["time_source"] = source
+    state["open_orders"].remove(order)
+    fills.append(tr)
 
 
 # --------------------------------------------------------------------------
@@ -497,7 +565,7 @@ def replay_candles(state, market, now):
                 state["last_candle"][pair] = c[0]
                 continue
             rej = []
-            fl = process_candle(state, pair, c, rej)
+            fl = process_candle(state, pair, c, rej, market)
             events += rej
             for tr in fl:
                 events.append({"type": "fill", "trade": tr})

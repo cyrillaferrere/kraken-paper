@@ -153,9 +153,10 @@
     const S = ctx.S, now = Date.now();
     const c = L.nextCycle(now, S.last_cycle ? new Date(S.last_cycle).getTime() : null);
     $("cd-cycle").textContent = `${hm(c.next)} (dans ${L.duration(c.inMs)})`;
+    const prod = (window.KP_VERSION && window.KP_VERSION.env === "prod") || (window.KP_ENV_FROM_HOST && window.KP_ENV_FROM_HOST(location.hostname) === "prod");
     $("cd-cycle-note").innerHTML = c.late
-      ? `<span class="warn-txt">⚠ Dernier cycle il y a ${L.duration(c.ageMs)} : le cron GitHub est en retard. Chaque décision lance aussi un cycle.</span>`
-      : `Dernier cycle : ${S.last_cycle ? hm(S.last_cycle) : "—"}. Le cron GitHub peut partir avec quelques minutes de retard.`;
+      ? `<span class="warn-txt">⚠ Dernier cycle il y a ${L.duration(c.ageMs)}. En production, la fonction Netlify (minute 9) devrait lancer le cycle ; le cron GitHub (minute 7) prend le relais si besoin. Chaque décision lance aussi un cycle.</span>`
+      : `Dernier cycle : ${S.last_cycle ? hm(S.last_cycle) : "—"}. Déclencheur principal : fonction Netlify à la minute 9, uniquement en production${prod ? "" : " (pas encore active ici)"}. Le cron GitHub (minute 7) prend le relais si besoin.`;
     const d = S.last_decision, s = L.nextSession(d && d.timestamp ? new Date(d.timestamp).getTime() : null, now);
     $("cd-session").textContent = !s ? "—" : s.overdue ? `estimée à ${hm(s.at)}, en retard de ${L.duration(-s.inMs)}` : `estimée à ${hm(s.at)} (dans ${L.duration(s.inMs)})`;
     $("cd-session-note").textContent = d ? `Environ toutes les 5 h après la dernière décision (${d.id}). Estimation, pas un horaire fixe.` : "Aucune décision pour l'instant.";

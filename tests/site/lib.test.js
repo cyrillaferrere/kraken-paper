@@ -71,16 +71,61 @@ test("dailyPerf : jours de Paris, base = clôture de la veille, peu de jours", (
   assert.strictEqual(d[1].partial, false);
 });
 
-test("nextCycle : prochain :07, retard honnête au-delà de 75 min", () => {
+test("nextCycle : prochain :09, retard honnête au-delà de 75 min", () => {
   const now = new Date("2026-11-14T01:30:00+01:00").getTime();
   const c = L.nextCycle(now, new Date("2026-11-14T01:02:00+01:00").getTime());
-  assert.strictEqual(c.next, new Date("2026-11-14T02:07:00+01:00").getTime());
+  assert.strictEqual(c.next, new Date("2026-11-14T02:09:00+01:00").getTime());
   assert.strictEqual(c.late, false);
   const e = L.nextCycle(new Date("2026-11-14T01:05:00+01:00").getTime(), null);
-  assert.strictEqual(e.next, new Date("2026-11-14T01:07:00+01:00").getTime());
+  assert.strictEqual(e.next, new Date("2026-11-14T01:09:00+01:00").getTime());
   assert.strictEqual(L.nextCycle(now, now - 2 * 3600e3).late, true);
-  // heure d'été : :07 reste :07 à Paris
-  assert.strictEqual(L.nextCycle(new Date("2026-07-01T10:20:00+02:00").getTime(), null).next, new Date("2026-07-01T11:07:00+02:00").getTime());
+  // heure d'été : :09 reste :09 à Paris
+  assert.strictEqual(L.nextCycle(new Date("2026-07-01T10:20:00+02:00").getTime(), null).next, new Date("2026-07-01T11:09:00+02:00").getTime());
+});
+
+test("unrealizedPnl / pruLabel : frais d'entrée inclus, signe et couleur", () => {
+  const pos = { qty: 0.01491041, avg_cost: 66800 * 1.004 }; // PRU = prix + maker
+  const live = 66800 * 1.004 * 1.006; // +0,6 %
+  const pnl = L.unrealizedPnl(pos, live);
+  assert.ok(Math.abs(pnl.pct - 0.006) < 1e-12);
+  assert.ok(Math.abs(pnl.usdc - pos.qty * (live - pos.avg_cost)) < 1e-9);
+  const up = L.pruLabel(pos, live);
+  assert.strictEqual(up.tone, "up");
+  assert.match(norm(up.label), /PRU\s+\+0,6 % \/ \+[0-9,]+ USDC/);
+  const dn = L.pruLabel(pos, pos.avg_cost * 0.99);
+  assert.strictEqual(dn.tone, "dn");
+  assert.match(norm(dn.label), /−1,0 %/);
+  assert.strictEqual(L.pruLabel(pos, null).label, "PRU (prix de revient)");
+});
+
+test("fillMarkerTs : fills récents au ts exact, anciens reculés sur la bougie qui touche", () => {
+  // T0002 : daté 05:00 (fermeture de la bougie 04:00), prix 66 800, bougie 04:00 low 66 578
+  const ts = Date.parse("2026-11-14T05:00:00+01:00") / 1000;
+  const hour = ts - 3600;
+  const trade = { id: "T0002", side: "buy", price: 66800, reason: "limit", ts };
+  const bars1h = [
+    { t: hour - 3600, o: 67000, h: 67100, l: 66900, c: 67000 },
+    { t: hour, o: 67000, h: 67050, l: 66578, c: 66700 },
+    { t: ts, o: 66700, h: 67200, l: 66600, c: 67100 },
+  ];
+  assert.strictEqual(L.fillMarkerTs(trade, bars1h, 3600), hour);
+  // 5 min : première barre de l'heure 04:00 qui touche 66 800
+  const bars5 = [
+    { t: hour, o: 67000, h: 67020, l: 66950, c: 67000 },         // ne touche pas 66 800
+    { t: hour + 900, o: 66900, h: 66950, l: 66578, c: 66700 },    // touche
+    { t: hour + 1200, o: 66700, h: 66850, l: 66600, c: 66750 },
+  ];
+  assert.strictEqual(L.fillMarkerTs(trade, bars5, 300), hour + 900);
+  // fill récent daté en 5 min : on garde le ts, pas de recul
+  const fresh = { ...trade, ts: hour + 900, time_source: "m5" };
+  assert.strictEqual(L.fillMarkerTs(fresh, bars5, 300), hour + 900);
+  // repli hour_open pile sur l'heure : ne pas reculer d'une heure
+  const fb = { ...trade, ts: hour, time_source: "hour_open" };
+  assert.strictEqual(L.fillMarkerTs(fb, bars1h, 3600), hour);
+  // 4 h : la bougie qui recouvre l'heure 04:00
+  const t4 = hour - (hour % (4 * 3600));
+  const bars4h = [{ t: t4, o: 67000, h: 67200, l: 66500, c: 66800 }];
+  assert.strictEqual(L.fillMarkerTs(trade, bars4h, 4 * 3600), t4);
 });
 
 test("nextSession : décision + 5 h, en retard sinon", () => {
