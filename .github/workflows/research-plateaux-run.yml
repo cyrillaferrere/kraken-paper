@@ -18,7 +18,7 @@ jobs:
         run: python scripts/fetch_kraken_ohlcvt_ranges.py --output /tmp/kraken-history
       - name: Run research offline unit tests
         run: python -m unittest discover -s tests -p 'test_research_plateaux.py' -v
-      - name: Run offline 3-year research (no Kraken API calls)
+      - name: Run official historical research and pooled confidence intervals
         run: python scripts/research_plateaux.py --archives /tmp/kraken-history --output /tmp/kraken-backtest.json
       - name: Output full report as labeled log section
         run: |
