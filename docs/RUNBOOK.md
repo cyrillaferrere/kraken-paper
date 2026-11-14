@@ -1,5 +1,11 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette du chandelier en préproduction
+- Changer rapidement BTC/ETH/SOL puis 5 min/15 min/1 h pendant le chargement ; le dernier choix doit toujours gagner.
+- Déconnecter momentanément l'API OHLC : le dernier graphique valide reste visible, le message indique l'échec, le prochain rafraîchissement réessaie.
+- Contrôler le survol des bougies pendant les actualisations, les 60/120/240 bougies, les labels et le mobile.
+- Exécuter `node --test tests/site/*.test.js` et vérifier le commit réellement publié dans l'en-tête Netlify.
+
 ## Recette — intégrité des données publiques
 - Vérifier prix Kraken en direct, statut partiel si une paire manque, et repli sur les prix du dernier cycle si API indisponible.
 - Tester localement des cycles CSV hors ordre et une ligne JSONL corrompue : le dashboard doit garder le snapshot précédent et afficher une erreur, sans effacer d'événement.
