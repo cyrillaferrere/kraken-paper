@@ -29,3 +29,8 @@ Le moteur actuel lie un stop et un seul objectif à une quantité entière. Grok
 - Si l'ancien stop liquide la position avant l'activation, aucune nouvelle sortie n'est créée.
 - Un stop en gap est exécuté au minimum entre le niveau du stop et le prix d'ouverture de la bougie concernée, puis glissement 0,1 %. Cette règle corrige aussi le moteur historique, mais uniquement sur cette branche avant validation.
 - Les décisions `update_exits` sont contrôlées au dernier cours : stop strictement inférieur au marché, TP strictement supérieur ; break-even exige un stop.
+
+## Seconde revue Grok Bot — sécurisation de l'activation différée
+- La quantité réservée lors de l'activation est limitée au solde du groupe de sorties historique (`old.qty`) et à la position encore détenue ; les achats intervenus pendant l'attente ne sont pas ajoutés au groupe.
+- Les nouveaux paliers sont validés **avant** le retrait de l'ancien groupe. Si une quantité devient inférieure aux minimums Kraken, la mise à jour est abandonnée, l'ancien stop et ses objectifs restent en place, et un événement `note` explicite est inscrit au journal.
+- La compatibilité historique `take_profit` unique conserve, pour les décisions anciennes, la tolérance d'un objectif sous le prix d'entrée ; les nouveaux `take_profits` sont strictement validés.
