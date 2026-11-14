@@ -50,3 +50,13 @@ test("journal event type comes from original event, escaped for HTML", () => {
   assert.match(app, /data-event-type="\$\{esc\(e\.type\)\}"/);
   for (const id of ["journal-search", "journal-type", "journal-reset", "journal-count"]) assert.ok(html.includes('id="' + id + '"'));
 });
+
+test("journal depth is explicit, selectable and backed by original history", () => {
+  for (const value of ["40", "100", "250", "all"]) assert.ok(html.includes('value="' + value + '"'), value);
+  assert.match(html, /id="journal-limit"/);
+  assert.match(html, /id="journal-scope"[^>]*aria-live="polite"/);
+  assert.match(app, /let journalLimit = 40/);
+  assert.match(app, /journalLimit === Infinity \? allItems : allItems\.slice\(0, journalLimit\)/);
+  assert.match(app, /renderJournal\(\);\s*\}\);/);
+  assert.match(app, /événements chargés sur/);
+});
