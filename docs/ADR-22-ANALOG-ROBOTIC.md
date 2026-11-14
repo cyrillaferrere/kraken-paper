@@ -23,3 +23,7 @@ La direction Nocturne Signal v0.3.1 (accent jade, bordures et états très graph
 2. Contrôler contraste, aspect des glyphes Unicode selon OS, clavier, VoiceOver, reduced-motion et variations de nombres.
 3. Vérifier la graduation du vumètre à 0/50/100 % ; ce n'est pas un signal d'achat/vente.
 4. Pas de merge en `preprod` ni en `main` sans arbitrage esthétique de Cyril et recette visuelle de cette branche.
+
+## Évolution de la direction (ADR-23)
+
+La palette cuivre et la typographie monospace généralisée sont remplacées dans la branche expérimentale par Graphite / Signal. Voir ADR-23. La décision initiale reste documentée pour comparaison.
