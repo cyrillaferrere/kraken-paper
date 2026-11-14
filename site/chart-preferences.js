@@ -5,7 +5,7 @@
   const intervals = ["5m", "15m", "30m", "1h", "4h", "1d"];
   const ranges = [60, 120, 240];
   function normalize(input) {
-    const o = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+    const o = input && typeof input === "object" ? input : {};
     return {
       pair: typeof o.pair === "string" && /^[A-Z0-9]{2,20}USDC$/.test(o.pair) ? o.pair : "XBTUSDC",
       tf: intervals.includes(o.tf) ? o.tf : "1h",
