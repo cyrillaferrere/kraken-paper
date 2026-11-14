@@ -52,6 +52,12 @@
     };
     $(config.search).addEventListener("input", schedule);
     $(config.choice).addEventListener("change", schedule);
+    $(config.name + "-reset").addEventListener("click", () => {
+      $(config.search).value = "";
+      $(config.choice).value = "all";
+      schedule();
+      $(config.search).focus();
+    });
     new MutationObserver(schedule).observe(tb, { childList: true, subtree: true, characterData: true });
     schedule();
   }
