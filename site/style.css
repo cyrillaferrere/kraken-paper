@@ -332,3 +332,12 @@ html { scroll-behavior: smooth; }
   #journal-panel .table-tools { align-items: stretch; }
   #journal-panel .table-tools select { flex: 1 1 150px; }
 }
+
+/* Historique étendu : la profondeur est explicite, les périodes restent compactes. */
+#journal-scope { margin: 8px 0 5px; font-size: 12px; }
+#journal-limit { min-width: 115px; }
+#performance-panel .chart-tools { row-gap: 8px; }
+@media (max-width: 620px) {
+  #performance-panel .chart-tools .chart-view-note { width: 100%; }
+  #journal-limit { flex: 1 1 120px; }
+}

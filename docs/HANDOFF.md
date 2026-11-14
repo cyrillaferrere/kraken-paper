@@ -1,5 +1,7 @@
 # Kraken Paper : document de reprise
 
+> Explorateur d'historique UX v0.2.1 : courbe 24 h, 7 j, 30 j, 90 j, 6 mois (180 j), 1 an (365 j), tout; journal 40/100/250/tous les événements disponibles, avec indication explicite de la profondeur chargée et des filtres sur les entrées visibles. Aucun événement ni point de courbe inventé, lecture seule. Branche `feature/v0.2.1-history-explorer` vers `preprod`, recette CI + navigateur obligatoire avant fusion.
+
 > Itération de stabilisation UX v0.2.1 : déconnexion temporaire et reconnexion garantie du MutationObserver pendant le tri DOM (sans masquer les nouvelles données), étiquette du chandelier fondée sur le nombre réel de bougies chargées, tests de non-régression et maintien de la navigation/du survol. Aucun changement de simulation. Branche `fix/v0.2.1-integrated-regression` vers `preprod`; attendre CI et vérifier Netlify avant toute conclusion de déploiement.
 
 > Durcissement UX v0.2.1 : correction du tri P&L négatif (signe moins typographique), protection contre la rétroaction MutationObserver lors des tris, accès direct Performance/Historique depuis la navigation, nom accessible du graphique portefeuille, tests d'intégration HTML/navigation/labels/scripts et non-régression du tri. Branche `fix/v0.2.1-ux-hardening` vers `preprod`. Contrôler CI et recette navigateur avant fusion.

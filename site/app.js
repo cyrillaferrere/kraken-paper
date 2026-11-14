@@ -325,13 +325,17 @@
       default: return esc(e.type);
     }
   }
+  let journalLimit = 40;
   function renderJournal() {
-    const items = journal.slice().reverse().map((e) => [e, journalText(e)]).filter(([, t]) => t).slice(0, 40);
+    const allItems = journal.slice().reverse().map((e) => [e, journalText(e)]).filter(([, t]) => t);
+    const items = journalLimit === Infinity ? allItems : allItems.slice(0, journalLimit);
+    const scope = $("journal-scope");
+    if (scope) scope.textContent = items.length + " événements chargés sur " + allItems.length + " disponibles" + (items.length < allItems.length ? " — augmentez « Afficher » pour explorer plus loin." : ".");
     $("journal").innerHTML = items.map(([e, t]) => `<li data-event-type="${esc(e.type)}"><time>${dt(e.time)}</time><span>${t}</span></li>`).join("") || "<li>Journal vide.</li>";
   }
 
   let equityPeriod = "all";
-  const equityWindows = { "1d": 86400000, "7d": 604800000, "30d": 2592000000 };
+  const equityWindows = { "1d": 86400000, "7d": 604800000, "30d": 2592000000, "90d": 7776000000, "180d": 15552000000, "365d": 31536000000 };
   function setEquityPeriod(period) {
     if (period !== "all" && !equityWindows[period]) return;
     equityPeriod = period;
@@ -339,6 +343,10 @@
     renderChart();
   }
   document.querySelectorAll(".equity-range").forEach((b) => b.addEventListener("click", () => setEquityPeriod(b.dataset.period)));
+  $("journal-limit").addEventListener("change", (event) => {
+    journalLimit = event.target.value === "all" ? Infinity : Number(event.target.value);
+    renderJournal();
+  });
   function renderChart() {
     const el = $("chart");
     const end = equity.length ? equity[equity.length - 1].t : 0;
