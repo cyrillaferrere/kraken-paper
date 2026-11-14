@@ -352,6 +352,7 @@
       case "order_placed": { const o = e.order; return `Ordre ${o.id} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${o.take_profit ? " · TP " + px(o.take_profit) : ""}`; }
       case "fill": { const t = e.trade; return `✅ Exécuté : ${t.side === "buy" ? "achat" : "vente"} ${qty(t.qty)} ${esc(t.base)} à ${px(t.price)} (${t.tp_index ? "TP" + t.tp_index + " · " : ""}${REASON[t.reason] || t.reason})`; }
       case "exits_updated": return `Sorties mises à jour pour ${esc(base(e.pair))} : ${(e.order.take_profits || []).length} palier(s), stop ${px(e.order.stop_loss)}`;
+      case "exits_update_scheduled": return `Modification des sorties de ${esc(base(e.pair))} programmée pour le prochain créneau ; ancien stop conservé jusque-là`;
       case "cancel": return `Ordre ${esc(e.order_id)} annulé${e.reason ? " : " + esc(e.reason) : ""}`;
       case "rejected": return `⛔ Action refusée : ${esc(e.reason)}`;
       case "note": return `📝 ${esc(e.text)}`;
