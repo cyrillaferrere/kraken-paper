@@ -36,4 +36,5 @@ jobs:
             /tmp/kraken-backtest.json
             /tmp/kraken-backtest.md
             /tmp/kraken-history/KRAKEN_SOURCE_MANIFEST.json
+            /tmp/kraken-history/KRAKEN_OFFICIAL_MANIFEST.json
           retention-days: 30
