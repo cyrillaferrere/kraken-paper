@@ -1,0 +1,68 @@
+name: deploy-preprod
+
+# Déploiement après intégration sur preprod uniquement ; aucun cycle moteur ni PR ne déploie.
+on:
+  push:
+    branches:
+      - preprod
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kraken-paper-preprod-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Un événement hors preprod ne doit jamais publier un alias.
+    if: github.ref == 'refs/heads/preprod'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: preprod
+    steps:
+      - name: Checkout exact preprod commit
+        uses: actions/checkout@v4
+        with:
+          ref: preprod
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify preprod ref and deployment secret
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/preprod"
+          test -n "$NETLIFY_AUTH_TOKEN" || { echo "::error::Missing NETLIFY_AUTH_TOKEN in GitHub environment preprod"; exit 1; }
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Deploy preprod alias only
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          CI: 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # deploy.sh exports origin/preprod using git archive; never the working directory.
+          # No --prod, no CONFIRM_PROD, no access to main's state or decisions.
+          bash scripts/deploy.sh preprod
+      - name: Verify deployed commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(git rev-parse HEAD)"
+          url="https://preprod--kraken-paper.netlify.app/version.json"
+          for i in 1 2 3 4 5 6; do
+            if curl --fail --silent --show-error --max-time 15 -H 'Cache-Control: no-cache' "$url?check=$GITHUB_RUN_ID-$i" -o /tmp/kraken-preprod-version.json; then
+              if EXPECTED="$expected" python3 -c 'import json,os; d=json.load(open("/tmp/kraken-preprod-version.json")); assert d["commit"] == os.environ["EXPECTED"] and d["env"] == "preprod" and d["branch"] == "preprod", d'; then
+                echo "Preprod verified at commit ${expected:0:7}"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "::error::Preprod version.json does not match deployed preprod commit"
+          exit 1

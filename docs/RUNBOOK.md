@@ -163,3 +163,15 @@ Le workflow `.github/workflows/quality.yml` (`quality-gates / quality`) s'exécu
 **Avant fusion** : vérifier les deux checks verts, relire les fichiers modifiés (aucun `state/`, `decisions/`), obtenir la revue Grok Bot, puis déployer la préprod via `scripts/deploy.sh preprod`. Après déploiement, vérifier l'alias `preprod--`, le commit affiché, le navigateur mobile/bureau, les graphiques et l'absence de changement du site de production. Aucun passage en prod sans accord explicite de Cyril.
 
 **Limites** : le workflow n'effectue pas de tests de navigateur de bout en bout ni de déploiement Netlify ; la vérification de secrets est partielle et ne remplace pas la revue. Les tests CI doivent être observés sur GitHub avant de déclarer le dispositif opérationnel.
+
+## Déploiement préprod automatique par GitHub Actions (ADR-16)
+
+Le workflow `.github/workflows/deploy-preprod.yml` se déclenche **uniquement sur push vers `preprod`** (après fusion validée). Le déclencheur manuel `workflow_dispatch` a été écarté : GitHub exige que ce workflow existe sur la branche par défaut `main`, que nous ne modifions pas. Aucun déclenchement sur PR, `main`, `feature/*` ou cycle moteur.
+
+**Configuration initiale (effectuée le 14/11/2026)** : environnement GitHub `preprod`, branches autorisées : `preprod`, secret d'environnement `NETLIFY_AUTH_TOKEN` créé par Cyril. Ne jamais divulguer le jeton ; expiration Netlify prévue le 12/02/2027 : le renouveler avant cette date dans GitHub et révoquer l'ancien. Ce jeton de compte peut avoir des droits plus larges que l'alias : la protection de la production dépend du workflow et du script, pas d'une limitation intrinsèque du jeton.
+
+**Utilisation** : faire relire la PR par Grok Bot, vérifier les checks puis fusionner dans `preprod`. GitHub → Actions → `deploy-preprod` : vérifier le run vert, puis `https://preprod--kraken-paper.netlify.app/version.json` (commit exact, `env: preprod`, `branch: preprod`). Le script `scripts/deploy.sh preprod` utilise `--alias preprod`, jamais `--prod`. Un push direct sur `preprod` déclencherait également le workflow : privilégier les PR et activer ultérieurement les protections de branche après accord distinct de Cyril.
+
+**En cas d'échec** : vérifier les logs GitHub Actions sans afficher de secret ; si jeton manquant, contrôler le secret d'environnement `preprod`. En cas de SHA différent dans `version.json`, ne pas déclarer le déploiement réussi. Déploiement CLI manuel possible en secours. Aucun changement de `main`, `state/`, `decisions/` ni de production.
+
+**Statut** : secret configuré, PR à faire relire et fusionner ; premier run de déploiement à vérifier. Aucun déploiement encore validé par cette automatisation.
