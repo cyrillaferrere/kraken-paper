@@ -1,3 +1,8 @@
+## Recette Graphite / Signal — ADR-23
+- Ouvrir le Deploy Preview de la PR #41 et vérifier l’identité graphite / vert signal / corail sur desktop 1280/1440, tablette 768 et iPhone 375/390/430.
+- Contrôler contraste, focus, clavier, reduced-motion, bargraphe d’exposition réelle, valeurs KPI, ordres, prix, chandelier et survol des bougies ; vérifier les couleurs des moyennes mobiles et des ordres.
+- Exécuter `node --test tests/site/*.test.js`, `node --test tests/functions/*.test.mjs`, `python -m unittest -v` et contrôler CI ; ne pas fusionner avant validation de Cyril.
+
 ## Recette du prototype Analog / Robotic (branche uniquement)
 - Vérifier que `site/analog.css` est bien servi après `style.css` (pas d'échec réseau ou de conflit de cascade), contrôler l'apparence graphite/cuivre, les glyphes K⌁P sur macOS/iOS/Windows et le contraste.
 - Vérifier la graduation 0–50–100 de la vraie barre d'exposition, cohérente avec cash, réservé et positions ; aucun faux indicateur de trading.
