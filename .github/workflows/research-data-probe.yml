@@ -1,0 +1,44 @@
+name: research-data-probe (read-only)
+on:
+  push:
+    branches: [feature/research-plateaux]
+    paths: [.github/workflows/research-data-probe.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Probe official Kraken range support without downloading archives
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error
+          urls = [
+              "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part04",
+              "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_2026Q3.zip",
+              "https://assets.kraken.com/marketing/institutions/OHLCVT_Full_PARTS_SHA256SUMS.txt",
+          ]
+          for url in urls:
+              print("URL:", url, flush=True)
+              for method in ("HEAD", "GET"):
+                  req = urllib.request.Request(url, method=method, headers={
+                      "User-Agent": "Mozilla/5.0 (compatible; KrakenResearch/1.0)",
+                      "Accept": "*/*",
+                  })
+                  if method == "GET":
+                      req.add_header("Range", "bytes=0-0")
+                  try:
+                      with urllib.request.urlopen(req, timeout=12) as response:
+                          print("  ", method, response.status, "size",
+                                response.headers.get("Content-Length"), "range",
+                                response.headers.get("Content-Range"), "accept",
+                                response.headers.get("Accept-Ranges"), flush=True)
+                          if method == "GET" and response.status == 200:
+                              print("  Range unsupported: NOT downloading full archive", flush=True)
+                  except (urllib.error.URLError, TimeoutError) as exc:
+                      print("  ", method, "unavailable:", type(exc).__name__,
+                          "code:", getattr(exc, "code", None), flush=True)
+          PY

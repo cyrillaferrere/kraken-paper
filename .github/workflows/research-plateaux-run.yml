@@ -1,0 +1,40 @@
+name: research-plateaux (read-only)
+on:
+  push:
+    branches: [feature/research-plateaux]
+    paths: [.github/workflows/research-plateaux-run.yml]
+permissions:
+  contents: read
+jobs:
+  official-backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Extract official Kraken spot history by byte ranges
+        run: python scripts/fetch_kraken_ohlcvt_ranges.py --output /tmp/kraken-history
+      - name: Run research offline unit tests
+        run: python -m unittest discover -s tests -p 'test_research_plateaux.py' -v
+      - name: Run official historical research and pooled confidence intervals
+        run: python scripts/research_plateaux.py --archives /tmp/kraken-history --output /tmp/kraken-backtest.json
+      - name: Output full report as labeled log section
+        run: |
+          echo 'REPORT_MARKDOWN_BEGIN'
+          cat /tmp/kraken-backtest.md
+          echo 'REPORT_MARKDOWN_END'
+          echo 'SOURCE_MANIFEST_BEGIN'
+          cat /tmp/kraken-history/KRAKEN_SOURCE_MANIFEST.json
+          echo 'SOURCE_MANIFEST_END'
+      - name: Attach audit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-kraken-plateau-study
+          path: |
+            /tmp/kraken-backtest.json
+            /tmp/kraken-backtest.md
+            /tmp/kraken-history/KRAKEN_SOURCE_MANIFEST.json
+            /tmp/kraken-history/KRAKEN_OFFICIAL_MANIFEST.json
+          retention-days: 30

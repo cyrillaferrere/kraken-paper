@@ -1,0 +1,117 @@
+{
+  "origin": "Kraken historical OHLCVT FULL multipart official CDN",
+  "source_urls": [
+    "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part00",
+    "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part01",
+    "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part02",
+    "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part03",
+    "https://assets.kraken.com/marketing/institutions/Kraken_OHLCVT_Full.zip.part04"
+  ],
+  "part_sizes": [
+    2097152000,
+    2097152000,
+    2097152000,
+    2097152000,
+    1157945626
+  ],
+  "part_etags": [
+    "\"ca80893857c56a8cd44df4ee3caa398d-250\"",
+    "\"84d0ef1069baaf64411a32a43879d059-250\"",
+    "\"1be9935a090cacbfe3a4c815fa3ab77c-250\"",
+    "\"fee21d7ffc8850bda007640a0ea994c8-250\"",
+    "\"8891beec53b287dc88d555c5ef9103f2-139\""
+  ],
+  "archive_sha256": "NOT COMPUTED; archive accessed by HTTP byte ranges",
+  "csv": [
+    {
+      "name": "ETHUSDC_240.csv",
+      "source_entry": "ETHUSDC_240.csv",
+      "size": 920709,
+      "zip_crc32": "36bb7d77",
+      "sha256": "3b5b9bd2debb11e82fca52d0c42a967556dadaf1891a76d78c71745986f8d0d7"
+    },
+    {
+      "name": "ETHUSDC_60.csv",
+      "source_entry": "ETHUSDC_60.csv",
+      "size": 3450004,
+      "zip_crc32": "e6d68fb9",
+      "sha256": "5a354b0471ff87bee7f46236992b7b8c344b323eef9eb921c4964bb3b58d5556"
+    },
+    {
+      "name": "ETHUSD_240.csv",
+      "source_entry": "ETHUSD_240.csv",
+      "size": 1521051,
+      "zip_crc32": "22ac1c2d",
+      "sha256": "de31846b90211596d62a7d8a22d667988a009fcb993bf7a43105085140b19f89"
+    },
+    {
+      "name": "ETHUSD_60.csv",
+      "source_entry": "ETHUSD_60.csv",
+      "size": 5897039,
+      "zip_crc32": "751c5e4a",
+      "sha256": "2d01e67714b628bde75a15eef88013e9f360671d65e01c82f7205c32673d06eb"
+    },
+    {
+      "name": "SOLUSDC_240.csv",
+      "source_entry": "SOLUSDC_240.csv",
+      "size": 232061,
+      "zip_crc32": "2f1f878d",
+      "sha256": "f481276104f94c95fafdf38cd2c7a9781c8accf819e59750d9ec562887dd77b5"
+    },
+    {
+      "name": "SOLUSDC_60.csv",
+      "source_entry": "SOLUSDC_60.csv",
+      "size": 902798,
+      "zip_crc32": "4d98d508",
+      "sha256": "4a946cac6b15c98a749f6b7a56b728e744eb21fbcc4f145a06d2470da8130a3e"
+    },
+    {
+      "name": "SOLUSD_240.csv",
+      "source_entry": "SOLUSD_240.csv",
+      "size": 689858,
+      "zip_crc32": "6fe9a6cb",
+      "sha256": "cf04bdd1983c98d377dcb99f8b4cfd28520e29343995f12ebbeb282a2816fd85"
+    },
+    {
+      "name": "SOLUSD_60.csv",
+      "source_entry": "SOLUSD_60.csv",
+      "size": 2714011,
+      "zip_crc32": "ecaaa745",
+      "sha256": "53dd64334b8dec66103548ac02426b662f07b4fa224d4005234f8f3e66648c2a"
+    },
+    {
+      "name": "XBTUSDC_240.csv",
+      "source_entry": "XBTUSDC_240.csv",
+      "size": 993398,
+      "zip_crc32": "044dacd0",
+      "sha256": "ac74bcdfeec444f780cf5ca7fdef27139ce9df184b22867f3fa162cd31efa3b1"
+    },
+    {
+      "name": "XBTUSDC_60.csv",
+      "source_entry": "XBTUSDC_60.csv",
+      "size": 3795388,
+      "zip_crc32": "1d311cc6",
+      "sha256": "e4b9b841bd54dc70487bd544e81f5473211f05ebdb8d77825a94d529f4fc89d6"
+    },
+    {
+      "name": "XBTUSD_240.csv",
+      "source_entry": "XBTUSD_240.csv",
+      "size": 1773450,
+      "zip_crc32": "db163c68",
+      "sha256": "71c5794968cf5d27cf101644cb3319337d43b0a946e5c67ec056ba3b1d4a6aac"
+    },
+    {
+      "name": "XBTUSD_60.csv",
+      "source_entry": "XBTUSD_60.csv",
+      "size": 6582038,
+      "zip_crc32": "5be90e27",
+      "sha256": "8e223ba40708314039ed95dfdff9c833d8f5341b43b59a95d73bc8aba132baed"
+    }
+  ],
+  "official_manifest": {
+    "source_entry": "MANIFEST.json",
+    "size": 360,
+    "zip_crc32": "830b6e58",
+    "sha256": "2e3eef939692f2520847674dc2e69b00796f1c230429509cb8c12649458853bd"
+  }
+}
