@@ -1,5 +1,10 @@
 # Kraken Paper : document de reprise
 
+## Scanner de marchés — lot de performance
+- Branche `perf/v0.2.1-market-scanner-batch` : orchestration de `refreshMetrics` dans `site/markets.js`, test `tests/site/scanner-batch.test.js`.
+- Les données restent publiques Kraken ; benchmark BTC calculé avant la force relative, deux workers maximum pour les autres actifs.
+- Vérifier les marqueurs après un cycle de rafraîchissement, les prix partiels, les erreurs Kraken, et l'absence de requêtes superposées. `main`, `state/` et `decisions/` intouchés.
+
 ## Itération UX chandelier — session et actualisation
 - Branche `fix/v0.2.1-chart-session-consistency` ; fichiers `site/chart-preferences.js`, `site/markets.js`, `site/index.html`, tests `tests/site/chart-session.test.js`.
 - Les préférences restent dans sessionStorage (pas de donnée de trading), valeurs par défaut BTC/1 h/120. Actualiser force une lecture OHLC sans effet sur le moteur.
