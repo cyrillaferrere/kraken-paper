@@ -134,6 +134,28 @@ class TieredExitTests(unittest.TestCase):
         self.assertEqual(fills[0]["reason"], "stop_loss")
         self.assertEqual(self.state["open_orders"], [])
 
+    def test_three_tiers_fraction_rounding(self):
+        meta = self.state["pairs"][self.pair]
+        tiers = run.normalize_take_profits(meta, {"take_profits": [
+            {"price": 69000, "fraction": 0.3333},
+            {"price": 72000, "fraction": 0.3333},
+            {"price": 75000, "fraction": 0.3334}]}, 65000, 0.02)
+        self.assertAlmostEqual(sum(x["qty"] for x in tiers), 0.02)
+
+    def test_two_tiers_in_same_five_minute(self):
+        bars = [(T0 + i * 300, 65000, 74000, 64000, 73000) for i in range(12)]
+        fills = self.candle(T0, 74000, 64000, bars)
+        self.assertEqual([x["tp_index"] for x in fills], [1, 2])
+        self.assertEqual([x["ts"] for x in fills], [T0, T0])
+
+    def test_breakeven_requires_stop_on_update(self):
+        a = {"type": "update_exits", "pair": self.pair,
+             "take_profits": [{"price": 74000, "fraction": 1.0}],
+             "breakeven_after_tp1": True}
+        events, _, _ = run.run_cycle(self.state, [decision("no-stop", a)],
+                                      FakeMarket(last=65000), T0 + 60)
+        self.assertTrue(any(e["type"] == "rejected" for e in events))
+
     def test_legacy_single_tp(self):
         st = run.new_state(T0 - 10)
         action = {"type": "market_buy", "pair": self.pair, "qty": 0.01,
