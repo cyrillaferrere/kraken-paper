@@ -27,7 +27,8 @@
 </div>
 <div id="alert" class="alert" hidden role="alert"></div>
 
-<main>
+<nav class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview">Vue générale</a><a href="#market-card">Marchés</a><a href="#positions-panel">Positions</a><a href="#orders-panel">Ordres</a><a href="#dec-h">Décisions</a><a href="#journal-panel">Journal</a></nav>
+<main id="overview">
   <section class="kpis" aria-label="Chiffres clés">
     <article class="kpi big"><h2>Valeur totale</h2><p id="k-value" class="v">—</p><p id="k-value-sub" class="s"></p></article>
     <article class="kpi"><h2>P&amp;L depuis le départ</h2><p id="k-pnl" class="v">—</p><p id="k-pnl-pct" class="s"></p></article>
@@ -58,8 +59,8 @@
         <button type="button" role="tab" class="motion-button" data-tf="5m" aria-selected="false">5 min</button>
         <button type="button" role="tab" class="motion-button" data-tf="15m" aria-selected="false">15 min</button>
         <button type="button" role="tab" class="motion-button" data-tf="30m" aria-selected="false">30 min</button>
-        <button type="button" role="tab" class="motion-button" data-tf="1h" aria-selected="false">1 h</button>
-        <button type="button" role="tab" class="motion-button" data-tf="4h" aria-selected="true">4 h</button>
+        <button type="button" role="tab" class="motion-button" data-tf="1h" aria-selected="true">1 h</button>
+        <button type="button" role="tab" class="motion-button" data-tf="4h" aria-selected="false">4 h</button>
         <button type="button" role="tab" class="motion-button" data-tf="1d" aria-selected="false">1 j</button>
       </div>
       <button type="button" id="ord-toggle" class="tgl motion-button" aria-pressed="true" title="Afficher ou masquer les lignes d'ordres, stops et objectifs">Ordres : affichés</button>
@@ -76,6 +77,22 @@
     </div>
     <p id="moverlay-note" class="hint"></p>
     <p class="hint">Bougies réelles de l'API publique Kraken, la dernière est encore en cours. Heures de Paris. Rien n'est lissé ni interpolé.</p>
+  </section>
+
+  <section class="card" id="positions-panel">
+    <div class="card-h"><h2>Positions</h2><span id="cash" class="muted"></span></div>
+    <div class="tbl-wrap"><table id="positions"><thead><tr>
+      <th>Crypto</th><th class="r">Quantité</th><th class="r">Prix de revient</th><th class="r">Prix</th><th class="r">Valeur</th><th class="r">P&amp;L latent</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card" id="orders-panel">
+    <div class="card-h"><h2>Ordres ouverts</h2><span class="muted">Montants nets de frais (maker 0,40 %, stop en taker 0,80 % + 0,1 % de glissement)</span></div>
+    <div class="tbl-wrap"><table id="orders" class="orders"><thead><tr>
+      <th scope="col">Ordre</th><th scope="col" class="c-s">Sens</th><th scope="col" class="r">Engagé</th><th scope="col" class="r c-x">Prix limite<br><span class="th-sub">actuel</span></th><th scope="col" class="r">Distance</th>
+      <th scope="col" class="r c-x">Stop</th><th scope="col" class="r c-x">Objectif</th><th scope="col" class="r c-x">Perte max</th><th scope="col" class="r c-x">Gain visé</th><th scope="col" class="r c-x">Gain / risque</th>
+    </tr></thead><tbody></tbody></table></div>
+    <p class="hint">Distance : variation du prix nécessaire pour déclencher. Perte max : si le stop est touché (vente au stop −0,1 %, frais taker). Gain visé : si l'objectif est atteint (frais maker). Le stop et l'objectif d'un achat s'activent une fois l'achat exécuté. Sur mobile, touchez un ordre pour le détail.</p>
   </section>
 
   <section class="card" aria-labelledby="markers-h">
@@ -110,29 +127,13 @@
   </section>
 
   <section class="card">
-    <div class="card-h"><h2>Positions</h2><span id="cash" class="muted"></span></div>
-    <div class="tbl-wrap"><table id="positions"><thead><tr>
-      <th>Crypto</th><th class="r">Quantité</th><th class="r">Prix de revient</th><th class="r">Prix</th><th class="r">Valeur</th><th class="r">P&amp;L latent</th>
-    </tr></thead><tbody></tbody></table></div>
-  </section>
-
-  <section class="card">
-    <div class="card-h"><h2>Ordres ouverts</h2><span class="muted">Montants nets de frais (maker 0,40 %, stop en taker 0,80 % + 0,1 % de glissement)</span></div>
-    <div class="tbl-wrap"><table id="orders" class="orders"><thead><tr>
-      <th scope="col">Ordre</th><th scope="col" class="c-s">Sens</th><th scope="col" class="r">Engagé</th><th scope="col" class="r c-x">Prix limite<br><span class="th-sub">actuel</span></th><th scope="col" class="r">Distance</th>
-      <th scope="col" class="r c-x">Stop</th><th scope="col" class="r c-x">Objectif</th><th scope="col" class="r c-x">Perte max</th><th scope="col" class="r c-x">Gain visé</th><th scope="col" class="r c-x">Gain / risque</th>
-    </tr></thead><tbody></tbody></table></div>
-    <p class="hint">Distance : variation du prix nécessaire pour déclencher. Perte max : si le stop est touché (vente au stop −0,1 %, frais taker). Gain visé : si l'objectif est atteint (frais maker). Le stop et l'objectif d'un achat s'activent une fois l'achat exécuté. Sur mobile, touchez un ordre pour le détail.</p>
-  </section>
-
-  <section class="card">
     <div class="card-h"><h2>Historique des trades</h2></div>
     <div class="tbl-wrap"><table id="trades"><thead><tr>
       <th>Date</th><th>Sens</th><th class="r">Quantité</th><th class="r">Prix</th><th class="r">Frais</th><th class="r">P&amp;L réalisé</th>
     </tr></thead><tbody></tbody></table></div>
   </section>
 
-  <section class="card">
+  <section class="card" id="journal-panel">
     <div class="card-h"><h2>Journal</h2></div>
     <ul id="journal" class="journal"></ul>
   </section>
