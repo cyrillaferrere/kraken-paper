@@ -8,11 +8,12 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐙</text></svg>">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="analog.css">
+<link rel="stylesheet" href="workspace-premium.css">
 </head>
 <body>
 <header class="top">
   <div class="brand"><span class="logo" aria-hidden="true">K<span class="logo-dot">⌁</span>P</span>
-    <div><h1>Kraken Paper</h1><p class="sub">GRAPHITE / SIGNAL · SIMULATION PAPER</p></div>
+    <div><h1>Kraken Paper</h1><p class="sub">TRADING WORKSPACE · SIMULATION PAPER</p></div>
   </div>
   <div class="badges">
     <span id="env-badge" class="badge env env-local" title="Environnement du site">LOCAL</span>
@@ -32,6 +33,7 @@
 <nav id="dash-nav" class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue générale</span></a><a href="#market-card"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a><a href="#positions-panel"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Positions</span></a><a href="#orders-panel"><span class="nav-ico" aria-hidden="true">≡</span><span class="nav-label">Ordres</span></a><a href="#performance-panel"><span class="nav-ico" aria-hidden="true">↗</span><span class="nav-label">Performance</span></a><a href="#trades-panel"><span class="nav-ico" aria-hidden="true">⇄</span><span class="nav-label">Historique</span></a><a href="#dec-h"><span class="nav-ico" aria-hidden="true">✎</span><span class="nav-label">Décisions</span></a><a href="#journal-panel"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Journal</span></a></nav>
 <nav class="workspace-tabs" aria-label="Rubriques"><a href="#overview" data-view-link="overview">Vue d’ensemble</a><a href="#market-card" data-view-link="markets">Marchés</a><a href="#orders-panel" data-view-link="orders">Ordres</a><a href="#performance-panel" data-view-link="history">Historique</a></nav>
 <main id="overview">
+  <div class="workspace-heading" aria-live="polite"><div><span class="workspace-kind">KRKN / PAPER</span><h2 id="workspace-title">Vue générale</h2><p id="workspace-description">Portefeuille, marché et exposition en un regard.</p></div></div>
   <section class="kpis" aria-label="Chiffres clés" data-workspace="overview">
     <article class="kpi big"><h2>Valeur totale</h2><p id="k-value" class="v">—</p><p id="k-value-sub" class="s"></p></article>
     <article class="kpi"><h2>P&amp;L depuis le départ</h2><p id="k-pnl" class="v">—</p><p id="k-pnl-pct" class="s"></p></article>
