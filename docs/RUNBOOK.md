@@ -4,6 +4,8 @@ Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
 ## Contrôles UX v0.2.1 (branche feature)
 
+Pour `feature/v0.2.1-readable-orders`, contrôler les boutons Détails/Réduire sur ordinateur et mobile, les lignes développées après rafraîchissement des prix, l'accessibilité clavier et les colonnes masquées en mobile. Le déploiement Netlify de `preprod` est manuel et doit être vérifié par commit affiché dans le header.
+
 Avant fusion dans `preprod`, vérifier les ancres de navigation au clavier et sur mobile, la position des tableaux, le graphique 1 h par défaut, les survols de bougies pendant un rafraîchissement et `prefers-reduced-motion`. Exécuter les tests Python et Node décrits ci-dessous. Ne pas déployer sur `main` sans accord explicite.
 
 ## Déployer
