@@ -7,6 +7,7 @@
 
 - Base : branche `preprod` affichée au commit `fc9af4c` lors du contrôle navigateur.
 - Navigation par ancres, positions et ordres placés après le graphique, chandeliers en 1 h par défaut et largeur accrue sur grand écran.
+- Le survol des chandeliers est conservé lors des mises à jour de cours (hors changement de marché ou d'unité).
 - À vérifier avant fusion : navigation clavier/mobile, graphique et survol stable pendant les mises à jour, tests Node/Python, relecture Grok Bot.
 - Aucun déploiement ni fusion automatique vers `main` ; `state/` et `decisions/` intouchés.
 
