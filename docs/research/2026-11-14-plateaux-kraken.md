@@ -1,6 +1,8 @@
 # Recherche R-01 — plateaux pré-rebond sur Kraken spot
 
-**14 novembre 2026 — statut : protocole préparé, données historiques NON acquises, backtest Kraken NON exécuté.**
+**Pré-enregistrement du 14 novembre 2026 — paramètres figés avant calcul.**
+
+**Addendum après exécution :** le backtest officiel Kraken spot a été exécuté avec succès, sur BTC/USDC, ETH/USDC et SOL/USD (repli USD faute de trois ans en SOL/USDC) entre 2020/2021 et le 30 septembre 2026. Les résultats vérifiés, intervalles de confiance, coûts, fenêtres et empreintes sont dans [le rapport de résultats](2026-11-14-resultats-kraken-spot.md) et le [manifeste d'intégrité](2026-11-14-source-manifest-kraken.json). **Verdict : abandonner le plateau comme déclencheur d'achat autonome dans ces conditions** : pas d'avantage prédictif global établi, espérance nette négative sur chaque configuration. Aucune donnée de moteur modifiée.
 
 ## Objectif et provenance
 
@@ -8,7 +10,7 @@ Reproduire l'étude exploratoire menée sur des contrats perpétuels BTC/USDT et
 
 Source primaire : [archives OHLCVT Kraken](https://support.kraken.com/articles/360047124832-downloadable-historical-ohlcvt-open-high-low-close-volume-trades-data). Dernier jeu complet indiqué par la page anglaise actualisée en novembre : jusqu'au **30 septembre 2026**. ZIP multi-parties d'environ 2 Go, fichiers CSV sans en-tête avec `timestamp,open,high,low,close,volume,trades` et `MANIFEST.json`. Récupération publique complémentaire possible via `/0/public/OHLC` : **720 bougies maximum** ; la dernière bougie, encore ouverte, est exclue. Au 14/11/2026, l'API 1 h ne remonte pas jusqu'au 1er octobre : **ne pas inventer le trou de début octobre**. Si l'extension est discontinue, garder l'historique clôturé au 30/09 et signaler le manque.
 
-L'environnement actuel n'autorise pas le téléchargement direct des archives volumineuses Kraken. Il serait trompeur de publier des chiffres de rebond ou de rendement officiels. Le script autonome produit une sortie JSON et un rapport Markdown après apport de ces archives. La provenance inclut l'empreinte **SHA-256 des archives** et des CSV extraits, les intervalles UTC, les doublons / interruptions et le choix USDC ou USD.
+L'environnement local n'autorisait pas le téléchargement direct des archives volumineuses Kraken. Un extracteur séparé (`scripts/fetch_kraken_ohlcvt_ranges.py`) a ensuite permis leur lecture par plages HTTP depuis GitHub Actions, sans récupérer l'intégralité du ZIP. **Le SHA-256 global de l'archive n'a pas été recalculé** ; les CSV extraits ont été vérifiés au moyen du CRC32 du ZIP et d'une empreinte SHA-256 propre. Voir les manifestes et le rapport d'exécution. Ne pas réécrire rétroactivement les paramètres de ce pré-enregistrement.
 
 ## Paramètres figés avant étude
 
@@ -53,7 +55,7 @@ python scripts/research_plateaux.py --archives /chemin/archives --api-recent --o
 
 La commande écrit `/tmp/kraken-plateaux.json` et `/tmp/kraken-plateaux.md`. Utiliser `--api-recent` seulement sur un poste ayant accès au réseau : les données anciennes proviennent toujours des ZIP, pas de l'API restreinte aux dernières bougies.
 
-## Verdict au 14/11/2026
+## Verdict préalable, rédigé avant acquisition des données (historique)
 
 **À creuser — pas encore validé et non exploitable opérationnellement.** Le résultat exploratoire obtenu sur des contrats perpétuels externes n'est pas un résultat Kraken spot. **Aucun calcul Kraken 3 ans et aucune espérance nette Kraken n'ont été réalisés ici.**
 
