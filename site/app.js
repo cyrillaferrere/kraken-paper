@@ -237,8 +237,8 @@
       const gain = cents(tiers.reduce((sum, tier) => sum + sellNet(tier.qty, tier.price, f.maker), 0) - basis);
       const rr = loss != null && loss < 0 ? gain / -loss : null;
       const dist = (lvl) => lvl == null || live == null ? null : (lvl - live) / live;
-      return { engaged: cents(basis), limit: tp, stop, stopPx, tp, loss, gain, rr,
-        dLimit: dist(tp), dStop: dist(stop), dTp: dist(tp) };
+      return { engaged: cents(basis), limit: o.side === "buy" ? o.price : tp, stop, stopPx, tp, loss, gain, rr,
+        dLimit: dist(o.side === "buy" ? o.price : tp), dStop: dist(stop), dTp: o.side === "sell" ? dist(tp) : null };
     }
     const stopPx = stop != null ? roundTo(stop * (1 - f.slippage), pd) : null;
     const loss = stopPx != null && basis != null ? cents(sellNet(o.qty, stopPx, f.taker) - basis) : null;
