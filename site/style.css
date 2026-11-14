@@ -55,7 +55,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 0 16px 30px; color: var(--m
 a { color: var(--ac2); }
 
 /* ---------- Marchés ---------- */
-.seg { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); --idx: 1; --n: 6; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.seg { position: relative; display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; border-radius: 10px; background: var(--bg2); border: 1px solid var(--line); --idx: 3; --n: 6; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .seg::-webkit-scrollbar { display: none; }
 .seg-thumb { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / var(--n)); border-radius: 7px; background: rgba(124,92,255,.22); border: 1px solid rgba(124,92,255,.55); transform: translateX(calc(var(--idx) * 100%)); transition: transform var(--motion-normal) var(--ease-standard); }
 .seg button { position: relative; z-index: 1; min-width: 48px; min-height: 34px; padding: 4px 12px; border: 0; background: none; color: var(--mu); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 7px; }
@@ -200,3 +200,279 @@ button:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
 .md hr { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
 @media (prefers-reduced-motion: reduce) { .dec .chev { transition: none !important; } }
 @media (max-width: 520px) { .seg button { min-width: 44px; padding: 4px 6px; font-size: 12.5px; white-space: nowrap; } #market-card .card-h { gap: 8px; } }
+
+/* Navigation compacte : raccourcis vers les sections sans modifier les données. */
+html { scroll-behavior: smooth; }
+.dash-nav { max-width: 1100px; margin: 10px auto 0; padding: 0 16px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: thin; }
+.dash-nav a { flex: 0 0 auto; padding: 8px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg2); color: var(--tx); font-size: 13px; font-weight: 600; text-decoration: none; }
+.dash-nav a:hover { border-color: var(--ac2); }
+.dash-nav a:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+#overview, #market-card, #positions-panel, #orders-panel, #dec-h, #journal-panel { scroll-margin-top: 20px; }
+@media (min-width: 1280px) { .top, .build, .status, main, footer, .dash-nav { max-width: 1360px; } .mchart { height: 540px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* Navigation latérale 0.2.1 : les données restent dans le flux et accessibles par ancres. */
+.nav-toggle { position: fixed; top: 12px; left: 12px; z-index: 32; min-height: 42px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg2); color: var(--tx); font: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+.nav-toggle:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+.dash-nav { position: fixed; z-index: 30; top: 62px; bottom: 12px; left: 12px; width: 206px; max-width: none; margin: 0; padding: 10px; flex-direction: column; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--bg2); box-shadow: 0 8px 30px rgba(0,0,0,.25); transition: width var(--motion-panel) var(--ease-standard), transform var(--motion-panel) var(--ease-standard); }
+.dash-nav a { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 9px; white-space: nowrap; border-color: transparent; background: transparent; }
+.dash-nav a[aria-current="location"] { color: var(--ac2); background: rgba(34,211,238,.09); }
+.nav-ico { flex: 0 0 24px; width: 24px; text-align: center; font-size: 19px; }
+@media (min-width: 1025px) {
+  body { --nav-width: 230px; }
+  body.nav-collapsed { --nav-width: 80px; }
+  body.nav-collapsed .dash-nav { width: 56px; }
+  body.nav-collapsed .nav-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  body.nav-collapsed .dash-nav a { justify-content: center; padding-left: 0; padding-right: 0; }
+  .top, .build, .status, .alert, main, footer { width: calc(100% - var(--nav-width) - 32px); margin-left: var(--nav-width); margin-right: 16px; max-width: 1360px; }
+  .dash-nav a { position: relative; }
+  .top { padding-left: 16px; }
+  .nav-toggle { top: 12px; }
+}
+@media (max-width: 1024px) {
+  .nav-toggle { top: 8px; left: 8px; }
+  .nav-toggle span { display: none; }
+  .top { padding-left: 60px; }
+  body.nav-open::before { content: ""; position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 29; pointer-events: none; }
+  .dash-nav { top: 56px; left: 8px; bottom: 8px; width: min(250px, calc(100vw - 16px)); transform: translateX(calc(-100% - 16px)); visibility: hidden; }
+  body.nav-open .dash-nav { transform: translateX(0); visibility: visible; }
+}
+@media (prefers-reduced-motion: reduce) { .dash-nav { transition: none; } }
+
+@media (min-width: 1025px) and (max-width: 1160px) { .sub { max-width: 390px; } }
+
+/* 0.2.1 — tableaux lisibles : synthèse immédiate, détail accessible sur toutes tailles. */
+#positions-panel tbody tr:hover, #orders-panel .o-row:hover { background: rgba(138,150,179,.065); }
+#positions-panel th, #positions-panel td { padding-top: 12px; padding-bottom: 12px; }
+#positions-panel tbody td:first-child { font-weight: 650; }
+.orders th, .orders td { padding: 11px 9px; }
+.orders .o-row td:first-child { min-width: 188px; white-space: normal; }
+.orders .o-row td:first-child b { white-space: nowrap; }
+.orders .o-row .muted { font-size: 12.5px; }
+.o-toggle { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 4px 7px; margin-right: 5px; border: 1px solid var(--line); border-radius: 7px; background: rgba(34,211,238,.06); font-size: 12px; font-weight: 650; }
+.o-toggle:hover { border-color: var(--ac2); }
+.o-toggle:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+.o-detail:not([hidden]) { display: table-row; }
+.o-detail td { padding: 12px 16px; background: rgba(34,211,238,.035); white-space: normal; }
+.o-dl { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px 20px; }
+.o-dl dt { font-size: 12px; }
+.o-dl dd { font-size: 14px; }
+@media (max-width: 820px) { .o-dl { grid-template-columns: repeat(2,minmax(0,1fr)); } .orders .o-row td:first-child { min-width: 165px; } }
+@media (max-width: 480px) { .o-dl { grid-template-columns: minmax(0,1fr); } }
+
+/* Espace de travail : filtres sobres et lisibles, sans toucher aux calculs. */
+.table-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin: 12px 0 14px; }
+.table-tools label { color: var(--mu); font-size: 12px; font-weight: 650; }
+.table-tools input, .table-tools select { min-height: 38px; min-width: 0; padding: 7px 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg2); color: var(--tx); font: inherit; font-size: 13px; }
+.table-tools input { width: min(230px, 100%); }
+.table-tools input:focus-visible, .table-tools select:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+.table-tools .table-count { margin-left: auto; color: var(--mu); font-size: 12px; font-variant-numeric: tabular-nums; }
+#orders .o-row[hidden], #markers tbody tr[hidden] { display: none; }
+#markers tbody tr:hover { background: rgba(138,150,179,.065); }
+#markers tbody th { font-size: 14px; text-transform: none; letter-spacing: 0; }
+#markers tbody td { padding-top: 11px; padding-bottom: 11px; }
+#mchart-wrap { min-width: 0; }
+@media (max-width: 820px) {
+  .table-tools { gap: 7px; }
+  .table-tools input { flex: 1 1 140px; }
+  .table-tools .table-count { width: 100%; margin-left: 0; }
+  #positions-panel .tbl-wrap { overflow-x: auto; }
+  #positions-panel table { min-width: 620px; }
+  #markers table { min-width: 760px; }
+  .mchart { height: clamp(310px, 52vh, 480px); }
+}
+@media (max-width: 480px) {
+  .table-tools label { width: 100%; }
+  .table-tools select { flex: 1; }
+  .mchart { height: 340px; }
+}
+
+/* Remise à zéro des filtres, accessible au clavier et au toucher. */
+.filter-reset { min-height: 38px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--ac2); font: inherit; font-size: 13px; cursor: pointer; }
+.filter-reset:hover { background: rgba(34,211,238,.08); }
+.filter-reset:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+
+/* Espace graphique 0.2.1 : réglages compacts, pas de tuiles supplémentaires. */
+.chart-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 7px 0 11px; }
+.chart-tools-label, .chart-view-note { color: var(--mu); font-size: 12px; }
+.chart-tools-label { margin-right: 3px; font-weight: 650; }
+.chart-view-note { margin-left: auto; font-variant-numeric: tabular-nums; }
+.chart-range, .chart-reset { min-height: 36px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg2); color: var(--tx); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.chart-range[aria-pressed="true"] { border-color: var(--ac2); background: rgba(34,211,238,.1); color: var(--ac2); }
+.chart-range:hover, .chart-reset:hover { border-color: var(--ac2); }
+.chart-range:focus-visible, .chart-reset:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+#mlegend { min-height: 70px; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) {
+  .chart-tools { gap: 6px; }
+  .chart-range, .chart-reset { padding: 7px 8px; }
+  .chart-view-note { width: 100%; margin-left: 0; }
+  #mlegend { font-size: 12.5px; line-height: 1.65; }
+}
+
+/* Portefeuille : lecture des montants et outils de tri sans cartes supplémentaires. */
+#positions-panel .table-tools, #trades-panel .table-tools { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+#positions tbody td, #trades tbody td { font-variant-numeric: tabular-nums; }
+#positions tbody tr[hidden], #trades tbody tr[hidden] { display: none; }
+#positions tbody tr:hover, #trades tbody tr:hover { background: rgba(138,150,179,.065); }
+#positions tbody td:first-child, #trades tbody td:nth-child(2) { font-weight: 600; }
+@media (max-width: 820px) {
+  #trades { min-width: 680px; }
+  #positions-panel .table-tools, #trades-panel .table-tools { align-items: stretch; }
+  #positions-panel .table-tools select, #trades-panel .table-tools select { flex: 1 1 130px; }
+}
+
+/* Analyse de performance et journal : commandes alignées avec les autres tableaux. */
+.equity-range { min-height: 36px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg2); color: var(--tx); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.equity-range[aria-pressed="true"] { border-color: var(--ac2); background: rgba(34,211,238,.1); color: var(--ac2); }
+.equity-range:hover { border-color: var(--ac2); }
+.equity-range:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+#journal-panel .table-tools { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+#journal li[hidden] { display: none; }
+@media (max-width: 600px) {
+  #journal-panel .table-tools { align-items: stretch; }
+  #journal-panel .table-tools select { flex: 1 1 150px; }
+}
+
+/* Historique étendu : la profondeur est explicite, les périodes restent compactes. */
+#journal-scope { margin: 8px 0 5px; font-size: 12px; }
+#journal-limit { min-width: 115px; }
+#performance-panel .chart-tools { row-gap: 8px; }
+@media (max-width: 620px) {
+  #performance-panel .chart-tools .chart-view-note { width: 100%; }
+  #journal-limit { flex: 1 1 120px; }
+}
+
+
+/* ---------- Mobile-first data presentation (desktop tables remain unchanged) ---------- */
+@media (max-width: 680px) {
+  main { padding: 10px 10px 24px; gap: 12px; }
+  .card { padding: 14px 12px; border-radius: 14px; }
+  .card-h { align-items: flex-start; }
+  .card-h .muted { font-size: 12px; line-height: 1.4; }
+  .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .kpi { padding: 12px; }
+  .kpi .v, .kpi.big .v { font-size: clamp(18px, 5vw, 24px); overflow-wrap: anywhere; }
+  .top, .status, .build { padding-left: 12px; padding-right: 12px; }
+  .top { flex-wrap: wrap; }
+  .badges { justify-content: flex-start; }
+  .mchart { height: min(70vh, 390px); }
+  .seg button { padding: 4px 8px; min-width: 44px; }
+  #orders-panel .table-tools, #positions-panel .table-tools,
+  #trades-panel .table-tools, #market-card .table-tools {
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 8px; align-items: end;
+  }
+  #orders-panel .table-tools label, #positions-panel .table-tools label,
+  #trades-panel .table-tools label, #market-card .table-tools label { display: none; }
+  #orders-panel .table-tools input, #positions-panel .table-tools input,
+  #trades-panel .table-tools input, #market-card .table-tools input {
+    grid-column: 1 / -1; min-width: 0; width: 100%;
+  }
+  #orders-panel .table-tools select, #positions-panel .table-tools select,
+  #trades-panel .table-tools select, #market-card .table-tools select,
+  #orders-panel .table-tools button, #positions-panel .table-tools button,
+  #trades-panel .table-tools button, #market-card .table-tools button {
+    min-width: 0; width: 100%; min-height: 42px; font-size: 13px;
+  }
+  #orders-count, #positions-count, #trades-count, #markers-count {
+    grid-column: 1 / -1; font-size: 12px; color: var(--mu);
+  }
+  /* Semantic table is retained for assistive technologies; each row becomes a compact card. */
+  #orders-panel .tbl-wrap, #positions-panel .tbl-wrap,
+  #trades-panel .tbl-wrap, #market-card .tbl-wrap { overflow-x: visible; max-width: 100%; }
+  /* Override older tablet rules (#positions-panel table / #markers table)
+     whose specificity otherwise keeps 620/760px min-width on phones. */
+  #positions-panel #positions, #market-card #markers,
+  #trades-panel #trades, #orders-panel #orders {
+    display: block; width: 100%; min-width: 0; max-width: 100%;
+  }
+  #orders thead, #positions thead, #trades thead, #markers thead { display: none; }
+  #orders tbody, #positions tbody, #trades tbody, #markers tbody {
+    display: grid; grid-template-columns: minmax(0, 1fr);
+    gap: 9px; width: 100%; min-width: 0; max-width: 100%;
+  }
+  #orders tbody > tr, #positions tbody > tr, #trades tbody > tr, #markers tbody > tr {
+    width: 100%; max-width: 100%; min-width: 0;
+  }
+  #orders-panel, #positions-panel, #trades-panel, #market-card,
+  #orders-panel .tbl-wrap, #positions-panel .tbl-wrap,
+  #trades-panel .tbl-wrap, #market-card .tbl-wrap {
+    min-width: 0; max-width: 100%;
+  }
+  #orders tbody tr, #positions tbody tr, #trades tbody tr, #markers tbody tr {
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 8px 10px; min-width: 0; padding: 12px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--bg2);
+  }
+  #orders tbody td, #positions tbody td, #trades tbody td, #markers tbody td,
+  #markers tbody th {
+    display: block; min-width: 0; padding: 0; border: 0; text-align: left;
+    white-space: normal; overflow-wrap: anywhere; font-size: 13px;
+  }
+  #orders tbody td::before, #positions tbody td::before,
+  #trades tbody td::before, #markers tbody td::before {
+    display: block; margin-bottom: 3px; color: var(--mu);
+    font-size: 10.5px; font-weight: 600; letter-spacing: .3px;
+    text-transform: uppercase;
+  }
+  #orders tbody tr td.empty, #positions tbody tr td.empty,
+  #trades tbody tr td.empty, #markers tbody tr td.empty {
+    grid-column: 1 / -1; text-align: center;
+  }
+  #orders .o-row { grid-template-areas: "identity identity" "amount distance"; }
+  #orders .o-row > td:first-child { grid-area: identity; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 7px; font-size: 13px; }
+  #orders .o-row > td:first-child b { font-size: 17px; }
+  #orders .o-row > td:first-child .o-toggle {
+    order: 10; margin-left: auto; padding: 5px 8px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--card); font-size: 12px; min-height: 36px;
+  }
+  #orders .o-row > td:first-child .o-toggle .chev { margin-right: 3px; }
+  #orders .o-row > td:first-child .o-meta { display: none; }
+  #orders .o-row > td:first-child .tag { margin: 0; }
+  #orders .o-row > td:first-child .prox, #orders .o-row > td:first-child .reached-note {
+    order: 20; flex: 1 0 100%; width: 100%; margin: 2px 0 0;
+    padding: 5px 8px; border-radius: 7px; font-size: 11.5px; line-height: 1.35;
+  }
+  #orders .o-row > td:first-child .reached-note {
+    background: rgba(251,191,36,.08); border-left: 2px solid var(--warn);
+  }
+  #orders .o-row > td:nth-child(2), #orders .o-row > td.c-x { display: none; }
+  #orders .o-row > td:nth-child(3) { grid-area: amount; font-size: 16px; font-weight: 700; }
+  #orders .o-row > td:nth-child(3)::before { content: "Montant engagé"; }
+  #orders .o-row > td:nth-child(3) .muted { font-size: 12px; font-weight: 400; }
+  #orders .o-row > td:nth-child(5) { grid-area: distance; font-size: 13px; }
+  #orders .o-row > td:nth-child(5)::before { content: "Déclenchement"; }
+  #orders .o-row.reached { border-color: rgba(251,191,36,.42); }
+  #orders tbody tr.o-detail { display: none; margin-top: -9px; border-top: 0; border-radius: 0 0 12px 12px; }
+  #orders tbody tr.o-detail:not([hidden]) { display: block; }
+  #orders .o-detail > td { display: block; }
+  #orders .o-dl { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+  #orders .o-dl dd { overflow-wrap: anywhere; }
+  #orders-panel > .hint { font-size: 11.5px; line-height: 1.5; }
+  #positions tbody td:first-child, #trades tbody td:first-child,
+  #markers tbody th:first-child { grid-column: 1 / -1; font-size: 17px; font-weight: 700; }
+  #positions tbody td:nth-child(2)::before { content: "Quantité"; }
+  #positions tbody td:nth-child(3)::before { content: "Prix de revient"; }
+  #positions tbody td:nth-child(4)::before { content: "Prix actuel"; }
+  #positions tbody td:nth-child(5)::before { content: "Valeur"; }
+  #positions tbody td:nth-child(6)::before { content: "P&L latent"; }
+  #trades tbody td:nth-child(2)::before { content: "Sens"; }
+  #trades tbody td:nth-child(3)::before { content: "Quantité"; }
+  #trades tbody td:nth-child(4)::before { content: "Prix"; }
+  #trades tbody td:nth-child(5)::before { content: "Frais"; }
+  #trades tbody td:nth-child(6)::before { content: "P&L réalisé"; }
+  #markers tbody td:nth-child(2)::before { content: "Prix"; }
+  #markers tbody td:nth-child(3)::before { content: "24 h"; }
+  #markers tbody td:nth-child(4)::before { content: "Tendance 4 h"; }
+  #markers tbody td:nth-child(5)::before { content: "Tendance 1 j"; }
+  #markers tbody td:nth-child(6)::before { content: "RSI 14"; }
+  #markers tbody td:nth-child(7)::before { content: "Volatilité ATR"; }
+  #markers tbody td:nth-child(8)::before { content: "Force vs BTC"; }
+  #markers th[scope="row"] { position: static; background: none; box-shadow: none; }
+  #markers tr.sel { border-color: var(--ac2); }
+  #markers .linkbtn { min-height: 38px; font-size: 16px; }
+  .journal { max-height: none; }
+  .journal li { flex-wrap: wrap; overflow-wrap: anywhere; }
+  .journal time { flex: 1 0 100%; }
+  .dec > summary { overflow-wrap: anywhere; }
+}

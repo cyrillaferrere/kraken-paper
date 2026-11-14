@@ -1,10 +1,90 @@
 # Changelog
 
+- Correction complémentaire mobile : neutralisation des anciennes largeurs minimales tablette (620 px Positions, 760 px Marqueurs) sous 680 px, avec sélecteurs plus spécifiques.
+
+- Correctif UX mobile : les fiches des tableaux sont contraintes à la largeur du panneau, évitant le débordement constaté sur iPhone dans Positions.
+
+## UX mobile — refonte groupée v0.2.1 (préproduction)
+- Les quatre tableaux denses (ordres, positions, trades et marqueurs) deviennent des fiches compactes sous 680 px, sans dégrader les tableaux desktop.
+- Les ordres affichent en priorité crypto, sens, montant et distance ; prix, stop, objectif et risque restent accessibles par « Détails ».
+- Filtres, indicateurs, graphiques, journal et espaces tactiles adaptés aux petits écrans. Aucune modification du moteur PAPER.
+
+## Intégration dashboard v0.2.1 — cohérence de sélection
+- Correction du chandelier lorsque la paire sélectionnée disparaît après une actualisation du portefeuille : retour au BTC et chargement effectif de ses bougies.
+- Tests d'intégration des dépendances JS, de la publication atomique des données, des contrôles du graphique et du scanner.
+
+## Scanner — suivi des données et récupération automatique (préproduction v0.2.1)
+- Progression fondée sur les cryptos réellement analysées, plutôt que le nombre de lignes déjà affichées.
+- Message distinct pour les cryptos dont les données sont indisponibles ; fin de l'indicateur de chargement à la fin de la vague.
+- Nouvelle position ou nouvel ordre sur une paire non suivie : mise à jour immédiate du scanner, sans attendre trois minutes.
+
+## Préproduction v0.2.1 — scanner de marchés optimisé
+- Suppression des rafales de lectures concurrentes lors des actualisations : un seul scanner actif, une demande de reprise regroupée.
+- BTC calculé en premier, puis au plus deux actifs simultanément ; rendu des marqueurs groupé par quatre résultats pour limiter les reflows.
+- Tests de non-régression du scanner ; aucun changement de stratégie ou de moteur.
+
+## Préproduction v0.2.1 — session de graphique et rafraîchissement explicite
+- Mémorisation dans l'onglet des choix de crypto, timeframe et 60/120/240 bougies, avec valeurs validées et repli si la paire n'est plus disponible.
+- Bouton Actualiser pour relire les chandeliers Kraken et heure de dernière lecture réussie.
+- Tests des préférences, des échecs de stockage et de la barre d'outils ; ADR-20.
+
+## Préproduction v0.2.1 — fiabilité du chandelier
+- Les réponses OHLC tardives ne peuvent plus écraser la paire ou l'unité de temps actuellement sélectionnée.
+- Validation stricte des bougies Kraken avant leur mise en cache : horodatage, prix, volumes et chronologie.
+- Conservation du dernier graphique valide en cas d'erreur réseau ou de données.
+- Tests de non-régression et ADR-19.
+
+## Préproduction v0.2.1 — garde-fous des données publiques
+- Validation stricte des historiques equity.csv et journal.jsonl : pas de suppression silencieuse d'événements corrompus.
+- Prix Kraken non positifs ou non numériques rejetés, statut partiel explicite et repli sur les prix du cycle moteur.
+- Tests exécutables et ADR-18.
+
+## Stabilisation des historiques longs (préproduction, v0.2.1)
+- Rendu SVG plafonné selon la largeur, extrema et données manquantes préservés ; aucun cycle modifié.
+- Tests de charge sur 100 000 points et ADR-17.
+
+
+> Stabilisation du rafraîchissement UX v0.2.1 : une seule lecture d'état à la fois, validation et publication groupée portefeuille/equity/journal, nouvelle tentative après snapshot invalide, réponses de prix hors ordre ignorées, journal/trades/courbe reconstruits uniquement lors d'un nouveau snapshot (pas toutes les 15 s). Aucun changement du moteur PAPER.
+
+> Explorateur d'historique UX v0.2.1 : courbe 24 h, 7 j, 30 j, 90 j, 6 mois (180 j), 1 an (365 j), tout; journal 40/100/250/tous les événements disponibles, avec indication explicite de la profondeur chargée et des filtres sur les entrées visibles. Aucun événement ni point de courbe inventé, lecture seule.
+
+> Itération de stabilisation UX v0.2.1 : déconnexion temporaire et reconnexion garantie du MutationObserver pendant le tri DOM (sans masquer les nouvelles données), étiquette du chandelier fondée sur le nombre réel de bougies chargées, tests de non-régression et maintien de la navigation/du survol. Aucun changement de simulation.
+
+> Durcissement UX v0.2.1 : correction du tri P&L négatif (signe moins typographique), protection contre la rétroaction MutationObserver lors des tris, accès direct Performance/Historique depuis la navigation, nom accessible du graphique portefeuille, tests d'intégration HTML/navigation/labels/scripts et non-régression du tri.
+
+> Lot UX v0.2.1 performance et journal : périodes de courbe 24 h / 7 j / 30 j / tout (cycles réels uniquement), compteur de cycles, journal filtrable par texte et type d'événement, remise à zéro, tests Node et ergonomie mobile. Aucune modification moteur, stratégie ou données PAPER.
+
+> Lot UX portefeuille v0.2.1 : tri des positions (valeur, P&L signé, nom), recherche crypto, recherche et filtre achat/vente dans l'historique des trades, compteurs et réinitialisation, affichage mobile. Opérations uniquement visuelles, aucun changement moteur, stratégie, état ou décisions.
+
+> Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie.
+
+> Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur.
+
+> Complément en validation : filtres de recherche et de tendance sur les marqueurs, filtres d'ordres par sens et crypto, améliorations mobiles du graphique et des tableaux. Filtres uniquement visuels, sans modification des données.
+>
+> Compléments UX 0.2.1 : navigation latérale rétractable publiée en préproduction (`0e744d8`) ; refonte de lisibilité des tableaux Positions et Ordres en préparation sur branche `feature/v0.2.1-readable-orders`. Aucun changement moteur ni de données.
+
 Toutes les évolutions notables de Kraken Paper sont notées ici.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions : [SemVer](https://semver.org/lang/fr/).
 La version courante est dans le fichier `VERSION` ; chaque version publiée en prod a un tag git `vX.Y.Z`.
 
 ## [Unreleased]
+
+### UX/UI — v0.2.1 (en préparation)
+- Navigation compacte par ancres vers les zones du dashboard, accessible au clavier et sur mobile.
+- Positions et ordres ouverts remontés immédiatement après le graphique principal.
+- Graphique en bougies sur 1 h par défaut, largeur étendue sur grand écran et défilement réduit.
+- Survol de bougie conservé lors des rafraîchissements de cours ; remis à zéro lors d'un changement de marché ou de période.
+- Aucun changement de moteur, de stratégie, d'ordres ou de données PAPER.
+
+
+### Déploiement (en préparation)
+- Workflow GitHub Actions automatique après push/fusion sur `preprod` uniquement, réservé à l'alias Netlify `preprod`, avec secret GitHub d'environnement, vérification du commit publié et documentation ADR-16. Aucun déploiement de production. Le déclencheur manuel initial a été remplacé car GitHub exige sa présence sur la branche par défaut.
+
+
+### Qualité (en préparation)
+- Ajout du workflow `quality-gates` : tests Python et Node, vérification de syntaxe, garde-fous de livraison et exigence de mise à jour du CHANGELOG et du HANDOFF pour chaque PR.
+- Procédure de reprise et d'activation des contrôles obligatoires documentée (ADR-15) : checks requis uniquement sur `preprod` ; `main` reste accessible aux écritures autorisées du moteur et de Grok Bot, sans PR ni checks obligatoires. Aucun changement du moteur ou des données de simulation.
 
 ## [0.2.0] - 2026-11-14
 

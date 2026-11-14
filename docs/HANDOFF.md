@@ -1,7 +1,84 @@
 # Kraken Paper : document de reprise
 
+## Cause racine du débordement mobile
+- L'ancien CSS tablette `#positions-panel table { min-width: 620px; }` et `#markers table { min-width: 760px; }` était plus spécifique que la règle mobile par identifiant simple. Les cartes s'étendaient donc malgré les contraintes de grille.
+- Correctif : sélecteurs combinés `#positions-panel #positions` et `#market-card #markers` dans la media query téléphone. Tests de cascade ajoutés ; vérifier Safari après déploiement du nouveau SHA.
+
+## Correctif mobile Positions
+- Capture iPhone du 14/11 : fiches Positions débordant à droite malgré le conteneur étroit.
+- Correction des contraintes intrinsèques CSS grid sur les corps et lignes de tableaux mobiles ; même garde-fou pour Ordres, Trades et Marqueurs.
+- Recette Safari réelle indispensable : le test CSS ne remplace pas une mesure de largeur à l'écran.
+
+## Lot unique de refonte mobile — à valider sur appareil
+- Branche `feature/v0.2.1-mobile-dashboard-overhaul` : CSS responsive des quatre tableaux, filtres, KPI, chandelier et journal ; tests `mobile-dashboard-layout.test.js`.
+- Les tableaux desktop et le calcul des ordres sont inchangés. Sous 680 px, les lignes sont des fiches ; les détails des ordres restent pilotés par le bouton existant.
+- Avant validation Grok Bot : contrôler iPhone Safari (320/375/430 px), Android Chrome, tablette 768 px, desktop, clavier/VoiceOver, filtres, détails et mise à jour en direct. La CI ne constitue pas une recette visuelle.
+
+## Intégration dashboard : contrat de bout en bout
+- Branche `fix/v0.2.1-integrated-dashboard-contracts` : `site/markets.js` et `tests/site/integrated-dashboard-contracts.test.js`.
+- Une paire disparue pendant la session déclenche désormais une nouvelle lecture du graphique BTC ; avant, seule la sélection visuelle changeait.
+- Les tests couvrent les contrats statiques et de cohérence ; une recette interactive sur le site déployé reste indispensable. Aucun changement du moteur PAPER ni de production.
+
+## Scanner : intégration et récupération des paires
+- Branche `fix/v0.2.1-scanner-failure-recovery` vers `preprod`. Le scanner indique `scannerCompleted/scannerTotal` pendant la lecture, et distingue les paires indisponibles en fin de cycle.
+- Les nouvelles paires provenant des positions ou ordres déclenchent une nouvelle analyse. Tests `tests/site/scanner-recovery.test.js`.
+- Recette visuelle à effectuer ; aucune modification de stratégie, moteur, `state/`, `decisions/` ni production.
+
+## Scanner de marchés — lot de performance
+- Branche `perf/v0.2.1-market-scanner-batch` : orchestration de `refreshMetrics` dans `site/markets.js`, test `tests/site/scanner-batch.test.js`.
+- Les données restent publiques Kraken ; benchmark BTC calculé avant la force relative, deux workers maximum pour les autres actifs.
+- Vérifier les marqueurs après un cycle de rafraîchissement, les prix partiels, les erreurs Kraken, et l'absence de requêtes superposées. `main`, `state/` et `decisions/` intouchés.
+
+## Itération UX chandelier — session et actualisation
+- Branche `fix/v0.2.1-chart-session-consistency` ; fichiers `site/chart-preferences.js`, `site/markets.js`, `site/index.html`, tests `tests/site/chart-session.test.js`.
+- Les préférences restent dans sessionStorage (pas de donnée de trading), valeurs par défaut BTC/1 h/120. Actualiser force une lecture OHLC sans effet sur le moteur.
+- Vérifier la recette sur préproduction et le comportement lorsque Kraken ne répond pas, sans toucher à production.
+
+## Lot de développement — chandelier résilient (14/11/2026)
+- Branche `fix/v0.2.1-chart-concurrency-and-resilience`, PR vers `preprod` uniquement.
+- `site/ohlc-utils.js` : validateur de bougies ; `site/markets.js` : séquencement des requêtes et gestion du chargement.
+- Vérifier les tests `tests/site/chart-concurrency.test.js`, l'ADR-19 et le comportement du graphique lors de changements rapides de paire et de période.
+- Aucune modification moteur PAPER, stratégie, `state/`, `decisions/` ni production.
+
+## Itération données publiques — 14/11/2026
+- Branche `fix/v0.2.1-market-data-guardrails` : `site/data-validators.js`, validation atomique CSV/JSONL, prix Kraken partiels signalés.
+- Le moteur reste source de vérité ; en cas de snapshot invalide, conserver le dernier rendu et afficher l'alerte, sans modifier les données.
+- Tests `tests/site/market-data-guardrails.test.js`, ADR-18 ; recette Netlify à effectuer après CI et fusion.
+
+## État de l'itération — historiques longs (14/11/2026)
+- Branche `fix/v0.2.1-history-scale-and-data-integrity` vers `preprod` : helper `site/history-utils.js` et tests `tests/site/history-scale.test.js`.
+- Les cycles complets restent la source de vérité ; le SVG seul est échantillonné en conservant extrema et ruptures. ADR-17.
+- Vérifier CI, affichage mobile, périodes 1 an/tout, journal, survol et absence de modification PAPER avant validation.
+
+
+> Stabilisation du rafraîchissement UX v0.2.1 : une seule lecture d'état à la fois, validation et publication groupée portefeuille/equity/journal, nouvelle tentative après snapshot invalide, réponses de prix hors ordre ignorées, journal/trades/courbe reconstruits uniquement lors d'un nouveau snapshot (pas toutes les 15 s). Aucun changement du moteur PAPER. Branche `fix/v0.2.1-data-refresh-integrity` vers `preprod`, tests et recette navigateur obligatoires.
+
+> Explorateur d'historique UX v0.2.1 : courbe 24 h, 7 j, 30 j, 90 j, 6 mois (180 j), 1 an (365 j), tout; journal 40/100/250/tous les événements disponibles, avec indication explicite de la profondeur chargée et des filtres sur les entrées visibles. Aucun événement ni point de courbe inventé, lecture seule. Branche `feature/v0.2.1-history-explorer` vers `preprod`, recette CI + navigateur obligatoire avant fusion.
+
+> Itération de stabilisation UX v0.2.1 : déconnexion temporaire et reconnexion garantie du MutationObserver pendant le tri DOM (sans masquer les nouvelles données), étiquette du chandelier fondée sur le nombre réel de bougies chargées, tests de non-régression et maintien de la navigation/du survol. Aucun changement de simulation. Branche `fix/v0.2.1-integrated-regression` vers `preprod`; attendre CI et vérifier Netlify avant toute conclusion de déploiement.
+
+> Durcissement UX v0.2.1 : correction du tri P&L négatif (signe moins typographique), protection contre la rétroaction MutationObserver lors des tris, accès direct Performance/Historique depuis la navigation, nom accessible du graphique portefeuille, tests d'intégration HTML/navigation/labels/scripts et non-régression du tri. Branche `fix/v0.2.1-ux-hardening` vers `preprod`. Contrôler CI et recette navigateur avant fusion.
+
+> Lot UX v0.2.1 performance et journal : périodes de courbe 24 h / 7 j / 30 j / tout (cycles réels uniquement), compteur de cycles, journal filtrable par texte et type d'événement, remise à zéro, tests Node et ergonomie mobile. Aucune modification moteur, stratégie ou données PAPER. Branche `feature/v0.2.1-performance-journal` vers `preprod`, sous réserve CI et recette.
+
+> Lot UX portefeuille v0.2.1 : tri des positions (valeur, P&L signé, nom), recherche crypto, recherche et filtre achat/vente dans l'historique des trades, compteurs et réinitialisation, affichage mobile. Opérations uniquement visuelles, aucun changement moteur, stratégie, état ou décisions. Branche `feature/v0.2.1-portfolio-workspace` vers `preprod`, à valider par CI et recette visuelle.
+
+> Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie. Branche `feature/v0.2.1-chart-workspace` à valider avant fusion.
+
+> Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Branche `fix/v0.2.1-filter-reliability`, PR à valider vers `preprod`.
+
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
-> Dernière mise à jour : 14/11/2026, version 0.2.0.
+> UX 0.2.1 : menu latéral fusionné `0e744d8`, tableaux Positions/Ordres fusionnés `9558c00` dans `preprod`. Branche en cours `feature/v0.2.1-market-workspace` : filtres UI marqueurs/ordres, responsive, aucun changement moteur.
+>
+> Dernière mise à jour : 14/11/2026. Netlify préprod doit être vérifié par commit, le déploiement est manuel.
+
+## Reprise UX 0.2.1 (branche feature/v0.2.1-dashboard-layout)
+
+- Base : branche `preprod` affichée au commit `fc9af4c` lors du contrôle navigateur.
+- Navigation par ancres, positions et ordres placés après le graphique, chandeliers en 1 h par défaut et largeur accrue sur grand écran.
+- Le survol des chandeliers est conservé lors des mises à jour de cours (hors changement de marché ou d'unité).
+- À vérifier avant fusion : navigation clavier/mobile, graphique et survol stable pendant les mises à jour, tests Node/Python, relecture Grok Bot.
+- Aucun déploiement ni fusion automatique vers `main` ; `state/` et `decisions/` intouchés.
 
 ## 1. Le projet en bref
 
@@ -179,3 +256,25 @@ puis 3 fichiers seulement quand le sha change ; décisions = liste `contents/dec
 chaque nouveau fichier lu une seule fois par son sha (`git/blobs`) puis gardé en `localStorage` ; leçons =
 `contents/docs/LESSONS.md` avec ETag, lu sur la branche déployée (`preprod` en préprod, `main` en prod). Sur 403/429
 le dash attend 10 min et affiche les décisions depuis le journal.
+
+## 11. Chantier contrôle qualité (14/11/2026)
+
+**Branche** : `feature/quality-gates-handoff`, issue de `preprod`. **Objet** : sécuriser les futures PR avant les fonctionnalités v0.3.0. Aucun changement du moteur, des stratégies, de `state/`, de `decisions/`, du site Netlify ou de la production.
+
+**Audit initial** : `main` était 11 commits devant `preprod` au moment du contrôle, avec les derniers commits `55284ec`, `7c79bd7`, `6d5c9c6` correspondant aux cycles horaires (fichiers `state/`). Ne jamais recopier l'état de préprod sur main. La synchronisation des branches doit préserver les fichiers d'état de main et être validée par les protections existantes.
+
+**Ajout** : `.github/workflows/quality.yml`, job `quality`, vérifie les PR vers `preprod`/`main` et les branches de développement : aucun changement de `state/` ou `decisions/`, CHANGELOG et HANDOFF modifiés sur chaque PR, tests `python -m unittest -v`, `node --test tests/site/*.test.js`, `node --test tests/functions/*.test.mjs`, `node --check` des JS, `bash -n` des scripts, invariants statiques de livraison. **Aucun cycle moteur ni déploiement** dans ce workflow. ADR-15 et RUNBOOK détaillent la décision et l'exploitation.
+
+**Pour Grok Bot** : lire la PR de cette branche vers `preprod`, inspecter les checks GitHub, vérifier les chemins protégés et confirmer que les tests passent. Ne pas confondre tests verts et blocage des merges : configuration cible : PR et checks obligatoires uniquement sur `preprod` ; sur `main`, ni PR ni checks obligatoires, car le moteur et Grok Bot poussent directement. Sur `main`, interdire force-push/suppression et, si techniquement réalisable, restreindre les pushes à `github-actions[bot]` et `cyrillaferrere` ; ne pas activer de règle sans accord explicite de Cyril. Une fois les checks et la revue validés, intégrer dans `preprod` et tester. Aucune release `main` ni prod sans validation de Cyril.
+
+**Reste à faire** : vérifier les checks CI à nouveau après ces corrections documentaires, passer la PR Ready et fusionner en squash dans `preprod` après validation ; ne configurer les règles GitHub qu'après accord explicite de Cyril, et uniquement selon la matrice `preprod`/`main` documentée dans le RUNBOOK. Puis lancer les développements UX v0.3.0. Les tests navigateur/visuels restent manuels à ce stade.
+
+## 12. Déploiement préprod autonome par GPT (ADR-16, 14/11/2026)
+
+**Pourquoi** : la préprod v0.2.0 commit `7f58759` a été déployée et vérifiée par Grok Bot ; l'objectif est de permettre à GPT de déployer les prochains changements sans consommer le forfait Grok Bot.
+
+**Implémentation** : branche `feature/preprod-deploy-actions`, PR vers `preprod` ; nouveau workflow `.github/workflows/deploy-preprod.yml`, déclenchement automatique sur push vers `preprod` uniquement, environnement GitHub `preprod`, secret `NETLIFY_AUTH_TOKEN`, script existant `scripts/deploy.sh preprod`, vérification du commit via `version.json`. Pas de déclencheur sur `main`, pas de `--prod`, pas d'écriture dans `state/` ou `decisions/`, pas de changement de logique de trading.
+
+**Reprise Grok Bot / GPT** : après revue et CI vertes, fusionner la PR dans `preprod` ; Cyril configure une seule fois le secret GitHub de l'environnement `preprod` sans jamais le partager en chat. La fusion dans `preprod` déclenche le workflow automatiquement ; vérifier que le SHA du dashboard correspond au commit de `preprod`. Si aucun run ne démarre, vérifier le push vers `preprod` et la présence du workflow ; si le run échoue, consulter les logs sans afficher le secret. Le jeton Netlify n'est pas intrinsèquement restreint à la préprod : la sécurité repose aussi sur le workflow et les permissions du compte Netlify. **Aucun déploiement prod sans accord de Cyril.**
+
+**Statut** : workflow proposé, secret GitHub `preprod` configuré le 14/11/2026 ; attendre la revue Grok Bot, la fusion et le premier run réussi. Le déclencheur manuel a été remplacé par `push` sur `preprod` pour éviter l'exigence GitHub de présence sur la branche par défaut. Aucune règle GitHub changée.

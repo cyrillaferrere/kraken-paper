@@ -74,8 +74,7 @@
     if (c && c.pending) return c.pending;
     if (c && !force && Date.now() - c.at < TTL[iv]) return c.bars;
     const pending = apiGet(`OHLC?pair=${pair}&interval=${iv}`).then((res) => {
-      const key = Object.keys(res).find((x) => x !== "last");
-      const bars = (res[key] || []).map((r) => ({ t: +r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[6] }));
+      const bars = window.KPOHLC.parse(res);
       cache.set(k, { at: Date.now(), bars });
       return bars;
     }).catch((e) => { if (c) cache.set(k, c); else cache.delete(k); throw e; });
@@ -98,7 +97,10 @@
     }
   }
   let ctx = { S: null, journal: [], price: () => null };
-  const selected = { pair: BENCH, tf: "4h" };
+  const chartStorage = (() => { try { return window.sessionStorage; } catch { return null; } })();
+  const prefs = window.KPChartPrefs.read(chartStorage);
+  const selected = { pair: prefs.pair, tf: prefs.tf };
+  const saveChartPrefs = () => window.KPChartPrefs.write(chartStorage, { pair: selected.pair, tf: selected.tf, bars: viewBars });
 
   function trackedPairs() {
     const S = ctx.S, out = [];
@@ -131,6 +133,23 @@
   let levelPrices = [];
   let chart = null, sCandle, sMa20, sMa50, sVol, sRsi, markersApi, priceLines = [], linesSig = "", markersSig = "";
   let shown = { key: null, lastT: null, bars: [] };
+  let viewBars = prefs.bars;
+  function applyChartRange() {
+    if (!chart || !shown.bars.length) return;
+    const total = shown.bars.length;
+    chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, total - viewBars), to: total + 3 });
+    syncChartRange();
+  }
+  function syncChartRange() {
+    document.querySelectorAll(".chart-range").forEach((button) => {
+      button.setAttribute("aria-pressed", String(Number(button.dataset.bars) === viewBars));
+    });
+    const note = $("chart-view-note");
+    if (note) {
+      const available = shown.bars.length;
+      note.textContent = available ? Math.min(viewBars, available) + " / " + available + " bougies disponibles" : "En attente des bougies";
+    }
+  }
   const LW = () => window.LightweightCharts;
 
   const fmtTime = (t, opts) => new Date(t * 1000).toLocaleString("fr-FR", Object.assign({ timeZone: "Europe/Paris" }, opts));
@@ -192,10 +211,12 @@
   }
 
   let legendData = null;
+  let hoveredCandleTime = null;
   function legend(param) {
+    if (param !== undefined) hoveredCandleTime = param && param.time != null ? param.time : null;
     const el = $("mlegend"); if (!el || !legendData) return;
     let i = legendData.bars.length - 1;
-    if (param && param.time != null) { const j = legendData.idx.get(param.time); if (j != null) i = j; }
+    if (hoveredCandleTime != null) { const j = legendData.idx.get(hoveredCandleTime); if (j != null) i = j; }
     const b = legendData.bars[i]; if (!b) return;
     const p = selected.pair, d = legendData.data;
     const chg = (b.c - b.o) / b.o * 100;
@@ -206,12 +227,14 @@
 
   function setChartMsg(msg) { const m = $("mchart-msg"); m.textContent = msg || ""; m.hidden = !msg; }
 
-  let lastChartLoad = 0, chartBusy = false;
+  let lastChartLoad = 0, chartBusy = false, chartRequest = 0;
   async function loadChart(force) {
+    const request = ++chartRequest;
     chartBusy = true;
-    try { await loadChartInner(force); } finally { chartBusy = false; }
+    try { await loadChartInner(force, request); }
+    finally { if (request === chartRequest) chartBusy = false; }
   }
-  async function loadChartInner(force) {
+  async function loadChartInner(force, request) {
     const p = selected.pair, iv = TF[selected.tf], key = p + "|" + iv;
     lastChartLoad = Date.now();
     if (!initChart()) { setChartMsg("La bibliothèque de graphiques n'a pas pu se charger (CDN injoignable). Le tableau des marqueurs reste à jour."); return; }
@@ -220,12 +243,12 @@
     if (switching) wrap.classList.add("is-loading");
     try {
       const bars = await ohlc(p, iv, force);
-      if (selected.pair !== p || TF[selected.tf] !== iv) return; // l'utilisateur a changé entre-temps
+      if (request !== chartRequest || selected.pair !== p || TF[selected.tf] !== iv) return; // réponse ancienne : ne jamais écraser la sélection courante
       const d = seriesData(bars);
       if (switching || !shown.lastT) {
         setPriceFormat(p);
         sCandle.setData(d.candles); sMa20.setData(d.ma20); sMa50.setData(d.ma50); sVol.setData(d.vol); sRsi.setData(d.rsi);
-        chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 120), to: bars.length + 3 });
+        chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - viewBars), to: bars.length + 3 });
         linesSig = ""; markersSig = "";
       } else {
         // Rafraîchissement : on ne pousse que la bougie en cours et les nouvelles, sans déplacer la vue.
@@ -235,14 +258,17 @@
         }
       }
       shown = { key, lastT: bars.length ? bars[bars.length - 1].t : null, bars };
+      const stamp = $("chart-updated");
+      if (stamp) stamp.textContent = "Bougies lues à " + new Date().toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" });
+      syncChartRange();
       legendData = { bars, data: d, idx: new Map(bars.map((b, i) => [b.t, i])) };
-      legend(null);
+      legend(); // Conserver la bougie survolée pendant le rafraîchissement des cours.
       overlays();
       setChartMsg("");
     } catch (e) {
-      setChartMsg("Bougies Kraken indisponibles pour l'instant (" + e.message + "). Nouvel essai automatique.");
+      if (request === chartRequest) setChartMsg("Bougies Kraken indisponibles pour l'instant (" + e.message + "). Nouvel essai automatique.");
     } finally {
-      if (selected.pair === p && TF[selected.tf] === iv) wrap.classList.remove("is-loading");
+      if (request === chartRequest) wrap.classList.remove("is-loading");
     }
   }
 
@@ -420,7 +446,7 @@
       if (tb.rows[i] !== tr) tb.insertBefore(tr, tb.rows[i] || null);
     });
     const left = all.length - pairs.length;
-    $("markers-load").textContent = left > 0 ? `Chargement des marqueurs : ${pairs.length} / ${all.length} cryptos…` : "";
+    $("markers-load").textContent = scannerBusy ? `Analyse en cours : ${scannerCompleted} / ${scannerTotal} cryptos…` : left > 0 ? `Données indisponibles : ${left} / ${all.length} cryptos.` : "";
     for (const tr of tb.rows) {
       const p = tr.dataset.pair, r = row(p), td = tr.cells;
       tr.classList.toggle("sel", p === selected.pair);
@@ -432,23 +458,59 @@
     }
   }
 
+  let scannerBusy = false, scannerPending = false, scannerCompleted = 0, scannerTotal = 0;
+  let lastTrackedSignature = "";
   async function refreshMetrics() {
-    const pairs = trackedPairs();
-    try { await loadMeta(pairs); } catch (e) { /* méta facultative : décimales par défaut */ }
-    renderChips(); renderTable();
-    let err = null;
-    // BTC d'abord : sert de référence pour la force relative.
-    for (const p of [BENCH, ...pairs.filter((x) => x !== BENCH)]) {
-      try { await computeMetrics(p); failed.delete(p); } catch (e) { err = e; if (!metrics[p]) failed.add(p); }
+    // Une lecture des marqueurs dure parfois plusieurs secondes. Ne jamais lancer
+    // une seconde vague de requêtes en parallèle de la première.
+    if (scannerBusy) { scannerPending = true; return; }
+    scannerBusy = true;
+    try {
+      do {
+        scannerPending = false;
+        const pairs = trackedPairs();
+        lastTrackedSignature = pairs.join("|");
+        scannerCompleted = 0;
+        scannerTotal = pairs.length;
+        try { await loadMeta(pairs); } catch (e) { /* métadonnées facultatives */ }
+        renderChips(); renderTable();
+        let err = null, completed = 0;
+        // BTC d'abord pour calculer la force relative des autres actifs.
+        // Calculer le BTC avant les autres pour que la force relative soit fiable.
+        try { await computeMetrics(BENCH); failed.delete(BENCH); }
+        catch (e) { err = e; if (!metrics[BENCH]) failed.add(BENCH); }
+        completed++;
+        scannerCompleted = completed;
+        renderTable();
+        const queue = pairs.filter((x) => x !== BENCH);
+        // Deux lectures simultanées maximum : pas de rafale de 42 requêtes OHLC.
+        const workers = Array.from({ length: Math.min(2, queue.length) }, async () => {
+          while (queue.length) {
+            const p = queue.shift();
+            try { await computeMetrics(p); failed.delete(p); }
+            catch (e) { err = e; if (!metrics[p]) failed.add(p); }
+            completed++;
+            scannerCompleted = completed;
+            // Un seul rendu par lot de données terminées, et non par réponse HTTP.
+            if (completed % 4 === 0 || completed === pairs.length) renderTable();
+          }
+        });
+        await Promise.all(workers);
+        renderTable();
+        $("markers-note").textContent = err ? "Certaines données Kraken n'ont pas pu être lues (" + err.message + "), nouvel essai dans 3 min." : "";
+      } while (scannerPending);
+    } finally {
+      scannerBusy = false;
       renderTable();
     }
-    $("markers-note").textContent = err ? "Certaines données Kraken n'ont pas pu être lues (" + err.message + "), nouvel essai dans 3 min." : "";
   }
 
   // ---------- interactions ----------
   function selectPair(p) {
     if (!p || p === selected.pair) return;
+    hoveredCandleTime = null;
     selected.pair = p;
+    saveChartPrefs();
     renderChips(); renderTable(); loadChart();
   }
   function selectTf(tf, focus) {
@@ -460,10 +522,24 @@
       if (on) { $("tf-tabs").style.setProperty("--idx", i); if (focus) b.focus(); }
     });
     if (tf === selected.tf) return;
-    selected.tf = tf; loadChart();
+    hoveredCandleTime = null;
+    selected.tf = tf; saveChartPrefs(); loadChart();
   }
   function bind() {
+    document.querySelectorAll(".chart-range").forEach((button) => button.addEventListener("click", () => {
+      viewBars = Number(button.dataset.bars);
+      saveChartPrefs();
+      syncChartRange();
+      applyChartRange();
+    }));
+    $("chart-reset").addEventListener("click", () => {
+      applyChartRange();
+      hoveredCandleTime = null;
+      legend();
+    });
+    syncChartRange();
     $("pair-chips").addEventListener("click", (e) => { const b = e.target.closest("[data-pair]"); if (b) selectPair(b.dataset.pair); });
+    $("chart-refresh").addEventListener("click", () => loadChart(true));
     $("markers").addEventListener("click", (e) => {
       const b = e.target.closest("[data-pair]"); if (!b) return;
       selectPair(b.dataset.pair);
@@ -483,6 +559,9 @@
   window.KPMarkets = {
     onState(c) {
       ctx = c;
+      // Une paire mémorisée peut avoir disparu de la liste Kraken ou du portefeuille.
+      let chartPairReset = false;
+      if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); chartPairReset = true; }
       if (!started) {
         started = true; bind(); selectTf(selected.tf);
         renderChips(); renderTable(); loadChart(); refreshMetrics();
@@ -493,7 +572,12 @@
         setInterval(() => { if (!document.hidden) refreshMetrics(); }, 180e3);
         return;
       }
-      renderChips(); renderTable(); overlays();
+      renderChips(); renderTable();
+      if (chartPairReset) { hoveredCandleTime = null; loadChart(); }
+      else overlays();
+      // Les nouvelles positions/ordres ajoutent parfois une paire hors WATCH.
+      // La charger sans attendre les trois minutes du prochain balayage.
+      if (trackedPairs().join("|") !== lastTrackedSignature) refreshMetrics();
     },
   };
 })();

@@ -1,6 +1,82 @@
 # Kraken Paper : runbook (opérations)
 
+- Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
+
+- Régression mobile : sur iPhone, vérifier que chaque fiche SOL/BTC/ETH tient entièrement à l'intérieur de Positions, sans bande noire à droite, puis contrôler Ordres, Trades et Marqueurs.
+
+## Recette groupée UX mobile
+- Tester largeur 320, 375, 390, 430, 680, 768 et 1280 px : aucun débordement horizontal du contenu principal.
+- Ordres : crypto/sens/montant/distance visibles immédiatement ; bouton Détails ouvre prix/stop/objectif/risque ; filtres et statut proche/atteint lisibles sans occuper toute la fiche.
+- Positions, trades et marqueurs : chaque valeur possède un libellé visible ; filtres et tri fonctionnent ; état vide et données manquantes restent compréhensibles.
+- Vérifier chandeliers, KPI, navigation latérale, journal, décisions, performance et actualisations en direct sans perte de sélection.
+- Exécuter `node --test tests/site/*.test.js` puis comparer visuellement iOS Safari, Android Chrome et desktop sur le SHA effectivement déployé en préproduction. Aucun déploiement production sans validation explicite.
+
+## Recette intégrée du dashboard
+- Vérifier commit affiché, sources GitHub, cours Kraken, chandelier 1 h par défaut et changement rapide de paire/période.
+- Supprimer une paire sélectionnée de l'ensemble des paires disponibles dans un état fictif : le graphique doit revenir effectivement sur BTC.
+- Contrôler simultanément scanner, portefeuille, journal et historique sur plusieurs actualisations, puis simuler une panne Kraken et une panne de source d'état.
+- Tests automatisés : `node --test tests/site/*.test.js`. Les tests statiques ne remplacent pas la recette navigateur.
+
+## Recette du scanner : progression et nouvelles paires
+- Vérifier que la progression augmente à chaque réponse Kraken et disparaît à la fin, même en cas de panne partielle.
+- Ajouter dans un état fictif de test une paire absente de la watchlist et déclencher `onState` : le scanner doit la charger immédiatement.
+- Vérifier les erreurs, la récupération automatique et l'absence de rafales de requêtes. Exécuter `node --test tests/site/*.test.js`.
+
+## Recette scanner de marchés
+- Ouvrir les marqueurs, vérifier la progression et le calcul BTC avant les autres paires.
+- Déclencher deux rafraîchissements rapprochés : ils doivent être regroupés, sans multiplier les vagues de requêtes simultanées.
+- Tester une panne Kraken et son retour ; les derniers marqueurs valides restent visibles, l'erreur est signalée.
+- Exécuter `node --test tests/site/*.test.js` et vérifier le SHA de préproduction après fusion.
+
+## Recette — session du chandelier
+- Sélectionner ETH, 4 h, 240 bougies ; recharger l'onglet et vérifier la conservation de ces trois choix.
+- Ouvrir une nouvelle session et vérifier le défaut BTC/1 h/120 ; tester la disparition d'une paire et le repli BTC.
+- Cliquer Actualiser : la dernière heure de lecture ne change qu'après une réponse OHLC valide ; contrôler la stabilité du survol et du zoom.
+- Vérifier clavier, mobile et `node --test tests/site/*.test.js`.
+
+## Recette du chandelier en préproduction
+- Changer rapidement BTC/ETH/SOL puis 5 min/15 min/1 h pendant le chargement ; le dernier choix doit toujours gagner.
+- Déconnecter momentanément l'API OHLC : le dernier graphique valide reste visible, le message indique l'échec, le prochain rafraîchissement réessaie.
+- Contrôler le survol des bougies pendant les actualisations, les 60/120/240 bougies, les labels et le mobile.
+- Exécuter `node --test tests/site/*.test.js` et vérifier le commit réellement publié dans l'en-tête Netlify.
+
+## Recette — intégrité des données publiques
+- Vérifier prix Kraken en direct, statut partiel si une paire manque, et repli sur les prix du dernier cycle si API indisponible.
+- Tester localement des cycles CSV hors ordre et une ligne JSONL corrompue : le dashboard doit garder le snapshot précédent et afficher une erreur, sans effacer d'événement.
+- Vérifier l'actualisation normale après correction et l'absence de secrets/ordres réels. Tests : `node --test tests/site/*.test.js`.
+
+## Recette ciblée — historiques volumineux
+- Ouvrir Performance sur 24 h, 1 an et Tout ; vérifier que le nombre de cycles correspond aux données et que les extrema sont visibles.
+- Avec une série BTC incomplète, vérifier que le graphique ne relie pas deux segments séparés par une lacune.
+- Vérifier le rendu sur mobile et l'absence de ralentissement avec un historique long ; `node --test tests/site/*.test.js`.
+- Vérifier que la préproduction affiche le SHA fusionné après déploiement ; aucune opération sur `main` ni sur `state/` ou `decisions/`.
+
+
 Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
+
+## Contrôles UX v0.2.1 (branche feature)
+
+Stabilisation du rafraîchissement UX v0.2.1 : une seule lecture d'état à la fois, validation et publication groupée portefeuille/equity/journal, nouvelle tentative après snapshot invalide, réponses de prix hors ordre ignorées, journal/trades/courbe reconstruits uniquement lors d'un nouveau snapshot (pas toutes les 15 s). Aucun changement du moteur PAPER. Recette : vérifier filtres journal et profondeur après plusieurs tickers 15 s, courbe inchangée hors nouveau cycle, nouveaux événements après cycle, erreurs API et reprise, cohérence de l'horodatage, mobile et survol des chandelles. Le site doit rester PAPER/lecture seule.
+
+Explorateur d'historique UX v0.2.1 : courbe 24 h, 7 j, 30 j, 90 j, 6 mois (180 j), 1 an (365 j), tout; journal 40/100/250/tous les événements disponibles, avec indication explicite de la profondeur chargée et des filtres sur les entrées visibles. Aucun événement ni point de courbe inventé, lecture seule. Recette : vérifier 90 j/6 mois/1 an/tout avec historique court; journal 40/100/250/tout et compteur exact; filtrer une entrée ancienne après passage à tout; rafraîchissement, mobile, clavier, performance navigateur sur journal volumineux.
+
+Itération de stabilisation UX v0.2.1 : déconnexion temporaire et reconnexion garantie du MutationObserver pendant le tri DOM (sans masquer les nouvelles données), étiquette du chandelier fondée sur le nombre réel de bougies chargées, tests de non-régression et maintien de la navigation/du survol. Aucun changement de simulation. Recette : trier positions et laisser passer un cycle de rafraîchissement, vérifier que les nouvelles lignes sont prises en compte; changer 60/120/240 bougies sur paires peu fournies, contrôler les compteurs, survol et absence de nouvelle requête; tester mobile.
+
+Durcissement UX v0.2.1 : correction du tri P&L négatif (signe moins typographique), protection contre la rétroaction MutationObserver lors des tris, accès direct Performance/Historique depuis la navigation, nom accessible du graphique portefeuille, tests d'intégration HTML/navigation/labels/scripts et non-régression du tri. Contrôler navigation clavier/mobile, tri de deux pertes (−0,80 devant −10,00), filtres sur mises à jour automatiques, performance et journal; vérifier commit Netlify après déploiement.
+
+Lot UX v0.2.1 performance et journal : périodes de courbe 24 h / 7 j / 30 j / tout (cycles réels uniquement), compteur de cycles, journal filtrable par texte et type d'événement, remise à zéro, tests Node et ergonomie mobile. Aucune modification moteur, stratégie ou données PAPER. Vérifier 24 h/7 j/30 j/tout sur la courbe, périodes avec moins de deux cycles, filtres journal, compteurs et stabilité après nouveau cycle; test mobile 375/820 px.
+
+Lot UX portefeuille v0.2.1 : tri des positions (valeur, P&L signé, nom), recherche crypto, recherche et filtre achat/vente dans l'historique des trades, compteurs et réinitialisation, affichage mobile. Opérations uniquement visuelles, aucun changement moteur, stratégie, état ou décisions. Vérifier tri P&L avec pertes négatives françaises (−), retour à l'ordre initial, filtres et réinitialisation après rafraîchissement, colonnes mobiles à 375/820 px et navigation clavier.
+
+Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie. Vérifier le choix de fenêtre sur BTC et SOL, le recentrage après zoom/déplacement manuel, le survol pendant un rafraîchissement, les dimensions mobiles et le clavier.
+
+Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Vérifier aussi le retour du focus dans le champ de recherche après « Effacer les filtres ».
+
+Lot `feature/v0.2.1-market-workspace` : tester recherche d'une crypto et d'un identifiant d'ordre, filtre achat/vente, filtre de tendance 4 h / 1 j, compteurs affichés, réinitialisation des filtres, stabilité après rafraîchissement des données, détails d'ordre ouverts, affichage à 375/820/1440 px, navigation clavier. Les filtres n'agissent que sur les lignes HTML et ne doivent pas changer les ordres ni les indicateurs.
+
+Pour `feature/v0.2.1-readable-orders`, contrôler les boutons Détails/Réduire sur ordinateur et mobile, les lignes développées après rafraîchissement des prix, l'accessibilité clavier et les colonnes masquées en mobile. Le déploiement Netlify de `preprod` est manuel et doit être vérifié par commit affiché dans le header.
+
+Avant fusion dans `preprod`, vérifier les ancres de navigation au clavier et sur mobile, la position des tableaux, le graphique 1 h par défaut, les survols de bougies pendant un rafraîchissement et `prefers-reduced-motion`. Exécuter les tests Python et Node décrits ci-dessous. Ne pas déployer sur `main` sans accord explicite.
 
 ## Déployer
 
@@ -153,3 +229,25 @@ jamais apparaître. Puis vérifier le run GitHub : `gh run list --workflow engin
 | Décision non appliquée | `id` déjà utilisé, JSON invalide, ou API Kraken absente pendant le cycle | Lire le journal ; si API absente, elle sera retentée automatiquement. |
 | Le contrôle CI `guard-state` échoue | La branche modifie `state/` ou `decisions/` | Retirer ces changements (`git checkout origin/main -- state/ decisions/`), ils n'ont rien à faire hors `main`. |
 | Un ordre affiche « Niveau atteint en direct » | Le prix live a touché le niveau, mais le moteur n'exécute qu'à la clôture de la bougie 1 h | Attendre le cycle suivant. |
+
+## Contrôle qualité des PR (v0.3.0, préparation)
+
+Le workflow `.github/workflows/quality.yml` (`quality-gates / quality`) s'exécute sur les PR vers `preprod` et `main`, les pushes sur `preprod`, `feature/*`, `fix/*`, et manuellement. Il teste le moteur **sans exécuter de cycle**, les calculs du dash, la fonction planifiée, la syntaxe JS/Bash et les invariants de déploiement. Sur PR, `CHANGELOG.md` et `docs/HANDOFF.md` doivent être modifiés. Le workflow historique `guard-state / code-only` continue de protéger `state/` et `decisions/`.
+
+**Configuration cible des protections, non activée** : sur **`preprod` uniquement**, créer un ruleset imposant les PR et les checks `quality-gates / quality` et `guard-state / code-only`, interdisant force-push et suppression. Vérifier les noms exacts des checks après exécution. Sur **`main`**, ne pas rendre obligatoires les PR ni ces checks : le moteur (`github-actions[bot]`, écritures horaires dans `state/`) et Grok Bot (décisions sous le compte `cyrillaferrere`, `decisions/`) poussent directement ; `quality` et `code-only` ne s'exécutent pas sur ces pushes. Protéger `main` contre les force-pushes et la suppression, en limitant les pushes directs aux seuls acteurs autorisés `github-actions[bot]` et `cyrillaferrere` **si GitHub permet de l'exprimer sans perturber l'automatisation**. En particulier, le filtrage par acteur ne suffit pas à empêcher des modifications accidentelles de code sur `main` par un acteur autorisé : respecter `scripts/release.sh` et la revue humaine. Ne pas créer une protection qui empêche les commits du moteur ou les décisions. **Ne modifier aucune règle GitHub sans l'accord explicite de Cyril.** Vérifier les possibilités et restrictions du plan GitHub avant toute activation ; si la restriction d'acteurs n'est pas réalisable, la documenter plutôt que d'improviser un blocage.
+
+**Avant fusion** : vérifier les deux checks verts, relire les fichiers modifiés (aucun `state/`, `decisions/`), obtenir la revue Grok Bot, puis déployer la préprod via `scripts/deploy.sh preprod`. Après déploiement, vérifier l'alias `preprod--`, le commit affiché, le navigateur mobile/bureau, les graphiques et l'absence de changement du site de production. Aucun passage en prod sans accord explicite de Cyril.
+
+**Limites** : le workflow n'effectue pas de tests de navigateur de bout en bout ni de déploiement Netlify ; la vérification de secrets est partielle et ne remplace pas la revue. Les tests CI doivent être observés sur GitHub avant de déclarer le dispositif opérationnel.
+
+## Déploiement préprod automatique par GitHub Actions (ADR-16)
+
+Le workflow `.github/workflows/deploy-preprod.yml` se déclenche **uniquement sur push vers `preprod`** (après fusion validée). Le déclencheur manuel `workflow_dispatch` a été écarté : GitHub exige que ce workflow existe sur la branche par défaut `main`, que nous ne modifions pas. Aucun déclenchement sur PR, `main`, `feature/*` ou cycle moteur.
+
+**Configuration initiale (effectuée le 14/11/2026)** : environnement GitHub `preprod`, branches autorisées : `preprod`, secret d'environnement `NETLIFY_AUTH_TOKEN` créé par Cyril. Ne jamais divulguer le jeton ; expiration Netlify prévue le 12/02/2027 : le renouveler avant cette date dans GitHub et révoquer l'ancien. Ce jeton de compte peut avoir des droits plus larges que l'alias : la protection de la production dépend du workflow et du script, pas d'une limitation intrinsèque du jeton.
+
+**Utilisation** : faire relire la PR par Grok Bot, vérifier les checks puis fusionner dans `preprod`. GitHub → Actions → `deploy-preprod` : vérifier le run vert, puis `https://preprod--kraken-paper.netlify.app/version.json` (commit exact, `env: preprod`, `branch: preprod`). Le script `scripts/deploy.sh preprod` utilise `--alias preprod`, jamais `--prod`. Un push direct sur `preprod` déclencherait également le workflow : privilégier les PR et activer ultérieurement les protections de branche après accord distinct de Cyril.
+
+**En cas d'échec** : vérifier les logs GitHub Actions sans afficher de secret ; si jeton manquant, contrôler le secret d'environnement `preprod`. En cas de SHA différent dans `version.json`, ne pas déclarer le déploiement réussi. Déploiement CLI manuel possible en secours. Aucun changement de `main`, `state/`, `decisions/` ni de production.
+
+**Statut** : secret configuré, PR à faire relire et fusionner ; premier run de déploiement à vérifier. Aucun déploiement encore validé par cette automatisation.

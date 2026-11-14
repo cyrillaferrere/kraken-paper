@@ -109,3 +109,35 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
   endroit dès que les bougies du graphique couvrent cette heure. Au-delà de ~60 h, on perd la précision 5 min
   au moment de l'exécution, d'où le repli. Un appel OHLC 5 min supplémentaire par paire et par heure
   déclenchée, API publique uniquement.
+
+## ADR-15 : contrôles qualité systématiques sur les PR (14/11/2026)
+- **Contexte** : `guard-state` protège les données, mais les tests du moteur étaient surtout exécutés lors des cycles et des releases ; une PR pouvait être proposée sans validation transversale automatisée. Les ADR-13 (déclencheur Netlify) et ADR-14 (datation en 5 min) existent déjà.
+- **Décision** : ajouter `.github/workflows/quality.yml` pour tester les PR vers `preprod` et `main`, les pushes de développement et l'exécution manuelle. Il vérifie les chemins protégés, la présence d'une mise à jour du CHANGELOG et du HANDOFF sur chaque PR, les tests Python/Node, la syntaxe JavaScript/Bash et les invariants des scripts de livraison. Il ne lance pas le moteur, ne déploie rien et ne lit aucun secret.
+- **Protection des branches envisagée** : `preprod` : PR et checks `quality-gates / quality`, `guard-state / code-only` obligatoires, sans force-push ni suppression. `main` : **aucune PR ni aucun check obligatoire**, car le moteur et Grok Bot y poussent directement et ces checks ne tournent pas sur les pushes `main`. Empêcher force-push et suppression ; autoriser les pushes directs uniquement à `github-actions[bot]` et `cyrillaferrere`, dans la mesure où GitHub le permet effectivement sans bloquer le moteur. Ne pas activer de règle sans accord explicite de Cyril.
+- **Conséquences** : contrôle reproductible sans modifier `state/` ni `decisions/`. Les contrôles statiques ne remplacent pas la revue Grok Bot ni les essais UX. Les règles GitHub sont une configuration distincte, non activée dans cette PR ; leur faisabilité doit être vérifiée avant application. Aucune modification des règles de simulation.
+
+## ADR-16 : déploiement préprod automatique après fusion par GitHub Actions (14/11/2026)
+- **Contexte** : le connecteur Netlify disponible à GPT ne permet pas de publier un alias ; dépendre de Grok Bot pour chaque préprod consomme son forfait.
+- **Décision** : workflow `.github/workflows/deploy-preprod.yml` déclenché par **push sur `preprod`** après fusion de PR (pas de `workflow_dispatch`, qui exige un workflow présent sur la branche par défaut), avec permission GitHub `contents: read`, environnement GitHub `preprod` et secret `NETLIFY_AUTH_TOKEN`. Il appelle `scripts/deploy.sh preprod` qui exporte le commit poussé par `git archive`, publie avec `--alias preprod` et jamais `--prod`. Contrôle du `version.json` public (commit, branche et environnement) après déploiement. Aucune automatisation de la production.
+- **Sécurité et limites** : aucune modification de `main`, `state/`, `decisions/` ou du moteur ; aucun jeton en clair dans le dépôt ou les logs. Le jeton Netlify est techniquement un jeton de compte et pourrait disposer de droits sur la prod : la limitation à l'alias est une **protection du workflow**, pas une limitation intrinsèque du jeton. Configurer l'environnement `preprod` et le secret dans GitHub après accord de Cyril ; ne pas considérer le déploiement opérationnel avant un premier run réussi. Si possible, utiliser un compte Netlify dédié avec permissions minimales.
+- **Conséquences** : chaque intégration validée sur `preprod` déclenche et vérifie le déploiement via GitHub Actions, sans intervention manuelle, sans faire intervenir Grok Bot. La production demeure soumise à l'accord explicite de Cyril.
+
+## ADR-17 : visualisation bornée des historiques longs sans altérer les cycles (14/11/2026)
+- **Contexte** : une courbe sur un an peut contenir plusieurs milliers de cycles ; la création d'un SVG pour chaque point coûte cher, et `Math.min(...valeurs)` peut dépasser les limites d'arguments sur un historique volumineux.
+- **Décision** : conserver tous les cycles bruts et les utiliser pour les périodes, les comptes et les bornes de l'axe ; limiter uniquement les points de tracé SVG en conservant les extrema par fenêtre, les extrémités et les frontières de données absentes. Les séries discontinues ne sont jamais reliées artificiellement.
+- **Conséquences** : tracé plus fluide sur historique long sans changer l'état, les calculs de performance ni les décisions ; les détails intra-fenêtre ne sont pas tous dessinés, mais les minima et maxima sont conservés. Tests de 100 000 cycles et de lacunes de données.
+
+## ADR-18 : refuser les données historiques corrompues et signaler les prix partiels (14/11/2026)
+- **Contexte** : le navigateur supprimait silencieusement les lignes de journal JSONL malformées et les cycles CSV invalides ; des prix Kraken absents ou non numériques pouvaient être interprétés comme disponibles.
+- **Décision** : valider les trois sources avant publication, rejeter le snapshot entier en cas d'historique incohérent, ignorer les prix de marché non positifs/non finis et afficher le nombre de paires effectivement reçues. Conserver les valeurs du dernier cycle pour les paires sans prix direct.
+- **Conséquences** : aucun événement d'audit perdu silencieusement ; l'ancien snapshot reste affiché avec une alerte jusqu'au prochain essai ; les données live partielles sont explicitement signalées. Aucun changement moteur ni stratégie.
+
+## ADR-19 : isoler les chargements de chandeliers concurrents (14/11/2026)
+- **Contexte** : un changement rapide de paire ou d'unité de temps pouvait laisser une requête OHLC précédente modifier le graphique, son message d'erreur ou son indicateur de chargement ; des bougies invalides entraient dans le cache.
+- **Décision** : numéroter chaque demande de graphique et autoriser seulement la plus récente à mettre à jour les séries et les états d'interface. Valider les OHLC (chronologie, valeurs finies, cohérence haut/bas, volume) avant mise en cache ; conserver le dernier graphique valide en cas d'erreur.
+- **Conséquences** : navigation rapide stable et erreurs explicites, sans modifier les ordres, les prix de simulation ou la stratégie. Le cache est protégé contre les réponses incohérentes ; une requête périmée peut se terminer mais ne peut pas écraser le rendu courant.
+
+## ADR-20 : préférences locales du chandelier sans impact sur le moteur (14/11/2026)
+- **Contexte** : les choix de paire, d'unité de temps et de fenêtre visible sont perdus au rechargement ; l'utilisateur ne peut pas demander explicitement une relecture OHLC ni voir quand les bougies ont été chargées.
+- **Décision** : mémoriser uniquement les préférences du graphique en `sessionStorage` avec validation stricte et repli sur BTC/1 h/120 bougies ; afficher un bouton d'actualisation et l'heure de dernière lecture des bougies. Ne mémoriser aucun ordre, capital, décision ni secret.
+- **Conséquences** : les préférences survivent au rechargement de l'onglet mais pas à une nouvelle session ; le bouton relit les bougies Kraken sans modifier la simulation ; l'heure correspond à la lecture réussie, pas à l'horodatage du dernier trade.
