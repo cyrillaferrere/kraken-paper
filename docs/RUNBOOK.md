@@ -1,3 +1,9 @@
+## Recette ADR-24 — Trading Workspace × Minimal Precision
+- Preview PR #41 : vérifier absence de liseré vert sur navigation, KPI et marchés ; état actif de menu en graphite ; onglets secondaires seulement tablette/mobile.
+- Vérifier que le titre et la description changent avec les 4 espaces et que les 8 ancres latérales affichent leur panneau ; navigation clavier et retour arrière.
+- Sur desktop, le chandelier doit apparaître avant les panneaux exposition/horaires ; sur mobile vérifier l’empilement, le scroll et les tableaux.
+- Confirmer aucune modification des calculs, données, frais, prix, ordres, positions ou moteur. Tests Node/Python et CI obligatoires avant toute fusion.
+
 ## Recette Graphite / Signal — ADR-23
 - Ouvrir le Deploy Preview de la PR #41 et vérifier l’identité graphite / vert signal / corail sur desktop 1280/1440, tablette 768 et iPhone 375/390/430.
 - Contrôler contraste, focus, clavier, reduced-motion, bargraphe d’exposition réelle, valeurs KPI, ordres, prix, chandelier et survol des bougies ; vérifier les couleurs des moyennes mobiles et des ordres.
