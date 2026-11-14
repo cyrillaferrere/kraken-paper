@@ -9,7 +9,7 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 
 ### Qualité (en préparation)
 - Ajout du workflow `quality-gates` : tests Python et Node, vérification de syntaxe, garde-fous de livraison et exigence de mise à jour du CHANGELOG et du HANDOFF pour chaque PR.
-- Procédure de reprise et d'activation des contrôles obligatoires documentée, sans changement du moteur ou des données de simulation.
+- Procédure de reprise et d'activation des contrôles obligatoires documentée (ADR-15) : checks requis uniquement sur `preprod` ; `main` reste accessible aux écritures autorisées du moteur et de Grok Bot, sans PR ni checks obligatoires. Aucun changement du moteur ou des données de simulation.
 
 ## [0.2.0] - 2026-11-14
 
