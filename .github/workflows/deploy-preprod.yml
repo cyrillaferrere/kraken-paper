@@ -1,8 +1,10 @@
 name: deploy-preprod
 
-# Déploiement manuel uniquement : aucun push, PR ou cycle moteur ne déclenche Netlify.
+# Déploiement après intégration sur preprod uniquement ; aucun cycle moteur ni PR ne déploie.
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - preprod
 
 permissions:
   contents: read
@@ -13,7 +15,7 @@ concurrency:
 
 jobs:
   deploy:
-    # Un dispatch sur main/feature ne doit jamais publier un alias.
+    # Un événement hors preprod ne doit jamais publier un alias.
     if: github.ref == 'refs/heads/preprod'
     runs-on: ubuntu-latest
     timeout-minutes: 15
