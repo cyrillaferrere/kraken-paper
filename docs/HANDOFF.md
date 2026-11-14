@@ -1,3 +1,8 @@
+## Refonte visuelle v0.3.1 — Nocturne Signal
+- Branche feature/v0.3.1-nocturne-signal ; design CSS, palette graphique Lightweight Charts, monogramme K/, VERSION 0.3.1.
+- ADR : docs/ADR-21-NOCTURNE-SIGNAL.md. La préproduction seule reçoit cette version ; main et PAPER restent intacts.
+- Vérifier sur Netlify l'en-tête `v0.3.1`, le commit exact et la branche `preprod`. Ne pas fusionner en prod sans Cyril.
+
 ## UX v0.3.0 — reprise
 - PR #37 : quatre rubriques (Vue d’ensemble, Marchés, Ordres, Historique), ancres compatibles et aucun changement du moteur.
 - ADR : `docs/ADR-20-UX-NAVIGATION.md`. Préprod uniquement, valider sur iPhone avant toute release.
