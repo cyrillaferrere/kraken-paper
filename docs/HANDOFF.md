@@ -1,9 +1,9 @@
 # Kraken Paper : document de reprise
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
-> UX 0.2.1 : menu latéral fusionné dans `preprod` (`0e744d8`) et publié sur Netlify ; nouvelle branche `feature/v0.2.1-readable-orders` pour les tableaux Positions et Ordres, sans changement moteur.
+> UX 0.2.1 : menu latéral fusionné `0e744d8`, tableaux Positions/Ordres fusionnés `9558c00` dans `preprod`. Branche en cours `feature/v0.2.1-market-workspace` : filtres UI marqueurs/ordres, responsive, aucun changement moteur.
 >
-> Dernière mise à jour : 14/11/2026, v0.2.1 en préproduction, tableaux en cours de validation sur branche feature.
+> Dernière mise à jour : 14/11/2026. Netlify préprod doit être vérifié par commit, le déploiement est manuel.
 
 ## Reprise UX 0.2.1 (branche feature/v0.2.1-dashboard-layout)
 
