@@ -1,5 +1,7 @@
 # Kraken Paper : runbook (opérations)
 
+- Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
+
 - Régression mobile : sur iPhone, vérifier que chaque fiche SOL/BTC/ETH tient entièrement à l'intérieur de Positions, sans bande noire à droite, puis contrôler Ordres, Trades et Marqueurs.
 
 ## Recette groupée UX mobile
