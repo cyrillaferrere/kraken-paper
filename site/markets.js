@@ -98,7 +98,7 @@
     }
   }
   let ctx = { S: null, journal: [], price: () => null };
-  const selected = { pair: BENCH, tf: "4h" };
+  const selected = { pair: BENCH, tf: "1h" };
 
   function trackedPairs() {
     const S = ctx.S, out = [];
