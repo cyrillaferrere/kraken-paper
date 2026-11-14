@@ -195,7 +195,7 @@
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });
       firstRender = false;
     }
-    if (window.KPMarkets) window.KPMarkets.onState({ S, journal, price, orderMath });
+    if (window.KPMarkets) window.KPMarkets.onState({ S, journal, price, orderMath, liveOk, liveAt, livePairs: live });
     if (window.KPExtras) window.KPExtras.onState({ S, journal, equity, price, orderMath, branch: (window.KP_VERSION && window.KP_VERSION.branch) || "main", stateChanged });
     stateChanged = false;
   }
