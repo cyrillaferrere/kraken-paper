@@ -20,9 +20,19 @@
     const panel = target && target.closest("[data-workspace]");
     return panel ? panel.dataset.workspace.split(" ").find(v => views.has(v)) : "overview";
   }
+  const headings = {
+    overview: ["Vue générale", "Portefeuille, marché et exposition en un regard."],
+    markets: ["Marchés", "Cours, chandeliers et marqueurs de marché."],
+    orders: ["Positions & ordres", "Exposition, ordres en attente et risques associés."],
+    history: ["Analyse & historique", "Performance, décisions, trades et journal de simulation."]
+  };
   function render() {
     const view = routeFor(window.location.hash);
     document.body.dataset.workspaceView = view;
+    const title = document.getElementById("workspace-title");
+    const description = document.getElementById("workspace-description");
+    if (title) title.textContent = headings[view][0];
+    if (description) description.textContent = headings[view][1];
     panels.forEach(panel => { panel.hidden = !panel.dataset.workspace.split(" ").includes(view); });
     tabs.forEach(tab => {
       if (tab.dataset.viewLink === view) tab.setAttribute("aria-current", "page");
