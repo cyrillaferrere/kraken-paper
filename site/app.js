@@ -246,12 +246,12 @@
       const prox = near ? `<span class="prox${flash ? " kpi-updated" : ""}">◎ à ${nf(1).format(near.dist * 100)} % du déclenchement (${near.kind})</span>` : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
       const main = `<tr class="o-row${hit ? " reached" : ""}">
-        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="sr">Détail de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${note}</td>
+        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${note}</td>
         <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
         <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
         <td class="r c-x">${limitLbl}<br><span class="muted">${px(x)}</span></td><td class="r">${dist}</td>
         <td class="r c-x">${stopTxt}</td><td class="r c-x">${tpTxt}</td><td class="r c-x">${lossTxt}</td><td class="r c-x">${gainTxt}</td><td class="r c-x">${rrTxt}</td></tr>`;
-      const det = `<tr class="o-detail" id="od-${esc(o.id)}"${open ? "" : " hidden"}><td colspan="3"><dl class="o-dl">
+      const det = `<tr class="o-detail" id="od-${esc(o.id)}"${open ? "" : " hidden"}><td colspan="10"><dl class="o-dl">
         <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd>${px(x)}</dd></div>
         <div><dt>Stop</dt><dd>${stopTxt}</dd></div><div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
         <div><dt>Perte max</dt><dd>${lossTxt}</dd></div><div><dt>Gain visé</dt><dd>${gainTxt}</dd></div>
@@ -266,6 +266,7 @@
     const id = b.dataset.oid, row = document.getElementById("od-" + id), open = !expanded.has(id);
     if (open) expanded.add(id); else expanded.delete(id);
     b.setAttribute("aria-expanded", open);
+    const label = b.querySelector(".o-toggle-label"); if (label) label.textContent = open ? "Réduire" : "Détails";
     if (row) { row.hidden = !open; if (open) { const dl = row.querySelector(".o-dl"); dl.classList.remove("motion-expand"); void dl.offsetWidth; dl.classList.add("motion-expand"); } }
   });
 
