@@ -240,3 +240,22 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { .dash-nav { transition: none; } }
 
 @media (min-width: 1025px) and (max-width: 1160px) { .sub { max-width: 390px; } }
+
+/* 0.2.1 — tableaux lisibles : synthèse immédiate, détail accessible sur toutes tailles. */
+#positions-panel tbody tr:hover, #orders-panel .o-row:hover { background: rgba(138,150,179,.065); }
+#positions-panel th, #positions-panel td { padding-top: 12px; padding-bottom: 12px; }
+#positions-panel tbody td:first-child { font-weight: 650; }
+.orders th, .orders td { padding: 11px 9px; }
+.orders .o-row td:first-child { min-width: 188px; white-space: normal; }
+.orders .o-row td:first-child b { white-space: nowrap; }
+.orders .o-row .muted { font-size: 12.5px; }
+.o-toggle { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 4px 7px; margin-right: 5px; border: 1px solid var(--line); border-radius: 7px; background: rgba(34,211,238,.06); font-size: 12px; font-weight: 650; }
+.o-toggle:hover { border-color: var(--ac2); }
+.o-toggle:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+.o-detail:not([hidden]) { display: table-row; }
+.o-detail td { padding: 12px 16px; background: rgba(34,211,238,.035); white-space: normal; }
+.o-dl { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px 20px; }
+.o-dl dt { font-size: 12px; }
+.o-dl dd { font-size: 14px; }
+@media (max-width: 820px) { .o-dl { grid-template-columns: repeat(2,minmax(0,1fr)); } .orders .o-row td:first-child { min-width: 165px; } }
+@media (max-width: 480px) { .o-dl { grid-template-columns: minmax(0,1fr); } }
