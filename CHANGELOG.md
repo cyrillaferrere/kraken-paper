@@ -129,3 +129,7 @@ Première version numérotée. Elle regroupe tout ce qui a été construit depui
 
 ### Modifié
 - Le workflow du moteur ne s'exécute que depuis `main` (garde-fou contre un lancement manuel depuis une autre branche).
+
+
+### Outillage de déploiement (sans changement de version)
+- Ajout d'un workflow GitHub Actions de publication production sur demande explicite, avec tests, garde-fou SHA et vérification de la version Netlify. Aucun changement moteur, état ou décision.
