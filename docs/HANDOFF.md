@@ -1,3 +1,7 @@
+## UX v0.3.0 — reprise
+- PR #37 : quatre rubriques (Vue d’ensemble, Marchés, Ordres, Historique), ancres compatibles et aucun changement du moteur.
+- ADR : `docs/ADR-20-UX-NAVIGATION.md`. Préprod uniquement, valider sur iPhone avant toute release.
+
 ## v0.2.2 — lot d'intégration UX (PR #28–#35)
 - Référentiels modern-web-guidance et kraken-motion-ux, checklist UX.
 - Navigation mobile : fermeture et restitution du focus, tests unitaires.
