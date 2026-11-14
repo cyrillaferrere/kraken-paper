@@ -25,11 +25,14 @@ test("le VU d'exposition utilise la jauge existante, sans valeur inventée", () 
   assert.doesNotMatch(html, /fake[-_]?(value|price|signal)/i);
 });
 
-test("phosphore et cuivre : une identité spécifique et accessible", () => {
-  assert.match(analog, /--ac: #d6ad78/);
+test("Graphite Signal : identité lisible et accessible", () => {
+  assert.match(analog, /--ac: #b6ff52/);
+  assert.match(analog, /--signal-sans:/);
+  assert.match(analog, /--dn: #ff7769/);
+  assert.match(html, /GRAPHITE \/ SIGNAL/);
   assert.match(analog, /var\(--analog-mono\)/);
   assert.match(analog, /prefers-reduced-motion:reduce/);
   assert.match(analog, /focus-visible/);
-  assert.match(market, /ac: "#d6ad78"/);
+  assert.match(market, /ac: "#b6ff52"/);
   assert.match(market, /CandlestickSeries/);
 });
