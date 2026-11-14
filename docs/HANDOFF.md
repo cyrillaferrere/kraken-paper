@@ -1,3 +1,8 @@
+## v0.2.2 — lisibilité du scanner (fix/v0.2.2-scanner-readability)
+- Ligne sélectionnée et focus clavier plus visibles, animation neutralisée si mouvement réduit.
+- Recette requise : desktop, iPhone Safari, clavier, contraste et reduced motion. Tests CI et revue Grok Bot avant fusion vers preprod.
+- Aucun changement moteur, état PAPER, décisions ou production.
+
 # Kraken Paper : document de reprise
 
 ## Cause racine du débordement mobile

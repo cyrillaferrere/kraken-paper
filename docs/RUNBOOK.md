@@ -1,3 +1,8 @@
+## v0.2.2 — lisibilité du scanner (fix/v0.2.2-scanner-readability)
+- Ligne sélectionnée et focus clavier plus visibles, animation neutralisée si mouvement réduit.
+- Recette requise : desktop, iPhone Safari, clavier, contraste et reduced motion. Tests CI et revue Grok Bot avant fusion vers preprod.
+- Aucun changement moteur, état PAPER, décisions ou production.
+
 # Kraken Paper : runbook (opérations)
 
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
