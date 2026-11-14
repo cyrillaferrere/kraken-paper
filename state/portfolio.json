@@ -28,43 +28,43 @@
   },
   "open_orders": [
     {
-      "id": "O0007",
+      "id": "O0010",
       "pair": "XBTUSDC",
       "side": "sell",
       "qty": 0.01491041,
-      "price": 68400.0,
-      "stop_loss": 63500.0,
+      "price": 74700.0,
+      "stop_loss": 64000.0,
       "take_profit": null,
-      "created": "2026-11-14T19:07:35+01:00",
-      "active_from": 1794682800,
+      "created": "2026-11-14T20:20:40+01:00",
+      "active_from": 1794686400,
       "parent": null,
-      "decision_id": "2026-11-14-19h10"
+      "decision_id": "2026-11-14-20h20"
     },
     {
-      "id": "O0008",
+      "id": "O0011",
       "pair": "SOLUSDC",
       "side": "sell",
       "qty": 6.59613202,
-      "price": 77.5,
+      "price": 88.22,
       "stop_loss": 70.5,
       "take_profit": null,
-      "created": "2026-11-14T19:07:35+01:00",
-      "active_from": 1794682800,
+      "created": "2026-11-14T20:20:40+01:00",
+      "active_from": 1794686400,
       "parent": null,
-      "decision_id": "2026-11-14-19h10"
+      "decision_id": "2026-11-14-20h20"
     },
     {
-      "id": "O0009",
+      "id": "O0012",
       "pair": "ETHUSDC",
       "side": "sell",
       "qty": 0.37284019,
-      "price": 1930.0,
+      "price": 2173.0,
       "stop_loss": 1755.0,
       "take_profit": null,
-      "created": "2026-11-14T19:07:35+01:00",
-      "active_from": 1794682800,
+      "created": "2026-11-14T20:20:40+01:00",
+      "active_from": 1794686400,
       "parent": null,
-      "decision_id": "2026-11-14-19h10"
+      "decision_id": "2026-11-14-20h20"
     }
   ],
   "closed_trades": [
@@ -120,13 +120,14 @@
     "2026-11-14-04h10",
     "2026-11-14-09h05",
     "2026-11-14-14h10",
-    "2026-11-14-19h10"
+    "2026-11-14-19h10",
+    "2026-11-14-20h20"
   ],
   "last_decision": {
-    "id": "2026-11-14-19h10",
-    "timestamp": "2026-11-14T19:10:00+01:00",
-    "rationale": "Session 19h. Achat ETH exécuté à 1 870 sur la bougie de 15h. La baisse a repris : BTC 65 830 (plus bas 24 h 65 000), ETH 1 840 (plus bas 1 811), SOL 72,6 (plus bas 71,9). Les trois positions sont en léger négatif, tout reste sous les MA20/MA50 en 1h, 4h et 1j, RSI 4h entre 15 et 23 : survente sans retournement. Je change d'approche sur les sorties : en tendance journalière baissière, un rebond cale souvent vers la MA50 1h, donc mes objectifs (71 500, 83, 2 040) sont trop lointains. Je remplace les OCO par des objectifs plus proches (BTC 68 400, SOL 77,5, ETH 1 930) en gardant les mêmes stops (63 500, 70,5, 1 755). Gain visé environ +2,5 à +3 % au-dessus du prix d'achat, net des frais. Pas de renfort ni de vente au marché (taker 0,80 %). J'apprends qu'acheter sous les plus bas en tendance baissière donne de bons prix maker mais pas de rebond garanti.",
-    "applied": "2026-11-14T19:07:35+01:00"
+    "id": "2026-11-14-20h20",
+    "timestamp": "2026-11-14T20:20:00+01:00",
+    "rationale": "Correction immédiate des sorties. En rapprochant les objectifs à 19h (BTC 68 400, SOL 77,5, ETH 1 930) tout en gardant des stops lointains, le ratio gain/risque net de frais est tombé à 0,26 / 0,23 / 0,32. C'est insuffisant : à ce niveau il faudrait plus de trois trades gagnants sur quatre rien que pour ne pas perdre. Règle désormais permanente : chaque position doit afficher un gain/risque d'au moins 1,5 : 1, idéalement 2 : 1, mesuré depuis le PRU, frais compris (objectif en maker 0,40 %, stop en taker 0,80 % plus 0,1 % de glissement), comme le calcule le dash. Je remplace les trois OCO. BTC : stop remonté à 64 000, juste sous le support de 65 000 touché à 17h, avec un coussin d'environ 1 000 USDC (0,8 ATR 4h) pour ne pas se faire sortir par le bruit, objectif 74 700 sous le plus haut du 11 novembre (74 736), ratio 2,01. ETH : le prix colle au plus bas de 3 mois (1 811), je ne remonte pas le stop (1 755, encore 1,3 ATR 4h sous ce plus bas, près du plus bas journalier du 13 juillet à 1 750), objectif 2 173 sur l'ancien plus bas journalier du 30 octobre, ratio 2,07. SOL : stop inchangé à 70,50, juste sous le plus bas journalier du 1er août (70,59) ; le prix vient de faire un nouveau plus bas de 3 mois à 71,81, remonter le stop le ferait sauter au moindre bruit. Objectif 88,22 sur l'ancien plus bas journalier du 5 novembre, ratio 2,03. Aucune vente au marché : les trois couples stop/objectif tiennent techniquement et respectent la règle, vendre maintenant au taker figerait une perte de 3 à 6 % pile sur les plus bas.",
+    "applied": "2026-11-14T20:20:40+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -166,9 +167,9 @@
     "SOLUSDC": 1794679200
   },
   "last_prices": {
-    "XBTUSDC": 65644.39,
-    "ETHUSDC": 1833.97,
-    "SOLUSDC": 72.29
+    "XBTUSDC": 65415.59,
+    "ETHUSDC": 1825.0,
+    "SOLUSDC": 71.94
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -179,11 +180,11 @@
   "fees_total": 8.764939,
   "realized_pnl": 0.0,
   "seq": {
-    "order": 9,
+    "order": 12,
     "trade": 3
   },
-  "last_cycle": "2026-11-14T20:09:14+01:00",
-  "last_cycle_ts": 1794683354,
+  "last_cycle": "2026-11-14T20:20:40+01:00",
+  "last_cycle_ts": 1794684040,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
