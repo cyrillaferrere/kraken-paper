@@ -136,13 +136,17 @@
     if (!chart || !shown.bars.length) return;
     const total = shown.bars.length;
     chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, total - viewBars), to: total + 3 });
+    syncChartRange();
   }
   function syncChartRange() {
     document.querySelectorAll(".chart-range").forEach((button) => {
       button.setAttribute("aria-pressed", String(Number(button.dataset.bars) === viewBars));
     });
     const note = $("chart-view-note");
-    if (note) note.textContent = viewBars + " dernières bougies";
+    if (note) {
+      const available = shown.bars.length;
+      note.textContent = available ? Math.min(viewBars, available) + " / " + available + " bougies disponibles" : "En attente des bougies";
+    }
   }
   const LW = () => window.LightweightCharts;
 
