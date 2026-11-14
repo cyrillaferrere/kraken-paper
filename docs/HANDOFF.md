@@ -1,9 +1,9 @@
 # Kraken Paper : document de reprise
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
-> Mise à jour UX en cours : branche `feature/v0.2.1-collapsible-navigation` issue de `preprod`, navigation latérale responsive, sans changement du moteur. Tests CI et rendu à vérifier avant fusion.
+> UX 0.2.1 : menu latéral fusionné dans `preprod` (`0e744d8`) et publié sur Netlify ; nouvelle branche `feature/v0.2.1-readable-orders` pour les tableaux Positions et Ordres, sans changement moteur.
 >
-> Dernière mise à jour : 14/11/2026, version 0.2.1 en préparation sur branche feature (préprod publiée encore en 0.2.0).
+> Dernière mise à jour : 14/11/2026, v0.2.1 en préproduction, tableaux en cours de validation sur branche feature.
 
 ## Reprise UX 0.2.1 (branche feature/v0.2.1-dashboard-layout)
 
