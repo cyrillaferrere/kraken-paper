@@ -524,6 +524,8 @@
   window.KPMarkets = {
     onState(c) {
       ctx = c;
+      // Une paire mémorisée peut avoir disparu de la liste Kraken ou du portefeuille.
+      if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); }
       if (!started) {
         started = true; bind(); selectTf(selected.tf);
         renderChips(); renderTable(); loadChart(); refreshMetrics();
