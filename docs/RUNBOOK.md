@@ -1,3 +1,9 @@
+## Recette v0.3.1 — Nocturne Signal
+- Contrôler `VERSION=0.3.1` sur preprod et `site/version.json` généré par Netlify ; le bandeau doit afficher `v0.3.1`, `commit <SHA>` et `branche preprod`.
+- Vérifier absence de navigation doublonnée sur desktop (menu gauche uniquement), onglets mobiles, logo K/, palette sans violet, contrastes et focus clavier.
+- Tester les 4 rubriques, le graphique (sélection, rafraîchissement, survol), positions, ordres, prix en direct, reduced-motion et tailles 375/390/430/1280 px.
+- Exécuter `node --test tests/site/*.test.js` et `python -m unittest -v` ; confirmer les deux workflows CI. Aucune publication main sans accord explicite.
+
 ## Recette v0.3.0 — rubriques mobiles
 - Ouvrir `#overview`, `#market-card`, `#orders-panel`, `#performance-panel` sur iPhone et desktop ; vérifier les quatre rubriques et le retour navigateur.
 - Vérifier que le chandelier se met à jour et que les données restent cohérentes lorsque la rubrique est masquée puis affichée.
