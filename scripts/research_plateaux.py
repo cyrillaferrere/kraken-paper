@@ -23,14 +23,20 @@ HORIZON = 48 * 3600
 EMBARGO = HORIZON
 MAKER, TAKER, SLIP = 0.004, 0.008, 0.001
 ASSETS = {"BTC": ("XBT", "BTC"), "ETH": ("ETH",), "SOL": ("SOL",)}
+ARCHIVE_SHA256_CACHE = {}
 
 
 def sha256(path):
+    stat = Path(path).stat()
+    key = (str(Path(path).resolve()), stat.st_size, stat.st_mtime_ns)
+    if key in ARCHIVE_SHA256_CACHE:
+        return ARCHIVE_SHA256_CACHE[key]
     digest = hashlib.sha256()
     with open(path, "rb") as file:
         for chunk in iter(lambda: file.read(1024 * 1024), b""):
             digest.update(chunk)
-    return digest.hexdigest()
+    ARCHIVE_SHA256_CACHE[key] = digest.hexdigest()
+    return ARCHIVE_SHA256_CACHE[key]
 
 
 def read_candles(data, source):
@@ -184,7 +190,7 @@ def build_features(bars, minutes):
             continue
         slope = abs(bars[i][4]-bars[i-width+1][4])/atr[i]
         plateau = rp <= .35 and ap <= .50 and slope <= 2
-        first = i-width
+        first = i-width+1  # first observed candle of plateau, inclusive
         post_drop = bars[first][4]/bars[first-drop_steps][4] <= .98
         trend = bars[i][4]/bars[i-trend_steps][4]-1
         regime = "bull" if trend > .05 else "bear" if trend < -.05 else "sideways"
@@ -288,7 +294,7 @@ def trade(bars, signal, minutes):
         if bars[j][0]-bars[j-1][0] != step:
             return None
         if bars[j][1] < price:
-            continue  # no optimistic maker fill after a downward gap
+            return None  # resting buy opened below limit: maker status unverifiable; cancel
         if bars[j][3] <= price:
             stop, target = price-atr, price+1.5*atr
             for k in range(j, end+1):
@@ -298,7 +304,8 @@ def trade(bars, signal, minutes):
                     exit_price = min(stop, bars[k][1]) if k > j else stop
                     reason = "stop"
                     break
-                if bars[k][2] >= target:
+                if k > j and bars[k][2] >= target:
+                    # A target in the fill candle may predate the entry: never claim it.
                     exit_price, reason = target, "target"
                     break
             else:
@@ -350,18 +357,27 @@ def run(bars, minutes):
                         "down": labels.count("down"), "flat": labels.count("flat"),
                         "up_pct": round(100*labels.count("up")/len(events), 2)
                                   if events else None}
-            chosen = [p for p, _ in matched]
-            controls = [c for _, c in matched]
-            subset = [p for p in chosen if p["score"] >= 3]
-            candidates = [p for p in plateaux if p["post_drop"] or not post_drop]
-            strata.append({
-                "post_drop": post_drop, "plateaux_detected": detected,
-                "matched_plateaux": count(chosen),
-                "matched_reference": count(controls),
-                "score3": count(subset),
-                "delta_up_ci95_points": block_ci(matched, bars, minutes),
-                "economics": economics(candidates, bars, minutes, start, stop),
-            })
+            for regime in ("all", "bull", "bear", "sideways"):
+                pairs = [(p, c) for p, c in matched
+                         if regime == "all" or p["regime"] == regime]
+                chosen = [p for p, _ in pairs]
+                controls = [c for _, c in pairs]
+                subset = [p for p in chosen if p["score"] >= 3]
+                candidates = [p for p in plateaux
+                              if (p["post_drop"] or not post_drop)
+                              and (regime == "all" or p["regime"] == regime)]
+                strata.append({
+                    "post_drop": post_drop, "regime": regime,
+                    "plateaux_detected": detected if regime == "all" else
+                        sum(1 for p in plateaux if start <= p["ts"] < stop
+                            and (p["post_drop"] or not post_drop)
+                            and p["regime"] == regime),
+                    "matched_plateaux": count(chosen),
+                    "matched_reference": count(controls),
+                    "score3": count(subset),
+                    "delta_up_ci95_points": block_ci(pairs, bars, minutes),
+                    "economics": economics(candidates, bars, minutes, start, stop),
+                })
         results.append({
             "train_end_utc": datetime.fromtimestamp(fold_start-EMBARGO, timezone.utc).isoformat(),
             "test_start_utc": datetime.fromtimestamp(start, timezone.utc).isoformat(),
@@ -384,8 +400,8 @@ def render_markdown(result):
         "Appariement régime 30 jours et volatilité ; fenêtres 90 jours purgées 48 h.",
         "Entrée limite maker 0,4 %, sortie taker 0,8 % + 0,1 % glissement.",
         "",
-        "| Instrument | Fenêtre test | Hypothèse | N apparié | Plateau ↑ % | Référence ↑ % | IC95 écart pts | Fills | Espérance nette % | DD réalisé % | Stratégie % | HODL % |",
-        "|---|---|---|---:|---:|---:|---|---:|---:|---:|---:|---:|",
+        "| Instrument | Fenêtre test | Hypothèse | Régime | N apparié | Plateau ↑ % | Référence ↑ % | IC95 écart pts | Fills | Espérance nette % | DD réalisé % | Stratégie % | HODL % |",
+        "|---|---|---|---|---:|---:|---:|---|---:|---:|---:|---:|---:|",
     ]
     def fmt(value):
         return "n/d" if value is None else str(value)
@@ -398,7 +414,7 @@ def render_markdown(result):
                     section["instrument"] + " " + str(section["timeframe_min"]) + "m",
                     fold["test_start_utc"][:10] + " / " + fold["test_end_utc"][:10],
                     "post -2 %" if row["post_drop"] else "plateau",
-                    str(p["n"]), fmt(p["up_pct"]), fmt(c["up_pct"]),
+                    row["regime"], str(p["n"]), fmt(p["up_pct"]), fmt(c["up_pct"]),
                     f"[{ci[0]}; {ci[1]}]" if ci else "n/d (<8 semaines)",
                     str(e["fills"]), fmt(e["net_expectancy_pct"]),
                     fmt(e["worst_realized_drawdown_pct"]),
