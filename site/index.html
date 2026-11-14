@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#090d0e">
+<meta name="theme-color" content="#111312">
 <title>Kraken Paper · simulation PAPER</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐙</text></svg>">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="analog.css">
 </head>
 <body>
 <header class="top">
-  <div class="brand"><span class="logo" aria-hidden="true">K<span class="logo-dot">/</span></span>
-    <div><h1>Kraken Paper</h1><p class="sub">Simulation PAPER · prix Kraken</p></div>
+  <div class="brand"><span class="logo" aria-hidden="true">K<span class="logo-dot">⌁</span>P</span>
+    <div><h1>Kraken Paper</h1><p class="sub">⌁ ANALOG / PAPER LAB · DONNÉES KRAKEN</p></div>
   </div>
   <div class="badges">
     <span id="env-badge" class="badge env env-local" title="Environnement du site">LOCAL</span>
@@ -42,6 +43,7 @@
     <article class="card" aria-labelledby="exp-h">
       <div class="card-h"><h2 id="exp-h">Cash et exposition</h2></div>
       <div id="exp-bar" class="exp-bar" role="img" aria-label="Répartition investi, réservé dans les ordres et cash disponible"></div>
+      <div class="analog-scale" aria-hidden="true"><span>0</span><span>EXPOSITION / 50</span><span>100 %</span></div>
       <ul id="exp-txt" class="exp-txt"></ul>
       <p id="exp-risk" class="exp-risk"></p>
     </article>
