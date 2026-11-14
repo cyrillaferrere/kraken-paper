@@ -1,3 +1,8 @@
+## [Unreleased] — Trading Workspace × Minimal Precision (ADR-24)
+- Nouvelle couche `site/workspace-premium.css` : suppression des liserés verts de sélection, navigation latérale graphite cohérente, suppression des onglets redondants sur desktop, séparation plus nette des espaces et chandelier mis en avant avant les panneaux d’exposition.
+- Bandeau KPI sans cartes individuelles, titres de page contextuels, accents turquoise/corail réservés aux états financiers ; responsive préservé.
+- Aucune modification des données, des calculs ou des stratégies. PR #41 uniquement, aucune fusion.
+
 ## [Unreleased] — Graphite / Signal (itération B du prototype)
 - Refonte visuelle isolée sur `feature/analog-robotic-concept` : graphite sombre, vert signal pour l’accent et les valeurs positives, corail pour les pertes, turquoise pour les séries secondaires et ambre pour les avertissements.
 - Hiérarchie des KPI renforcée, typographie sans-serif lisible, monospace limité aux données techniques, contrôles et tableaux agrandis, chandelier davantage mis en valeur.
