@@ -1,5 +1,12 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette groupée UX mobile
+- Tester largeur 320, 375, 390, 430, 680, 768 et 1280 px : aucun débordement horizontal du contenu principal.
+- Ordres : crypto/sens/montant/distance visibles immédiatement ; bouton Détails ouvre prix/stop/objectif/risque ; filtres et statut proche/atteint lisibles sans occuper toute la fiche.
+- Positions, trades et marqueurs : chaque valeur possède un libellé visible ; filtres et tri fonctionnent ; état vide et données manquantes restent compréhensibles.
+- Vérifier chandeliers, KPI, navigation latérale, journal, décisions, performance et actualisations en direct sans perte de sélection.
+- Exécuter `node --test tests/site/*.test.js` puis comparer visuellement iOS Safari, Android Chrome et desktop sur le SHA effectivement déployé en préproduction. Aucun déploiement production sans validation explicite.
+
 ## Recette intégrée du dashboard
 - Vérifier commit affiché, sources GitHub, cours Kraken, chandelier 1 h par défaut et changement rapide de paire/période.
 - Supprimer une paire sélectionnée de l'ensemble des paires disponibles dans un état fictif : le graphique doit revenir effectivement sur BTC.

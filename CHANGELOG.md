@@ -1,5 +1,10 @@
 # Changelog
 
+## UX mobile — refonte groupée v0.2.1 (préproduction)
+- Les quatre tableaux denses (ordres, positions, trades et marqueurs) deviennent des fiches compactes sous 680 px, sans dégrader les tableaux desktop.
+- Les ordres affichent en priorité crypto, sens, montant et distance ; prix, stop, objectif et risque restent accessibles par « Détails ».
+- Filtres, indicateurs, graphiques, journal et espaces tactiles adaptés aux petits écrans. Aucune modification du moteur PAPER.
+
 ## Intégration dashboard v0.2.1 — cohérence de sélection
 - Correction du chandelier lorsque la paire sélectionnée disparaît après une actualisation du portefeuille : retour au BTC et chargement effectif de ses bougies.
 - Tests d'intégration des dépendances JS, de la publication atomique des données, des contrôles du graphique et du scanner.
