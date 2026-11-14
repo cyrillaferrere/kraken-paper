@@ -1,3 +1,9 @@
+## Recette retour interface production — ADR-25
+- Vérifier les empreintes des 6 fichiers `site/` contre `main` et l'absence de `site/workspace-tabs.js`.
+- Vérifier les liens du menu, KPI, chandelier 1h, interactions de survol, tableaux, rafraîchissements, responsive iOS/Android et affichage du commit.
+- Exécuter les tests Node/Python et les contrôles GitHub ; vérifier l'absence de modifications `state/`, `decisions/` et moteur.
+- Après validation, intégrer dans `preprod` uniquement, puis contrôler le déploiement Netlify. Ne pas toucher à la production.
+
 ## Recette v0.3.1 — Nocturne Signal
 - Contrôler `VERSION=0.3.1` sur preprod et `site/version.json` généré par Netlify ; le bandeau doit afficher `v0.3.1`, `commit <SHA>` et `branche preprod`.
 - Vérifier absence de navigation doublonnée sur desktop (menu gauche uniquement), onglets mobiles, logo K/, palette sans violet, contrastes et focus clavier.
