@@ -1,7 +1,10 @@
 ## Recherche R-01 — plateaux pré-rebond (14/11/2026)
 - Branche `feature/research-plateaux` depuis `preprod`. Projet limité à `docs/research/`, `scripts/research_plateaux.py`, `tests/test_research_plateaux.py` et à cette documentation.
 - Protocole figé : 1 h / 4 h, BTC/ETH/SOL spot Kraken, baisse initiale de 2 %, étiquette +1,5 ATR / -1 ATR sur 48 h, contrôle apparié régime + volatilité, walk-forward purgé et frais maker/taker + slippage.
-- Archives officielles Kraken encore indisponibles dans l'environnement de travail : **ne publier aucun résultat Kraken comme vérifié** tant que les ZIP, MANIFEST et SHA-256 n'ont pas été acquis et que le script n'a pas produit ses sorties avec données officielles. Voir `docs/research/2026-11-14-plateaux-kraken.md`.
+- **ÉTUDE EXÉCUTÉE sur spot Kraken officiel** (GH Actions, extraction HTTP Range sans rapatrier ~9 Go) : BTC/ETH en USDC dès 2020, SOL en USD depuis juin 2021, fin 30/09/2026. Rapport complet `docs/research/2026-11-14-resultats-kraken-spot.md`, empreintes `docs/research/2026-11-14-source-manifest-kraken.json` ; paramètres pré-enregistrés dans `docs/research/2026-11-14-plateaux-kraken.md`.
+- **Conclusion : stratégie plateau seule à abandonner aux paramètres/frais imposés**. Sur les 6 cas « plateau après baisse -2 % », tous les IC95 par blocs englobent zéro et toutes les espérances nettes par trade sont négatives ; certains sous-groupes semblent intéressants mais insuffisants après sélection multiple. Grok Bot conserve toute décision stratégique.
+- SHA-256 de chaque CSV + contrôle CRC du ZIP et identification des cinq parties ; **pas de SHA-256 calculé sur l'archive complète**, car lecture par plages. Les 9 tests de recherche ont réussi et les gardes GitHub ont été vérifiées.
+- Scripts : `scripts/research_plateaux.py` (hors ligne), `scripts/fetch_kraken_ohlcvt_ranges.py` (ingestion officielle ciblée), workflows de recherche strictement limités à `feature/research-plateaux`.
 - Aucun changement `engine/`, `state/`, `decisions/` ni déploiement ; revue Grok Bot puis validation Cyril obligatoires avant ADR d'intégration éventuelle.
 
 ## Refonte visuelle v0.3.1 — Nocturne Signal
