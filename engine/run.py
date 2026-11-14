@@ -620,6 +620,8 @@ def apply_action(state, a, ctx, now, decision_id):
         raise Rejected("take_profits reserve aux achats")
     if a.get("breakeven_after_tp1") is not None and not isinstance(a["breakeven_after_tp1"], bool):
         raise Rejected("breakeven_after_tp1 doit etre booleen")
+    if a.get("breakeven_after_tp1") is True and sl is None and (typ == "market_buy" or (typ == "place_limit" and a.get("side") == "buy")):
+        raise Rejected("breakeven_after_tp1 exige stop_loss")
 
     if typ == "place_limit":
         side = a.get("side")
