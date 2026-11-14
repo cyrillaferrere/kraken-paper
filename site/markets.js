@@ -497,12 +497,12 @@
       syncChartRange();
       applyChartRange();
     }));
-    $("chart-refresh").addEventListener("click", () => loadChart(true));
     $("chart-reset").addEventListener("click", () => {
       applyChartRange();
       hoveredCandleTime = null;
       legend();
     });
+    $("chart-refresh").addEventListener("click", () => loadChart(true));
     syncChartRange();
     $("pair-chips").addEventListener("click", (e) => { const b = e.target.closest("[data-pair]"); if (b) selectPair(b.dataset.pair); });
     $("markers").addEventListener("click", (e) => {
