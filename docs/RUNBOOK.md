@@ -1,3 +1,7 @@
+## v0.2.2 — Préférences graphiques robustes (branche fix/v0.2.2-chart-preferences)
+- Rejet explicite des tableaux JSON comme objet de préférences. Les valeurs stockées valides restent compatibles. Tests et CI à faire.
+- Périmètre interface uniquement, aucune modification de production, de state/, decisions/ ou du moteur. Relecture Grok Bot et recette navigateur avant fusion.
+
 # Kraken Paper : runbook (opérations)
 
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
