@@ -1,3 +1,15 @@
+## Déploiement de production — validation humaine obligatoire (ADR-27)
+
+**Ne pas lancer sans l'accord explicite de Cyril.** La recette préproduction et la CI verte ne constituent pas une autorisation.
+
+1. Cyril ouvre **GitHub → Settings → Environments → New environment**, nomme l'environnement exactement `production`. Il active **Required reviewers**, choisit son propre compte, désactive **Allow administrators to bypass configured protection rules** si l'option existe, et limite les branches de déploiement à `deploy/prod-request`. Vérifier que ces protections sont **effectivement disponibles et actives pour ce dépôt privé** ; sinon STOP, aucune production.
+2. Dans **Environment production → Environment secrets**, créer `NETLIFY_AUTH_TOKEN` avec la valeur du jeton existant **sans l'afficher**. Vérifier le secret de l'environnement, puis supprimer `NETLIFY_AUTH_TOKEN` de **Settings → Secrets and variables → Actions → Repository secrets**. Ne jamais recopier le jeton dans un fichier ou dans le chat.
+3. Le workflow `.github/workflows/deploy-production-controlled.yml` doit déclarer `environment: production` dans `jobs.deploy`. La demande JSON sur `deploy/prod-request` identifie version et SHA, mais `approved_by: Cyril` ne constitue **pas** une preuve d'approbation. La publication attend le clic de Cyril dans **Actions → Review deployments → Approve and deploy**.
+4. Avant toute demande : vérifier le SHA courant de main, l'intégrité de `state/` et `decisions/`, la sauvegarde restaurable, la CI sur le candidat combiné et le GO Grok Bot. Aucun push direct sur main ni déclenchement de workflow sans l'accord explicite de Cyril.
+5. Après approbation : vérifier les logs du job, `version.json` sur le domaine production (version, branche, SHA), le dashboard et le cycle PAPER suivant. En cas d'incident, suspendre les nouvelles publications, conserver l'état vivant, et revenir au code antérieur sans réécrire `state/` ni `decisions/`.
+
+**Point d'arrêt :** tant que les relecteurs obligatoires et le secret d'environnement ne sont pas confirmés dans GitHub, ne pas créer de demande de déploiement et ne pas lancer de publication. Les protections d'environnement GitHub peuvent dépendre de l'offre et de la visibilité du dépôt.
+
 ## Recette finale v0.3.1 avant proposition de production
 - Vérifier VERSION 0.3.1, commit affiché, bandeau pending avec nouveau stop et TP1/TP2, ancien stop actif.
 - Vérifier journal ordre à deux TP et TP unique historique ; vente limite avec break-even sans stop conservée sans effet.
