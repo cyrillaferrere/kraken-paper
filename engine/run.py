@@ -244,13 +244,59 @@ def execute_fill(state, pair, side, qty, price, liquidity, reason, ts, order_id=
     return trade
 
 
-def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent):
-    if not stop_loss and not take_profit:
+def normalize_take_profits(meta, action, entry_price, qty):
+    """Valide les objectifs, alloue les lots et conserve la compatibilité take_profit."""
+    if action.get("take_profits") is not None and action.get("take_profit") is not None:
+        raise Rejected("take_profit et take_profits sont mutuellement exclusifs")
+    raw = action.get("take_profits")
+    if raw is None:
+        raw = ([{"price": action["take_profit"], "fraction": 1.0}]
+               if action.get("take_profit") is not None else [])
+    if not isinstance(raw, list):
+        raise Rejected("take_profits doit etre une liste")
+    if not raw:
+        return []
+    try:
+        fractions = [float(x["fraction"]) for x in raw]
+        prices = [round(float(x["price"]), meta["pair_decimals"]) for x in raw]
+    except (KeyError, ValueError, TypeError, OverflowError):
+        raise Rejected("palier invalide : price et fraction requis")
+    if (not all(math.isfinite(v) and v > 0 for v in fractions + prices)
+            or abs(sum(fractions) - 1) > 1e-9):
+        raise Rejected("fractions des paliers : valeurs positives, somme egale a 1")
+    if any(prices[i] <= prices[i - 1] for i in range(1, len(prices))):
+        raise Rejected("prix des paliers strictement croissants requis")
+    if action.get("take_profits") is not None and any(p <= entry_price for p in prices):
+        raise Rejected("chaque TP doit etre au-dessus du prix d'entree")
+    remaining = qty
+    result = []
+    for i, (price, fraction) in enumerate(zip(prices, fractions)):
+        part = remaining if i == len(prices) - 1 else floor_dec(qty * fraction, meta["lot_decimals"])
+        if part <= 0 or part + EPS < meta["ordermin"] or part * price + EPS < meta["costmin"]:
+            raise Rejected("palier sous le minimum Kraken")
+        result.append({"price": price, "fraction": fraction, "qty": part})
+        remaining = round(remaining - part, meta["lot_decimals"])
+    return result
+
+
+def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
+                take_profits=None, breakeven_after_tp1=False, entry_price=None):
+    if not stop_loss and not take_profit and not take_profits:
         return None
+    meta = state["pairs"][pair]
+    entry = entry_price or state["positions"][pair]["avg_cost"]
+    levels = (take_profits if take_profits is not None else
+              normalize_take_profits(meta, {"take_profit": take_profit}, entry, qty))
     o = {"id": next_id(state, "order"), "pair": pair, "side": "sell", "qty": qty,
-         "price": take_profit, "stop_loss": stop_loss, "take_profit": None,
+         "price": levels[0]["price"] if levels else None,
+         "stop_loss": stop_loss, "take_profit": None,
          "created": iso(ts), "active_from": next_hour(ts), "parent": parent,
          "decision_id": None}
+    if levels:
+        o["take_profits"] = levels
+        o["entry_price"] = entry
+        o["breakeven_after_tp1"] = bool(breakeven_after_tp1)
+        o["tp_filled"] = 0
     state["open_orders"].append(o)
     return o
 
@@ -290,11 +336,41 @@ def process_candle(state, pair, candle, rejects=None, market=None):
     t, o_, high, low, close = candle
     fills = []
     m5 = _m5_bars(market, pair, t)
+    # Conserver les anciennes sorties jusqu'au créneau d'activation.
+    for old in list(state["open_orders"]):
+        pending = old.get("pending_exits")
+        if not pending or old["pair"] != pair or t < pending["active_from"]:
+            continue
+        # Le groupe ne peut reserver que son propre solde, pas les achats
+        # intervenus depuis la demande de modification.
+        remaining = min(old["qty"], state["positions"].get(pair, {}).get("qty", 0))
+        if remaining <= EPS:
+            state["open_orders"].remove(old)
+            continue
+        try:
+            levels = normalize_take_profits(state["pairs"][pair], pending["action"],
+                                             pending["entry_price"], remaining)
+        except Rejected as exc:
+            # Echec sans perte de protection : l'ancien stop et ses TP restent actifs.
+            old.pop("pending_exits", None)
+            if rejects is not None:
+                rejects.append({"type": "note", "pair": pair, "order_id": old["id"],
+                                "text": f"update_exits non active : {exc} ; anciennes sorties conservees"})
+            continue
+        state["open_orders"].remove(old)
+        new = attach_exit(state, pair, remaining, pending["stop_loss"], None,
+                          pending["active_from"], pending["parent"],
+                          take_profits=levels,
+                          breakeven_after_tp1=pending["breakeven_after_tp1"],
+                          entry_price=pending["entry_price"])
+        if new:
+            new["active_from"] = pending["active_from"]
+            new["tp_filled"] = old.get("tp_filled", 0)
     for order in list(state["open_orders"]):
         if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
             continue
         try:
-            _check_order(state, pair, order, t, high, low, fills, m5)
+            _check_order(state, pair, order, t, high, low, fills, m5, o_)
         except Rejected as e:   # ne devrait pas arriver (fonds reserves), on annule proprement
             state["open_orders"].remove(order)
             if rejects is not None:
@@ -314,7 +390,7 @@ def _date_fill(m5, level, which, hour_start):
     return hour_start, "hour_open"
 
 
-def _check_order(state, pair, order, t, high, low, fills, m5=None):
+def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=None):
     if order["side"] == "buy":
         if low <= order["price"]:
             ts, source = _date_fill(m5, order["price"], "below", t)
@@ -324,7 +400,14 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
             state["open_orders"].remove(order)
             fills.append(tr)
             attach_exit(state, pair, order["qty"], order.get("stop_loss"),
-                        order.get("take_profit"), ts, order["id"])
+                        order.get("take_profit"), ts, order["id"],
+                        take_profits=order.get("take_profits"),
+                        breakeven_after_tp1=order.get("breakeven_after_tp1", False),
+                        entry_price=state["positions"][pair]["avg_cost"])
+        return
+
+    if "take_profits" in order:
+        _check_tiered_exit(state, pair, order, t, high, low, fills, m5, hour_open)
         return
 
     stop = order.get("stop_loss")
@@ -343,14 +426,15 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
         limit_ts = first_touch_ts(m5, limit, "above") if limit_1h else None
         if stop_ts is not None and (limit_ts is None or stop_ts <= limit_ts):
             reason, level, which, liq = "stop_loss", stop, "below", "taker"
-            px = round(stop * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
+            opening = next((bar[1] for bar in m5 if bar[0] == stop_ts), hour_open)
+            px = round(min(stop, opening if opening is not None else stop) * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
         elif limit_ts is not None:
             reason = "take_profit" if order.get("parent") or stop else "limit"
             level, which, px, liq = limit, "above", limit, "maker"
     if reason is None:
         if stop_1h:
             reason, level, which, liq = "stop_loss", stop, "below", "taker"
-            px = round(stop * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
+            px = round(min(stop, hour_open if hour_open is not None else stop) * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
         else:
             reason = "take_profit" if order.get("parent") or stop else "limit"
             level, which, px, liq = limit, "above", limit, "maker"
@@ -360,6 +444,40 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
     tr["time_source"] = source
     state["open_orders"].remove(order)
     fills.append(tr)
+
+
+def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hour_open=None):
+    """Exécute les niveaux dans l'ordre des 5 min ; stop prioritaire à égalité."""
+    meta = state["pairs"][pair]
+    bars = m5 if m5 is not None else [(hour_start, hour_open, high, low, None)]
+    for ts, _opening, bar_high, bar_low, _closing in bars:
+        stop = order.get("stop_loss")
+        if stop is not None and bar_low <= stop + EPS:
+            px = round(min(stop, _opening if _opening is not None else stop) * (1 - SLIP), meta["pair_decimals"])
+            tr = execute_fill(state, pair, "sell", order["qty"], px, "taker",
+                              "stop_loss", ts, order["id"])
+            tr["time_source"] = "m5" if m5 is not None else "hour_open"
+            fills.append(tr)
+            state["open_orders"].remove(order)
+            return
+        # Dans une meme bougie, plusieurs TP peuvent etre touches.
+        while order["take_profits"] and bar_high >= order["take_profits"][0]["price"] - EPS:
+            tier = order["take_profits"].pop(0)
+            qty = min(tier["qty"], order["qty"])
+            tr = execute_fill(state, pair, "sell", qty, tier["price"], "maker",
+                              "take_profit", ts, order["id"])
+            tr["time_source"] = "m5" if m5 is not None else "hour_open"
+            tr["tp_index"] = order.get("tp_filled", 0) + 1
+            fills.append(tr)
+            order["qty"] = round(order["qty"] - qty, meta["lot_decimals"])
+            order["tp_filled"] = tr["tp_index"]
+            if tr["tp_index"] == 1 and order.get("breakeven_after_tp1") and stop is not None:
+                order["stop_loss"] = max(stop, order["entry_price"])
+            if order["qty"] <= EPS:
+                state["open_orders"].remove(order)
+                return
+            order["price"] = (order["take_profits"][0]["price"]
+                              if order["take_profits"] else None)
 
 
 # --------------------------------------------------------------------------
@@ -436,6 +554,57 @@ def apply_action(state, a, ctx, now, decision_id):
                 state["open_orders"].remove(o)
                 return {"type": "cancel", "order_id": oid, "pair": o["pair"]}, []
         raise Rejected(f"ordre {oid} introuvable ou deja execute")
+    if typ == "update_exits":
+        if not a.get("pair"):
+            raise Rejected("il faut 'pair'")
+        meta = ctx.meta(state, a["pair"])
+        pair = meta["altname"]
+        pos = state["positions"].get(pair)
+        if not pos or pos["qty"] <= EPS:
+            raise Rejected("aucune position ouverte sur cette paire")
+        existing = [o for o in state["open_orders"]
+                    if o["pair"] == pair and o["side"] == "sell"]
+        if any(not o.get("parent") for o in existing):
+            raise Rejected("annuler d'abord les ventes independantes sur cette paire")
+        entry = pos["avg_cost"]
+        live = ctx.last_price(meta)
+        state["last_prices"][pair] = live
+        be = a.get("breakeven_after_tp1", False)
+        if not isinstance(be, bool):
+            raise Rejected("breakeven_after_tp1 doit etre booleen")
+        levels = normalize_take_profits(meta, a, entry, pos["qty"])
+        stop = round(float(a["stop_loss"]), meta["pair_decimals"]) if a.get("stop_loss") is not None else None
+        if stop is not None and (not math.isfinite(stop) or stop <= 0 or stop >= live):
+            raise Rejected("stop_loss doit etre positif et sous le cours actuel")
+        if be and stop is None:
+            raise Rejected("breakeven_after_tp1 requiert stop_loss")
+        if any(tier["price"] <= live for tier in levels):
+            raise Rejected("take_profits doit etre au-dessus du cours actuel")
+        if not stop and not levels:
+            raise Rejected("au moins un stop ou un TP requis")
+        previous_filled = max((o.get("tp_filled", 0) for o in existing), default=0)
+        if existing:
+            if len(existing) != 1:
+                raise Rejected("update_exits requiert un seul groupe de sorties")
+            old = existing[0]
+            if old.get("pending_exits"):
+                raise Rejected("une mise a jour des sorties est deja en attente")
+            old["pending_exits"] = {
+                "active_from": next_hour(now),
+                "action": {"take_profits": [
+                    {"price": level["price"], "fraction": level["fraction"]}
+                    for level in levels]},
+                "stop_loss": stop, "breakeven_after_tp1": be,
+                "entry_price": entry, "parent": decision_id}
+            return {"type": "exits_update_scheduled", "pair": pair,
+                    "active_from": old["pending_exits"]["active_from"],
+                    "order_id": old["id"]}, []
+        order = attach_exit(state, pair, pos["qty"], stop, None, now,
+                            decision_id, take_profits=levels,
+                            breakeven_after_tp1=be, entry_price=entry)
+        if order is not None:
+            order["tp_filled"] = previous_filled
+        return {"type": "exits_updated", "pair": pair, "order": dict(order)}, []
     if typ not in ("place_limit", "market_buy", "market_sell"):
         raise Rejected(f"type d'action inconnu : {typ}")
     if not a.get("pair"):
@@ -445,6 +614,12 @@ def apply_action(state, a, ctx, now, decision_id):
     pd = meta["pair_decimals"]
     sl = round(float(a["stop_loss"]), pd) if a.get("stop_loss") else None
     tp = round(float(a["take_profit"]), pd) if a.get("take_profit") else None
+    if a.get("take_profits") is not None and typ == "place_limit" and a.get("side") != "buy":
+        raise Rejected("take_profits reserve aux achats")
+    if a.get("take_profits") is not None and typ == "market_sell":
+        raise Rejected("take_profits reserve aux achats")
+    if a.get("breakeven_after_tp1") is not None and not isinstance(a["breakeven_after_tp1"], bool):
+        raise Rejected("breakeven_after_tp1 doit etre booleen")
 
     if typ == "place_limit":
         side = a.get("side")
@@ -474,10 +649,14 @@ def apply_action(state, a, ctx, now, decision_id):
                 raise Rejected("stop_loss doit etre sous le prix de vente")
             if qty > available_qty(state, pair) + EPS:
                 raise Rejected(f"quantite disponible insuffisante ({fr(max(available_qty(state, pair), 0), 8)} {meta['base']})")
+        levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
         o = {"id": next_id(state, "order"), "pair": pair, "side": side, "qty": qty,
              "price": price, "stop_loss": sl, "take_profit": tp if side == "buy" else None,
              "created": iso(now), "active_from": hour_ceil(now), "parent": None,
              "decision_id": decision_id}
+        if levels:
+            o["take_profits"] = levels
+            o["breakeven_after_tp1"] = a.get("breakeven_after_tp1", False)
         state["open_orders"].append(o)
         return {"type": "order_placed", "order": dict(o)}, []
 
@@ -493,9 +672,13 @@ def apply_action(state, a, ctx, now, decision_id):
             raise Rejected(f"cash disponible insuffisant ({fr(available_cash(state), 2)} USDC) pour {fr(need, 2)} USDC")
     elif qty > available_qty(state, pair) + EPS:
         raise Rejected(f"quantite disponible insuffisante ({fr(max(available_qty(state, pair), 0), 8)} {meta['base']})")
+    levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
     tr = execute_fill(state, pair, side, qty, price, "taker", "market", now)
     if side == "buy":
-        attach_exit(state, pair, qty, sl, tp, now, tr["id"])
+        attach_exit(state, pair, qty, sl, tp, now, tr["id"],
+                    take_profits=levels if levels else None,
+                    breakeven_after_tp1=a.get("breakeven_after_tp1", False),
+                    entry_price=state["positions"][pair]["avg_cost"])
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 

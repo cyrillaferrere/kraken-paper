@@ -229,6 +229,17 @@
       basis = pos ? o.qty * pos.avg_cost : null;
       tp = o.price ?? null;
     }
+    const tiers = Array.isArray(o.take_profits) ? o.take_profits : [];
+    if (tiers.length && basis != null) {
+      tp = tiers[0].price;
+      const stopPx = stop != null ? roundTo(stop * (1 - f.slippage), pd) : null;
+      const loss = stopPx != null ? cents(sellNet(o.qty, stopPx, f.taker) - basis) : null;
+      const gain = cents(tiers.reduce((sum, tier) => sum + sellNet(tier.qty, tier.price, f.maker), 0) - basis);
+      const rr = loss != null && loss < 0 ? gain / -loss : null;
+      const dist = (lvl) => lvl == null || live == null ? null : (lvl - live) / live;
+      return { engaged: cents(basis), limit: o.side === "buy" ? o.price : tp, stop, stopPx, tp, loss, gain, rr,
+        dLimit: dist(o.side === "buy" ? o.price : tp), dStop: dist(stop), dTp: o.side === "sell" ? dist(tp) : null };
+    }
     const stopPx = stop != null ? roundTo(stop * (1 - f.slippage), pd) : null;
     const loss = stopPx != null && basis != null ? cents(sellNet(o.qty, stopPx, f.taker) - basis) : null;
     const gain = tp != null && basis != null ? cents(sellNet(o.qty, tp, f.maker) - basis) : null;
@@ -254,7 +265,9 @@
       const dist = o.side === "buy" ? distTxt(m.dLimit) : [m.dTp != null ? distTxt(m.dTp, "obj.") : null, m.dStop != null ? distTxt(m.dStop, "stop") : null].filter(Boolean).join("<br>") || "—";
       const limitLbl = o.side === "buy" ? px(m.limit) : m.limit != null ? px(m.limit) + (o.parent ? ' <span class="muted">objectif</span>' : "") : '<span class="muted">aucun</span>';
       const stopTxt = m.stop != null ? px(m.stop) : '<span class="warn-txt">⚠ pas de stop</span>';
-      const tpTxt = m.tp != null ? px(m.tp) : "—";
+      const tpTxt = Array.isArray(o.take_profits) && o.take_profits.length
+        ? o.take_profits.map((tier, i) => `TP${(o.tp_filled || 0) + i + 1} : ${px(tier.price)} · ${qty(tier.qty)} ${esc(base(o.pair))}`).join("<br>")
+        : m.tp != null ? px(m.tp) : "—";
       const lossTxt = m.loss != null ? `<span class="dn">${signed(m.loss)} USDC</span>` : m.stop == null ? '<span class="warn-txt">non bornée</span>' : "—";
       const gainTxt = m.gain != null ? `<span class="${cls(m.gain)}">${signed(m.gain)} USDC</span>` : "—";
       const rrTxt = m.rr != null ? nf(2).format(m.rr) + " : 1" : "—";
@@ -326,7 +339,7 @@
     const list = S.closed_trades.slice().reverse();
     const rows = list.map((t) => {
       const isNew = !firstRender && !seenTrades.has(t.id);
-      return `<tr class="${isNew ? "motion-row-new" : ""}"><td>${dt(t.time)}</td><td><span class="tag ${t.side}">${t.side === "buy" ? "ACHAT" : "VENTE"}</span> ${esc(t.base)} <span class="muted">${REASON[t.reason] || esc(t.reason)}</span></td><td class="r">${qty(t.qty)}</td><td class="r">${px(t.price)}</td><td class="r">${nf(2).format(t.fee)} <span class="muted">${t.liquidity}</span></td><td class="r ${cls(t.realized_pnl)}">${t.realized_pnl == null ? "—" : signed(t.realized_pnl) + " USDC"}</td></tr>`;
+      return `<tr class="${isNew ? "motion-row-new" : ""}"><td>${dt(t.time)}</td><td><span class="tag ${t.side}">${t.side === "buy" ? "ACHAT" : "VENTE"}</span> ${esc(t.base)} <span class="muted">${t.tp_index ? "TP" + t.tp_index + " · " : ""}${REASON[t.reason] || esc(t.reason)}</span></td><td class="r">${qty(t.qty)}</td><td class="r">${px(t.price)}</td><td class="r">${nf(2).format(t.fee)} <span class="muted">${t.liquidity}</span></td><td class="r ${cls(t.realized_pnl)}">${t.realized_pnl == null ? "—" : signed(t.realized_pnl) + " USDC"}</td></tr>`;
     });
     list.forEach((t) => seenTrades.add(t.id));
     tb.innerHTML = rows.join("") || `<tr><td colspan="6" class="empty">Pas encore de trade.</td></tr>`;
@@ -337,7 +350,9 @@
       case "start": return `Départ de la simulation avec ${usdc(e.capital)}`;
       case "decision": return `Décision ${esc(e.decision_id)} : ${esc(e.rationale)}`;
       case "order_placed": { const o = e.order; return `Ordre ${o.id} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${o.take_profit ? " · TP " + px(o.take_profit) : ""}`; }
-      case "fill": { const t = e.trade; return `✅ Exécuté : ${t.side === "buy" ? "achat" : "vente"} ${qty(t.qty)} ${esc(t.base)} à ${px(t.price)} (${REASON[t.reason] || t.reason})`; }
+      case "fill": { const t = e.trade; return `✅ Exécuté : ${t.side === "buy" ? "achat" : "vente"} ${qty(t.qty)} ${esc(t.base)} à ${px(t.price)} (${t.tp_index ? "TP" + t.tp_index + " · " : ""}${REASON[t.reason] || t.reason})`; }
+      case "exits_updated": return `Sorties mises à jour pour ${esc(base(e.pair))} : ${(e.order.take_profits || []).length} palier(s), stop ${px(e.order.stop_loss)}`;
+      case "exits_update_scheduled": return `Modification des sorties de ${esc(base(e.pair))} programmée pour le prochain créneau ; ancien stop conservé jusque-là`;
       case "cancel": return `Ordre ${esc(e.order_id)} annulé${e.reason ? " : " + esc(e.reason) : ""}`;
       case "rejected": return `⛔ Action refusée : ${esc(e.reason)}`;
       case "note": return `📝 ${esc(e.text)}`;

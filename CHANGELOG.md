@@ -1,3 +1,8 @@
+## [Unreleased] — v0.3.0 sorties par paliers
+- Moteur PAPER : objectifs fractionnés, stop sur quantité restante, option break-even après TP1 et action `update_exits`.
+- Tests de non-régression : TP1/TP2, stop, bougies 5 min, décisions historiques et validation des fractions.
+- ADR-26 ; intégration et dashboard à finaliser avant revue Grok Bot.
+
 ## [Unreleased] — Retour au dashboard de production en préproduction
 - Restaurer `site/index.html`, `site/style.css`, `site/markets.js`, `site/navigation.js`, `site/chart-preferences.js` et `site/data-validators.js` depuis `main` ; retirer `site/workspace-tabs.js` absent de la production.
 - Préparation sur `fix/restore-prod-ui-preprod` uniquement ; pas de modification de `state/`, `decisions/`, du moteur ou de `main`.

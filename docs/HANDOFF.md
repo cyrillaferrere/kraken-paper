@@ -1,3 +1,16 @@
+## Revue Grok Bot PR #44 — correctifs après GO sous réserves
+- Correctifs P1 engagés : validation du stop par rapport au dernier cours dans `update_exits`, prix du stop borné à l'ouverture en cas de gap (5 min et repli 1 h), prix limite d'achat préservé dans le dashboard.
+- P2 traités partiellement : refus de TP sous cours, booléen strict `breakeven_after_tp1`, stop obligatoire si break-even, compteur `tp_filled` conservé après mise à jour, résumés des décisions.
+- **Corrigé, à revalider par Grok Bot** : continuité de protection par l'ancien stop pendant le délai d'activation de `update_exits`, via `pending_exits` ; tests dédiés ajoutés.
+- Recette supplémentaire à compléter : scénarios gap après TP1, plusieurs TP dans la même 5 min, fractions 0,3333, décisions rejouées, tests JS dashboard et rejeu fixe de `main`.
+- Ne pas fusionner avant CI verte sur le dernier commit et nouvelle revue Grok Bot.
+
+## Développement v0.3.0 — paliers (ADR-26)
+- Branche `feature/v0.3-paliers` depuis `preprod` ; moteur et tests en cours, aucune fusion.
+- Un groupe de sortie représente le stop et tous les TP sans double réservation ; `take_profits` et `tp_filled` suivent la quantité résiduelle.
+- À finaliser : affichage Ordres, gain/risque global, lignes graphiques, historique et journal, tests et CI ; revue Grok Bot avant fusion.
+- Ne jamais modifier `state/`, `decisions/` ou `main`.
+
 ## Retour au dashboard de production — ADR-25
 - Branche de travail `fix/restore-prod-ui-preprod` basée sur `preprod` : fichiers du site remis à l'identique de `main`, sans reprendre l'état vivant ni les décisions.
 - Les tests créés pour les workspaces de `preprod` peuvent devoir être adaptés ou retirés dans un lot de nettoyage contrôlé. Vérifier CI et rendu Netlify avant toute fusion.
