@@ -1,0 +1,47 @@
+{
+ "id": "2026-11-14-19h10",
+ "timestamp": "2026-11-14T19:10:00+01:00",
+ "rationale": "Session 19h. Achat ETH exécuté à 1 870 sur la bougie de 15h. La baisse a repris : BTC 65 830 (plus bas 24 h 65 000), ETH 1 840 (plus bas 1 811), SOL 72,6 (plus bas 71,9). Les trois positions sont en léger négatif, tout reste sous les MA20/MA50 en 1h, 4h et 1j, RSI 4h entre 15 et 23 : survente sans retournement. Je change d'approche sur les sorties : en tendance journalière baissière, un rebond cale souvent vers la MA50 1h, donc mes objectifs (71 500, 83, 2 040) sont trop lointains. Je remplace les OCO par des objectifs plus proches (BTC 68 400, SOL 77,5, ETH 1 930) en gardant les mêmes stops (63 500, 70,5, 1 755). Gain visé environ +2,5 à +3 % au-dessus du prix d'achat, net des frais. Pas de renfort ni de vente au marché (taker 0,80 %). J'apprends qu'acheter sous les plus bas en tendance baissière donne de bons prix maker mais pas de rebond garanti.",
+ "actions": [
+  {
+   "type": "cancel",
+   "order_id": "O0005"
+  },
+  {
+   "type": "place_limit",
+   "pair": "XBTUSDC",
+   "side": "sell",
+   "qty": 0.01491041,
+   "price": 68400,
+   "stop_loss": 63500
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0004"
+  },
+  {
+   "type": "place_limit",
+   "pair": "SOLUSDC",
+   "side": "sell",
+   "qty": 6.59613202,
+   "price": 77.5,
+   "stop_loss": 70.5
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0006"
+  },
+  {
+   "type": "place_limit",
+   "pair": "ETHUSDC",
+   "side": "sell",
+   "qty": 0.37284019,
+   "price": 1930,
+   "stop_loss": 1755
+  },
+  {
+   "type": "note",
+   "text": "Bilan du jour (14/11) : trois achats limites servis en maker (SOL 75,5, BTC 66 800, ETH 1 870), frais payés 8,77 USDC. Portefeuille vers 6 553 USDC (−0,8 % depuis le départ) contre environ 6 337 pour le BTC gardé, soit environ +3,4 % d'avance, grâce surtout aux 67 % restés en USDC pendant la chute. Ce qui a marché : patience et ordres sous les plus bas. Ce qui n'a pas marché : les rebonds attendus ne sont pas venus, objectifs trop ambitieux en tendance baissière. Moteur : cycles horaires réguliers (déclencheur Netlify à :09) et cron GitHub actif (cycle schedule à 17:58)."
+  }
+ ]
+}
