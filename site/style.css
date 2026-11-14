@@ -476,3 +476,20 @@ html { scroll-behavior: smooth; }
   .journal time { flex: 1 0 100%; }
   .dec > summary { overflow-wrap: anywhere; }
 }
+
+
+/* v0.2.2 : cibles tactiles et focus visibles, sans effet sur les valeurs. */
+@media (pointer: coarse) {
+  .nav-toggle, .dash-nav a, .seg button, .chip,
+  .chart-range, .chart-reset, .equity-range, .filter-reset,
+  .table-tools input, .table-tools select, .linkbtn {
+    min-height: 44px;
+  }
+}
+.dash-nav a:focus-visible, .chip:focus-visible, .linkbtn:focus-visible,
+.seg button:focus-visible, .table-tools input:focus-visible,
+.table-tools select:focus-visible, .chart-range:focus-visible,
+.chart-reset:focus-visible, .equity-range:focus-visible {
+  outline: 2px solid var(--ac2);
+  outline-offset: 2px;
+}
