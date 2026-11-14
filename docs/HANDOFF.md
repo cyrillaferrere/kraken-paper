@@ -1,5 +1,11 @@
 # Kraken Paper : document de reprise
 
+## Lot de développement — chandelier résilient (14/11/2026)
+- Branche `fix/v0.2.1-chart-concurrency-and-resilience`, PR vers `preprod` uniquement.
+- `site/ohlc-utils.js` : validateur de bougies ; `site/markets.js` : séquencement des requêtes et gestion du chargement.
+- Vérifier les tests `tests/site/chart-concurrency.test.js`, l'ADR-19 et le comportement du graphique lors de changements rapides de paire et de période.
+- Aucune modification moteur PAPER, stratégie, `state/`, `decisions/` ni production.
+
 ## Itération données publiques — 14/11/2026
 - Branche `fix/v0.2.1-market-data-guardrails` : `site/data-validators.js`, validation atomique CSV/JSONL, prix Kraken partiels signalés.
 - Le moteur reste source de vérité ; en cas de snapshot invalide, conserver le dernier rendu et afficher l'alerte, sans modifier les données.
