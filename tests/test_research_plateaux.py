@@ -36,6 +36,24 @@ class StudyTests(unittest.TestCase):
         self.assertEqual(result["reason"], "target")
         self.assertAlmostEqual(result["net"], 102.5 * .999 * .992 / (99.5 * 1.004) - 1)
 
+    def test_gap_below_buy_limit_invalidates_maker(self):
+        b = [(i * 14400, 100, 101, 99, 100, 1, 10) for i in range(20)]
+        b[1] = (14400, 98, 100, 97, 99, 1, 10)
+        b[2] = (28800, 100, 102, 99, 101, 1, 10)
+        self.assertIsNone(study.trade(b, {"i": 0, "atr": 2, "ts": 0}, 240))
+
+    def test_target_on_entry_bar_is_not_claimed(self):
+        b = [(i * 14400, 100, 101, 99.5, 100, 1, 10) for i in range(20)]
+        b[1] = (14400, 100, 105, 99.5, 100, 1, 10)
+        result = study.trade(b, {"i": 0, "atr": 2, "ts": 0}, 240)
+        self.assertEqual(result["reason"], "timeout")
+
+    def test_same_entry_bar_stop_beats_target(self):
+        b = [(i * 14400, 100, 101, 99.5, 100, 1, 10) for i in range(20)]
+        b[1] = (14400, 100, 105, 96, 100, 1, 10)
+        result = study.trade(b, {"i": 0, "atr": 2, "ts": 0}, 240)
+        self.assertEqual(result["reason"], "stop")
+
     def test_zip_usdc_selection_and_sha(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "Kraken_OHLCVT_Full.zip"
