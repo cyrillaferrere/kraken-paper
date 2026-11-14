@@ -36,6 +36,13 @@
     } else document.body.classList.toggle("nav-open");
     sync();
   });
+  function syncActiveRoute() {
+    const route = location.hash.replace(/^#/, "");
+    const selected = links.find(a => a.getAttribute("href") === "#" + route);
+    const active = selected || (route === "markets" ? links[1] : route === "orders" ? links[3] : route === "history" ? links[4] : links[0]);
+    links.forEach(a => a.removeAttribute("aria-current"));
+    if (active) active.setAttribute("aria-current", "location");
+  }
   links.forEach((a) => a.addEventListener("click", () => {
     if (!desktop.matches) closeMobileMenu({ keepLinkFocus: true });
     links.forEach((item) => item.removeAttribute("aria-current"));
@@ -55,13 +62,8 @@
   else desktop.addListener(sync);
   window.addEventListener("hashchange", () => {
     if (!desktop.matches) closeMobileMenu();
-    const active = links.find((a) => a.getAttribute("href") === location.hash);
-    if (active) {
-      links.forEach((a) => a.removeAttribute("aria-current"));
-      active.setAttribute("aria-current", "location");
-    }
+    syncActiveRoute();
   });
-  const initial = links.find((a) => a.getAttribute("href") === location.hash) || links[0];
-  if (initial) initial.setAttribute("aria-current", "location");
+  syncActiveRoute();
   sync();
 })();

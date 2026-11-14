@@ -1,3 +1,19 @@
+## Trading Workspace × Minimal Precision — ADR-24
+- Prototype sur PR #41 : `site/workspace-premium.css` est chargé après `analog.css`, sans modifier `main` ou `preprod`.
+- Nouveau titre de page piloté par `workspace-tabs.js`, navigation synchronisée dans `navigation.js`, onglets secondaires masqués sur desktop. Le graphique est prioritaire sur l’exposition dans la vue générale.
+- Contrôler les 4 espaces et les liens du menu, les interactions du chandelier, le mobile, le contraste et les tests CI avant arbitrage Cyril/Grok Bot.
+
+## Graphite / Signal — prototype en cours (ADR-23)
+- PR #41, branche `feature/analog-robotic-concept` uniquement : nouvelle palette graphite / vert signal / corail, typo sans-serif et hiérarchie des panneaux, sans changement du moteur.
+- `site/analog.css` reste une surcouche réversible ; `site/markets.js` ne change que les couleurs de rendu. VERSION=0.3.1.
+- Vérifier le Deploy Preview Netlify, les tests Node/Python, la lisibilité mobile et desktop et les valeurs de marché réelles avant toute fusion. `main` et `preprod` restent intacts.
+
+## Concept alternatif Analog / Robotic — branche d'essai
+- Branche `feature/analog-robotic-concept` créée depuis `preprod` v0.3.1 ; pas de remplacement de la préproduction actuelle.
+- `site/analog.css` est la surcouche expérimentale isolée ; `site/index.html` lie le CSS, le monogramme K⌁P et une graduation VU sur la barre d'exposition existante. `site/markets.js` ne change que les couleurs.
+- ADR : `docs/ADR-22-ANALOG-ROBOTIC.md`. Tests : `tests/site/analog-robotic-concept.test.js`.
+- À faire : recette en navigateur desktop/iPhone, décision de Cyril sur l'identité avant fusion. Version inchangée : 0.3.1.
+
 ## Refonte visuelle v0.3.1 — Nocturne Signal
 - Branche feature/v0.3.1-nocturne-signal ; design CSS, palette graphique Lightweight Charts, monogramme K/, VERSION 0.3.1.
 - ADR : docs/ADR-21-NOCTURNE-SIGNAL.md. La préproduction seule reçoit cette version ; main et PAPER restent intacts.

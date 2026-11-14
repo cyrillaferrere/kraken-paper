@@ -1,3 +1,18 @@
+## [Unreleased] — Trading Workspace × Minimal Precision (ADR-24)
+- Nouvelle couche `site/workspace-premium.css` : suppression des liserés verts de sélection, navigation latérale graphite cohérente, suppression des onglets redondants sur desktop, séparation plus nette des espaces et chandelier mis en avant avant les panneaux d’exposition.
+- Bandeau KPI sans cartes individuelles, titres de page contextuels, accents turquoise/corail réservés aux états financiers ; responsive préservé.
+- Aucune modification des données, des calculs ou des stratégies. PR #41 uniquement, aucune fusion.
+
+## [Unreleased] — Graphite / Signal (itération B du prototype)
+- Refonte visuelle isolée sur `feature/analog-robotic-concept` : graphite sombre, vert signal pour l’accent et les valeurs positives, corail pour les pertes, turquoise pour les séries secondaires et ambre pour les avertissements.
+- Hiérarchie des KPI renforcée, typographie sans-serif lisible, monospace limité aux données techniques, contrôles et tableaux agrandis, chandelier davantage mis en valeur.
+- Palette de Lightweight Charts harmonisée, sans changement de bougies, indicateurs, calculs ni sources. Version 0.3.1 inchangée ; ADR-23. Aucune fusion ni publication de production.
+
+## [Unreleased] — expérimentation Analog / Robotic (alternative à Nocturne Signal)
+- Nouvelle direction graphique sur branche indépendante : surfaces graphite/métal, cuivre, typographie Unicode monospace, bargraph analogique basé sur l'exposition réelle, palette du chandelier harmonisée.
+- Charge `site/analog.css` après `site/style.css`, sans changement du moteur PAPER ni de VERSION (0.3.1). Voir ADR-22.
+- Non fusionné en préproduction : soumis au choix esthétique de Cyril.
+
 ## [Unreleased] — v0.3.1 Nocturne Signal (préproduction)
 - Identité graphique graphite et jade, monogramme K/, surfaces plates, graphiques harmonisés, navigation desktop sans doublon.
 - Version de préproduction `VERSION=0.3.1`, source du bandeau de build Netlify (`version.json`). Voir ADR-21.
