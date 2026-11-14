@@ -138,13 +138,14 @@
     "2026-11-14-14h10",
     "2026-11-14-19h10",
     "2026-11-14-20h20",
-    "2026-11-15-00h15"
+    "2026-11-15-00h15",
+    "2026-11-15-00h14"
   ],
   "last_decision": {
-    "id": "2026-11-15-00h15",
-    "timestamp": "2026-11-15T00:15:00+01:00",
-    "rationale": "Test demandé par Cyril pour vérifier l'affichage des sorties par paliers (v0.3.1) sur le dash. Petit montant (300 USDC) et achat limite posé sur le plancher, pas au marché, pour rester cohérent avec la leçon du 14/11 : pas d'achat dans la baisse sans signal. BTC à 63 465, plus bas 3 mois à 62 714 : achat limite à 62 800, juste au-dessus. Stop à 61 500, sous le plancher 3 mois avec un coussin pour le bruit. Palier 1 : moitié à 65 000 (environ 1:1, retour sur le support cassé), puis stop remonté au prix d'entrée sur le reste. Palier 2 : l'autre moitié à 68 500. Ratio gain/risque net de frais sur la position entière environ 1,6, au-dessus du minimum de 1,5.",
-    "applied": "2026-11-15T00:09:13+01:00"
+    "id": "2026-11-15-00h14",
+    "timestamp": "2026-11-15T00:14:00+01:00",
+    "rationale": "Ce que je vois : 100 % cash (6 461 USDC), seul l'achat test BTC O0013 à 62 800 (300 USDC, paliers 65 000 / 68 500, stop 61 500) est posé. La chute continue : BTC 63 530 (plus bas 63 294, plancher 3 mois 62 714), ETH 1 744 et SOL 69,07 cassent leurs plus bas 3 mois (1 728 et 68,56). RSI 1 h, 4 h et 1 j entre 14 et 20, en nouveaux plus bas avec le prix : pas de divergence haussière, pas de plateau, pas de mèche basse marquée, prix loin sous la MA20 1 h. Ce que je fais : rien de plus, je garde O0013 tel quel (ratio net de frais environ 1,6, au-dessus de 1,5). Pourquoi : aucun marqueur de rebond, et ETH/SOL sont le même pari corrélé que BTC, donc pas de nouvelle exposition. Ce que j'apprends : un marché qui casse ses planchers 3 mois peut aller chercher les 6 mois (BTC 57 772, ETH 1 507, SOL 60,18) ; attendre au moins quelques bougies 1 h qui tiennent un creux avant de poser d'autres achats.",
+    "applied": "2026-11-15T00:10:32+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -184,7 +185,7 @@
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 63461.56,
+    "XBTUSDC": 63589.14,
     "ETHUSDC": 1774.47,
     "SOLUSDC": 70.48
   },
@@ -200,8 +201,8 @@
     "order": 13,
     "trade": 6
   },
-  "last_cycle": "2026-11-15T00:09:21+01:00",
-  "last_cycle_ts": 1794697761,
+  "last_cycle": "2026-11-15T00:10:32+01:00",
+  "last_cycle_ts": 1794697832,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
