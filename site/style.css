@@ -476,3 +476,16 @@ html { scroll-behavior: smooth; }
   .journal time { flex: 1 0 100%; }
   .dec > summary { overflow-wrap: anywhere; }
 }
+
+/* Prix Kraken de la paire sélectionnée : toujours lisible sur mobile. */
+.selected-live { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px 16px; margin:12px 0 14px; padding:14px 16px; border:1px solid rgba(34,211,238,.35); border-radius:14px; background:rgba(34,211,238,.055); font-variant-numeric:tabular-nums; }
+.selected-live-main { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; min-width:0; }
+.selected-live-pair { font-size:13px; font-weight:750; letter-spacing:.06em; color:var(--ac2); white-space:nowrap; }
+.selected-live-price { font-size:clamp(27px,5.5vw,39px); line-height:1.15; font-weight:750; color:var(--tx); letter-spacing:-.035em; }
+.selected-live-unit { font-size:12px; font-weight:650; color:var(--mu); }
+.selected-live-status { font-size:12px; color:var(--up); }
+.selected-live-status.stale { color:var(--warn); }
+@media (max-width:600px) { .selected-live { padding:12px 14px; } .selected-live-main { gap:7px; } .selected-live-price { font-size:clamp(27px,7vw,35px); } .selected-live-status { width:100%; } }
+
+/* Sorties différées : information visible sans ouvrir les détails. */
+.pending-exits { display:block; margin-top:5px; font-size:12px; line-height:1.4; color:#fbbf24; font-weight:600; }

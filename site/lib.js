@@ -45,6 +45,9 @@
     const p = [];
     if (a.stop_loss) p.push("stop " + px(a.stop_loss));
     if (a.take_profit) p.push("objectif " + px(a.take_profit));
+    if (Array.isArray(a.take_profits)) a.take_profits.forEach((tp, i) =>
+      p.push("TP" + (i + 1) + " " + px(tp.price) + " (" + nf(2).format(tp.fraction * 100) + " %)"));
+    if (a.breakeven_after_tp1) p.push("stop au PRU après TP1");
     return p.length ? ", " + p.join(", ") : "";
   }
   function summarizeAction(a) {
@@ -52,6 +55,7 @@
       case "place_limit": return (a.side === "sell" ? "Vente limite de " : "Achat limite de ") + amount(a) + " à " + px(a.price) + exits(a);
       case "market_buy": return "Achat au marché de " + amount(a) + exits(a);
       case "market_sell": return "Vente au marché de " + amount(a);
+      case "update_exits": return "Modification des sorties de " + base(a.pair) + exits(a);
       case "cancel": return "Annulation de l'ordre " + (a.order_id || a.id || "?");
       case "note": return "Note : " + (a.text || "");
       default: return "Action inconnue (" + (a && a.type) + ")";
