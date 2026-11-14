@@ -1,3 +1,8 @@
+## v0.2.2 — focus du menu mobile
+- Branche `fix/v0.2.2-navigation-focus` depuis `preprod` ; changement limité à `site/navigation.js`, test `tests/site/navigation-focus.test.js`.
+- Fermer avec Escape restaure le focus au bouton ; clic extérieur depuis un lien du menu aussi. Le clic sur un lien conserve le comportement de navigation par ancre.
+- Avant fusion : CI, test réel iPhone Safari/VoiceOver et relecture Grok Bot. Aucune modification de la simulation ou de production.
+
 # Kraken Paper : document de reprise
 
 ## Cause racine du débordement mobile

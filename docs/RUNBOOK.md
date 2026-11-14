@@ -1,3 +1,10 @@
+## Recette correctif focus du menu mobile (v0.2.2)
+- Ouvrir le menu au clavier, placer le focus sur un lien, appuyer sur Escape : le menu se ferme et le bouton récupère le focus.
+- Cliquer hors du menu avec le focus sur un lien : le focus doit revenir au bouton.
+- Cliquer un lien du menu : l'ancre est atteinte, le menu se ferme sans détourner le focus vers le bouton.
+- Vérifier `aria-expanded`, `inert`, les modes réduit/normal, Safari iOS et Android Chrome.
+- Exécuter `node --test tests/site/navigation-focus.test.js` puis les tests du projet avant fusion.
+
 # Kraken Paper : runbook (opérations)
 
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
