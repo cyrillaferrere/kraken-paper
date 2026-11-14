@@ -156,6 +156,15 @@ class TieredExitTests(unittest.TestCase):
                                       FakeMarket(last=65000), T0 + 60)
         self.assertTrue(any(e["type"] == "rejected" for e in events))
 
+    def test_update_at_exact_hour_is_not_retroactive(self):
+        action = {"type": "update_exits", "pair": self.pair, "stop_loss": 61000,
+                  "take_profits": [{"price": 75000, "fraction": 1.0}]}
+        run.run_cycle(self.state, [decision("boundary", action)],
+                      FakeMarket(last=65000), T0 + H)
+        pending = self.state["open_orders"][0]["pending_exits"]
+        self.assertEqual(pending["active_from"], T0 + 2 * H)
+        self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
+
     def test_legacy_single_tp(self):
         st = run.new_state(T0 - 10)
         action = {"type": "market_buy", "pair": self.pair, "qty": 0.01,
