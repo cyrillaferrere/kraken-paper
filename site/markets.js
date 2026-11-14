@@ -16,7 +16,7 @@
   // Au pire une requête OHLC toutes les 30 s pour le graphique (5 min) : très en dessous de la limite publique Kraken.
   const TTL = { 5: 60e3, 15: 120e3, 30: 180e3, 60: 180e3, 240: 300e3, 1440: 900e3 };
   const REFRESH = { 5: 30e3, 15: 60e3, 30: 90e3, 60: 60e3, 240: 120e3, 1440: 300e3 };
-  const C = { up: "#91b9a9", dn: "#dd877b", mu: "#b0ada1", line: "#3d403b", ac: "#d6ad78", ac2: "#a9c5c5", warn: "#d7ab67", tx: "#efe9d7", ma50: "#ddbc87" };
+  const C = { up: "#b6ff52", dn: "#ff7769", mu: "#aab8bf", line: "#354149", ac: "#b6ff52", ac2: "#7dd8d4", warn: "#ffc475", tx: "#eef3f4", ma50: "#ffc475" };
   window.KP_WATCH = WATCH;
 
   const $ = (id) => document.getElementById(id);
