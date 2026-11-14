@@ -1,5 +1,10 @@
 # Kraken Paper : document de reprise
 
+## Itération données publiques — 14/11/2026
+- Branche `fix/v0.2.1-market-data-guardrails` : `site/data-validators.js`, validation atomique CSV/JSONL, prix Kraken partiels signalés.
+- Le moteur reste source de vérité ; en cas de snapshot invalide, conserver le dernier rendu et afficher l'alerte, sans modifier les données.
+- Tests `tests/site/market-data-guardrails.test.js`, ADR-18 ; recette Netlify à effectuer après CI et fusion.
+
 ## État de l'itération — historiques longs (14/11/2026)
 - Branche `fix/v0.2.1-history-scale-and-data-integrity` vers `preprod` : helper `site/history-utils.js` et tests `tests/site/history-scale.test.js`.
 - Les cycles complets restent la source de vérité ; le SVG seul est échantillonné en conservant extrema et ruptures. ADR-17.
