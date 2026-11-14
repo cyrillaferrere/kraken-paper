@@ -90,6 +90,7 @@
 
   <section class="card" id="positions-panel">
     <div class="card-h"><h2>Positions</h2><span id="cash" class="muted"></span></div>
+    <div class="table-tools" role="group" aria-label="Explorer les positions"><label for="positions-search">Crypto</label><input id="positions-search" type="search" placeholder="Rechercher une position" autocomplete="off"><label for="positions-sort">Trier</label><select id="positions-sort"><option value="default">Ordre initial</option><option value="value">Valeur décroissante</option><option value="pnl">P&L décroissant</option><option value="name">Crypto A–Z</option></select><button type="button" id="positions-reset" class="filter-reset motion-button">Réinitialiser</button><span id="positions-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="positions"><thead><tr>
       <th>Crypto</th><th class="r">Quantité</th><th class="r">Prix de revient</th><th class="r">Prix</th><th class="r">Valeur</th><th class="r">P&amp;L latent</th>
     </tr></thead><tbody></tbody></table></div>
@@ -137,8 +138,9 @@
     <div id="dec-feed" class="dec-feed"><p class="muted">Chargement…</p></div>
   </section>
 
-  <section class="card">
+  <section class="card" id="trades-panel">
     <div class="card-h"><h2>Historique des trades</h2></div>
+    <div class="table-tools" role="group" aria-label="Explorer les trades"><label for="trades-search">Rechercher</label><input id="trades-search" type="search" placeholder="Crypto ou motif" autocomplete="off"><label for="trades-side">Sens</label><select id="trades-side"><option value="all">Tous</option><option value="buy">Achats</option><option value="sell">Ventes</option></select><button type="button" id="trades-reset" class="filter-reset motion-button">Réinitialiser</button><span id="trades-count" class="table-count" role="status" aria-live="polite"></span></div>
     <div class="tbl-wrap"><table id="trades"><thead><tr>
       <th>Date</th><th>Sens</th><th class="r">Quantité</th><th class="r">Prix</th><th class="r">Frais</th><th class="r">P&amp;L réalisé</th>
     </tr></thead><tbody></tbody></table></div>
@@ -164,5 +166,6 @@
 <script src="app.js"></script>
 <script src="navigation.js"></script>
 <script src="workspace.js"></script>
+<script src="portfolio-workspace.js"></script>
 </body>
 </html>
