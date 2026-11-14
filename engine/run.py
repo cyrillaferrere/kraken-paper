@@ -341,12 +341,23 @@ def process_candle(state, pair, candle, rejects=None, market=None):
         pending = old.get("pending_exits")
         if not pending or old["pair"] != pair or t < pending["active_from"]:
             continue
-        state["open_orders"].remove(old)
-        remaining = state["positions"].get(pair, {}).get("qty", 0)
+        # Le groupe ne peut reserver que son propre solde, pas les achats
+        # intervenus depuis la demande de modification.
+        remaining = min(old["qty"], state["positions"].get(pair, {}).get("qty", 0))
         if remaining <= EPS:
+            state["open_orders"].remove(old)
             continue
-        levels = normalize_take_profits(state["pairs"][pair], pending["action"],
-                                         pending["entry_price"], remaining)
+        try:
+            levels = normalize_take_profits(state["pairs"][pair], pending["action"],
+                                             pending["entry_price"], remaining)
+        except Rejected as exc:
+            # Echec sans perte de protection : l'ancien stop et ses TP restent actifs.
+            old.pop("pending_exits", None)
+            if rejects is not None:
+                rejects.append({"type": "note", "pair": pair, "order_id": old["id"],
+                                "text": f"update_exits non active : {exc} ; anciennes sorties conservees"})
+            continue
+        state["open_orders"].remove(old)
         new = attach_exit(state, pair, remaining, pending["stop_loss"], None,
                           pending["active_from"], pending["parent"],
                           take_profits=levels,
