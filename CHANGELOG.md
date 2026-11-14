@@ -1,3 +1,9 @@
+## [Unreleased] — v0.3.1 : finitions sorties par paliers
+- Ordres ouverts : signalement explicite des modifications de sorties différées, ancien stop conservé.
+- Journal : affichage des TP fractionnés dès la pose d’un ordre.
+- Moteur PAPER : rejet de `breakeven_after_tp1` sans stop pour les nouveaux `market_buy` et `place_limit` d’achat ; tests de non-régression.
+- Aucun changement de stratégie, frais, état vivant ou production.
+
 ## [Unreleased] — correctif UX cours sélectionné (PR #45)
 - Affichage grand format du cours Kraken de la paire choisie au-dessus du graphique, responsive mobile.
 - Actualisation sur le ticker existant (15 s), horodatage et signalement explicite du cours de repli non temps réel.

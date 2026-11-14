@@ -1,3 +1,10 @@
+## PR v0.3.1 — trois P2 de la revue Grok Bot
+- Branche `feature/v0.3.1-p2-finishing` depuis `preprod`.
+- `site/app.js` : sorties en attente et TP dans `order_placed` ; `site/style.css` : signal visuel accessible.
+- `engine/run.py` : `breakeven_after_tp1` nécessite un stop sur les achats marché et limite, selon le contrat ADR-26.
+- Tests Python dédiés. Recette : prix actuel et stop historique toujours visibles pendant `pending_exits`, journal des paliers, rejets des achats sans stop, tests Python/Node et CI.
+- Revue Grok Bot nécessaire avant fusion dans `preprod` ; aucun changement sur `main`, `state/` ou `decisions/`.
+
 ## PR #45 — cours Kraken de la paire sélectionnée (préproduction)
 - Branche `fix/ux-selected-live-price` depuis `preprod`, PR en brouillon.
 - `site/index.html` : bandeau de cours sous les sélecteurs de crypto ; `site/markets.js` : prix et paire synchronisés ; `site/app.js` : transmission de la fraîcheur du ticker ; `site/style.css` : affichage mobile lisible.

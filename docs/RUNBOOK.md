@@ -1,3 +1,9 @@
+## Recette v0.3.1 — finitions TP (P2)
+- Sur un ordre de vente avec `pending_exits`, vérifier la mention de la date d’activation et la visibilité du stop actuellement actif.
+- Sur un événement `order_placed` avec `take_profits`, vérifier chaque TP et sa fraction.
+- Rejeter `market_buy` et `place_limit` achat avec `breakeven_after_tp1: true` sans `stop_loss`; ne pas modifier les décisions historiques.
+- Exécuter les tests Python et Node, puis demander la revue Grok Bot ; fusion dans `preprod` uniquement après CI verte.
+
 ## Recette v0.3.0 — sorties par paliers (ADR-26)
 - Vérifier TP1→TP2, TP1→stop remonté, stop avant TP1, collision stop/TP en même 5 min, TP1 puis stop plus tard dans l'heure.
 - Vérifier anciennes décisions `take_profit`, rejet fractions invalides, arrondis et modification `update_exits`.

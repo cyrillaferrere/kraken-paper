@@ -156,6 +156,30 @@ class TieredExitTests(unittest.TestCase):
                                       FakeMarket(last=65000), T0 + 60)
         self.assertTrue(any(e["type"] == "rejected" for e in events))
 
+    def test_market_buy_breakeven_requires_stop(self):
+        state = run.new_state(T0 - 10)
+        a = {"type": "market_buy", "pair": self.pair, "qty": 0.02,
+             "take_profits": [{"price": 69000, "fraction": 1.0}],
+             "breakeven_after_tp1": True}
+        events, _, errors = run.apply_decisions(state, [decision("no-stop-market", a)],
+                                           FakeMarket(last=65000), T0)
+        self.assertFalse(errors)
+        self.assertEqual(state["positions"], {})
+        self.assertFalse(state["open_orders"])
+        self.assertTrue(any(e["type"] == "rejected" and "exige stop_loss" in e["reason"] for e in events))
+
+    def test_limit_buy_breakeven_requires_stop(self):
+        state = run.new_state(T0 - 10)
+        a = {"type": "place_limit", "side": "buy", "pair": self.pair,
+             "price": 64000, "qty": 0.02,
+             "take_profits": [{"price": 69000, "fraction": 1.0}],
+             "breakeven_after_tp1": True}
+        events, _, errors = run.apply_decisions(state, [decision("no-stop-limit", a)],
+                                                FakeMarket(last=65000), T0)
+        self.assertFalse(errors)
+        self.assertFalse(state["open_orders"])
+        self.assertTrue(any(e["type"] == "rejected" and "exige stop_loss" in e["reason"] for e in events))
+
     def test_update_at_exact_hour_is_not_retroactive(self):
         action = {"type": "update_exits", "pair": self.pair, "stop_loss": 61000,
                   "take_profits": [{"price": 75000, "fraction": 1.0}]}
