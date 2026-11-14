@@ -1,3 +1,11 @@
+## Régression automatisée — préférences du chandelier
+- Exécuter `node --test tests/site/chart-preferences-regression.test.js` : valeurs par défaut, préférences valides, JSON malformé et stockage inaccessible.
+- Ce test vérifie le module isolé, pas le rendu ni le survol du chandelier. Une recette Safari/desktop reste obligatoire.
+
+## v0.2.2 — Préférences graphiques robustes (branche fix/v0.2.2-chart-preferences)
+- Rejet explicite des tableaux JSON comme objet de préférences. Les valeurs stockées valides restent compatibles. Tests et CI à faire.
+- Périmètre interface uniquement, aucune modification de production, de state/, decisions/ ou du moteur. Relecture Grok Bot et recette navigateur avant fusion.
+
 # Kraken Paper : runbook (opérations)
 
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.
