@@ -78,7 +78,10 @@
     el.title = gh.retryAt ? "Retour à l'API GitHub vers " + new Date(gh.retryAt).toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" }) : "";
   }
 
+  let stateLoading = false;
   async function loadState() {
+    if (stateLoading) return;
+    stateLoading = true;
     try {
       let texts = null;
       if (gh.mode === "api" || Date.now() >= gh.retryAt) {
@@ -92,18 +95,28 @@
       setSource();
       if (!texts) return; // rien de neuf depuis le dernier commit : pas de rendu inutile
       const [p, e, j] = texts;
-      S = JSON.parse(p);
-      equity = e.trim().split("\n").slice(1).filter(Boolean).map((l) => {
+      const nextState = JSON.parse(p);
+      if (!nextState || typeof nextState !== "object" || !nextState.positions || !Array.isArray(nextState.open_orders)) throw new Error("portefeuille incomplet");
+      const nextEquity = e.trim().split("\n").slice(1).filter(Boolean).map((l) => {
         const [time, eq, cash, pos, btc, hold] = l.split(",");
         return { t: new Date(time).getTime(), eq: +eq, hold: hold === "" ? null : +hold };
       }).filter((r) => !isNaN(r.t) && !isNaN(r.eq));
-      journal = j.trim().split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      const nextJournal = j.trim().split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      // Publier les trois sources ensemble : jamais un portefeuille récent avec un ancien journal.
+      S = nextState;
+      equity = nextEquity;
+      journal = nextJournal;
       $("alert").hidden = true;
       await loadPrices();
       stateChanged = true;
       render();
     } catch (err) {
+      // Un SHA/ETag reçu mais non exploitable doit être retenté, pas considéré comme traité.
+      gh.sha = null;
+      gh.etag = null;
       showAlert("Impossible de lire l'état du portefeuille sur GitHub (" + err.message + "). Nouvel essai dans 2 min.");
+    } finally {
+      stateLoading = false;
     }
   }
 
@@ -113,7 +126,9 @@
     return [...s];
   }
 
+  let priceRequest = 0;
   async function loadPrices() {
+    const request = ++priceRequest;
     const pairs = pairsNeeded();
     try {
       const r = await fetch(TICKER + pairs.join(","), { cache: "no-store" });
@@ -125,9 +140,10 @@
         const k = [p, m.key, m.altname].find((x) => x && d.result[x]);
         if (k) out[p] = +d.result[k].c[0];
       }
+      if (request !== priceRequest) return;
       live = out; liveOk = true; liveAt = new Date();
     } catch (e) {
-      liveOk = false;
+      if (request === priceRequest) liveOk = false;
     }
   }
 
@@ -168,7 +184,10 @@
     const cb = window.KPLib ? window.KPLib.cashBreakdown(S, orderMath) : { total: S.cash, reserved: 0, available: S.cash };
     $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
 
-    renderPositions(); renderOrders(); renderTrades(); renderJournal(); renderChart(hold, missing ? null : total);
+    // Les prix bougent toutes les 15 s ; les historiques ne changent qu'avec un nouveau snapshot.
+    // Éviter de reconstruire le journal et le SVG à chaque ticker préserve filtres et interactions.
+    renderPositions(); renderOrders();
+    if (stateChanged) { renderTrades(); renderJournal(); renderChart(); }
     if (firstRender) {
       // Entrée des panneaux : une seule fois au premier rendu, jamais au polling.
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });

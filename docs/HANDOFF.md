@@ -1,5 +1,7 @@
 # Kraken Paper : document de reprise
 
+> Stabilisation du rafraîchissement UX v0.2.1 : une seule lecture d'état à la fois, validation et publication groupée portefeuille/equity/journal, nouvelle tentative après snapshot invalide, réponses de prix hors ordre ignorées, journal/trades/courbe reconstruits uniquement lors d'un nouveau snapshot (pas toutes les 15 s). Aucun changement du moteur PAPER. Branche `fix/v0.2.1-data-refresh-integrity` vers `preprod`, tests et recette navigateur obligatoires.
+
 > Explorateur d'historique UX v0.2.1 : courbe 24 h, 7 j, 30 j, 90 j, 6 mois (180 j), 1 an (365 j), tout; journal 40/100/250/tous les événements disponibles, avec indication explicite de la profondeur chargée et des filtres sur les entrées visibles. Aucun événement ni point de courbe inventé, lecture seule. Branche `feature/v0.2.1-history-explorer` vers `preprod`, recette CI + navigateur obligatoire avant fusion.
 
 > Itération de stabilisation UX v0.2.1 : déconnexion temporaire et reconnexion garantie du MutationObserver pendant le tri DOM (sans masquer les nouvelles données), étiquette du chandelier fondée sur le nombre réel de bougies chargées, tests de non-régression et maintien de la navigation/du survol. Aucun changement de simulation. Branche `fix/v0.2.1-integrated-regression` vers `preprod`; attendre CI et vérifier Netlify avant toute conclusion de déploiement.
