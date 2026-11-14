@@ -141,7 +141,26 @@ def main():
                 "part_etags": stream.etags,
                 "archive_sha256": "NOT COMPUTED; archive accessed by HTTP byte ranges",
                 "csv": [],
+                "official_manifest": None,
             }
+            official_manifests = [item for item in archive.infolist()
+                                  if Path(item.filename).name.upper() == "MANIFEST.JSON"]
+            if official_manifests:
+                info = official_manifests[-1]
+                if info.file_size > 2 * 1024 * 1024:
+                    raise ValueError("Unexpected size of Kraken official MANIFEST")
+                raw_manifest = archive.read(info)
+                manifest["official_manifest"] = {
+                    "source_entry": info.filename,
+                    "size": len(raw_manifest),
+                    "zip_crc32": f"{info.CRC:08x}",
+                    "sha256": hashlib.sha256(raw_manifest).hexdigest(),
+                }
+                (a.output / "KRAKEN_OFFICIAL_MANIFEST.json").write_bytes(raw_manifest)
+                print("OFFICIAL_MANIFEST", info.filename,
+                      manifest["official_manifest"]["sha256"], flush=True)
+            else:
+                print("OFFICIAL_MANIFEST missing in official ZIP", flush=True)
             for info in matches:
                 if info.file_size > MAX_MEMBER:
                     raise ValueError(f"Unexpectedly large CSV: {info.filename}")
