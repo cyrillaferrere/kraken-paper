@@ -476,3 +476,18 @@ html { scroll-behavior: smooth; }
   .journal time { flex: 1 0 100%; }
   .dec > summary { overflow-wrap: anywhere; }
 }
+
+
+/* v0.2.2 — scanner : distinction des lignes et de la crypto sélectionnée */
+#markers tbody tr { transition: background-color var(--motion-fast) var(--ease-standard); }
+#markers tbody tr:focus-within { background: rgba(34,211,238,.075); }
+#markers tbody tr.sel { background: rgba(34,211,238,.055); }
+#markers tbody tr.sel th[scope="row"] { color: var(--ac2); }
+#markers .rsi-v { font-variant-numeric: tabular-nums; }
+@media (max-width: 680px) {
+  #markers tbody tr.sel { border-color: var(--ac2); box-shadow: inset 3px 0 0 var(--ac2); }
+  #markers tbody tr:focus-within { outline: 2px solid var(--ac2); outline-offset: 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #markers tbody tr { transition: none; }
+}
