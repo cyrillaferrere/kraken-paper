@@ -341,3 +341,122 @@ html { scroll-behavior: smooth; }
   #performance-panel .chart-tools .chart-view-note { width: 100%; }
   #journal-limit { flex: 1 1 120px; }
 }
+
+
+/* ---------- Mobile-first data presentation (desktop tables remain unchanged) ---------- */
+@media (max-width: 680px) {
+  main { padding: 10px 10px 24px; gap: 12px; }
+  .card { padding: 14px 12px; border-radius: 14px; }
+  .card-h { align-items: flex-start; }
+  .card-h .muted { font-size: 12px; line-height: 1.4; }
+  .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .kpi { padding: 12px; }
+  .kpi .v, .kpi.big .v { font-size: clamp(18px, 5vw, 24px); overflow-wrap: anywhere; }
+  .top, .status, .build { padding-left: 12px; padding-right: 12px; }
+  .top { flex-wrap: wrap; }
+  .badges { justify-content: flex-start; }
+  .mchart { height: min(70vh, 390px); }
+  .seg button { padding: 4px 8px; min-width: 44px; }
+  #orders-panel .table-tools, #positions-panel .table-tools,
+  #trades-panel .table-tools, #market-card .table-tools {
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 8px; align-items: end;
+  }
+  #orders-panel .table-tools label, #positions-panel .table-tools label,
+  #trades-panel .table-tools label, #market-card .table-tools label { display: none; }
+  #orders-panel .table-tools input, #positions-panel .table-tools input,
+  #trades-panel .table-tools input, #market-card .table-tools input {
+    grid-column: 1 / -1; min-width: 0; width: 100%;
+  }
+  #orders-panel .table-tools select, #positions-panel .table-tools select,
+  #trades-panel .table-tools select, #market-card .table-tools select,
+  #orders-panel .table-tools button, #positions-panel .table-tools button,
+  #trades-panel .table-tools button, #market-card .table-tools button {
+    min-width: 0; width: 100%; min-height: 42px; font-size: 13px;
+  }
+  #orders-count, #positions-count, #trades-count, #markers-count {
+    grid-column: 1 / -1; font-size: 12px; color: var(--mu);
+  }
+  /* Semantic table is retained for assistive technologies; each row becomes a compact card. */
+  #orders-panel .tbl-wrap, #positions-panel .tbl-wrap,
+  #trades-panel .tbl-wrap, #market-card .tbl-wrap { overflow-x: visible; max-width: 100%; }
+  #orders, #positions, #trades, #markers { display: block; width: 100%; min-width: 0; }
+  #orders thead, #positions thead, #trades thead, #markers thead { display: none; }
+  #orders tbody, #positions tbody, #trades tbody, #markers tbody { display: grid; gap: 9px; }
+  #orders tbody tr, #positions tbody tr, #trades tbody tr, #markers tbody tr {
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap: 8px 10px; min-width: 0; padding: 12px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--bg2);
+  }
+  #orders tbody td, #positions tbody td, #trades tbody td, #markers tbody td,
+  #markers tbody th {
+    display: block; min-width: 0; padding: 0; border: 0; text-align: left;
+    white-space: normal; overflow-wrap: anywhere; font-size: 13px;
+  }
+  #orders tbody td::before, #positions tbody td::before,
+  #trades tbody td::before, #markers tbody td::before {
+    display: block; margin-bottom: 3px; color: var(--mu);
+    font-size: 10.5px; font-weight: 600; letter-spacing: .3px;
+    text-transform: uppercase;
+  }
+  #orders tbody tr td.empty, #positions tbody tr td.empty,
+  #trades tbody tr td.empty, #markers tbody tr td.empty {
+    grid-column: 1 / -1; text-align: center;
+  }
+  #orders .o-row { grid-template-areas: "identity identity" "amount distance"; }
+  #orders .o-row > td:first-child { grid-area: identity; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 7px; font-size: 13px; }
+  #orders .o-row > td:first-child b { font-size: 17px; }
+  #orders .o-row > td:first-child .o-toggle {
+    order: 10; margin-left: auto; padding: 5px 8px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--card); font-size: 12px; min-height: 36px;
+  }
+  #orders .o-row > td:first-child .o-toggle .chev { margin-right: 3px; }
+  #orders .o-row > td:first-child .o-meta { display: none; }
+  #orders .o-row > td:first-child .tag { margin: 0; }
+  #orders .o-row > td:first-child .prox, #orders .o-row > td:first-child .reached-note {
+    order: 20; flex: 1 0 100%; width: 100%; margin: 2px 0 0;
+    padding: 5px 8px; border-radius: 7px; font-size: 11.5px; line-height: 1.35;
+  }
+  #orders .o-row > td:first-child .reached-note {
+    background: rgba(251,191,36,.08); border-left: 2px solid var(--warn);
+  }
+  #orders .o-row > td:nth-child(2), #orders .o-row > td.c-x { display: none; }
+  #orders .o-row > td:nth-child(3) { grid-area: amount; font-size: 16px; font-weight: 700; }
+  #orders .o-row > td:nth-child(3)::before { content: "Montant engagé"; }
+  #orders .o-row > td:nth-child(3) .muted { font-size: 12px; font-weight: 400; }
+  #orders .o-row > td:nth-child(5) { grid-area: distance; font-size: 13px; }
+  #orders .o-row > td:nth-child(5)::before { content: "Déclenchement"; }
+  #orders .o-row.reached { border-color: rgba(251,191,36,.42); }
+  #orders tbody tr.o-detail { display: none; margin-top: -9px; border-top: 0; border-radius: 0 0 12px 12px; }
+  #orders tbody tr.o-detail:not([hidden]) { display: block; }
+  #orders .o-detail > td { display: block; }
+  #orders .o-dl { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+  #orders .o-dl dd { overflow-wrap: anywhere; }
+  #orders-panel > .hint { font-size: 11.5px; line-height: 1.5; }
+  #positions tbody td:first-child, #trades tbody td:first-child,
+  #markers tbody th:first-child { grid-column: 1 / -1; font-size: 17px; font-weight: 700; }
+  #positions tbody td:nth-child(2)::before { content: "Quantité"; }
+  #positions tbody td:nth-child(3)::before { content: "Prix de revient"; }
+  #positions tbody td:nth-child(4)::before { content: "Prix actuel"; }
+  #positions tbody td:nth-child(5)::before { content: "Valeur"; }
+  #positions tbody td:nth-child(6)::before { content: "P&L latent"; }
+  #trades tbody td:nth-child(2)::before { content: "Sens"; }
+  #trades tbody td:nth-child(3)::before { content: "Quantité"; }
+  #trades tbody td:nth-child(4)::before { content: "Prix"; }
+  #trades tbody td:nth-child(5)::before { content: "Frais"; }
+  #trades tbody td:nth-child(6)::before { content: "P&L réalisé"; }
+  #markers tbody td:nth-child(2)::before { content: "Prix"; }
+  #markers tbody td:nth-child(3)::before { content: "24 h"; }
+  #markers tbody td:nth-child(4)::before { content: "Tendance 4 h"; }
+  #markers tbody td:nth-child(5)::before { content: "Tendance 1 j"; }
+  #markers tbody td:nth-child(6)::before { content: "RSI 14"; }
+  #markers tbody td:nth-child(7)::before { content: "Volatilité ATR"; }
+  #markers tbody td:nth-child(8)::before { content: "Force vs BTC"; }
+  #markers th[scope="row"] { position: static; background: none; box-shadow: none; }
+  #markers tr.sel { border-color: var(--ac2); }
+  #markers .linkbtn { min-height: 38px; font-size: 16px; }
+  .journal { max-height: none; }
+  .journal li { flex-wrap: wrap; overflow-wrap: anywhere; }
+  .journal time { flex: 1 0 100%; }
+  .dec > summary { overflow-wrap: anywhere; }
+}
