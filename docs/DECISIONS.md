@@ -109,3 +109,8 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
   endroit dès que les bougies du graphique couvrent cette heure. Au-delà de ~60 h, on perd la précision 5 min
   au moment de l'exécution, d'où le repli. Un appel OHLC 5 min supplémentaire par paire et par heure
   déclenchée, API publique uniquement.
+
+## ADR-13 : contrôles qualité systématiques sur les PR (14/11/2026)
+- **Contexte** : `guard-state` protège les données, mais les tests du moteur étaient surtout exécutés lors des cycles et des releases ; une PR pouvait être proposée sans validation transversale automatisée.
+- **Décision** : ajouter `.github/workflows/quality.yml` sur les PR vers `preprod` et `main`, les pushes de développement et l'exécution manuelle. Le workflow vérifie les chemins protégés, la présence d'une mise à jour du CHANGELOG et du HANDOFF pour chaque PR, les tests Python et Node, la syntaxe JavaScript et Bash et les invariants élémentaires des scripts de déploiement. Il ne lance pas le moteur, ne déploie rien et ne lit aucun secret.
+- **Conséquences** : contrôle reproductible sans toucher à `state/` ni `decisions/`. Les contrôles statiques ne remplacent ni la revue Grok Bot ni les essais UX. Pour rendre le blocage effectif, activer les règles GitHub exigeant `quality-gates / quality` et `guard-state / code-only` avant fusion sur `preprod` et `main` (si le plan GitHub le permet). Aucune modification des règles de simulation.
