@@ -210,3 +210,33 @@ html { scroll-behavior: smooth; }
 #overview, #market-card, #positions-panel, #orders-panel, #dec-h, #journal-panel { scroll-margin-top: 20px; }
 @media (min-width: 1280px) { .top, .build, .status, main, footer, .dash-nav { max-width: 1360px; } .mchart { height: 540px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* Navigation latérale 0.2.1 : les données restent dans le flux et accessibles par ancres. */
+.nav-toggle { position: fixed; top: 12px; left: 12px; z-index: 32; min-height: 42px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg2); color: var(--tx); font: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+.nav-toggle:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+.dash-nav { position: fixed; z-index: 30; top: 62px; bottom: 12px; left: 12px; width: 206px; max-width: none; margin: 0; padding: 10px; flex-direction: column; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--bg2); box-shadow: 0 8px 30px rgba(0,0,0,.25); transition: width var(--motion-panel) var(--ease-standard), transform var(--motion-panel) var(--ease-standard); }
+.dash-nav a { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 9px; white-space: nowrap; border-color: transparent; background: transparent; }
+.dash-nav a[aria-current="location"] { color: var(--ac2); background: rgba(34,211,238,.09); }
+.nav-ico { flex: 0 0 24px; width: 24px; text-align: center; font-size: 19px; }
+@media (min-width: 1025px) {
+  body { --nav-width: 230px; }
+  body.nav-collapsed { --nav-width: 80px; }
+  body.nav-collapsed .dash-nav { width: 56px; }
+  body.nav-collapsed .nav-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  body.nav-collapsed .dash-nav a { justify-content: center; padding-left: 0; padding-right: 0; }
+  .top, .build, .status, .alert, main, footer { width: calc(100% - var(--nav-width) - 32px); margin-left: var(--nav-width); margin-right: 16px; max-width: 1360px; }
+  .dash-nav a { position: relative; }
+  .top { padding-left: 16px; }
+  .nav-toggle { top: 12px; }
+}
+@media (max-width: 1024px) {
+  .nav-toggle { top: 8px; left: 8px; }
+  .nav-toggle span { display: none; }
+  .top { padding-left: 60px; }
+  body.nav-open::before { content: ""; position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 29; pointer-events: none; }
+  .dash-nav { top: 56px; left: 8px; bottom: 8px; width: min(250px, calc(100vw - 16px)); transform: translateX(calc(-100% - 16px)); visibility: hidden; }
+  body.nav-open .dash-nav { transform: translateX(0); visibility: visible; }
+}
+@media (prefers-reduced-motion: reduce) { .dash-nav { transition: none; } }
+
+@media (min-width: 1025px) and (max-width: 1160px) { .sub { max-width: 390px; } }

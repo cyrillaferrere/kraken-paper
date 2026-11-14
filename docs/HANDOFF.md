@@ -1,6 +1,8 @@
 # Kraken Paper : document de reprise
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
+> Mise à jour UX en cours : branche `feature/v0.2.1-collapsible-navigation` issue de `preprod`, navigation latérale responsive, sans changement du moteur. Tests CI et rendu à vérifier avant fusion.
+>
 > Dernière mise à jour : 14/11/2026, version 0.2.1 en préparation sur branche feature (préprod publiée encore en 0.2.0).
 
 ## Reprise UX 0.2.1 (branche feature/v0.2.1-dashboard-layout)

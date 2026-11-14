@@ -27,7 +27,8 @@
 </div>
 <div id="alert" class="alert" hidden role="alert"></div>
 
-<nav class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview">Vue générale</a><a href="#market-card">Marchés</a><a href="#positions-panel">Positions</a><a href="#orders-panel">Ordres</a><a href="#dec-h">Décisions</a><a href="#journal-panel">Journal</a></nav>
+<button id="nav-toggle" class="nav-toggle motion-button" type="button" aria-controls="dash-nav" aria-expanded="false" aria-label="Ouvrir le menu">☰ <span>Menu</span></button>
+<nav id="dash-nav" class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue générale</span></a><a href="#market-card"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a><a href="#positions-panel"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Positions</span></a><a href="#orders-panel"><span class="nav-ico" aria-hidden="true">≡</span><span class="nav-label">Ordres</span></a><a href="#dec-h"><span class="nav-ico" aria-hidden="true">✎</span><span class="nav-label">Décisions</span></a><a href="#journal-panel"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Journal</span></a></nav>
 <main id="overview">
   <section class="kpis" aria-label="Chiffres clés">
     <article class="kpi big"><h2>Valeur totale</h2><p id="k-value" class="v">—</p><p id="k-value-sub" class="s"></p></article>
@@ -151,5 +152,6 @@
 <script src="markets.js"></script>
 <script src="extras.js"></script>
 <script src="app.js"></script>
+<script src="navigation.js"></script>
 </body>
 </html>
