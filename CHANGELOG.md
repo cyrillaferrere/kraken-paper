@@ -1,3 +1,8 @@
+## [Unreleased] — Retour au dashboard de production en préproduction
+- Restaurer `site/index.html`, `site/style.css`, `site/markets.js`, `site/navigation.js`, `site/chart-preferences.js` et `site/data-validators.js` depuis `main` ; retirer `site/workspace-tabs.js` absent de la production.
+- Préparation sur `fix/restore-prod-ui-preprod` uniquement ; pas de modification de `state/`, `decisions/`, du moteur ou de `main`.
+- Validation des tests et recette visuelle requises avant fusion dans `preprod` ; ADR-25.
+
 ## [Unreleased] — v0.3.1 Nocturne Signal (préproduction)
 - Identité graphique graphite et jade, monogramme K/, surfaces plates, graphiques harmonisés, navigation desktop sans doublon.
 - Version de préproduction `VERSION=0.3.1`, source du bandeau de build Netlify (`version.json`). Voir ADR-21.
