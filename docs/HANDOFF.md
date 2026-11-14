@@ -1,5 +1,10 @@
 # Kraken Paper : document de reprise
 
+## Itération UX chandelier — session et actualisation
+- Branche `fix/v0.2.1-chart-session-consistency` ; fichiers `site/chart-preferences.js`, `site/markets.js`, `site/index.html`, tests `tests/site/chart-session.test.js`.
+- Les préférences restent dans sessionStorage (pas de donnée de trading), valeurs par défaut BTC/1 h/120. Actualiser force une lecture OHLC sans effet sur le moteur.
+- Vérifier la recette sur préproduction et le comportement lorsque Kraken ne répond pas, sans toucher à production.
+
 ## Lot de développement — chandelier résilient (14/11/2026)
 - Branche `fix/v0.2.1-chart-concurrency-and-resilience`, PR vers `preprod` uniquement.
 - `site/ohlc-utils.js` : validateur de bougies ; `site/markets.js` : séquencement des requêtes et gestion du chargement.
