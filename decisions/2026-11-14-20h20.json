@@ -1,0 +1,47 @@
+{
+ "id": "2026-11-14-20h20",
+ "timestamp": "2026-11-14T20:20:00+01:00",
+ "rationale": "Correction immédiate des sorties. En rapprochant les objectifs à 19h (BTC 68 400, SOL 77,5, ETH 1 930) tout en gardant des stops lointains, le ratio gain/risque net de frais est tombé à 0,26 / 0,23 / 0,32. C'est insuffisant : à ce niveau il faudrait plus de trois trades gagnants sur quatre rien que pour ne pas perdre. Règle désormais permanente : chaque position doit afficher un gain/risque d'au moins 1,5 : 1, idéalement 2 : 1, mesuré depuis le PRU, frais compris (objectif en maker 0,40 %, stop en taker 0,80 % plus 0,1 % de glissement), comme le calcule le dash. Je remplace les trois OCO. BTC : stop remonté à 64 000, juste sous le support de 65 000 touché à 17h, avec un coussin d'environ 1 000 USDC (0,8 ATR 4h) pour ne pas se faire sortir par le bruit, objectif 74 700 sous le plus haut du 11 novembre (74 736), ratio 2,01. ETH : le prix colle au plus bas de 3 mois (1 811), je ne remonte pas le stop (1 755, encore 1,3 ATR 4h sous ce plus bas, près du plus bas journalier du 13 juillet à 1 750), objectif 2 173 sur l'ancien plus bas journalier du 30 octobre, ratio 2,07. SOL : stop inchangé à 70,50, juste sous le plus bas journalier du 1er août (70,59) ; le prix vient de faire un nouveau plus bas de 3 mois à 71,81, remonter le stop le ferait sauter au moindre bruit. Objectif 88,22 sur l'ancien plus bas journalier du 5 novembre, ratio 2,03. Aucune vente au marché : les trois couples stop/objectif tiennent techniquement et respectent la règle, vendre maintenant au taker figerait une perte de 3 à 6 % pile sur les plus bas.",
+ "actions": [
+  {
+   "type": "cancel",
+   "order_id": "O0007"
+  },
+  {
+   "type": "place_limit",
+   "pair": "XBTUSDC",
+   "side": "sell",
+   "qty": 0.01491041,
+   "price": 74700,
+   "stop_loss": 64000
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0008"
+  },
+  {
+   "type": "place_limit",
+   "pair": "SOLUSDC",
+   "side": "sell",
+   "qty": 6.59613202,
+   "price": 88.22,
+   "stop_loss": 70.5
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0009"
+  },
+  {
+   "type": "place_limit",
+   "pair": "ETHUSDC",
+   "side": "sell",
+   "qty": 0.37284019,
+   "price": 2173,
+   "stop_loss": 1755
+  },
+  {
+   "type": "note",
+   "text": "Règle permanente adoptée : gain visé / perte max net de frais (depuis le PRU, comme le dash) d'au moins 1,5 : 1, idéalement 2 : 1, sur chaque position. Si aucun couple stop/objectif techniquement justifié n'atteint 1,5, on clôture plutôt que de garder un mauvais ratio."
+  }
+ ]
+}
