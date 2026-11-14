@@ -251,3 +251,10 @@ Le workflow `.github/workflows/deploy-preprod.yml` se déclenche **uniquement su
 **En cas d'échec** : vérifier les logs GitHub Actions sans afficher de secret ; si jeton manquant, contrôler le secret d'environnement `preprod`. En cas de SHA différent dans `version.json`, ne pas déclarer le déploiement réussi. Déploiement CLI manuel possible en secours. Aucun changement de `main`, `state/`, `decisions/` ni de production.
 
 **Statut** : secret configuré, PR à faire relire et fusionner ; premier run de déploiement à vérifier. Aucun déploiement encore validé par cette automatisation.
+
+
+## Publication production contrôlée depuis GitHub
+- Après accord explicite de Cyril et fusion de la release sur `main`, créer ou mettre à jour sur la branche `deploy/prod-request` le fichier `.github/prod-release-request.json` contenant `environment: production`, `approved_by: Cyril`, `version: X.Y.Z` et `approved_commit: <SHA main approuvé>`.
+- Le push de ce fichier déclenche `deploy-production-controlled` ; il vérifie que le code de `main` est identique au SHA approuvé (hors cycles `state/` et `decisions/`), exécute les tests, publie via `scripts/deploy.sh prod`, puis contrôle `https://kraken-paper.netlify.app/version.json`.
+- Le secret `NETLIFY_AUTH_TOKEN` doit être accessible au workflow via GitHub Secrets ; s'il est absent, le job échoue avant toute publication. Ne jamais l'envoyer par message ni le commiter.
+- Aucun push sur `main`, y compris les cycles moteur, ne publie automatiquement la production. Le déclenchement ne vaut que pour la version explicitement approuvée. En cas d'échec, lire les logs du job, corriger, puis redéclencher par une nouvelle demande approuvée.
