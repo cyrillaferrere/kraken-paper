@@ -1,7 +1,14 @@
 # Kraken Paper : document de reprise
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
-> Dernière mise à jour : 14/11/2026, version 0.2.0.
+> Dernière mise à jour : 14/11/2026, version 0.2.1 en préparation sur branche feature (préprod publiée encore en 0.2.0).
+
+## Reprise UX 0.2.1 (branche feature/v0.2.1-dashboard-layout)
+
+- Base : branche `preprod` affichée au commit `fc9af4c` lors du contrôle navigateur.
+- Navigation par ancres, positions et ordres placés après le graphique, chandeliers en 1 h par défaut et largeur accrue sur grand écran.
+- À vérifier avant fusion : navigation clavier/mobile, graphique et survol stable pendant les mises à jour, tests Node/Python, relecture Grok Bot.
+- Aucun déploiement ni fusion automatique vers `main` ; `state/` et `decisions/` intouchés.
 
 ## 1. Le projet en bref
 
