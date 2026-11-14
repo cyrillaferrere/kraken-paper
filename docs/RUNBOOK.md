@@ -1,3 +1,7 @@
+## v0.2.2 — Cibles tactiles et focus visibles (branche fix/v0.2.2-touch-targets)
+- Ajout de cibles tactiles de 44 px sur appareils tactiles et de contours de focus explicites pour les commandes. Recette Safari/Android et CI à faire.
+- Périmètre interface uniquement, aucune modification de production, de state/, decisions/ ou du moteur. Relecture Grok Bot et recette navigateur avant fusion.
+
 # Kraken Paper : runbook (opérations)
 
 - Vérifier la cascade CSS mobile : aucune largeur minimale tablette de 620/760 px ne doit subsister pour les tableaux Positions/Marqueurs à 390 px ; contrôler les fiches SOL/BTC/ETH sur iPhone.

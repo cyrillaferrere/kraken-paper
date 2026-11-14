@@ -1,3 +1,7 @@
+## v0.2.2 — Cibles tactiles et focus visibles (branche fix/v0.2.2-touch-targets)
+- Ajout de cibles tactiles de 44 px sur appareils tactiles et de contours de focus explicites pour les commandes. Recette Safari/Android et CI à faire.
+- Périmètre interface uniquement, aucune modification de production, de state/, decisions/ ou du moteur. Relecture Grok Bot et recette navigateur avant fusion.
+
 # Changelog
 
 - Correction complémentaire mobile : neutralisation des anciennes largeurs minimales tablette (620 px Positions, 760 px Marqueurs) sous 680 px, avec sélecteurs plus spécifiques.
