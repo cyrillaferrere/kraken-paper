@@ -10,8 +10,12 @@
   const WATCH = ["XBTUSDC", "ETHUSDC", "SOLUSDC", "XRPUSDC", "LINKUSDC", "AVAXUSDC", "ADAUSDC", "XDCUSDC",
     "LTCUSDC", "BNBUSDC", "XDGUSDC", "TONUSDC", "DOTUSDC", "BCHUSDC"];
   const BASE_NAMES = { XBT: "BTC", XDG: "DOGE" };
-  const TF = { "1h": 60, "4h": 240, "1d": 1440 };
-  const TTL = { 60: 180e3, 240: 300e3, 1440: 900e3 };
+  const TF = { "5m": 5, "15m": 15, "30m": 30, "1h": 60, "4h": 240, "1d": 1440 };
+  const TF_LBL = { "5m": "5 min", "15m": "15 min", "30m": "30 min", "1h": "1 h", "4h": "4 h", "1d": "1 j" };
+  // Cache des bougies par intervalle (minutes) et rafraîchissement du graphique ouvert, adapté à l'intervalle.
+  // Au pire une requête OHLC toutes les 30 s pour le graphique (5 min) : très en dessous de la limite publique Kraken.
+  const TTL = { 5: 60e3, 15: 120e3, 30: 180e3, 60: 180e3, 240: 300e3, 1440: 900e3 };
+  const REFRESH = { 5: 30e3, 15: 60e3, 30: 90e3, 60: 60e3, 240: 120e3, 1440: 300e3 };
   const C = { up: "#34d399", dn: "#f87171", mu: "#8a96b3", line: "#243049", ac: "#7c5cff", ac2: "#22d3ee", warn: "#fbbf24", tx: "#e8ecf6", ma50: "#f472b6" };
   window.KP_WATCH = WATCH;
 
@@ -195,15 +199,21 @@
     const b = legendData.bars[i]; if (!b) return;
     const p = selected.pair, d = legendData.data;
     const chg = (b.c - b.o) / b.o * 100;
-    el.innerHTML = `<b>${esc(baseOf(p))}/USDC</b> <span class="muted">${esc(selected.tf)} · ${fmtTime(b.t, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}${i === legendData.bars.length - 1 ? " · bougie en cours" : ""}</span><br>
+    el.innerHTML = `<b>${esc(baseOf(p))}/USDC</b> <span class="muted">${esc(TF_LBL[selected.tf] || selected.tf)} · ${fmtTime(b.t, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}${i === legendData.bars.length - 1 ? " · bougie en cours" : ""}</span><br>
       O ${pxf(p, b.o)} · H ${pxf(p, b.h)} · B ${pxf(p, b.l)} · C ${pxf(p, b.c)} <span class="${chg >= 0 ? "up" : "dn"}">(${chg >= 0 ? "▲" : "▼"} ${signed(chg)} %)</span><br>
       <span class="sw ma20">MA20 ${pxf(p, d.m20[i])}</span> <span class="sw ma50">MA50 ${pxf(p, d.m50[i])}</span> <span class="sw rsi">RSI 14 ${d.r[i] == null ? "—" : nf(0).format(d.r[i])}</span>`;
   }
 
   function setChartMsg(msg) { const m = $("mchart-msg"); m.textContent = msg || ""; m.hidden = !msg; }
 
+  let lastChartLoad = 0, chartBusy = false;
   async function loadChart(force) {
+    chartBusy = true;
+    try { await loadChartInner(force); } finally { chartBusy = false; }
+  }
+  async function loadChartInner(force) {
     const p = selected.pair, iv = TF[selected.tf], key = p + "|" + iv;
+    lastChartLoad = Date.now();
     if (!initChart()) { setChartMsg("La bibliothèque de graphiques n'a pas pu se charger (CDN injoignable). Le tableau des marqueurs reste à jour."); return; }
     const wrap = $("mchart-wrap");
     const switching = shown.key !== key;
@@ -464,7 +474,10 @@
       if (!started) {
         started = true; bind(); selectTf(selected.tf);
         renderChips(); renderTable(); loadChart(); refreshMetrics();
-        setInterval(() => { if (!document.hidden) loadChart(true); }, 60e3);
+        setInterval(() => {
+          if (document.hidden || chartBusy) return;
+          if (Date.now() - lastChartLoad >= REFRESH[TF[selected.tf]]) loadChart(true);
+        }, 10e3);
         setInterval(() => { if (!document.hidden) refreshMetrics(); }, 180e3);
         return;
       }

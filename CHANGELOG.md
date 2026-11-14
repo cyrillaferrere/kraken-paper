@@ -22,6 +22,7 @@ En préprod (https://preprod--kraken-paper.netlify.app), pas encore en prod : la
 
 ### Modifié
 - Graphique : les textes des niveaux (« O0001 achat limite », « stop prévu », « objectif », « PRU ») sont posés sur la ligne pointillée à gauche du graphique ; l'échelle de droite ne garde que de petites étiquettes de prix. Marge à droite plus grande (12 bougies) : la dernière bougie ne touche plus l'échelle.
+- Graphique : unités de temps 5 min, 15 min et 30 min en plus de 1 h, 4 h et 1 j (onglets défilants sur mobile). Cache court (1 min en 5 min, 2 min en 15 min, 3 min en 30 min) et rafraîchissement adapté à l'unité (au plus une requête toutes les 30 s pour le graphique ouvert). Le tableau des marqueurs garde ses unités (4 h et 1 j).
 - Bouton « Ordres » sur le graphique pour masquer ou afficher toutes les lignes d'ordres, stops et objectifs (choix gardé dans le navigateur).
 - La carte « Dernière décision » est remplacée par le fil des décisions.
 
