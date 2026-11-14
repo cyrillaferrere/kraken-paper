@@ -8,12 +8,12 @@
   const links = Array.from(nav.querySelectorAll('a[href^="#"]'));
   let compact = false;
   try { compact = localStorage.getItem("kp-nav-compact") === "1"; } catch (_) {}
-  function closeMobileMenu({ restoreFocus = false } = {}) {
+  function closeMobileMenu({ restoreFocus = false, keepLinkFocus = false } = {}) {
     if (!document.body.classList.contains("nav-open")) return;
     const focusWasInside = nav.contains(document.activeElement);
     document.body.classList.remove("nav-open");
     sync();
-    if (restoreFocus || focusWasInside) toggle.focus();
+    if (restoreFocus || (focusWasInside && !keepLinkFocus)) toggle.focus();
   }
   function sync() {
     const isDesktop = desktop.matches;
@@ -37,7 +37,7 @@
     sync();
   });
   links.forEach((a) => a.addEventListener("click", () => {
-    if (!desktop.matches) closeMobileMenu();
+    if (!desktop.matches) closeMobileMenu({ keepLinkFocus: true });
     links.forEach((item) => item.removeAttribute("aria-current"));
     a.setAttribute("aria-current", "location");
   }));
