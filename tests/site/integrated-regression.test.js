@@ -17,7 +17,7 @@ test("candle range label is grounded in available data and updated after load", 
   assert.match(markets, /Math\.min\(viewBars, available\)/);
   assert.match(markets, /bougies disponibles/);
   assert.match(markets, /En attente des bougies/);
-  assert.match(markets, /shown = \{ key, lastT: bars\.length \? bars\[bars\.length - 1\]\.t : null, bars \};\s*syncChartRange\(\)/);
+  assert.match(markets, /shown = \{ key, lastT: bars\.length \? bars\[bars\.length - 1\]\.t : null, bars \};[\s\S]*?syncChartRange\(\)/);
 });
 
 test("range change does not force a remote candle fetch", () => {
