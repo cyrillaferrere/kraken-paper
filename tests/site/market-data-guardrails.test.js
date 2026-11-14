@@ -30,6 +30,9 @@ test("equity parser preserves missing benchmark and rejects malformed or reorder
   assert.equal(rows[1].hold, 6500);
   assert.throws(() => equity(head + b + a), /chronologiques/);
   assert.throws(() => equity(head + a + "bad-date,foo,,,,\n"), /invalide/);
+  assert.throws(() => equity(head + "2026-11-14T00:56:49+01:00,-1,0,0,68358,\n"), /invalide/);
+  assert.throws(() => equity(head + "2026-11-14T00:56:49+01:00,1,0,0,68358,-2\n"), /invalide/);
+  assert.throws(() => equity(head + "2026-11-14T00:56:49+01:00,   ,0,0,68358,\n"), /invalide/);
 });
 
 test("journal parser never silently drops malformed audit events", () => {
