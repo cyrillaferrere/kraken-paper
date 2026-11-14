@@ -4,6 +4,8 @@ Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
 ## Contrôles UX v0.2.1 (branche feature)
 
+Itération de stabilisation UX v0.2.1 : déconnexion temporaire et reconnexion garantie du MutationObserver pendant le tri DOM (sans masquer les nouvelles données), étiquette du chandelier fondée sur le nombre réel de bougies chargées, tests de non-régression et maintien de la navigation/du survol. Aucun changement de simulation. Recette : trier positions et laisser passer un cycle de rafraîchissement, vérifier que les nouvelles lignes sont prises en compte; changer 60/120/240 bougies sur paires peu fournies, contrôler les compteurs, survol et absence de nouvelle requête; tester mobile.
+
 Durcissement UX v0.2.1 : correction du tri P&L négatif (signe moins typographique), protection contre la rétroaction MutationObserver lors des tris, accès direct Performance/Historique depuis la navigation, nom accessible du graphique portefeuille, tests d'intégration HTML/navigation/labels/scripts et non-régression du tri. Contrôler navigation clavier/mobile, tri de deux pertes (−0,80 devant −10,00), filtres sur mises à jour automatiques, performance et journal; vérifier commit Netlify après déploiement.
 
 Lot UX v0.2.1 performance et journal : périodes de courbe 24 h / 7 j / 30 j / tout (cycles réels uniquement), compteur de cycles, journal filtrable par texte et type d'événement, remise à zéro, tests Node et ergonomie mobile. Aucune modification moteur, stratégie ou données PAPER. Vérifier 24 h/7 j/30 j/tout sur la courbe, périodes avec moins de deux cycles, filtres journal, compteurs et stabilité après nouveau cycle; test mobile 375/820 px.
