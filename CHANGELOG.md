@@ -1,3 +1,7 @@
+## v0.2.2 — correctif de navigation mobile (PR en attente)
+- Fermeture du menu avec restauration du focus au bouton pour Escape et sortie depuis un lien du menu, sans détourner le focus lors d'une navigation par ancre.
+- Tests Node ciblés ajoutés pour les trois scénarios ; recette Safari/clavier et CI encore nécessaires.
+
 # Changelog
 
 - Correction complémentaire mobile : neutralisation des anciennes largeurs minimales tablette (620 px Positions, 760 px Marqueurs) sous 680 px, avec sélecteurs plus spécifiques.
