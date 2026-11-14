@@ -6,6 +6,13 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 
 ## [Unreleased]
 
+### UX/UI — v0.2.1 (en préparation)
+- Navigation compacte par ancres vers les zones du dashboard, accessible au clavier et sur mobile.
+- Positions et ordres ouverts remontés immédiatement après le graphique principal.
+- Graphique en bougies sur 1 h par défaut, largeur étendue sur grand écran et défilement réduit.
+- Aucun changement de moteur, de stratégie, d'ordres ou de données PAPER.
+
+
 ### Déploiement (en préparation)
 - Workflow GitHub Actions automatique après push/fusion sur `preprod` uniquement, réservé à l'alias Netlify `preprod`, avec secret GitHub d'environnement, vérification du commit publié et documentation ADR-16. Aucun déploiement de production. Le déclencheur manuel initial a été remplacé car GitHub exige sa présence sur la branche par défaut.
 
