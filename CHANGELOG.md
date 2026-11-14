@@ -1,5 +1,10 @@
 # Changelog
 
+## Scanner — suivi des données et récupération automatique (préproduction v0.2.1)
+- Progression fondée sur les cryptos réellement analysées, plutôt que le nombre de lignes déjà affichées.
+- Message distinct pour les cryptos dont les données sont indisponibles ; fin de l'indicateur de chargement à la fin de la vague.
+- Nouvelle position ou nouvel ordre sur une paire non suivie : mise à jour immédiate du scanner, sans attendre trois minutes.
+
 ## Préproduction v0.2.1 — scanner de marchés optimisé
 - Suppression des rafales de lectures concurrentes lors des actualisations : un seul scanner actif, une demande de reprise regroupée.
 - BTC calculé en premier, puis au plus deux actifs simultanément ; rendu des marqueurs groupé par quatre résultats pour limiter les reflows.
