@@ -278,16 +278,20 @@
       nearNow.set(o.id, near ? near.kind : null);
       const flash = near && nearPrev.has(o.id) && wasNear !== near.kind; // surlignage unique au changement d'état, jamais clignotant
       const prox = near ? `<span class="prox${flash ? " kpi-updated" : ""}">◎ à ${nf(1).format(near.dist * 100)} % du déclenchement (${near.kind})</span>` : "";
+      const pending = o.pending_exits;
+      const pendingNote = pending && pending.active_from
+        ? `<span class="pending-exits">Sorties modifiées à partir de ${dt(new Date(Number(pending.active_from) * 1000).toISOString())} · ancien stop maintenu jusque-là</span>`
+        : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
       const main = `<tr class="o-row${hit ? " reached" : ""}">
-        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${note}</td>
+        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${pendingNote}${note}</td>
         <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
         <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
         <td class="r c-x">${limitLbl}<br><span class="muted">${px(x)}</span></td><td class="r">${dist}</td>
         <td class="r c-x">${stopTxt}</td><td class="r c-x">${tpTxt}</td><td class="r c-x">${lossTxt}</td><td class="r c-x">${gainTxt}</td><td class="r c-x">${rrTxt}</td></tr>`;
       const det = `<tr class="o-detail" id="od-${esc(o.id)}"${open ? "" : " hidden"}><td colspan="10"><dl class="o-dl">
         <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd>${px(x)}</dd></div>
-        <div><dt>Stop</dt><dd>${stopTxt}</dd></div><div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
+        <div><dt>Stop</dt><dd>${stopTxt}</dd></div>${pendingNote ? `<div class="wide"><dt>Modification programmée</dt><dd>${pendingNote}</dd></div>` : ""}<div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
         <div><dt>Perte max</dt><dd>${lossTxt}</dd></div><div><dt>Gain visé</dt><dd>${gainTxt}</dd></div>
         <div><dt>Gain / risque</dt><dd>${rrTxt}</dd></div><div><dt>Créé</dt><dd>${created}</dd></div><div class="wide"><dt>Décision</dt><dd>${dec}</dd></div></dl></td></tr>`;
       return main + det;
@@ -349,7 +353,7 @@
     switch (e.type) {
       case "start": return `Départ de la simulation avec ${usdc(e.capital)}`;
       case "decision": return `Décision ${esc(e.decision_id)} : ${esc(e.rationale)}`;
-      case "order_placed": { const o = e.order; return `Ordre ${o.id} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${o.take_profit ? " · TP " + px(o.take_profit) : ""}`; }
+      case "order_placed": { const o = e.order; const tiers = Array.isArray(o.take_profits) && o.take_profits.length ? o.take_profits.map((tp, i) => " · TP" + (i + 1) + " " + px(tp.price) + " (" + nf(2).format(tp.fraction * 100) + " %)").join("") : ""; return `Ordre ${esc(o.id)} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${tiers || (o.take_profit ? " · TP " + px(o.take_profit) : "")}`; }
       case "fill": { const t = e.trade; return `✅ Exécuté : ${t.side === "buy" ? "achat" : "vente"} ${qty(t.qty)} ${esc(t.base)} à ${px(t.price)} (${t.tp_index ? "TP" + t.tp_index + " · " : ""}${REASON[t.reason] || t.reason})`; }
       case "exits_updated": return `Sorties mises à jour pour ${esc(base(e.pair))} : ${(e.order.take_profits || []).length} palier(s), stop ${px(e.order.stop_loss)}`;
       case "exits_update_scheduled": return `Modification des sorties de ${esc(base(e.pair))} programmée pour le prochain créneau ; ancien stop conservé jusque-là`;
