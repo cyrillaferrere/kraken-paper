@@ -1,5 +1,9 @@
 # Changelog
 
+## Intégration dashboard v0.2.1 — cohérence de sélection
+- Correction du chandelier lorsque la paire sélectionnée disparaît après une actualisation du portefeuille : retour au BTC et chargement effectif de ses bougies.
+- Tests d'intégration des dépendances JS, de la publication atomique des données, des contrôles du graphique et du scanner.
+
 ## Scanner — suivi des données et récupération automatique (préproduction v0.2.1)
 - Progression fondée sur les cryptos réellement analysées, plutôt que le nombre de lignes déjà affichées.
 - Message distinct pour les cryptos dont les données sont indisponibles ; fin de l'indicateur de chargement à la fin de la vague.
