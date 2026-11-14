@@ -1,3 +1,8 @@
+## [Unreleased] — Graphite / Signal (itération B du prototype)
+- Refonte visuelle isolée sur `feature/analog-robotic-concept` : graphite sombre, vert signal pour l’accent et les valeurs positives, corail pour les pertes, turquoise pour les séries secondaires et ambre pour les avertissements.
+- Hiérarchie des KPI renforcée, typographie sans-serif lisible, monospace limité aux données techniques, contrôles et tableaux agrandis, chandelier davantage mis en valeur.
+- Palette de Lightweight Charts harmonisée, sans changement de bougies, indicateurs, calculs ni sources. Version 0.3.1 inchangée ; ADR-23. Aucune fusion ni publication de production.
+
 ## [Unreleased] — expérimentation Analog / Robotic (alternative à Nocturne Signal)
 - Nouvelle direction graphique sur branche indépendante : surfaces graphite/métal, cuivre, typographie Unicode monospace, bargraph analogique basé sur l'exposition réelle, palette du chandelier harmonisée.
 - Charge `site/analog.css` après `site/style.css`, sans changement du moteur PAPER ni de VERSION (0.3.1). Voir ADR-22.
