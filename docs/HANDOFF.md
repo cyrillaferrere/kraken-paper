@@ -1,3 +1,7 @@
+## Préparation publication v0.3.1 — non autorisée
+- Voir `docs/RELEASE_V0.3.1_PREPARATION.md` : main et preprod divergent ; la simulation de fusion et le test de restauration sur copie restent obligatoires.
+- Cyril a validé la recette de preprod, **pas** le déploiement de production. Ne créer ni tag, ni commit main, ni demande de déploiement.
+
 ## PR finition v0.3.1 — préparation publication
 - Branche `fix/v0.3.1-release-polish` issue de `preprod`, après fusion PR #46 (`d2942a0`).
 - `VERSION=0.3.1` ; affichage du nouveau stop et des TP dans `pending_exits`, formateurs testables dans `site/app.js`.
