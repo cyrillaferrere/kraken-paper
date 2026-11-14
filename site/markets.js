@@ -131,6 +131,19 @@
   let levelPrices = [];
   let chart = null, sCandle, sMa20, sMa50, sVol, sRsi, markersApi, priceLines = [], linesSig = "", markersSig = "";
   let shown = { key: null, lastT: null, bars: [] };
+  let viewBars = 120;
+  function applyChartRange() {
+    if (!chart || !shown.bars.length) return;
+    const total = shown.bars.length;
+    chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, total - viewBars), to: total + 3 });
+  }
+  function syncChartRange() {
+    document.querySelectorAll(".chart-range").forEach((button) => {
+      button.setAttribute("aria-pressed", String(Number(button.dataset.bars) === viewBars));
+    });
+    const note = $("chart-view-note");
+    if (note) note.textContent = viewBars + " dernières bougies";
+  }
   const LW = () => window.LightweightCharts;
 
   const fmtTime = (t, opts) => new Date(t * 1000).toLocaleString("fr-FR", Object.assign({ timeZone: "Europe/Paris" }, opts));
@@ -227,7 +240,7 @@
       if (switching || !shown.lastT) {
         setPriceFormat(p);
         sCandle.setData(d.candles); sMa20.setData(d.ma20); sMa50.setData(d.ma50); sVol.setData(d.vol); sRsi.setData(d.rsi);
-        chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 120), to: bars.length + 3 });
+        chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - viewBars), to: bars.length + 3 });
         linesSig = ""; markersSig = "";
       } else {
         // Rafraîchissement : on ne pousse que la bougie en cours et les nouvelles, sans déplacer la vue.
@@ -467,6 +480,17 @@
     selected.tf = tf; loadChart();
   }
   function bind() {
+    document.querySelectorAll(".chart-range").forEach((button) => button.addEventListener("click", () => {
+      viewBars = Number(button.dataset.bars);
+      syncChartRange();
+      applyChartRange();
+    }));
+    $("chart-reset").addEventListener("click", () => {
+      applyChartRange();
+      hoveredCandleTime = null;
+      legend();
+    });
+    syncChartRange();
     $("pair-chips").addEventListener("click", (e) => { const b = e.target.closest("[data-pair]"); if (b) selectPair(b.dataset.pair); });
     $("markers").addEventListener("click", (e) => {
       const b = e.target.closest("[data-pair]"); if (!b) return;
