@@ -1,3 +1,10 @@
+## Recette du prototype Analog / Robotic (branche uniquement)
+- Vérifier que `site/analog.css` est bien servi après `style.css` (pas d'échec réseau ou de conflit de cascade), contrôler l'apparence graphite/cuivre, les glyphes K⌁P sur macOS/iOS/Windows et le contraste.
+- Vérifier la graduation 0–50–100 de la vraie barre d'exposition, cohérente avec cash, réservé et positions ; aucun faux indicateur de trading.
+- Vérifier toutes les valeurs KPI, prix, OHLC, ordres et états de risque inchangés ; interactions chandelier et navigation.
+- Tester iPhone 375/390/430, tablette 768, desktop 1280/1440 ; clavier, VoiceOver, reduced-motion.
+- Exécuter `node --test tests/site/*.test.js`, `python -m unittest -v` et contrôler CI `quality-gates`/`guard-state` ; ne pas fusionner sans validation esthétique.
+
 ## Recette v0.3.1 — Nocturne Signal
 - Contrôler `VERSION=0.3.1` sur preprod et `site/version.json` généré par Netlify ; le bandeau doit afficher `v0.3.1`, `commit <SHA>` et `branche preprod`.
 - Vérifier absence de navigation doublonnée sur desktop (menu gauche uniquement), onglets mobiles, logo K/, palette sans violet, contrastes et focus clavier.
