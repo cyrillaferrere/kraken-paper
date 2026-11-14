@@ -1,3 +1,4 @@
+- Préparation de release : procédure documentée de fusion simulée, préservation des états et sauvegarde vérifiable (aucune production lancée).
 ## [Unreleased] — v0.3.1 : préparation de la publication
 - Les sorties différées détaillent le nouveau stop et les paliers TP dans Ordres ouverts.
 - Tests du texte des sorties différées, du journal multi-TP et TP historique ; test du comportement historique de la vente limite avec option break-even sans stop.
