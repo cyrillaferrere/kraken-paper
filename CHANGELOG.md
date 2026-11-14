@@ -1,5 +1,10 @@
 # Changelog
 
+## Préproduction v0.2.1 — session de graphique et rafraîchissement explicite
+- Mémorisation dans l'onglet des choix de crypto, timeframe et 60/120/240 bougies, avec valeurs validées et repli si la paire n'est plus disponible.
+- Bouton Actualiser pour relire les chandeliers Kraken et heure de dernière lecture réussie.
+- Tests des préférences, des échecs de stockage et de la barre d'outils ; ADR-20.
+
 ## Préproduction v0.2.1 — fiabilité du chandelier
 - Les réponses OHLC tardives ne peuvent plus écraser la paire ou l'unité de temps actuellement sélectionnée.
 - Validation stricte des bougies Kraken avant leur mise en cache : horodatage, prix, volumes et chronologie.
