@@ -98,7 +98,7 @@
     }
   }
   let ctx = { S: null, journal: [], price: () => null };
-  const selected = { pair: BENCH, tf: "4h" };
+  const selected = { pair: BENCH, tf: "1h" };
 
   function trackedPairs() {
     const S = ctx.S, out = [];
@@ -192,10 +192,12 @@
   }
 
   let legendData = null;
+  let hoveredCandleTime = null;
   function legend(param) {
+    if (param !== undefined) hoveredCandleTime = param && param.time != null ? param.time : null;
     const el = $("mlegend"); if (!el || !legendData) return;
     let i = legendData.bars.length - 1;
-    if (param && param.time != null) { const j = legendData.idx.get(param.time); if (j != null) i = j; }
+    if (hoveredCandleTime != null) { const j = legendData.idx.get(hoveredCandleTime); if (j != null) i = j; }
     const b = legendData.bars[i]; if (!b) return;
     const p = selected.pair, d = legendData.data;
     const chg = (b.c - b.o) / b.o * 100;
@@ -236,7 +238,7 @@
       }
       shown = { key, lastT: bars.length ? bars[bars.length - 1].t : null, bars };
       legendData = { bars, data: d, idx: new Map(bars.map((b, i) => [b.t, i])) };
-      legend(null);
+      legend(); // Conserver la bougie survolée pendant le rafraîchissement des cours.
       overlays();
       setChartMsg("");
     } catch (e) {
@@ -448,6 +450,7 @@
   // ---------- interactions ----------
   function selectPair(p) {
     if (!p || p === selected.pair) return;
+    hoveredCandleTime = null;
     selected.pair = p;
     renderChips(); renderTable(); loadChart();
   }
@@ -460,6 +463,7 @@
       if (on) { $("tf-tabs").style.setProperty("--idx", i); if (focus) b.focus(); }
     });
     if (tf === selected.tf) return;
+    hoveredCandleTime = null;
     selected.tf = tf; loadChart();
   }
   function bind() {

@@ -2,6 +2,10 @@
 
 Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
+## Contrôles UX v0.2.1 (branche feature)
+
+Avant fusion dans `preprod`, vérifier les ancres de navigation au clavier et sur mobile, la position des tableaux, le graphique 1 h par défaut, les survols de bougies pendant un rafraîchissement et `prefers-reduced-motion`. Exécuter les tests Python et Node décrits ci-dessous. Ne pas déployer sur `main` sans accord explicite.
+
 ## Déployer
 
 Il n'y a **qu'un seul site Netlify, `kraken-paper`**, non relié à GitHub : on déploie à la main avec `scripts/deploy.sh`, qui exporte le commit
