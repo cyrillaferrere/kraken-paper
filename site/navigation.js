@@ -8,13 +8,6 @@
   const links = Array.from(nav.querySelectorAll('a[href^="#"]'));
   let compact = false;
   try { compact = localStorage.getItem("kp-nav-compact") === "1"; } catch (_) {}
-  function closeMobileMenu({ restoreFocus = false, keepLinkFocus = false } = {}) {
-    if (!document.body.classList.contains("nav-open")) return;
-    const focusWasInside = nav.contains(document.activeElement);
-    document.body.classList.remove("nav-open");
-    sync();
-    if (restoreFocus || (focusWasInside && !keepLinkFocus)) toggle.focus();
-  }
   function sync() {
     const isDesktop = desktop.matches;
     if (isDesktop) document.body.classList.remove("nav-open");
@@ -37,24 +30,23 @@
     sync();
   });
   links.forEach((a) => a.addEventListener("click", () => {
-    if (!desktop.matches) closeMobileMenu({ keepLinkFocus: true });
+    if (!desktop.matches) { document.body.classList.remove("nav-open"); sync(); }
     links.forEach((item) => item.removeAttribute("aria-current"));
     a.setAttribute("aria-current", "location");
   }));
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && document.body.classList.contains("nav-open")) {
-      closeMobileMenu({ restoreFocus: true });
+      document.body.classList.remove("nav-open"); sync(); toggle.focus();
     }
   });
   document.addEventListener("pointerdown", (e) => {
     if (!desktop.matches && document.body.classList.contains("nav-open") && !nav.contains(e.target) && !toggle.contains(e.target)) {
-      closeMobileMenu();
+      document.body.classList.remove("nav-open"); sync();
     }
   });
   if (desktop.addEventListener) desktop.addEventListener("change", sync);
   else desktop.addListener(sync);
   window.addEventListener("hashchange", () => {
-    if (!desktop.matches) closeMobileMenu();
     const active = links.find((a) => a.getAttribute("href") === location.hash);
     if (active) {
       links.forEach((a) => a.removeAttribute("aria-current"));
