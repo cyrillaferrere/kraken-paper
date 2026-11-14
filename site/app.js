@@ -11,6 +11,7 @@
 
   let S = null, equity = [], journal = [], stateChanged = false;
   let live = {}, liveOk = null, liveAt = null;
+  let liveCoverage = { found: 0, requested: 0 };
   const seenTrades = new Set(); let firstRender = true;
   const $ = (id) => document.getElementById(id);
 
@@ -97,11 +98,8 @@
       const [p, e, j] = texts;
       const nextState = JSON.parse(p);
       if (!nextState || typeof nextState !== "object" || !nextState.positions || !Array.isArray(nextState.open_orders)) throw new Error("portefeuille incomplet");
-      const nextEquity = e.trim().split("\n").slice(1).filter(Boolean).map((l) => {
-        const [time, eq, cash, pos, btc, hold] = l.split(",");
-        return { t: new Date(time).getTime(), eq: +eq, hold: hold === "" ? null : +hold };
-      }).filter((r) => !isNaN(r.t) && !isNaN(r.eq));
-      const nextJournal = j.trim().split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+      const nextEquity = window.KPData.equity(e);
+      const nextJournal = window.KPData.journal(j);
       // Publier les trois sources ensemble : jamais un portefeuille récent avec un ancien journal.
       S = nextState;
       equity = nextEquity;
@@ -134,14 +132,18 @@
       const r = await fetch(TICKER + pairs.join(","), { cache: "no-store" });
       const d = await r.json();
       if (d.error && d.error.length) throw new Error(d.error.join(", "));
-      const out = {};
+      const aliases = {};
       for (const p of pairs) {
         const m = (S && S.pairs[p]) || {};
-        const k = [p, m.key, m.altname].find((x) => x && d.result[x]);
-        if (k) out[p] = +d.result[k].c[0];
+        aliases[p] = [m.key, m.altname].filter(Boolean);
       }
+      const parsed = window.KPData.prices(d, pairs, aliases);
       if (request !== priceRequest) return;
-      live = out; liveOk = true; liveAt = new Date();
+      if (!parsed.found) throw new Error("Aucun prix Kraken exploitable");
+      live = parsed.values;
+      liveOk = true;
+      liveAt = new Date();
+      liveCoverage = { found: parsed.found, requested: parsed.requested };
     } catch (e) {
       if (request === priceRequest) liveOk = false;
     }
@@ -154,8 +156,8 @@
     if (!S) return;
     // statut
     const stp = $("st-prices");
-    if (liveOk) { stp.textContent = "Prix en direct Kraken · " + liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" }); stp.className = "pill ok"; }
-    else { stp.textContent = "API Kraken injoignable : prix du dernier cycle moteur"; stp.className = "pill warn"; }
+    if (liveOk) { const partial = liveCoverage.found < liveCoverage.requested; stp.textContent = "Prix Kraken " + (partial ? "partiels " + liveCoverage.found + "/" + liveCoverage.requested : "en direct") + " · " + liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" }); stp.className = "pill " + (partial ? "warn" : "ok"); }
+    else { stp.textContent = "Prix Kraken indisponibles : dernier cycle moteur"; stp.className = "pill warn"; }
     const stc = $("st-cycle");
     const age = S.last_cycle ? Date.now() - new Date(S.last_cycle).getTime() : Infinity;
     stc.textContent = "Dernier cycle moteur : " + dt(S.last_cycle) + (age > STALE_MS ? " · plus de 2 h, moteur en retard ?" : "");
