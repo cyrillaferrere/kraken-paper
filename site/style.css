@@ -476,3 +476,62 @@ html { scroll-behavior: smooth; }
   .journal time { flex: 1 0 100%; }
   .dec > summary { overflow-wrap: anywhere; }
 }
+
+
+/* v0.2.2 : cibles tactiles et focus visibles, sans effet sur les valeurs. */
+@media (pointer: coarse) {
+  .nav-toggle, .dash-nav a, .seg button, .chip,
+  .chart-range, .chart-reset, .equity-range, .filter-reset,
+  .table-tools input, .table-tools select, .linkbtn {
+    min-height: 44px;
+  }
+}
+.dash-nav a:focus-visible, .chip:focus-visible, .linkbtn:focus-visible,
+.seg button:focus-visible, .table-tools input:focus-visible,
+.table-tools select:focus-visible, .chart-range:focus-visible,
+.chart-reset:focus-visible, .equity-range:focus-visible {
+  outline: 2px solid var(--ac2);
+  outline-offset: 2px;
+}
+
+
+/* v0.2.2 — lecture des commandes du chandelier */
+#market-card .chart-tools { gap: 8px; }
+#market-card .chart-tools-label { color: var(--tx); }
+#market-card .chart-range[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px var(--ac2);
+  font-weight: 750;
+}
+#market-card .chart-view-note { line-height: 1.5; }
+@media (max-width: 600px) {
+  #market-card .chart-tools { align-items: stretch; }
+  #market-card .chart-range { flex: 1 1 auto; min-height: 44px; }
+  #market-card .chart-tools-label { flex: 0 0 100%; }
+}
+
+
+/* v0.2.2 — ordres : risque et déclenchement mieux différenciés */
+#orders .o-row.reached { box-shadow: inset 3px 0 0 var(--warn); }
+#orders .reached-note { font-weight: 700; line-height: 1.45; }
+#orders .o-detail:not([hidden]) { background: rgba(138,150,179,.055); }
+#orders .o-toggle[aria-expanded="true"] { color: var(--ac2); border-color: var(--ac2); }
+@media (max-width: 680px) {
+  #orders .o-row.reached { box-shadow: inset 3px 0 0 var(--warn); }
+  #orders .o-row > td:nth-child(5) { font-weight: 650; }
+  #orders .o-row > td:first-child .reached-note { font-weight: 700; }
+}
+
+
+/* v0.2.2 — scanner : distinction des lignes et de la crypto sélectionnée */
+#markers tbody tr { transition: background-color var(--motion-fast) var(--ease-standard); }
+#markers tbody tr:focus-within { background: rgba(34,211,238,.075); }
+#markers tbody tr.sel { background: rgba(34,211,238,.055); }
+#markers tbody tr.sel th[scope="row"] { color: var(--ac2); }
+#markers .rsi-v { font-variant-numeric: tabular-nums; }
+@media (max-width: 680px) {
+  #markers tbody tr.sel { border-color: var(--ac2); box-shadow: inset 3px 0 0 var(--ac2); }
+  #markers tbody tr:focus-within { outline: 2px solid var(--ac2); outline-offset: 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #markers tbody tr { transition: none; }
+}
