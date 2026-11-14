@@ -115,6 +115,19 @@
   const decOf = (p) => (meta[p] && meta[p].dec) ?? (ctx.S && ctx.S.pairs[p] && ctx.S.pairs[p].pair_decimals) ?? 2;
   const pxf = (p, x) => x == null || isNaN(x) ? "—" : nf(Math.min(decOf(p), x >= 1000 ? 2 : 8)).format(x);
 
+  // ---------- cours visible de la paire sélectionnée ----------
+  function renderSelectedLive() {
+    const pair = selected.pair;
+    const value = ctx.price(pair);
+    const fresh = ctx.liveOk && ctx.livePairs && ctx.livePairs[pair] != null;
+    $("selected-live-pair").textContent = baseOf(pair) + " / USDC";
+    $("selected-live-price").textContent = Number.isFinite(value) ? pxf(pair, value) : "—";
+    $("selected-live-status").textContent = fresh && ctx.liveAt
+      ? "Kraken · actualisé à " + ctx.liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      : Number.isFinite(value) ? "Dernier cours du cycle · pas en direct" : "Cours indisponible";
+    $("selected-live-status").classList.toggle("stale", !fresh);
+  }
+
   // ---------- puces de paires ----------
   function renderChips() {
     const box = $("pair-chips"), pairs = trackedPairs(), S = ctx.S;
@@ -518,7 +531,7 @@
     hoveredCandleTime = null;
     selected.pair = p;
     saveChartPrefs();
-    renderChips(); renderTable(); loadChart();
+    renderChips(); renderSelectedLive(); renderTable(); loadChart();
   }
   function selectTf(tf, focus) {
     if (!TF[tf]) return;

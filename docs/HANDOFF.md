@@ -1,3 +1,9 @@
+## PR #45 — cours Kraken de la paire sélectionnée (préproduction)
+- Branche `fix/ux-selected-live-price` depuis `preprod`, PR en brouillon.
+- `site/index.html` : bandeau de cours sous les sélecteurs de crypto ; `site/markets.js` : prix et paire synchronisés ; `site/app.js` : transmission de la fraîcheur du ticker ; `site/style.css` : affichage mobile lisible.
+- Aucun appel API supplémentaire : réutilise le ticker 15 s déjà présent. En échec, dernier cours du cycle indiqué comme non direct.
+- Recette à faire : iPhone, changement BTC/ETH/SOL, rafraîchissement 15 s, indisponibilité API, absence de clignotement du graphique. Ne pas fusionner avant CI verte.
+
 ## Revue Grok Bot PR #44 — correctifs après GO sous réserves
 - Correctifs P1 engagés : validation du stop par rapport au dernier cours dans `update_exits`, prix du stop borné à l'ouverture en cas de gap (5 min et repli 1 h), prix limite d'achat préservé dans le dashboard.
 - P2 traités partiellement : refus de TP sous cours, booléen strict `breakeven_after_tp1`, stop obligatoire si break-even, compteur `tp_filled` conservé après mise à jour, résumés des décisions.
