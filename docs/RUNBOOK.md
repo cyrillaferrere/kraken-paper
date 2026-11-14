@@ -4,6 +4,8 @@ Heures en heure de Paris. Commandes à lancer depuis la racine du dépôt.
 
 ## Contrôles UX v0.2.1 (branche feature)
 
+Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Vérifier aussi le retour du focus dans le champ de recherche après « Effacer les filtres ».
+
 Lot `feature/v0.2.1-market-workspace` : tester recherche d'une crypto et d'un identifiant d'ordre, filtre achat/vente, filtre de tendance 4 h / 1 j, compteurs affichés, réinitialisation des filtres, stabilité après rafraîchissement des données, détails d'ordre ouverts, affichage à 375/820/1440 px, navigation clavier. Les filtres n'agissent que sur les lignes HTML et ne doivent pas changer les ordres ni les indicateurs.
 
 Pour `feature/v0.2.1-readable-orders`, contrôler les boutons Détails/Réduire sur ordinateur et mobile, les lignes développées après rafraîchissement des prix, l'accessibilité clavier et les colonnes masquées en mobile. Le déploiement Netlify de `preprod` est manuel et doit être vérifié par commit affiché dans le header.
