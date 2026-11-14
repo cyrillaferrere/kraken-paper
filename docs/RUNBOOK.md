@@ -1,3 +1,9 @@
+## Recette v0.3.0 — sorties par paliers (ADR-26)
+- Vérifier TP1→TP2, TP1→stop remonté, stop avant TP1, collision stop/TP en même 5 min, TP1 puis stop plus tard dans l'heure.
+- Vérifier anciennes décisions `take_profit`, rejet fractions invalides, arrondis et modification `update_exits`.
+- Vérifier les lignes TP1/TP2, le stop résiduel, gain/risque net depuis le PRU, journal et historique.
+- Exécuter `python -m unittest -v`, `node --test tests/site/*.test.js`, `node --test tests/functions/*.test.mjs` ; revue Grok Bot, puis seulement fusion vers `preprod`.
+
 ## Recette retour interface production — ADR-25
 - Vérifier les empreintes des 6 fichiers `site/` contre `main` et l'absence de `site/workspace-tabs.js`.
 - Vérifier les liens du menu, KPI, chandelier 1h, interactions de survol, tableaux, rafraîchissements, responsive iOS/Android et affichage du commit.
