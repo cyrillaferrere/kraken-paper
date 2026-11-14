@@ -16,6 +16,9 @@
     toggle.setAttribute("aria-expanded", String(expanded));
     toggle.setAttribute("aria-label", isDesktop ? (compact ? "Développer le menu" : "Réduire le menu") : (expanded ? "Fermer le menu" : "Ouvrir le menu"));
     nav.setAttribute("aria-hidden", String(!isDesktop && !expanded));
+    links.forEach((a) => {
+      a.title = a.querySelector(".nav-label")?.textContent || a.textContent.trim();
+    });
     if (!isDesktop && !expanded) nav.setAttribute("inert", "");
     else nav.removeAttribute("inert");
   }
@@ -43,6 +46,13 @@
   });
   if (desktop.addEventListener) desktop.addEventListener("change", sync);
   else desktop.addListener(sync);
+  window.addEventListener("hashchange", () => {
+    const active = links.find((a) => a.getAttribute("href") === location.hash);
+    if (active) {
+      links.forEach((a) => a.removeAttribute("aria-current"));
+      active.setAttribute("aria-current", "location");
+    }
+  });
   const initial = links.find((a) => a.getAttribute("href") === location.hash) || links[0];
   if (initial) initial.setAttribute("aria-current", "location");
   sync();
