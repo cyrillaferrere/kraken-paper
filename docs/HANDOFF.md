@@ -1,5 +1,7 @@
 # Kraken Paper : document de reprise
 
+> Itération de stabilisation UX v0.2.1 : déconnexion temporaire et reconnexion garantie du MutationObserver pendant le tri DOM (sans masquer les nouvelles données), étiquette du chandelier fondée sur le nombre réel de bougies chargées, tests de non-régression et maintien de la navigation/du survol. Aucun changement de simulation. Branche `fix/v0.2.1-integrated-regression` vers `preprod`; attendre CI et vérifier Netlify avant toute conclusion de déploiement.
+
 > Durcissement UX v0.2.1 : correction du tri P&L négatif (signe moins typographique), protection contre la rétroaction MutationObserver lors des tris, accès direct Performance/Historique depuis la navigation, nom accessible du graphique portefeuille, tests d'intégration HTML/navigation/labels/scripts et non-régression du tri. Branche `fix/v0.2.1-ux-hardening` vers `preprod`. Contrôler CI et recette navigateur avant fusion.
 
 > Lot UX v0.2.1 performance et journal : périodes de courbe 24 h / 7 j / 30 j / tout (cycles réels uniquement), compteur de cycles, journal filtrable par texte et type d'événement, remise à zéro, tests Node et ergonomie mobile. Aucune modification moteur, stratégie ou données PAPER. Branche `feature/v0.2.1-performance-journal` vers `preprod`, sous réserve CI et recette.
