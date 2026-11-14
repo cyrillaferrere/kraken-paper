@@ -1,5 +1,10 @@
 # Kraken Paper : document de reprise
 
+## Correctif mobile Positions
+- Capture iPhone du 14/11 : fiches Positions débordant à droite malgré le conteneur étroit.
+- Correction des contraintes intrinsèques CSS grid sur les corps et lignes de tableaux mobiles ; même garde-fou pour Ordres, Trades et Marqueurs.
+- Recette Safari réelle indispensable : le test CSS ne remplace pas une mesure de largeur à l'écran.
+
 ## Lot unique de refonte mobile — à valider sur appareil
 - Branche `feature/v0.2.1-mobile-dashboard-overhaul` : CSS responsive des quatre tableaux, filtres, KPI, chandelier et journal ; tests `mobile-dashboard-layout.test.js`.
 - Les tableaux desktop et le calcul des ordres sont inchangés. Sous 680 px, les lignes sont des fiches ; les détails des ordres restent pilotés par le bouton existant.
