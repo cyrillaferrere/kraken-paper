@@ -1,3 +1,7 @@
+## v0.2.2 — Aide textuelle du chandelier (branche fix/v0.2.2-chart-accessibility)
+- Association du chandelier à une description textuelle et renvoi vers les tableaux chiffrés. Contrôler VoiceOver et CI.
+- Périmètre interface uniquement, aucune modification de production, de state/, decisions/ ou du moteur. Relecture Grok Bot et recette navigateur avant fusion.
+
 # Kraken Paper : document de reprise
 
 ## Cause racine du débordement mobile
