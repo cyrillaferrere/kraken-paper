@@ -579,7 +579,7 @@ def apply_action(state, a, ctx, now, decision_id):
             if old.get("pending_exits"):
                 raise Rejected("une mise a jour des sorties est deja en attente")
             old["pending_exits"] = {
-                "active_from": hour_ceil(now),
+                "active_from": next_hour(now),
                 "action": {"take_profits": [
                     {"price": level["price"], "fraction": level["fraction"]}
                     for level in levels]},
