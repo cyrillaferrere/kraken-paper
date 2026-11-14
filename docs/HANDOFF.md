@@ -179,3 +179,15 @@ puis 3 fichiers seulement quand le sha change ; décisions = liste `contents/dec
 chaque nouveau fichier lu une seule fois par son sha (`git/blobs`) puis gardé en `localStorage` ; leçons =
 `contents/docs/LESSONS.md` avec ETag, lu sur la branche déployée (`preprod` en préprod, `main` en prod). Sur 403/429
 le dash attend 10 min et affiche les décisions depuis le journal.
+
+## 11. Chantier contrôle qualité (14/11/2026)
+
+**Branche** : `feature/quality-gates-handoff`, issue de `preprod`. **Objet** : sécuriser les futures PR avant les fonctionnalités v0.3.0. Aucun changement du moteur, des stratégies, de `state/`, de `decisions/`, du site Netlify ou de la production.
+
+**Audit initial** : `main` était 11 commits devant `preprod` au moment du contrôle, avec les derniers commits `55284ec`, `7c79bd7`, `6d5c9c6` correspondant aux cycles horaires (fichiers `state/`). Ne jamais recopier l'état de préprod sur main. La synchronisation des branches doit préserver les fichiers d'état de main et être validée par les protections existantes.
+
+**Ajout** : `.github/workflows/quality.yml`, job `quality`, vérifie les PR vers `preprod`/`main` et les branches de développement : aucun changement de `state/` ou `decisions/`, CHANGELOG et HANDOFF modifiés sur chaque PR, tests `python -m unittest -v`, `node --test tests/site/*.test.js`, `node --test tests/functions/*.test.mjs`, `node --check` des JS, `bash -n` des scripts, invariants statiques de livraison. **Aucun cycle moteur ni déploiement** dans ce workflow. ADR-13 et RUNBOOK détaillent la décision et l'exploitation.
+
+**Pour Grok Bot** : lire la PR de cette branche vers `preprod`, inspecter les checks GitHub, vérifier les chemins protégés et confirmer que les tests passent. Ne pas confondre tests verts et blocage des merges : les règles GitHub doivent encore être configurées séparément, sans bloquer les commits automatiques du moteur et les décisions sur main. Une fois les checks et la revue validés, intégrer dans `preprod` et tester. Aucune release `main` ni prod sans validation de Cyril.
+
+**Reste à faire** : constater le premier run CI, corriger toute anomalie, obtenir la revue Grok Bot, configurer si possible les checks obligatoires dans les règles GitHub, puis lancer les développements UX v0.3.0. Les tests navigateur/visuels restent manuels à ce stade.
