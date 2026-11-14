@@ -189,21 +189,105 @@
     tb.innerHTML = rows.join("") || `<tr><td colspan="6" class="empty">Aucune position, tout est en USDC.</td></tr>`;
   }
 
+  // ---------- ordres : calculs nets de frais, mêmes règles que engine/run.py ----------
+  // Achat limite : exécuté au prix limite en maker. Stop : vente au stop −0,1 % en taker. Objectif : vente limite en maker.
+  // Les frais sont arrondis à 6 décimales par exécution, comme money() dans le moteur ; l'affichage est au centime.
+  const cents = (x) => Math.round(x * 100) / 100;
+  const money = (x) => Math.round(x * 1e6) / 1e6;
+  const roundTo = (x, d) => { const f = Math.pow(10, d); return Math.round(x * f) / f; };
+  function orderMath(o, st, live) {
+    const f = Object.assign({ maker: 0.004, taker: 0.008, slippage: 0.001 }, st.fees || {});
+    const pd = (st.pairs && st.pairs[o.pair] && st.pairs[o.pair].pair_decimals) ?? 2;
+    const sellNet = (qty, px, rate) => { const g = qty * px; return g - money(g * rate); };
+    let basis = null, limit = o.price ?? null, stop = o.stop_loss ?? null, tp = null;
+    if (o.side === "buy") {
+      const g = o.qty * o.price; basis = g + money(g * f.maker);
+      tp = o.take_profit ?? null;
+    } else {
+      const pos = st.positions && st.positions[o.pair];
+      basis = pos ? o.qty * pos.avg_cost : null;
+      tp = o.price ?? null;
+    }
+    const stopPx = stop != null ? roundTo(stop * (1 - f.slippage), pd) : null;
+    const loss = stopPx != null && basis != null ? cents(sellNet(o.qty, stopPx, f.taker) - basis) : null;
+    const gain = tp != null && basis != null ? cents(sellNet(o.qty, tp, f.maker) - basis) : null;
+    const rr = loss != null && gain != null && loss < 0 ? gain / -loss : null;
+    const dist = (lvl) => lvl == null || live == null ? null : (lvl - live) / live;
+    return { engaged: basis == null ? null : cents(basis), limit, stop, stopPx, tp, loss, gain, rr,
+      dLimit: dist(limit), dStop: dist(stop), dTp: o.side === "sell" ? dist(tp) : null };
+  }
+  window.KP_ORDER_MATH = orderMath;
+
+  const expanded = new Set();
+  const distTxt = (d, lbl) => d == null ? "—" : `${lbl ? lbl + " " : ""}${d < 0 ? "↓" : "↑"} ${pct(d)}`;
   function renderOrders() {
     const tb = $("orders").tBodies[0];
     const rows = S.open_orders.map((o) => {
-      const x = price(o.pair);
-      const levels = [];
-      if (o.price != null) levels.push({ lbl: o.side === "buy" ? "limite" : (o.parent ? "take profit" : "limite"), v: o.price, hit: x != null && (o.side === "buy" ? x <= o.price : x >= o.price) });
-      if (o.stop_loss != null && o.side === "sell") levels.push({ lbl: "stop", v: o.stop_loss, hit: x != null && x <= o.stop_loss });
-      const hit = liveOk && levels.some((l) => l.hit);
-      const lv = levels.map((l) => `${l.lbl} ${px(l.v)}`).join("<br>");
-      const dist = levels.map((l) => x == null ? "—" : pct((l.v - x) / x)).join("<br>");
-      const extra = o.side === "buy" && (o.stop_loss || o.take_profit) ? `<br><span class="muted">puis ${o.stop_loss ? "stop " + px(o.stop_loss) : ""}${o.stop_loss && o.take_profit ? " / " : ""}${o.take_profit ? "TP " + px(o.take_profit) : ""}</span>` : "";
-      return `<tr class="${hit ? "reached" : ""}"><td>${esc(o.id)} · <b>${esc(base(o.pair))}</b>${hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : ""}</td><td><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td><td class="r">${qty(o.qty)}</td><td class="r">${lv}${extra}</td><td class="r">${px(x)}</td><td class="r">${dist}</td></tr>`;
+      const x = price(o.pair), m = orderMath(o, S, x);
+      const hitL = x != null && m.limit != null && (o.side === "buy" ? x <= m.limit : x >= m.limit);
+      const hitS = x != null && o.side === "sell" && m.stop != null && x <= m.stop;
+      const hit = liveOk && (hitL || hitS);
+      const pair = esc(base(o.pair)) + "/USDC";
+      const dist = o.side === "buy" ? distTxt(m.dLimit) : [m.dTp != null ? distTxt(m.dTp, "obj.") : null, m.dStop != null ? distTxt(m.dStop, "stop") : null].filter(Boolean).join("<br>") || "—";
+      const limitLbl = o.side === "buy" ? px(m.limit) : m.limit != null ? px(m.limit) + (o.parent ? ' <span class="muted">objectif</span>' : "") : '<span class="muted">aucun</span>';
+      const stopTxt = m.stop != null ? px(m.stop) : '<span class="warn-txt">⚠ pas de stop</span>';
+      const tpTxt = m.tp != null ? px(m.tp) : "—";
+      const lossTxt = m.loss != null ? `<span class="dn">${signed(m.loss)} USDC</span>` : m.stop == null ? '<span class="warn-txt">non bornée</span>' : "—";
+      const gainTxt = m.gain != null ? `<span class="${cls(m.gain)}">${signed(m.gain)} USDC</span>` : "—";
+      const rrTxt = m.rr != null ? nf(2).format(m.rr) + " : 1" : "—";
+      const created = dt(o.created), dec = o.decision_id ? esc(o.decision_id) : (o.parent ? "sortie de " + esc(o.parent) : "—");
+      const open = expanded.has(o.id);
+      const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
+      const main = `<tr class="o-row${hit ? " reached" : ""}">
+        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="sr">Détail de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${note}</td>
+        <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
+        <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
+        <td class="r c-x">${limitLbl}<br><span class="muted">${px(x)}</span></td><td class="r">${dist}</td>
+        <td class="r c-x">${stopTxt}</td><td class="r c-x">${tpTxt}</td><td class="r c-x">${lossTxt}</td><td class="r c-x">${gainTxt}</td><td class="r c-x">${rrTxt}</td></tr>`;
+      const det = `<tr class="o-detail" id="od-${esc(o.id)}"${open ? "" : " hidden"}><td colspan="3"><dl class="o-dl">
+        <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd>${px(x)}</dd></div>
+        <div><dt>Stop</dt><dd>${stopTxt}</dd></div><div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
+        <div><dt>Perte max</dt><dd>${lossTxt}</dd></div><div><dt>Gain visé</dt><dd>${gainTxt}</dd></div>
+        <div><dt>Gain / risque</dt><dd>${rrTxt}</dd></div><div><dt>Créé</dt><dd>${created}</dd></div><div class="wide"><dt>Décision</dt><dd>${dec}</dd></div></dl></td></tr>`;
+      return main + det;
     });
-    tb.innerHTML = rows.join("") || `<tr><td colspan="6" class="empty">Aucun ordre ouvert.</td></tr>`;
+    tb.innerHTML = rows.join("") || `<tr><td colspan="10" class="empty">Aucun ordre ouvert.</td></tr>`;
   }
+  // Détail mobile : ouverture uniquement sur action de l'utilisateur ; le polling ne rejoue pas l'animation.
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".o-toggle"); if (!b) return;
+    const id = b.dataset.oid, row = document.getElementById("od-" + id), open = !expanded.has(id);
+    if (open) expanded.add(id); else expanded.delete(id);
+    b.setAttribute("aria-expanded", open);
+    if (row) { row.hidden = !open; if (open) { const dl = row.querySelector(".o-dl"); dl.classList.remove("motion-expand"); void dl.offsetWidth; dl.classList.add("motion-expand"); } }
+  });
+
+  // ---------- version du site (écrite au déploiement par scripts/deploy.sh) ----------
+  const ENV_LBL = { prod: "PROD", preprod: "PRÉPROD", feature: "FEATURE", local: "LOCAL" };
+  // L'environnement se déduit d'abord de l'adresse (un seul site Netlify) :
+  // kraken-paper.netlify.app = prod, preprod--kraken-paper... = préprod, feature-<nom>--kraken-paper... = feature.
+  function envFromHost(h) {
+    if (h === "kraken-paper.netlify.app") return "prod";
+    if (/^preprod--kraken-paper\.netlify\.app$/.test(h)) return "preprod";
+    if (/^feature-[a-z0-9-]+--kraken-paper\.netlify\.app$/.test(h)) return "feature";
+    if (/--kraken-paper\.netlify\.app$/.test(h)) return "feature"; // autre déploiement non production (aperçu, lien unique)
+    return null;
+  }
+  window.KP_ENV_FROM_HOST = envFromHost;
+  async function loadVersion() {
+    let v = null;
+    try { const r = await fetch("version.json", { cache: "no-store" }); if (r.ok) v = await r.json(); } catch (e) { /* site local : pas de version.json */ }
+    const env = envFromHost(location.hostname) || (v && ENV_LBL[v.env] ? v.env : "local");
+    const b = $("env-badge"); b.textContent = ENV_LBL[env]; b.className = "badge env env-" + env;
+    b.title = env === "prod" ? "Production" : env === "preprod" ? "Préproduction : site de test" : env === "feature" ? "Branche de développement" : "Version locale non déployée";
+    if (!v) return;
+    $("b-version").textContent = "v" + v.version;
+    const c = $("b-commit"); c.textContent = "commit " + String(v.commit).slice(0, 7); c.href = "https://github.com/cyrillaferrere/kraken-paper/commit/" + encodeURIComponent(v.commit);
+    $("b-branch").textContent = "branche " + v.branch;
+    $("b-time").textContent = v.built ? " · déployé le " + dt(v.built) : "";
+    if (env !== "prod") document.title = "[" + ENV_LBL[env] + "] " + document.title;
+  }
+  loadVersion();
 
   const REASON = { limit: "limite", market: "marché", stop_loss: "stop loss", take_profit: "take profit" };
   function renderTrades() {

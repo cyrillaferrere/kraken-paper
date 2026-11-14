@@ -3,10 +3,24 @@
 Simulateur de trading crypto **PAPER** (argent fictif) avec de **vrais prix Kraken**, et un tableau de bord en direct.
 
 - 💰 Capital de départ : **6 606,42 USDC** (fictifs).
-- 🧠 Les décisions sont prises par Grok Bot aux sessions du matin et du soir.
+- 🧠 Les décisions sont prises par Grok Bot lors de ses sessions (environ toutes les 5 heures).
 - ⚙️ Un petit moteur Python tourne **toutes les heures** sur GitHub Actions et exécute ce qui a été décidé.
 - 📱 Une notification arrive sur le téléphone (ntfy) à chaque exécution d'ordre.
 - 📊 Tableau de bord : site statique sur Netlify, prix en direct depuis l'API publique Kraken.
+
+## 📚 Documentation
+
+| Document | Pour quoi |
+| --- | --- |
+| [docs/HANDOFF.md](docs/HANDOFF.md) | **Reprendre le projet** : architecture, flux de données, règles du moteur, contrat des décisions, rôles |
+| [docs/RUNBOOK.md](docs/RUNBOOK.md) | Déployer prod / préprod, lancer un cycle, réparer un cycle, changer le canal ntfy, problèmes fréquents |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Branches, PR, versions, commits, tests, règles à ne jamais enfreindre |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | Choix techniques et leurs raisons (ADR) |
+| [CHANGELOG.md](CHANGELOG.md) | Historique des versions (version courante dans `VERSION`) |
+
+Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app (`main`) · **préprod** https://preprod--kraken-paper.netlify.app (`preprod`, déploiement non production) · features : `https://feature-<nom>--kraken-paper.netlify.app`.
+
+**L'état vit uniquement sur `main` et n'est écrit que par le moteur ; le dash est en lecture seule ; une release ne livre que du code** (voir [RUNBOOK](docs/RUNBOOK.md#mettre-en-prod-une-release)).
 
 ## ⚠️ PAPER uniquement
 
@@ -96,6 +110,7 @@ Le nom du canal est secret (quiconque le connaît peut lire les notifications) :
 
 ```bash
 python -m unittest -v      # tests sans réseau
+node --test tests/site/*.test.js   # calcul des ordres du dash
 python engine/run.py       # un cycle (modifie state/)
 ```
 
