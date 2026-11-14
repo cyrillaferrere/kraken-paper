@@ -291,3 +291,20 @@ html { scroll-behavior: smooth; }
 .filter-reset { min-height: 38px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--ac2); font: inherit; font-size: 13px; cursor: pointer; }
 .filter-reset:hover { background: rgba(34,211,238,.08); }
 .filter-reset:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+
+/* Espace graphique 0.2.1 : réglages compacts, pas de tuiles supplémentaires. */
+.chart-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 7px 0 11px; }
+.chart-tools-label, .chart-view-note { color: var(--mu); font-size: 12px; }
+.chart-tools-label { margin-right: 3px; font-weight: 650; }
+.chart-view-note { margin-left: auto; font-variant-numeric: tabular-nums; }
+.chart-range, .chart-reset { min-height: 36px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg2); color: var(--tx); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.chart-range[aria-pressed="true"] { border-color: var(--ac2); background: rgba(34,211,238,.1); color: var(--ac2); }
+.chart-range:hover, .chart-reset:hover { border-color: var(--ac2); }
+.chart-range:focus-visible, .chart-reset:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+#mlegend { min-height: 70px; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) {
+  .chart-tools { gap: 6px; }
+  .chart-range, .chart-reset { padding: 7px 8px; }
+  .chart-view-note { width: 100%; margin-left: 0; }
+  #mlegend { font-size: 12.5px; line-height: 1.65; }
+}
