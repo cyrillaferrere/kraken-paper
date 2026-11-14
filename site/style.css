@@ -200,3 +200,13 @@ button:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
 .md hr { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
 @media (prefers-reduced-motion: reduce) { .dec .chev { transition: none !important; } }
 @media (max-width: 520px) { .seg button { min-width: 44px; padding: 4px 6px; font-size: 12.5px; white-space: nowrap; } #market-card .card-h { gap: 8px; } }
+
+/* Navigation compacte : raccourcis vers les sections sans modifier les données. */
+html { scroll-behavior: smooth; }
+.dash-nav { max-width: 1100px; margin: 10px auto 0; padding: 0 16px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: thin; }
+.dash-nav a { flex: 0 0 auto; padding: 8px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg2); color: var(--tx); font-size: 13px; font-weight: 600; text-decoration: none; }
+.dash-nav a:hover { border-color: var(--ac2); }
+.dash-nav a:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
+#overview, #market-card, #positions-panel, #orders-panel, #dec-h, #journal-panel { scroll-margin-top: 20px; }
+@media (min-width: 1280px) { .top, .build, .status, main, footer, .dash-nav { max-width: 1360px; } .mchart { height: 540px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
