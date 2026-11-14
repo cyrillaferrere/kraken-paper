@@ -254,6 +254,7 @@
         }
       }
       shown = { key, lastT: bars.length ? bars[bars.length - 1].t : null, bars };
+      syncChartRange();
       legendData = { bars, data: d, idx: new Map(bars.map((b, i) => [b.t, i])) };
       legend(); // Conserver la bougie survolée pendant le rafraîchissement des cours.
       overlays();
