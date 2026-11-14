@@ -74,3 +74,38 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 ## ADR-10 : rôles (13/11/2026)
 - **Décision** : Grok Bot garde la main technique et les décisions de trading ; GPT maintient et fait évoluer le code par PR
   relues par Grok Bot ; Cyril valide la prod. Pas d'équipe de bots en discussion permanente (double la consommation).
+
+## ADR-13 : déclencheur externe Netlify, cron GitHub en secours (14/11/2026)
+- **Contexte** : le cron GitHub Actions (`'7 * * * *'` dans `engine.yml`) est peu fiable sur un dépôt public gratuit :
+  il peut partir en retard ou sauter des créneaux (aucun cycle planifié entre 03h15 et 09h03 heure de Paris le 14/11/2026).
+  Changer l'horaire n'y change pas grand-chose.
+- **Décision** : une fonction planifiée Netlify (`netlify/functions/engine-trigger.mjs`, cron `'9 * * * *'` UTC, légèrement
+  décalée) appelle l'API GitHub `workflow_dispatch` du workflow `engine.yml` sur `ref: main`. Le cron GitHub reste en
+  secours. Le jeton `GITHUB_DISPATCH_TOKEN` (fine-grained, dépôt `cyrillaferrere/kraken-paper` seulement, permission
+  Actions lecture/écriture) est une variable d'environnement du **même** site `kraken-paper`, scopes `builds` +
+  `functions` + `runtime` (le plan actuel refuse un scope `functions` seul), contextes production / branch-deploy /
+  deploy-preview / dev, marquée secret ; il n'est jamais commité ni journalisé. Netlify n'exécute les fonctions planifiées que sur le déploiement
+  de production publié.
+- **Conséquences** : le moteur continue de ne tourner que depuis `main` (garde-fou `if:` du workflow). Un double
+  déclenchement (Netlify + cron, ou deux appels rapprochés) est sans risque : le moteur est idempotent (rejeu des bougies
+  déjà traitées ignoré via `last_candle`, décisions déjà appliquées ignorées via `processed_decisions`), le workflow a
+  un groupe de concurrence `kraken-paper-engine` (`cancel-in-progress: false`), et la fonction ne dispatch pas si un run
+  est déjà `in_progress` ou `queued`. Le jeton expire (90 jours, vers le 12/02/2027) : procédure de rotation dans le
+  [RUNBOOK](RUNBOOK.md). La fonction ne commencera à tourner qu'après la mise en prod de la v0.2.0.
+
+## ADR-14 : datation des exécutions à la bougie 5 min (14/11/2026)
+- **Contexte** : le moteur ne déclenche un ordre que sur une bougie 1 h clôturée, mais datait le fill à la
+  **fermeture** de cette heure (`t + HOUR`). L'achat BTC O0001, déclenché sur la bougie de 04h00, était donc
+  horodaté 05:00 et le marqueur du graphique tombait une bougie trop tard (idem SOL).
+- **Décision** : dès qu'une bougie 1 h touche un niveau, récupérer les 12 bougies 5 min de cette heure
+  (`OHLC interval=5`). Le fill est daté à l'ouverture de la première qui touche le niveau. Si stop et objectif
+  sont tous deux dans l'heure, le premier touché en 5 min gagne ; le stop reste prioritaire seulement s'ils
+  tombent dans la **même** bougie 5 min. Prix et frais inchangés. Si les 5 min manquent ou sont incomplètes
+  (Kraken n'en conserve qu'environ 720, soit ~60 h), on garde la décision 1 h et on date à l'**ouverture**
+  de l'heure, plus à la fermeture. Les fills reçoivent `time_source` (`m5` ou `hour_open`). L'état déjà
+  enregistré n'est pas réécrit : le dash (`fillMarkerTs`) recolle les anciens marqueurs (sans `time_source`)
+  sur la première bougie affichée qui touche le prix dans l'heure précédant le ts.
+- **Conséquences** : les nouveaux fills sont à 5 min près ; les anciens (T0001, T0002) s'affichent au bon
+  endroit dès que les bougies du graphique couvrent cette heure. Au-delà de ~60 h, on perd la précision 5 min
+  au moment de l'exécution, d'où le repli. Un appel OHLC 5 min supplémentaire par paire et par heure
+  déclenchée, API publique uniquement.

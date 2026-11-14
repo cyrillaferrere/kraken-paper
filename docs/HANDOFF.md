@@ -1,7 +1,7 @@
 # Kraken Paper : document de reprise
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
-> Dernière mise à jour : 14/11/2026, version 0.1.0.
+> Dernière mise à jour : 14/11/2026, version 0.2.0.
 
 ## 1. Le projet en bref
 
@@ -37,17 +37,21 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 ## 3. Architecture
 
 ```
- Grok Bot (session)                    GitHub (dépôt public)                       Netlify (statique)
+ Grok Bot (session)                    GitHub (dépôt public)                       Netlify (site unique)
  ───────────────────                   ─────────────────────                       ──────────────────
  lit l'état, analyse le      push      decisions/<id>.json                         site/ (HTML/CSS/JS)
- marché (API publique) ────────────▶   │                                           │
-                                       ▼                                           │ lit l'état sur main
-                              GitHub Actions « engine »                            │ via l'API GitHub
-                              (minute 7 de chaque heure,  ── commit ──▶ state/ ◀───┘ (repli raw)
-                               + à chaque push decisions/)                         │
-                                       │                                           │ prix en direct et bougies :
-                                       ▼                                           ▼ API publique Kraken
+ marché (API publique) ────────────▶   │                                           │ lit l'état sur main
+                                       ▼                                           │ via l'API GitHub (repli raw)
+                              GitHub Actions « engine »   ── commit ──▶ state/ ◀───┘
+                              déclenché par :                                      │
+                               • fonction Netlify, min. 9 UTC (principal, prod)    │ engine-trigger
+                               • cron GitHub, min. 7 UTC (secours)                 │ (schedule, prod seulement)
+                               • push dans decisions/     ◀── workflow_dispatch ───┘
+                               • lancement manuel
+                                       │
+                                       ▼
                               ntfy.sh ──▶ téléphone de Cyril
+ Le dash lit aussi les prix et bougies sur l'API publique Kraken.
 ```
 
 - **Un seul site Netlify** (`kraken-paper`) : la prod est son déploiement de production, la préprod et les features sont
@@ -60,7 +64,9 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
   `decisions/` : le contrôle CI `guard-state` bloque toute PR ou tout push qui le ferait, et `scripts/release.sh` refuse
   une fusion vers `main` qui toucherait ces dossiers. Passer la préprod en prod ne peut donc pas écraser le portefeuille
   ni les ordres.
-- Le moteur ne tourne **que depuis `main`** (cron GitHub = branche par défaut ; garde-fou `if:` dans le workflow).
+- Le moteur ne tourne **que depuis `main`** (garde-fou `if:` dans le workflow ; les déclencheurs, y compris la fonction
+  Netlify, demandent toujours `ref: main`). Déclencheur principal : fonction planifiée Netlify `engine-trigger`
+  (minute 9 UTC), qui n'est exécutée que sur le déploiement de production. Secours : cron GitHub (minute 7 UTC).
 
 ## 4. Fichiers
 
@@ -68,15 +74,21 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 | --- | --- |
 | `engine/run.py` | Moteur, Python stdlib. Un appel = un cycle. |
 | `tests/test_engine.py` | Tests du moteur, sans réseau : `python -m unittest -v`. |
+| `tests/test_reservations.py` | Tests de réservation du cash et des quantités. |
 | `tests/site/*.test.js` | Tests du calcul des ordres du dash : `node --test tests/site/*.test.js`. |
-| `.github/workflows/engine.yml` | Cycle horaire + sur push `decisions/**` + manuel. |
+| `tests/functions/*.test.mjs` | Tests de la fonction planifiée (fetch mocké) : `node --test tests/functions/*.test.mjs`. |
+| `.github/workflows/engine.yml` | Cycle : fonction Netlify + cron GitHub (secours) + push `decisions/**` + manuel. |
+| `netlify/functions/engine-trigger.mjs` | Fonction planifiée Netlify (minute 9 UTC) : `workflow_dispatch` sur `main`. |
 | `decisions/*.json` | Décisions de Grok Bot, une par session, appliquées une seule fois par `id`. |
 | `state/portfolio.json` | **Source de vérité** : cash, positions, ordres ouverts, trades, frais, décisions traitées. |
 | `state/journal.jsonl` | Journal en ajout seul (décisions, ordres, exécutions, refus, notes, alertes). |
 | `state/equity.csv` | Un point par cycle : valeur du portefeuille et de « BTC conservé ». |
 | `site/index.html`, `style.css` | Tableau de bord. |
 | `site/app.js` | Lecture de l'état, KPI, positions, ordres (calcul perte/gain), trades, journal, courbe, version. |
-| `site/markets.js` | Graphiques en bougies, indicateurs (MA, RSI, ATR), tableau des marqueurs. |
+| `site/markets.js` | Graphiques en bougies, indicateurs (MA, RSI, ATR), étiquettes des niveaux, bouton « Ordres », tableau des marqueurs. |
+| `site/lib.js` | Fonctions pures testées : markdown sûr, résumé des actions, performance par jour, comptes à rebours, exposition, proximité. |
+| `site/extras.js` | Exposition, prochains passages, calendrier, fil des décisions, leçons (API GitHub avec ETag et cache local). |
+| `docs/LESSONS.md` | Leçons apprises, affichées dans le dash. Écrites par Grok Bot (bilan hebdo), une entrée par leçon, la plus récente en haut. |
 | `site/version.json` | **Généré au déploiement** par `scripts/deploy.sh` (absent du dépôt). |
 | `scripts/deploy.sh` | Déploiement prod / préprod / feature sur le site unique. |
 | `scripts/release.sh` | Mise en prod du code (preprod → main) avec garde-fou state/decisions. |
@@ -85,6 +97,7 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 | `VERSION`, `CHANGELOG.md` | Version SemVer et historique. |
 | `docs/` | Ce document, RUNBOOK, CONTRIBUTING, décisions techniques (ADR). |
 | `.ntfy_topic` | Canal ntfy, **local uniquement** (gitignoré), copie du secret Actions `NTFY_TOPIC`. |
+| `GITHUB_DISPATCH_TOKEN` | Variable d'environnement Netlify (scopes builds/functions/runtime, secret), **jamais dans le dépôt**. Voir [RUNBOOK](RUNBOOK.md). |
 
 ## 5. Règles du moteur (résumé)
 
@@ -94,7 +107,8 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 - **Achat limite** exécuté si le plus bas de la bougie ≤ prix limite, au prix limite, **maker 0,40 %**.
 - **Vente limite / objectif** exécutée si le plus haut ≥ prix, au prix, **maker 0,40 %**.
 - **Stop** exécuté si le plus bas ≤ stop, au **stop − 0,1 %**, **taker 0,80 %**.
-- **Stop et objectif dans la même bougie : le stop gagne** (cas prudent).
+- **Stop et objectif dans la même heure** : le premier touché en bougie 5 min gagne ; le stop l'emporte seulement s'ils sont dans la **même bougie 5 min** (si les 5 min manquent : stop prioritaire sur la bougie 1 h, comme avant).
+- Le fill est daté à l'ouverture de la première bougie 5 min qui touche le niveau ; repli : ouverture de la bougie 1 h. Prix et frais inchangés. L'état déjà écrit n'est pas modifié (le dash ajuste l'affichage des anciens marqueurs).
 - **Ordre au marché** : dernier prix ± 0,1 %, taker 0,80 %.
 - Un ordre ne regarde que les bougies qui **commencent après sa pose** (`active_from`).
 - Un achat limite avec `stop_loss` / `take_profit` crée, une fois exécuté, l'ordre de sortie (OCO).
@@ -157,5 +171,11 @@ déploiement prod **après l'accord de Cyril** → tag `vX.Y.Z`. Détails : [RUN
 
 ## 10. Où en est le projet
 
-Voir [CHANGELOG](../CHANGELOG.md). Idées en attente : stop suiveur, page de bilan hebdo, historique des décisions
-dans le dash, alertes ntfy plus fines.
+Voir [CHANGELOG](../CHANGELOG.md). Idées en attente : stop suiveur, page de bilan hebdo, alertes ntfy plus fines,
+backtest de la leçon du 14/11 (entrées fractionnées en survendu).
+
+Budget API GitHub du dash (60 requêtes/h par visiteur, sans clé) : état = `commits/main` en sha + ETag (304 gratuit)
+puis 3 fichiers seulement quand le sha change ; décisions = liste `contents/decisions` avec ETag (304 gratuit),
+chaque nouveau fichier lu une seule fois par son sha (`git/blobs`) puis gardé en `localStorage` ; leçons =
+`contents/docs/LESSONS.md` avec ETag, lu sur la branche déployée (`preprod` en préprod, `main` en prod). Sur 403/429
+le dash attend 10 min et affiche les décisions depuis le journal.

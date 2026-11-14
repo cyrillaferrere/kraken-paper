@@ -16,6 +16,7 @@ Simulateur de trading crypto **PAPER** (argent fictif) avec de **vrais prix Krak
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | Déployer prod / préprod, lancer un cycle, réparer un cycle, changer le canal ntfy, problèmes fréquents |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Branches, PR, versions, commits, tests, règles à ne jamais enfreindre |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Choix techniques et leurs raisons (ADR) |
+| [docs/LESSONS.md](docs/LESSONS.md) | Leçons apprises (affichées dans le dash) |
 | [CHANGELOG.md](CHANGELOG.md) | Historique des versions (version courante dans `VERSION`) |
 
 Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app (`main`) · **préprod** https://preprod--kraken-paper.netlify.app (`preprod`, déploiement non production) · features : `https://feature-<nom>--kraken-paper.netlify.app`.
@@ -26,7 +27,7 @@ Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app
 
 - **Aucun ordre réel n'est jamais passé.** Le moteur n'utilise que l'API **publique** de Kraken (`https://api.kraken.com/0/public/...`) : AssetPairs, OHLC, Ticker.
 - Aucune clé API Kraken n'est utilisée, ni dans le dépôt ni dans les secrets GitHub.
-- Le seul secret est `NTFY_TOPIC` (le nom du canal de notifications).
+- Les seuls secrets sont `NTFY_TOPIC` (canal de notifications, secret GitHub Actions) et `GITHUB_DISPATCH_TOKEN` (jeton GitHub pour la fonction planifiée Netlify). Aucun des deux n'est dans le dépôt.
 
 ## Comment ça marche
 
@@ -38,9 +39,9 @@ Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app
 | `state/journal.jsonl` | Journal en ajout seul : décisions, ordres, exécutions, annulations, refus, notes. |
 | `state/equity.csv` | Un point par cycle : valeur du portefeuille et valeur de « BTC conservé ». |
 | `site/` | Le tableau de bord (HTML/CSS/JS, sans framework). |
-| `tests/test_engine.py` | Tests rapides, sans réseau : `python -m unittest -v` |
+| `tests/test_engine.py`, `tests/test_reservations.py` | Tests rapides, sans réseau : `python -m unittest -v` |
 
-À chaque cycle (minute 7 de chaque heure, et à chaque push dans `decisions/`), le moteur :
+À chaque cycle (fonction planifiée Netlify à la minute 9 UTC une fois la v0.2.0 en prod, cron GitHub à la minute 7 UTC en secours, et à chaque push dans `decisions/`), le moteur :
 
 1. charge l'état ;
 2. applique les nouvelles décisions (chacune une seule fois, grâce à son `id`) ;
@@ -48,8 +49,9 @@ Un seul site Netlify, `kraken-paper` : **prod** https://kraken-paper.netlify.app
 4. rejoue les bougies **clôturées** dans l'ordre :
    - achat limite exécuté si `plus bas <= prix`, vente limite si `plus haut >= prix`, au prix limite, en **maker** ;
    - stop loss exécuté au prix du stop **moins 0,1 %**, en **taker** ;
-   - si le stop et le take profit sont touchés dans la même bougie, on retient le **stop** (cas prudent) ;
-   - un ordre ne regarde que les bougies qui commencent après sa pose ;
+   - si le stop et le take profit sont touchés dans la même heure, la première bougie 5 min qui touche le niveau l'emporte ; le **stop** gagne seulement s'ils sont dans la même bougie 5 min (repli sans 5 min : stop prioritaire, comme avant) ;
+   - le fill est daté à l'ouverture de cette bougie 5 min, ou à l'ouverture de la bougie 1 h si les 5 min manquent ;
+   - un ordre ne regarde que les bougies 1 h qui commencent après sa pose ;
 5. applique les frais Kraken Pro palier 1 : **maker 0,40 %**, **taker 0,80 %**, payés en USDC ;
 6. refuse tout ordre sans le cash ou la quantité nécessaires (ni levier, ni vente à découvert) ;
 7. arrondit aux décimales et minimums de la paire (AssetPairs) ;
@@ -109,14 +111,16 @@ Le nom du canal est secret (quiconque le connaît peut lire les notifications) :
 ## Lancer en local
 
 ```bash
-python -m unittest -v      # tests sans réseau
-node --test tests/site/*.test.js   # calcul des ordres du dash
+python -m unittest -v                    # moteur, sans réseau
+node --test tests/site/*.test.js         # fonctions du dash (ordres, exposition, calendrier, markdown…)
+node --test tests/functions/*.test.mjs   # fonction planifiée Netlify (fetch mocké)
 python engine/run.py       # un cycle (modifie state/)
 ```
 
 ## Tableau de bord : graphiques et marqueurs
 
-- **Marchés** : bougies 1 h / 4 h / 1 j, moyennes mobiles 20 et 50, volume et RSI 14, pour les cryptos détenues, celles qui ont un ordre et une liste de suivi de 14 paires USDC ouvertes en France, choisies par volume 24 h (hors stablecoins et memecoins) : BTC, ETH, SOL, XRP, LINK, AVAX, ADA, XDC, LTC, BNB, DOGE, TON, DOT, BCH. Le site revérifie chaque paire avec `AssetPairs?country_code=FR` et écarte celles qui ne sont plus disponibles. Sur le graphique : ordres limites, stops et objectifs en lignes horizontales, prix de revient, et flèches ▲ / ▼ des exécutions lues dans `journal.jsonl`.
+- **Marchés** : bougies 5 min / 15 min / 30 min / 1 h / 4 h / 1 j (graphique rafraîchi toutes les 30 s en 5 min, 60 s en 15 min et 1 h, 90 s en 30 min, 2 min en 4 h, 5 min en 1 j ; cache de 1 à 15 min), moyennes mobiles 20 et 50, volume et RSI 14, pour les cryptos détenues, celles qui ont un ordre et une liste de suivi de 14 paires USDC ouvertes en France, choisies par volume 24 h (hors stablecoins et memecoins) : BTC, ETH, SOL, XRP, LINK, AVAX, ADA, XDC, LTC, BNB, DOGE, TON, DOT, BCH. Le site revérifie chaque paire avec `AssetPairs?country_code=FR` et écarte celles qui ne sont plus disponibles. Sur le graphique : ordres limites, stops et objectifs en lignes pointillées avec leur nom posé à gauche (petite étiquette de prix seule sur l'échelle), prix de revient (PRU) avec le P&L latent en % et en USDC, et flèches ▲ / ▼ des exécutions (les fills anciens, datés à la fermeture 1 h, sont recollés sur la bougie qui a vraiment touché le prix). Le bouton « Ordres » masque ou affiche ces lignes (choix gardé dans le navigateur).
+- **Suivi** : exposition (investi, réservé, cash libre, perte si tous les stops sont touchés), prochains passages (cycle du moteur, session estimée), performance par jour vs BTC conservé, alertes de proximité sous 1 % dans les ordres, fil des décisions et leçons (`docs/LESSONS.md`).
 - **Marqueurs** : prix, variation 24 h, tendance (prix vs MA20 et MA50 en 4 h et en 1 j), RSI 14 en 4 h, volatilité (ATR 14 journalier en % du prix), force relative vs BTC (performance 7 jours moins celle du BTC). Chaque couleur est doublée d'un texte ou d'une flèche.
 - Tout est calculé dans le navigateur (`site/markets.js`) avec l'**API publique** Kraken (`OHLC`, `AssetPairs?country_code=FR`, `Ticker`) : aucune clé, aucun coût. Les requêtes passent en file (une toutes les 450 ms) avec un cache de 3 à 15 min, pour rester sous la limite publique. Le tableau se remplit au fil des réponses (environ 20 s pour 14 cryptos au premier chargement) ; chaque ligne n'est animée qu'à sa première apparition.
 - Bibliothèque : **TradingView Lightweight Charts 5.3.0** (Apache 2.0) par CDN jsDelivr, version figée et contrôle d'intégrité SRI. Choisie car légère (~200 ko), rapide sur mobile, et gère nativement bougies, plusieurs volets (prix, volume, RSI), lignes de prix et marqueurs, sans animation ni lissage des cours. Le logo TradingView affiché sur le graphique est l'attribution demandée par la licence. Si le CDN ne répond pas, le tableau des marqueurs continue de fonctionner.
@@ -126,7 +130,7 @@ python engine/run.py       # un cycle (modifie state/)
 - Jetons communs (`--motion-fast` 140 ms, `--motion-normal` 200 ms, `--motion-panel` 240 ms, décalage 30 ms plafonné), seulement `opacity` et `transform`.
 - Les panneaux entrent une seule fois au premier affichage, jamais au rafraîchissement des prix (15 s) ou de l'état (2 min).
 - Une valeur réellement modifiée (KPI, prix du tableau) reçoit un bref voile violet neutre de 220 ms qui s'efface ; la vraie valeur est affichée immédiatement, sans interpolation, et la couleur ne suggère ni gain ni perte.
-- Boutons et puces : pression `scale(.97)`. Onglets 1 h / 4 h / 1 j : curseur qui glisse en 200 ms (`translateX`), navigation au clavier par flèches.
+- Boutons et puces : pression `scale(.97)`. Onglets 5 min à 1 j : curseur qui glisse en 200 ms (`translateX`), navigation au clavier par flèches.
 - Pendant le chargement d'une autre période ou crypto, le graphique passe à 55 % d'opacité, reflet d'une vraie requête en cours.
 - Les graphiques ne sont jamais animés : les bougies sont celles de Kraken, la dernière est marquée « en cours ». Les alertes d'erreur s'affichent sans animation.
 - `prefers-reduced-motion: reduce` coupe tous ces mouvements ; le tableau de bord reste entièrement utilisable.

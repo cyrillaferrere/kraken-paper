@@ -43,6 +43,23 @@ CONFIRM_PROD=oui scripts/deploy.sh prod  # déploie main en production
 elle-même (`git diff --cached` contre `main`) avant de commiter. Si l'un des deux contrôles échoue : retirer ces fichiers
 de `preprod` (`git checkout origin/main -- state/ decisions/` sur preprod, commit, push), puis relancer.
 
+## Déclenchement horaire du moteur
+
+Deux déclencheurs lancent le même workflow `engine.yml` sur `main` :
+
+| Source | Horaire (UTC) | Rôle |
+| --- | --- | --- |
+| Fonction planifiée Netlify `engine-trigger` | minute 9 | Déclencheur principal, **à partir de la mise en prod** de la v0.2.0 |
+| Cron GitHub Actions | minute 7 | Secours : souvent en retard, parfois sauté sur un dépôt gratuit |
+
+Netlify n'exécute les fonctions planifiées que sur le **déploiement de production** publié. Un déploiement préprod ou
+alias ne les fait pas tourner.
+
+Un double déclenchement est sans risque : le moteur rejoue seulement les bougies 1 h clôturées pas encore traitées
+(`last_candle`) et ignore les décisions déjà appliquées (`processed_decisions`) ; le workflow a un groupe de concurrence
+`kraken-paper-engine` (`cancel-in-progress: false`), donc deux cycles ne tournent jamais en parallèle. La fonction
+vérifie aussi qu'aucun run n'est déjà `in_progress` ou `queued` avant d'appeler `workflow_dispatch`.
+
 ## Lancer un cycle à la main
 
 ```bash
@@ -51,6 +68,19 @@ gh run list --workflow engine.yml -L 3
 ```
 Ou GitHub → Actions → engine → Run workflow (branche **main** ; depuis une autre branche le job est ignoré).
 Un push dans `decisions/` sur `main` lance aussi un cycle.
+
+Sur le dash, la carte « Prochains passages » vise la minute 9 (heure de Paris comme de UTC) et rappelle que le cron
+GitHub (minute 7) prend le relais si besoin. La fonction planifiée ne tourne qu'en production : en préprod le texte le
+dit, c'est attendu.
+
+## Datation des exécutions
+
+Le moteur décide toujours sur les bougies 1 h clôturées, mais date le fill à l'ouverture de la première bougie 5 min
+de cette heure qui touche le niveau (`time_source: m5`). Kraken ne garde qu'environ 60 h de bougies 5 min : au-delà,
+ou en cas d'erreur API, repli sur l'ouverture de la bougie 1 h (`time_source: hour_open`), sans changer le prix ni les
+frais. Ne pas réécrire `state/` ni le journal pour corriger un ancien horaire : le dash (`fillMarkerTs`) place le
+marqueur des fills sans `time_source` (T0001, T0002) sur la première bougie affichée qui touche le prix dans l'heure
+précédant le ts enregistré.
 
 ## Un cycle a échoué
 
@@ -80,12 +110,44 @@ gh secret set NTFY_TOPIC --body "$NEW"    # secret GitHub Actions
 ```
 Puis donner le nouveau nom à Cyril pour qu'il s'abonne dans l'app ntfy et supprime l'ancien abonnement.
 
+## Jeton GITHUB_DISPATCH_TOKEN (fonction Netlify)
+
+Variable d'environnement du site `kraken-paper` (id `01cb62cb-bc97-4b2c-be7e-21960b44bfd5`), nom
+`GITHUB_DISPATCH_TOKEN`, scopes **builds**, **functions** et **runtime** (le plan Netlify actuel refuse un scope limité
+à `functions` seulement ; `post_processing` est exclu car incompatible avec un secret), contextes `production`,
+`branch-deploy`, `deploy-preview` et `dev` (un secret n'accepte pas le contexte unique « all »), marquée secret.
+Jamais dans le dépôt, jamais dans les logs, jamais en argument visible d'une commande.
+
+C'est un jeton GitHub **fine-grained** : accès au seul dépôt `cyrillaferrere/kraken-paper`, permission **Actions** en
+lecture et écriture, rien d'autre. Expiration actuelle : **90 jours, vers le 12/02/2027**.
+
+Rotation, avant expiration (ou si le jeton a fuité) :
+
+1. Créer un nouveau jeton sur https://github.com/settings/personal-access-tokens/new avec les mêmes réglages
+   (nom `kraken-paper-dispatch`, dépôt `kraken-paper` seulement, Actions : Read and write).
+2. Le poser à la place de l'ancien, sans afficher la valeur, par l'API Netlify ou le tableau de bord
+   (Project configuration → Environment variables). En CLI, seulement si la valeur vient d'une variable d'environnement
+   et n'est pas échoée, avec `--secret` et les scopes `builds`, `functions`, `runtime` (pas `functions` seul : le plan
+   l'interdit) et les quatre contextes explicites. Ne pas lancer `netlify env:list` sans masquer les valeurs.
+3. Vérifier un dispatch (logs ci-dessous, ou un `workflow_dispatch` manuel).
+4. Révoquer l'ancien jeton sur GitHub.
+
+## Logs de la fonction engine-trigger
+
+Disponibles seulement après un déploiement de **production** (et donc après l'accord de Cyril pour la v0.2.0) :
+
+- Netlify → site `kraken-paper` → Functions → `engine-trigger` → Logs
+- ou `netlify logs:function engine-trigger --site 01cb62cb-bc97-4b2c-be7e-21960b44bfd5`
+
+On doit voir `dispatch HTTP 204` (succès) ou `skip: un cycle engine est déjà in_progress ou queued`. Le jeton ne doit
+jamais apparaître. Puis vérifier le run GitHub : `gh run list --workflow engine.yml -L 5` (événement `workflow_dispatch`).
+
 ## Problèmes fréquents
 
 | Symptôme | Cause | Action |
 | --- | --- | --- |
 | Le dash affiche un état en retard de quelques minutes et la pastille « Source de secours » | Limite de l'API GitHub (60 requêtes/h par IP) atteinte ou API en erreur : repli sur raw.githubusercontent.com, qui a un cache d'environ 5 min | Rien : retour automatique à l'API après la remise à zéro de la limite (au moins 10 min). Éviter d'ouvrir beaucoup d'onglets. |
-| « Dernier cycle moteur : plus de 2 h » | Le cron GitHub est souvent en retard de 5 à 30 min, parfois plus, surtout sur un dépôt récent ou peu actif ; il peut aussi sauter un créneau | Lancer un cycle à la main. Un dépôt public sans activité pendant 60 jours voit ses crons désactivés : les réactiver dans Actions. |
+| « Dernier cycle moteur : plus de 2 h » | Le cron GitHub peut partir en retard ou sauter un créneau. À partir de la v0.2.0 en prod, le déclencheur principal est la fonction Netlify (minute 9 UTC) | Vérifier les logs de `engine-trigger` et qu'un run `workflow_dispatch` apparaît dans Actions. Si le jeton a expiré (vers le 12/02/2027) : le renouveler (section ci-dessus). Sinon lancer un cycle à la main. Un dépôt public inactif 60 jours désactive aussi les crons GitHub : les réactiver dans Actions. |
 | Graphiques vides, message « bibliothèque » | CDN jsDelivr injoignable | Le tableau des marqueurs reste utilisable ; réessayer plus tard. |
 | « Bougies Kraken indisponibles » ou marqueurs « indisponible » | Limite publique Kraken ou API en panne | Nouvel essai automatique (1 à 3 min). |
 | Décision non appliquée | `id` déjà utilisé, JSON invalide, ou API Kraken absente pendant le cycle | Lire le journal ; si API absente, elle sera retentée automatiquement. |

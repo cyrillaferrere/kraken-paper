@@ -2,7 +2,7 @@ name: engine
 
 on:
   schedule:
-    - cron: '7 * * * *'
+    - cron: '7 * * * *'   # secours ; le déclencheur principal (v0.2.0) est la fonction Netlify, minute 9 UTC
   workflow_dispatch:
   push:
     branches: [main]
