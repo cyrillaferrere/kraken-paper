@@ -21,8 +21,8 @@ test("Nocturne Signal remplace la palette violette et les doublons desktop", () 
 test("la palette du chandelier est cohérente sans changer ses séries", () => {
  const market=read("site/markets.js");
  const alternative = read("site/index.html").includes('href="analog.css"');
- assert.match(market, alternative ? /ac: "#d6ad78"/ : /ac: "#b4d779"/);
- assert.match(market, alternative ? /ma50: "#ddbc87"/ : /ma50: "#d8b983"/);
+ assert.match(market, alternative ? /ac: "#b6ff52"/ : /ac: "#b4d779"/);
+ assert.match(market, alternative ? /ma50: "#ffc475"/ : /ma50: "#d8b983"/);
  assert.match(market,/CandlestickSeries/);
  assert.match(market,/LineSeries/);
 });
