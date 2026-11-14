@@ -342,6 +342,7 @@ def run(bars, minutes):
     plateaux = select_plateaux(features, minutes)
     fold_start = bars[0][0]+365*DAY
     results = []
+    totals = defaultdict(lambda: {"pairs": [], "economics": []})
     while fold_start+90*DAY <= bars[-1][0]:
         start, stop = fold_start+EMBARGO, fold_start+90*DAY-EMBARGO
         strata = []
@@ -366,6 +367,10 @@ def run(bars, minutes):
                 candidates = [p for p in plateaux
                               if (p["post_drop"] or not post_drop)
                               and (regime == "all" or p["regime"] == regime)]
+                econ = economics(candidates, bars, minutes, start, stop)
+                key = ("post -2 %" if post_drop else "plateau", regime)
+                totals[key]["pairs"].extend(pairs)
+                totals[key]["economics"].append(econ)
                 strata.append({
                     "post_drop": post_drop, "regime": regime,
                     "plateaux_detected": detected if regime == "all" else
@@ -376,7 +381,7 @@ def run(bars, minutes):
                     "matched_reference": count(controls),
                     "score3": count(subset),
                     "delta_up_ci95_points": block_ci(pairs, bars, minutes),
-                    "economics": economics(candidates, bars, minutes, start, stop),
+                    "economics": econ,
                 })
         results.append({
             "train_end_utc": datetime.fromtimestamp(fold_start-EMBARGO, timezone.utc).isoformat(),
@@ -385,7 +390,29 @@ def run(bars, minutes):
             "strata": strata,
         })
         fold_start += 90*DAY
-    return results
+    summary = []
+    for (hypothesis, regime), data in sorted(totals.items()):
+        pairs = data["pairs"]
+        p_labels = [outcome(bars, p, minutes) for p, _ in pairs]
+        c_labels = [outcome(bars, c, minutes) for _, c in pairs]
+        economics_rows = data["economics"]
+        fills = sum(x["fills"] for x in economics_rows)
+        weighted_exp = sum(x["net_expectancy_pct"]*x["fills"]
+                           for x in economics_rows
+                           if x["net_expectancy_pct"] is not None)
+        summary.append({
+            "hypothesis": hypothesis, "regime": regime, "matched_pairs": len(pairs),
+            "plateau_up": p_labels.count("up"), "reference_up": c_labels.count("up"),
+            "plateau_up_pct": round(100*p_labels.count("up")/len(pairs), 2) if pairs else None,
+            "reference_up_pct": round(100*c_labels.count("up")/len(pairs), 2) if pairs else None,
+            "delta_up_ci95_points": block_ci(pairs, bars, minutes),
+            "fills": fills,
+            "net_expectancy_pct": round(weighted_exp/fills, 3) if fills else None,
+            "score3_matched": sum(p["score"] >= 3 for p, _ in pairs),
+            "score3_up": sum(p["score"] >= 3 and outcome(bars, p, minutes) == "up"
+                             for p, _ in pairs),
+        })
+    return {"folds": results, "summary": summary}
 
 
 def render_markdown(result):
@@ -421,7 +448,25 @@ def render_markdown(result):
                     fmt(e["strategy_net_pct"]), fmt(e["hodl_mark_to_market_pct"]),
                 ]
                 lines.append("| " + " | ".join(fields) + " |")
-    lines.extend(["", "## Sources et empreintes", ""])
+    lines.extend(["", "## Synthèse de toutes les fenêtres hors échantillon", "",
+                  "| Paire | Hypothèse | Régime | N apparié | Rebond plateau % | Référence % | IC95 écart (pts) | Fills maker | Espérance nette/trade % |",
+                  "|---|---|---|---:|---:|---:|---|---:|---:|"])
+    for section in result["assets"].values():
+        for summary in section["summary"]:
+            ci = summary["delta_up_ci95_points"]
+            interval = f"[{ci[0]}; {ci[1]}]" if ci else "n/d"
+            lines.append("| " + " | ".join([
+                section["instrument"]+" "+str(section["timeframe_min"])+"m",
+                summary["hypothesis"], summary["regime"],
+                str(summary["matched_pairs"]), fmt(summary["plateau_up_pct"]),
+                fmt(summary["reference_up_pct"]), interval,
+                str(summary["fills"]), fmt(summary["net_expectancy_pct"]),
+            ]) + " |")
+    lines.extend(["", "Les intervalles de confiance utilisent 1 000 tirages de semaines entières; "
+                  "ils ne corrigent pas le choix multiple des 6 couples ni l'appariement imparfait.",
+                  "Les résultats de rebond sont évalués sur les signaux appariés; les fills "
+                  "et l'espérance économique portent sur tous les plateaux éligibles.",
+                  "", "## Sources et empreintes", ""])
     for section in result["assets"].values():
         lines.append(f"- {section['instrument']} {section['timeframe_min']}m : "
                      f"{section['bars']} bougies, {section['first_utc']} à {section['last_utc']}, "
@@ -465,12 +510,14 @@ def main():
             api = {"status": "not_requested"}
             if args.api_recent:
                 bars, api = extend_api(bars, asset, quote, minutes)
+            analysis = run(bars, minutes)
             result["assets"][f"{asset}_{minutes}"] = {
                 "instrument": f"{asset}/{quote}", "timeframe_min": minutes,
                 "bars": len(bars), "coverage": round(coverage, 5),
                 "first_utc": datetime.fromtimestamp(bars[0][0], timezone.utc).isoformat(),
                 "last_utc": datetime.fromtimestamp(bars[-1][0], timezone.utc).isoformat(),
-                "sources": provenance, "api_extension": api, "folds": run(bars, minutes),
+                "sources": provenance, "api_extension": api,
+                "folds": analysis["folds"], "summary": analysis["summary"],
             }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
