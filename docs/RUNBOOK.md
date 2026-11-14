@@ -163,3 +163,13 @@ Le workflow `.github/workflows/quality.yml` (`quality-gates / quality`) s'exécu
 **Avant fusion** : vérifier les deux checks verts, relire les fichiers modifiés (aucun `state/`, `decisions/`), obtenir la revue Grok Bot, puis déployer la préprod via `scripts/deploy.sh preprod`. Après déploiement, vérifier l'alias `preprod--`, le commit affiché, le navigateur mobile/bureau, les graphiques et l'absence de changement du site de production. Aucun passage en prod sans accord explicite de Cyril.
 
 **Limites** : le workflow n'effectue pas de tests de navigateur de bout en bout ni de déploiement Netlify ; la vérification de secrets est partielle et ne remplace pas la revue. Les tests CI doivent être observés sur GitHub avant de déclarer le dispositif opérationnel.
+
+## Déploiement préprod par GitHub Actions (ADR-16)
+
+Le workflow `.github/workflows/deploy-preprod.yml` permet de déployer sans Grok Bot. Il est **manuel uniquement**, n'accepte que la branche `preprod` et n'a pas de déclencheur sur push ni sur PR. Il appelle le script existant `scripts/deploy.sh preprod` (alias Netlify, jamais `--prod`) et vérifie que `https://preprod--kraken-paper.netlify.app/version.json` contient le SHA GitHub attendu, `env: preprod` et `branch: preprod`.
+
+**Configuration initiale par Cyril, une seule fois** : GitHub → dépôt `kraken-paper` → Settings → Environments → créer `preprod` (facultativement limiter le déploiement à la branche `preprod`) → Environment secrets → New environment secret → nom `NETLIFY_AUTH_TOKEN`, valeur du jeton personnel Netlify. Ne jamais coller le jeton dans le chat, un commit ou les logs. Le jeton est un jeton de compte Netlify : le workflow interdit `--prod`, mais le jeton lui-même peut avoir davantage de droits ; préférer un compte dédié à permissions réduites si disponible. Aucun changement de ruleset GitHub ou de production n'est nécessaire.
+
+**Utilisation** : GitHub → Actions → `deploy-preprod` → Run workflow → branche `preprod` → Run workflow. Ou, avec un accès GitHub autorisé : `gh workflow run deploy-preprod.yml --ref preprod`. Vérifier le run vert et le commit sur le dashboard. En cas d'échec « Missing NETLIFY_AUTH_TOKEN », vérifier le secret de l'environnement GitHub `preprod` (pas le secret Netlify `GITHUB_DISPATCH_TOKEN`). Si le workflow est lancé sur `main`, le job est ignoré ; ce n'est **pas** un déploiement réussi. En cas de commit différent dans `version.json`, ne pas déclarer la préprod à jour ; consulter les logs du run.
+
+**État d'activation** : workflow préparé par PR ; secret et premier déploiement Actions restent à configurer et vérifier. Le déploiement manuel CLI reste possible en secours. Ne pas activer de protection de branches sans accord distinct de Cyril.
