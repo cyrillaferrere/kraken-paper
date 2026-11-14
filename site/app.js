@@ -375,14 +375,18 @@
     if (note) note.textContent = pts.length + " / " + equity.length + " cycles affichés";
     if (pts.length < 2) { el.innerHTML = `<div class="empty">Pas assez de cycles sur cette période (${pts.length} point${pts.length > 1 ? "s" : ""}). Choisissez une période plus longue.</div>`; return; }
     const W = el.clientWidth || 600, H = el.clientHeight || 240, pl = 58, pr = 10, pt = 10, pb = 24;
-    const vals = pts.flatMap((p) => [p.eq, p.hold]).filter((v) => v != null);
-    let lo = Math.min(...vals), hi = Math.max(...vals);
+    const { extent, sample, path } = window.KPHistory;
+    const bounds = extent(pts);
+    if (!bounds) { el.innerHTML = '<div class="empty">Valeurs historiques indisponibles.</div>'; return; }
+    let lo = bounds.min, hi = bounds.max;
     if (hi - lo < 1) { lo -= 5; hi += 5; }
     const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
     const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
     const X = (t) => pl + (W - pl - pr) * (t1 === t0 ? 0 : (t - t0) / (t1 - t0));
     const Y = (v) => pt + (H - pt - pb) * (1 - (v - lo) / (hi - lo));
-    const line = (key) => pts.filter((p) => p[key] != null).map((p, i) => (i ? "L" : "M") + X(p.t).toFixed(1) + "," + Y(p[key]).toFixed(1)).join("");
+    // Min/max are computed on all cycles; the SVG is bounded by screen resolution.
+    const plot = sample(pts, Math.max(400, Math.min(1600, Math.round(W * 2))));
+    const line = (key) => path(plot, key, X, Y);
     const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => lo + (hi - lo) * f);
     const grid = ticks.map((v) => `<line x1="${pl}" x2="${W - pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#243049" stroke-width="1"/><text x="${pl - 6}" y="${Y(v) + 4}" fill="#8a96b3" font-size="11" text-anchor="end">${nf(0).format(v)}</text>`).join("");
     const startY = Y(S.start_capital);

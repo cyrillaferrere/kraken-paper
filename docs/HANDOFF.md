@@ -1,5 +1,11 @@
 # Kraken Paper : document de reprise
 
+## État de l'itération — historiques longs (14/11/2026)
+- Branche `fix/v0.2.1-history-scale-and-data-integrity` vers `preprod` : helper `site/history-utils.js` et tests `tests/site/history-scale.test.js`.
+- Les cycles complets restent la source de vérité ; le SVG seul est échantillonné en conservant extrema et ruptures. ADR-17.
+- Vérifier CI, affichage mobile, périodes 1 an/tout, journal, survol et absence de modification PAPER avant validation.
+
+
 > Stabilisation du rafraîchissement UX v0.2.1 : une seule lecture d'état à la fois, validation et publication groupée portefeuille/equity/journal, nouvelle tentative après snapshot invalide, réponses de prix hors ordre ignorées, journal/trades/courbe reconstruits uniquement lors d'un nouveau snapshot (pas toutes les 15 s). Aucun changement du moteur PAPER. Branche `fix/v0.2.1-data-refresh-integrity` vers `preprod`, tests et recette navigateur obligatoires.
 
 > Explorateur d'historique UX v0.2.1 : courbe 24 h, 7 j, 30 j, 90 j, 6 mois (180 j), 1 an (365 j), tout; journal 40/100/250/tous les événements disponibles, avec indication explicite de la profondeur chargée et des filtres sur les entrées visibles. Aucun événement ni point de courbe inventé, lecture seule. Branche `feature/v0.2.1-history-explorer` vers `preprod`, recette CI + navigateur obligatoire avant fusion.
