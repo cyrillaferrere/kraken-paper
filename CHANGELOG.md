@@ -1,3 +1,6 @@
+## [Unreleased] — recherche R-01
+- Recherche R-01 : protocole Kraken spot des plateaux pré-rebond, script hors moteur et tests offline ; collecte historique et résultats Kraken à effectuer, aucune modification PAPER.
+
 ## [Unreleased] — v0.3.1 Nocturne Signal (préproduction)
 - Identité graphique graphite et jade, monogramme K/, surfaces plates, graphiques harmonisés, navigation desktop sans doublon.
 - Version de préproduction `VERSION=0.3.1`, source du bandeau de build Netlify (`version.json`). Voir ADR-21.
