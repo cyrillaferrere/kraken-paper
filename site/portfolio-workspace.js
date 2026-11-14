@@ -17,7 +17,8 @@
     let scheduled = false;
     const initialOrder = new WeakMap();
     let sequence = 0;
-    let sorting = false;
+    const observer = new MutationObserver(schedule);
+    const observe = () => observer.observe(tb, { childList: true, subtree: true, characterData: true });
     function update() {
       scheduled = false;
       const rows = Array.from(tb.rows).filter((row) => !row.querySelector(".empty"));
@@ -31,10 +32,12 @@
         });
         const changed = sorted.some((row, i) => tb.rows[i] !== row);
         if (changed) {
-          sorting = true;
-          sorted.forEach((row, i) => {
-            if (tb.rows[i] !== row) tb.insertBefore(row, tb.rows[i] || null);
-          });
+          observer.disconnect();
+          try {
+            sorted.forEach((row, i) => {
+              if (tb.rows[i] !== row) tb.insertBefore(row, tb.rows[i] || null);
+            });
+          } finally { observe(); }
         }
       }
       let shown = 0;
@@ -59,7 +62,7 @@
       schedule();
       search.focus();
     });
-    new MutationObserver(() => { if (sorting) { sorting = false; return; } schedule(); }).observe(tb, { childList: true, subtree: true, characterData: true });
+    observe();
     schedule();
   }
   setup("positions");
