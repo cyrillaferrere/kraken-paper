@@ -1,6 +1,6 @@
 # Changelog
 
-> Complément UX 0.2.1 (en cours) : navigation latérale rétractable sur ordinateur, panneau mobile accessible au clavier, état du menu mémorisé localement. Aucun changement moteur ni de données.
+> Compléments UX 0.2.1 : navigation latérale rétractable publiée en préproduction (`0e744d8`) ; refonte de lisibilité des tableaux Positions et Ordres en préparation sur branche `feature/v0.2.1-readable-orders`. Aucun changement moteur ni de données.
 
 Toutes les évolutions notables de Kraken Paper sont notées ici.
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions : [SemVer](https://semver.org/lang/fr/).
