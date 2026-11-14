@@ -1,5 +1,10 @@
 # Kraken Paper : runbook (opérations)
 
+## Recette — intégrité des données publiques
+- Vérifier prix Kraken en direct, statut partiel si une paire manque, et repli sur les prix du dernier cycle si API indisponible.
+- Tester localement des cycles CSV hors ordre et une ligne JSONL corrompue : le dashboard doit garder le snapshot précédent et afficher une erreur, sans effacer d'événement.
+- Vérifier l'actualisation normale après correction et l'absence de secrets/ordres réels. Tests : `node --test tests/site/*.test.js`.
+
 ## Recette ciblée — historiques volumineux
 - Ouvrir Performance sur 24 h, 1 an et Tout ; vérifier que le nombre de cycles correspond aux données et que les extrema sont visibles.
 - Avec une série BTC incomplète, vérifier que le graphique ne relie pas deux segments séparés par une lacune.
