@@ -1,5 +1,10 @@
 # Kraken Paper : document de reprise
 
+## Scanner : intégration et récupération des paires
+- Branche `fix/v0.2.1-scanner-failure-recovery` vers `preprod`. Le scanner indique `scannerCompleted/scannerTotal` pendant la lecture, et distingue les paires indisponibles en fin de cycle.
+- Les nouvelles paires provenant des positions ou ordres déclenchent une nouvelle analyse. Tests `tests/site/scanner-recovery.test.js`.
+- Recette visuelle à effectuer ; aucune modification de stratégie, moteur, `state/`, `decisions/` ni production.
+
 ## Scanner de marchés — lot de performance
 - Branche `perf/v0.2.1-market-scanner-batch` : orchestration de `refreshMetrics` dans `site/markets.js`, test `tests/site/scanner-batch.test.js`.
 - Les données restent publiques Kraken ; benchmark BTC calculé avant la force relative, deux workers maximum pour les autres actifs.
