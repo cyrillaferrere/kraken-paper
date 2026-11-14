@@ -15,12 +15,16 @@
     const search = $(name + "-search"), choice = $(name + (name === "positions" ? "-sort" : "-side"));
     const count = $(name + "-count");
     let scheduled = false;
+    const initialOrder = new WeakMap();
+    let sequence = 0;
     function update() {
       scheduled = false;
       const rows = Array.from(tb.rows).filter((row) => !row.querySelector(".empty"));
-      if (name === "positions" && choice.value !== "default") {
+      rows.forEach((row) => { if (!initialOrder.has(row)) initialOrder.set(row, sequence++); });
+      if (name === "positions") {
         const col = choice.value === "value" ? 4 : choice.value === "pnl" ? 5 : 0;
         const sorted = rows.slice().sort((a, b) => {
+          if (choice.value === "default") return initialOrder.get(a) - initialOrder.get(b);
           if (choice.value === "name") return norm(a.cells[0]?.textContent).localeCompare(norm(b.cells[0]?.textContent), "fr");
           return number(b.cells[col]?.textContent) - number(a.cells[col]?.textContent);
         });
