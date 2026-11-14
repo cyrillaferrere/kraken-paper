@@ -7,7 +7,7 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 ## [Unreleased]
 
 ### Déploiement (en préparation)
-- Workflow GitHub Actions manuel réservé à l'alias Netlify `preprod`, avec secret GitHub d'environnement, vérification du commit publié et documentation ADR-16. Aucun déploiement de production.
+- Workflow GitHub Actions automatique après push/fusion sur `preprod` uniquement, réservé à l'alias Netlify `preprod`, avec secret GitHub d'environnement, vérification du commit publié et documentation ADR-16. Aucun déploiement de production. Le déclencheur manuel initial a été remplacé car GitHub exige sa présence sur la branche par défaut.
 
 
 ### Qualité (en préparation)
