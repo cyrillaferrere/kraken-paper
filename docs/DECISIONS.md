@@ -126,3 +126,8 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 - **Contexte** : une courbe sur un an peut contenir plusieurs milliers de cycles ; la création d'un SVG pour chaque point coûte cher, et `Math.min(...valeurs)` peut dépasser les limites d'arguments sur un historique volumineux.
 - **Décision** : conserver tous les cycles bruts et les utiliser pour les périodes, les comptes et les bornes de l'axe ; limiter uniquement les points de tracé SVG en conservant les extrema par fenêtre, les extrémités et les frontières de données absentes. Les séries discontinues ne sont jamais reliées artificiellement.
 - **Conséquences** : tracé plus fluide sur historique long sans changer l'état, les calculs de performance ni les décisions ; les détails intra-fenêtre ne sont pas tous dessinés, mais les minima et maxima sont conservés. Tests de 100 000 cycles et de lacunes de données.
+
+## ADR-18 : refuser les données historiques corrompues et signaler les prix partiels (14/11/2026)
+- **Contexte** : le navigateur supprimait silencieusement les lignes de journal JSONL malformées et les cycles CSV invalides ; des prix Kraken absents ou non numériques pouvaient être interprétés comme disponibles.
+- **Décision** : valider les trois sources avant publication, rejeter le snapshot entier en cas d'historique incohérent, ignorer les prix de marché non positifs/non finis et afficher le nombre de paires effectivement reçues. Conserver les valeurs du dernier cycle pour les paires sans prix direct.
+- **Conséquences** : aucun événement d'audit perdu silencieusement ; l'ancien snapshot reste affiché avec une alerte jusqu'au prochain essai ; les données live partielles sont explicitement signalées. Aucun changement moteur ni stratégie.
