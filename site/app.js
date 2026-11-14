@@ -360,7 +360,7 @@
     const grid = ticks.map((v) => `<line x1="${pl}" x2="${W - pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#243049" stroke-width="1"/><text x="${pl - 6}" y="${Y(v) + 4}" fill="#8a96b3" font-size="11" text-anchor="end">${nf(0).format(v)}</text>`).join("");
     const startY = Y(S.start_capital);
     const fmtT = (t) => new Date(t).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", timeZone: "Europe/Paris" });
-    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img">
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Performance du portefeuille et du BTC conservé, ${pts.length} cycles de ${fmtT(t0)} à ${fmtT(t1)}">
       ${grid}
       <line x1="${pl}" x2="${W - pr}" y1="${startY}" y2="${startY}" stroke="#7c5cff" stroke-dasharray="4 4" opacity=".6"/>
       <path d="${line("hold")}" fill="none" stroke="#fbbf24" stroke-width="1.6" opacity=".85"/>

@@ -5,7 +5,7 @@
   const $ = (id) => document.getElementById(id);
   const norm = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
   const number = (s) => {
-    const clean = String(s || "").replace(/[\u00a0\u202f\s]/g, "").replace(",", ".").replace(/[^0-9.+\-]/g, "");
+    const clean = String(s || "").replace(/[−–]/g, "-").replace(/[\u00a0\u202f\s]/g, "").replace(",", ".").replace(/[^0-9.+\-]/g, "");
     const n = Number.parseFloat(clean);
     return Number.isFinite(n) ? n : -Infinity;
   };
@@ -17,6 +17,7 @@
     let scheduled = false;
     const initialOrder = new WeakMap();
     let sequence = 0;
+    let sorting = false;
     function update() {
       scheduled = false;
       const rows = Array.from(tb.rows).filter((row) => !row.querySelector(".empty"));
@@ -28,9 +29,13 @@
           if (choice.value === "name") return norm(a.cells[0]?.textContent).localeCompare(norm(b.cells[0]?.textContent), "fr");
           return number(b.cells[col]?.textContent) - number(a.cells[col]?.textContent);
         });
-        sorted.forEach((row, i) => {
-          if (tb.rows[i] !== row) tb.insertBefore(row, tb.rows[i] || null);
-        });
+        const changed = sorted.some((row, i) => tb.rows[i] !== row);
+        if (changed) {
+          sorting = true;
+          sorted.forEach((row, i) => {
+            if (tb.rows[i] !== row) tb.insertBefore(row, tb.rows[i] || null);
+          });
+        }
       }
       let shown = 0;
       for (const row of rows) {
@@ -54,7 +59,7 @@
       schedule();
       search.focus();
     });
-    new MutationObserver(schedule).observe(tb, { childList: true, subtree: true, characterData: true });
+    new MutationObserver(() => { if (sorting) { sorting = false; return; } schedule(); }).observe(tb, { childList: true, subtree: true, characterData: true });
     schedule();
   }
   setup("positions");

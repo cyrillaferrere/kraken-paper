@@ -24,32 +24,36 @@ function setup() {
   });
   const p1 = row("SOL", "499,20 USDC", "−0,80 (−0,16 %)");
   const p2 = row("BTC", "1 000,81 USDC", "+0,81 (+0,08 %)");
+  const p3 = row("ADA", "300,00 USDC", "−10,00 (−3,23 %)");
   const t1 = row("ETH ACHAT", "", "", "buy"), t2 = row("SOL VENTE", "", "", "sell");
   const table = (rows) => {
     const body = { rows, insertBefore(item, before) { const old = rows.indexOf(item); if (old >= 0) rows.splice(old, 1); const idx = before == null ? rows.length : rows.indexOf(before); rows.splice(idx < 0 ? rows.length : idx, 0, item); } };
     return { tBodies: [body] };
   };
-  elements.positions = table([p1, p2]);
+  elements.positions = table([p1, p2, p3]);
   elements.trades = table([t1, t2]);
   vm.runInNewContext(source, {
     document: { getElementById: (id) => elements[id] },
     requestAnimationFrame: (fn) => fn(),
     MutationObserver: class { observe() {} }
   });
-  return { e: elements, p1, p2, t1, t2 };
+  return { e: elements, p1, p2, p3, t1, t2 };
 }
 
 test("position value and signed P&L sort correctly and reset restores order", () => {
-  const { e, p1, p2 } = setup();
+  const { e, p1, p2, p3 } = setup();
   e["positions-sort"].value = "value";
   e["positions-sort"].handlers.change();
   assert.equal(e.positions.tBodies[0].rows[0], p2);
   e["positions-sort"].value = "pnl";
   e["positions-sort"].handlers.change();
   assert.equal(e.positions.tBodies[0].rows[0], p2);
+  assert.equal(e.positions.tBodies[0].rows[1], p1);
+  assert.equal(e.positions.tBodies[0].rows[2], p3);
   e["positions-sort"].value = "default";
   e["positions-sort"].handlers.change();
   assert.equal(e.positions.tBodies[0].rows[0], p1);
+  assert.equal(e.positions.tBodies[0].rows[2], p3);
   e["positions-search"].value = "btc";
   e["positions-search"].handlers.input();
   assert.equal(p1.hidden, true);
@@ -78,4 +82,12 @@ test("all portfolio controls exist in the HTML", () => {
     assert.ok(html.includes('id="' + id + '"'), id);
   }
   assert.ok(html.includes('<script src="portfolio-workspace.js"></script>'));
+});
+
+test("signed French P&L ordering handles two negative amounts", () => {
+  const { e, p1, p3 } = setup();
+  e["positions-sort"].value = "pnl";
+  e["positions-sort"].handlers.change();
+  const rows = e.positions.tBodies[0].rows;
+  assert.ok(rows.indexOf(p1) < rows.indexOf(p3), "−0,80 must rank ahead of −10,00");
 });
