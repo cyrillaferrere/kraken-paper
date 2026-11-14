@@ -1,3 +1,9 @@
+## v0.2.2 — référentiels UX (14/11/2026)
+- Branche `feature/v0.2.2-modern-web-motion-ux` issue de `preprod`.
+- Référentiels `.agents/skills/kraken-motion-ux/SKILL.md` et `.agents/skills/modern-web-guidance/SKILL.md`, checklist `docs/UX_WEB_CHECKLIST.md`.
+- Lot documentaire seulement : le menu, le chandelier et le responsive restent à développer et tester dans des PR ciblées.
+- Ne pas installer le package amont automatiquement ; valider la compatibilité Safari et le reduced motion. Aucune modification de `main`, `state/`, `decisions/` ou du moteur.
+
 # Kraken Paper : document de reprise
 
 ## Cause racine du débordement mobile
