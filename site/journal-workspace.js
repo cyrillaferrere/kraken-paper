@@ -23,7 +23,7 @@
       li.hidden = !(matchText && matchType);
       if (!li.hidden) shown++;
     }
-    count.textContent = shown + " / " + rows.length + " événements" + (rows.length && !shown ? " — aucun résultat" : "");
+    count.textContent = shown + " / " + rows.length + " événements chargés" + (rows.length && !shown ? " — aucun résultat" : "");
   }
   function schedule() {
     if (scheduled) return;
