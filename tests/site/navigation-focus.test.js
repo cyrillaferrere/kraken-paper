@@ -77,11 +77,11 @@ test("Un clic sur un lien ferme le menu sans forcer le focus sur le bouton", () 
   assert.equal(h.link.attrs["aria-current"], "location");
 });
 
-test("Un clic extérieur ferme le menu et restaure le focus s'il était dedans", () => {
+test("Un clic extérieur ferme le menu sans déplacer le focus", () => {
   const h = harness();
   h.listeners.get("toggle:click")();
   h.document.activeElement = h.link;
   h.listeners.get("document:pointerdown")({ target: {} });
-  assert.equal(h.document.activeElement, h.toggle);
+  assert.equal(h.document.activeElement, h.link);
   assert.equal(h.toggle.attrs["aria-expanded"], "false");
 });

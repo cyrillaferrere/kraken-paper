@@ -16,7 +16,7 @@
   // Au pire une requête OHLC toutes les 30 s pour le graphique (5 min) : très en dessous de la limite publique Kraken.
   const TTL = { 5: 60e3, 15: 120e3, 30: 180e3, 60: 180e3, 240: 300e3, 1440: 900e3 };
   const REFRESH = { 5: 30e3, 15: 60e3, 30: 90e3, 60: 60e3, 240: 120e3, 1440: 300e3 };
-  const C = { up: "#61cfa1", dn: "#ea7774", mu: "#9da9a4", line: "#293536", ac: "#b4d779", ac2: "#a3c8bb", warn: "#e2b86f", tx: "#edf1eb", ma50: "#d8b983" };
+  const C = { up: "#34d399", dn: "#f87171", mu: "#8a96b3", line: "#243049", ac: "#7c5cff", ac2: "#22d3ee", warn: "#fbbf24", tx: "#e8ecf6", ma50: "#f472b6" };
   window.KP_WATCH = WATCH;
 
   const $ = (id) => document.getElementById(id);
@@ -161,7 +161,7 @@
       autoSize: true,
       layout: { background: { type: "solid", color: "transparent" }, textColor: C.mu, fontSize: 11, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
         panes: { separatorColor: C.line, separatorHoverColor: "rgba(124,92,255,.25)", enableResize: false } },
-      grid: { vertLines: { color: "rgba(41,53,54,.42)" }, horzLines: { color: "rgba(41,53,54,.42)" } },
+      grid: { vertLines: { color: "rgba(36,48,73,.55)" }, horzLines: { color: "rgba(36,48,73,.55)" } },
       rightPriceScale: { borderColor: C.line },
       timeScale: { borderColor: C.line, timeVisible: true, secondsVisible: false, rightOffset: 12, // espace à droite : la dernière bougie ne touche jamais l'échelle de prix
        
