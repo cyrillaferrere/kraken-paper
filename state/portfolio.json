@@ -165,9 +165,9 @@
     "SOLUSDC": 1794668400
   },
   "last_prices": {
-    "XBTUSDC": 65458.37,
-    "ETHUSDC": 1830.54,
-    "SOLUSDC": 73.26
+    "XBTUSDC": 65363.79,
+    "ETHUSDC": 1825.0,
+    "SOLUSDC": 72.4
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -181,8 +181,8 @@
     "order": 6,
     "trade": 3
   },
-  "last_cycle": "2026-11-14T17:09:13+01:00",
-  "last_cycle_ts": 1794672553,
+  "last_cycle": "2026-11-14T17:58:22+01:00",
+  "last_cycle_ts": 1794675502,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
