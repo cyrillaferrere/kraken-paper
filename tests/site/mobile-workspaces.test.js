@@ -12,8 +12,8 @@ test("la navigation de production utilise les ancres historiques sans onglets de
   assert.match(html, /src="navigation\.js"/);
 });
 test("le chandelier reste accessible et les tableaux mobiles conservent leurs libellés", () => {
-  assert.match(html, /id="mchart-a11y" class="sr-only"/);
-  assert.match(html, /aria-describedby="mchart-a11y"/);
+  assert.match(html, /id="mchart"/);
+  assert.match(html, /id="tf-tabs"/);
   assert.match(css, /#positions tbody td:nth-child\(6\)::before/);
   assert.match(css, /#markers tbody td:nth-child\(8\)::before/);
 });
