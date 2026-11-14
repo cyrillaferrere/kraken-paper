@@ -294,3 +294,6 @@ le dash attend 10 min et affiche les décisions depuis le journal.
 **Reprise Grok Bot / GPT** : après revue et CI vertes, fusionner la PR dans `preprod` ; Cyril configure une seule fois le secret GitHub de l'environnement `preprod` sans jamais le partager en chat. La fusion dans `preprod` déclenche le workflow automatiquement ; vérifier que le SHA du dashboard correspond au commit de `preprod`. Si aucun run ne démarre, vérifier le push vers `preprod` et la présence du workflow ; si le run échoue, consulter les logs sans afficher le secret. Le jeton Netlify n'est pas intrinsèquement restreint à la préprod : la sécurité repose aussi sur le workflow et les permissions du compte Netlify. **Aucun déploiement prod sans accord de Cyril.**
 
 **Statut** : workflow proposé, secret GitHub `preprod` configuré le 14/11/2026 ; attendre la revue Grok Bot, la fusion et le premier run réussi. Le déclencheur manuel a été remplacé par `push` sur `preprod` pour éviter l'exigence GitHub de présence sur la branche par défaut. Aucune règle GitHub changée.
+
+## PR #37 — navigation mobile v0.3.0
+- Quatre rubriques via ancres ; graphiques et données en lecture seule. Tests `tests/site/mobile-workspaces.test.js`. ADR et recette détaillée dans PR #38.

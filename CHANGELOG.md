@@ -142,3 +142,5 @@ Première version numérotée. Elle regroupe tout ce qui a été construit depui
 
 ### Modifié
 - Le workflow du moteur ne s'exécute que depuis `main` (garde-fou contre un lancement manuel depuis une autre branche).
+
+- [Unreleased] PR #37 : navigation quatre rubriques et synthèse mobile, sans modification du moteur PAPER.
