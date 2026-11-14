@@ -28,43 +28,43 @@
   },
   "open_orders": [
     {
-      "id": "O0004",
-      "pair": "SOLUSDC",
-      "side": "sell",
-      "qty": 6.59613202,
-      "price": 83.0,
-      "stop_loss": 70.5,
-      "take_profit": null,
-      "created": "2026-11-14T04:00:00+01:00",
-      "active_from": 1794625200,
-      "parent": "O0003",
-      "decision_id": null
-    },
-    {
-      "id": "O0005",
+      "id": "O0007",
       "pair": "XBTUSDC",
       "side": "sell",
       "qty": 0.01491041,
-      "price": 71500.0,
+      "price": 68400.0,
       "stop_loss": 63500.0,
       "take_profit": null,
-      "created": "2026-11-14T05:00:00+01:00",
-      "active_from": 1794628800,
-      "parent": "O0001",
-      "decision_id": null
+      "created": "2026-11-14T19:07:35+01:00",
+      "active_from": 1794682800,
+      "parent": null,
+      "decision_id": "2026-11-14-19h10"
     },
     {
-      "id": "O0006",
+      "id": "O0008",
+      "pair": "SOLUSDC",
+      "side": "sell",
+      "qty": 6.59613202,
+      "price": 77.5,
+      "stop_loss": 70.5,
+      "take_profit": null,
+      "created": "2026-11-14T19:07:35+01:00",
+      "active_from": 1794682800,
+      "parent": null,
+      "decision_id": "2026-11-14-19h10"
+    },
+    {
+      "id": "O0009",
       "pair": "ETHUSDC",
       "side": "sell",
       "qty": 0.37284019,
-      "price": 2040.0,
+      "price": 1930.0,
       "stop_loss": 1755.0,
       "take_profit": null,
-      "created": "2026-11-14T15:00:00+01:00",
-      "active_from": 1794668400,
-      "parent": "O0002",
-      "decision_id": null
+      "created": "2026-11-14T19:07:35+01:00",
+      "active_from": 1794682800,
+      "parent": null,
+      "decision_id": "2026-11-14-19h10"
     }
   ],
   "closed_trades": [
@@ -119,13 +119,14 @@
     "2026-11-13-23h55",
     "2026-11-14-04h10",
     "2026-11-14-09h05",
-    "2026-11-14-14h10"
+    "2026-11-14-14h10",
+    "2026-11-14-19h10"
   ],
   "last_decision": {
-    "id": "2026-11-14-14h10",
-    "timestamp": "2026-11-14T14:10:00+01:00",
-    "rationale": "Session 14h. BTC 66 780 (achat 66 800, quasi à plat), SOL 75,45 (achat 75,5), ETH 1 894, plus bas 24 h 1 877 donc mon achat à 1 870 attend. Le range de la matinée tient (BTC 66 424 à 67 400) mais les prix restent sous les MA20/MA50 en 1h et 4h, RSI 4h très bas (BTC 15, SOL 23, ETH 25) : survente marquée sans signal de retournement. Je ne touche à rien : stops et objectifs gardent un ratio gain/risque correct, et tout ajustement coûterait des frais sans avantage clair. J'apprends que le déclencheur Netlify assure désormais un cycle toutes les heures à :09, le cron GitHub restant un secours irrégulier. Portefeuille environ 6 603 USDC contre environ 6 435 pour le BTC gardé, soit +2,6 %.",
-    "applied": "2026-11-14T14:09:32+01:00"
+    "id": "2026-11-14-19h10",
+    "timestamp": "2026-11-14T19:10:00+01:00",
+    "rationale": "Session 19h. Achat ETH exécuté à 1 870 sur la bougie de 15h. La baisse a repris : BTC 65 830 (plus bas 24 h 65 000), ETH 1 840 (plus bas 1 811), SOL 72,6 (plus bas 71,9). Les trois positions sont en léger négatif, tout reste sous les MA20/MA50 en 1h, 4h et 1j, RSI 4h entre 15 et 23 : survente sans retournement. Je change d'approche sur les sorties : en tendance journalière baissière, un rebond cale souvent vers la MA50 1h, donc mes objectifs (71 500, 83, 2 040) sont trop lointains. Je remplace les OCO par des objectifs plus proches (BTC 68 400, SOL 77,5, ETH 1 930) en gardant les mêmes stops (63 500, 70,5, 1 755). Gain visé environ +2,5 à +3 % au-dessus du prix d'achat, net des frais. Pas de renfort ni de vente au marché (taker 0,80 %). J'apprends qu'acheter sous les plus bas en tendance baissière donne de bons prix maker mais pas de rebond garanti.",
+    "applied": "2026-11-14T19:07:35+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -160,14 +161,14 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794672000,
-    "ETHUSDC": 1794672000,
-    "SOLUSDC": 1794672000
+    "XBTUSDC": 1794675600,
+    "ETHUSDC": 1794675600,
+    "SOLUSDC": 1794675600
   },
   "last_prices": {
-    "XBTUSDC": 65080.0,
-    "ETHUSDC": 1813.85,
-    "SOLUSDC": 72.05
+    "XBTUSDC": 65859.32,
+    "ETHUSDC": 1838.02,
+    "SOLUSDC": 72.61
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -178,11 +179,11 @@
   "fees_total": 8.764939,
   "realized_pnl": 0.0,
   "seq": {
-    "order": 6,
+    "order": 9,
     "trade": 3
   },
-  "last_cycle": "2026-11-14T18:09:12+01:00",
-  "last_cycle_ts": 1794676152,
+  "last_cycle": "2026-11-14T19:07:35+01:00",
+  "last_cycle_ts": 1794679655,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
