@@ -1,3 +1,8 @@
+## v0.2.2 — lisibilité du scanner (fix/v0.2.2-scanner-readability)
+- Ligne sélectionnée et focus clavier plus visibles, animation neutralisée si mouvement réduit.
+- Recette requise : desktop, iPhone Safari, clavier, contraste et reduced motion. Tests CI et revue Grok Bot avant fusion vers preprod.
+- Aucun changement moteur, état PAPER, décisions ou production.
+
 # Changelog
 
 - Correction complémentaire mobile : neutralisation des anciennes largeurs minimales tablette (620 px Positions, 760 px Marqueurs) sous 680 px, avec sélecteurs plus spécifiques.
