@@ -1,7 +1,7 @@
 # Kraken Paper : document de reprise
 
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
-> Dernière mise à jour : 14/11/2026, version 0.2.0 (en attente de validation).
+> Dernière mise à jour : 14/11/2026, version 0.2.0.
 
 ## 1. Le projet en bref
 

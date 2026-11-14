@@ -6,9 +6,7 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 
 ## [Unreleased]
 
-## [0.2.0] - en attente de validation
-
-En préprod (https://preprod--kraken-paper.netlify.app), pas encore en prod : la date sera fixée à la mise en prod, après l'accord de Cyril.
+## [0.2.0] - 2026-11-14
 
 ### Ajouté
 - Fil « Décisions de Grok Bot » : une carte dépliable par décision (date de Paris, id, justification, actions résumées en français avec leur résultat : ordre créé ou refus et sa raison, notes), la plus récente en haut. Source : `decisions/` sur `main` via l'API GitHub (liste avec ETag, fichiers lus une seule fois par sha et gardés en cache local) ; repli sur le journal si l'API est limitée.
