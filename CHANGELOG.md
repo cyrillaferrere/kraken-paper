@@ -1,5 +1,10 @@
 # Changelog
 
+## Stabilisation des historiques longs (préproduction, v0.2.1)
+- Rendu SVG plafonné selon la largeur, extrema et données manquantes préservés ; aucun cycle modifié.
+- Tests de charge sur 100 000 points et ADR-17.
+
+
 > Stabilisation du rafraîchissement UX v0.2.1 : une seule lecture d'état à la fois, validation et publication groupée portefeuille/equity/journal, nouvelle tentative après snapshot invalide, réponses de prix hors ordre ignorées, journal/trades/courbe reconstruits uniquement lors d'un nouveau snapshot (pas toutes les 15 s). Aucun changement du moteur PAPER.
 
 > Explorateur d'historique UX v0.2.1 : courbe 24 h, 7 j, 30 j, 90 j, 6 mois (180 j), 1 an (365 j), tout; journal 40/100/250/tous les événements disponibles, avec indication explicite de la profondeur chargée et des filtres sur les entrées visibles. Aucun événement ni point de courbe inventé, lecture seule.
