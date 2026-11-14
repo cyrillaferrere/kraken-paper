@@ -370,7 +370,14 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
             state["open_orders"].remove(order)
             fills.append(tr)
             attach_exit(state, pair, order["qty"], order.get("stop_loss"),
-                        order.get("take_profit"), ts, order["id"])
+                        order.get("take_profit"), ts, order["id"],
+                        take_profits=order.get("take_profits"),
+                        breakeven_after_tp1=order.get("breakeven_after_tp1", False),
+                        entry_price=state["positions"][pair]["avg_cost"])
+        return
+
+    if "take_profits" in order:
+        _check_tiered_exit(state, pair, order, t, high, low, fills, m5)
         return
 
     stop = order.get("stop_loss")
@@ -406,6 +413,40 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None):
     tr["time_source"] = source
     state["open_orders"].remove(order)
     fills.append(tr)
+
+
+def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5):
+    """Exécute les niveaux dans l'ordre des 5 min ; stop prioritaire à égalité."""
+    meta = state["pairs"][pair]
+    bars = m5 if m5 is not None else [(hour_start, None, high, low, None)]
+    for ts, _opening, bar_high, bar_low, _closing in bars:
+        stop = order.get("stop_loss")
+        if stop is not None and bar_low <= stop + EPS:
+            px = round(stop * (1 - SLIP), meta["pair_decimals"])
+            tr = execute_fill(state, pair, "sell", order["qty"], px, "taker",
+                              "stop_loss", ts, order["id"])
+            tr["time_source"] = "m5" if m5 is not None else "hour_open"
+            fills.append(tr)
+            state["open_orders"].remove(order)
+            return
+        # Dans une meme bougie, plusieurs TP peuvent etre touches.
+        while order["take_profits"] and bar_high >= order["take_profits"][0]["price"] - EPS:
+            tier = order["take_profits"].pop(0)
+            qty = min(tier["qty"], order["qty"])
+            tr = execute_fill(state, pair, "sell", qty, tier["price"], "maker",
+                              "take_profit", ts, order["id"])
+            tr["time_source"] = "m5" if m5 is not None else "hour_open"
+            tr["tp_index"] = order.get("tp_filled", 0) + 1
+            fills.append(tr)
+            order["qty"] = round(order["qty"] - qty, meta["lot_decimals"])
+            order["tp_filled"] = tr["tp_index"]
+            if tr["tp_index"] == 1 and order.get("breakeven_after_tp1") and stop is not None:
+                order["stop_loss"] = max(stop, order["entry_price"])
+            if order["qty"] <= EPS:
+                state["open_orders"].remove(order)
+                return
+            order["price"] = (order["take_profits"][0]["price"]
+                              if order["take_profits"] else None)
 
 
 # --------------------------------------------------------------------------
