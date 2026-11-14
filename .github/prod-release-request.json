@@ -3,5 +3,6 @@
   "approved_by": "Cyril",
   "version": "0.2.1",
   "approved_commit": "fb5941bc127d181170cc1faf21941d3a5232340a",
-  "reason": "User approved production publication of Kraken Paper v0.2.1 on 2026-11-14"
+  "reason": "Retry approved v0.2.1 deployment after NETLIFY_AUTH_TOKEN repository secret configured",
+  "request_sequence": 2
 }
