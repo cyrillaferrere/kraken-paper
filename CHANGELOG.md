@@ -1,3 +1,7 @@
+## v0.2.2 — référentiels UX (branche de travail)
+- Adaptation du skill Kraken Motion UX au dashboard statique Kraken Paper et ajout d'un guide local Modern Web Guidance.
+- Checklist de recette navigation, graphique, mobile, accessibilité et performances. Aucun changement d'interface ou de simulation dans ce lot documentaire.
+
 # Changelog
 
 - Correction complémentaire mobile : neutralisation des anciennes largeurs minimales tablette (620 px Positions, 760 px Marqueurs) sous 680 px, avec sélecteurs plus spécifiques.
