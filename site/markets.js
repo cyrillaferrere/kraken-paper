@@ -472,7 +472,12 @@
         renderChips(); renderTable();
         let err = null, completed = 0;
         // BTC d'abord pour calculer la force relative des autres actifs.
-        const queue = [BENCH, ...pairs.filter((x) => x !== BENCH)];
+        // Calculer le BTC avant les autres pour que la force relative soit fiable.
+        try { await computeMetrics(BENCH); failed.delete(BENCH); }
+        catch (e) { err = e; if (!metrics[BENCH]) failed.add(BENCH); }
+        completed++;
+        renderTable();
+        const queue = pairs.filter((x) => x !== BENCH);
         // Deux lectures simultanées maximum : pas de rafale de 42 requêtes OHLC.
         const workers = Array.from({ length: Math.min(2, queue.length) }, async () => {
           while (queue.length) {
