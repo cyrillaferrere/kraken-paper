@@ -165,6 +165,43 @@ class TieredExitTests(unittest.TestCase):
         self.assertEqual(pending["active_from"], T0 + 2 * H)
         self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
 
+    def test_pending_update_does_not_reserve_later_purchase(self):
+        action = {"type": "update_exits", "pair": self.pair, "stop_loss": 61000,
+                  "take_profits": [{"price": 75000, "fraction": 1.0}]}
+        run.run_cycle(self.state, [decision("new-exits", action)],
+                      FakeMarket(last=65000), T0 + 60)
+        # Un achat supplementaire est execute pendant l'attente.
+        run.execute_fill(self.state, self.pair, "buy", 0.01, 65000,
+                         "maker", "limit", T0 + 120, "extra-buy")
+        self.candle(T0 + H, 68000, 64000)
+        orders = self.state["open_orders"]
+        self.assertEqual(len(orders), 1)
+        self.assertAlmostEqual(orders[0]["qty"], 0.02)
+        self.assertAlmostEqual(self.state["positions"][self.pair]["qty"], 0.03)
+        self.assertGreaterEqual(run.available_qty(self.state, self.pair), -run.EPS)
+
+    def test_pending_invalid_small_tier_keeps_old_stop(self):
+        action = {"type": "update_exits", "pair": self.pair, "stop_loss": 61000,
+                  "take_profits": [{"price": 70000, "fraction": 0.997},
+                                   {"price": 75000, "fraction": 0.003}]}
+        # Installer un changement dont les niveaux deviennent non negociables
+        # apres une vente partielle, sans bloquer le cycle.
+        old = self.state["open_orders"][0]
+        old["pending_exits"] = {
+            "active_from": T0 + H, "action": {"take_profits": action["take_profits"]},
+            "stop_loss": 61000, "breakeven_after_tp1": False,
+            "entry_price": 65000, "parent": "invalid-after-fill"}
+        rejects = []
+        fills = run.process_candle(
+            self.state, self.pair, (T0 + H, 65000, 68000, 64000, 65000),
+            rejects=rejects, market=FakeMarket(fail5=True))
+        self.assertEqual(fills, [])
+        self.assertIs(self.state["open_orders"][0], old)
+        self.assertEqual(old["stop_loss"], 62000)
+        self.assertNotIn("pending_exits", old)
+        self.assertTrue(any("anciennes sorties conservees" in e.get("text", "")
+                            for e in rejects))
+
     def test_legacy_single_tp(self):
         st = run.new_state(T0 - 10)
         action = {"type": "market_buy", "pair": self.pair, "qty": 0.01,
