@@ -1,5 +1,7 @@
 # Changelog
 
+> Lot graphique UX v0.2.1 : choix de fenêtre 60/120/240 bougies, recentrage manuel, lecture mobile améliorée, conservation du survol et de la vue pendant les rafraîchissements. Aucun changement de données, moteur ou stratégie.
+
 > Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur.
 
 > Complément en validation : filtres de recherche et de tendance sur les marqueurs, filtres d'ordres par sens et crypto, améliorations mobiles du graphique et des tableaux. Filtres uniquement visuels, sans modification des données.
