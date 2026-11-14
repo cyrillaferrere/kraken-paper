@@ -39,3 +39,10 @@ test("desktop table layout remains available", () => {
   assert.match(css, /\.tbl-wrap \{ overflow-x: auto/);
   assert.match(css, /@media \(max-width: 680px\)/);
 });
+
+test("mobile table bodies and cards cannot grow beyond the panel", () => {
+  assert.match(css, /grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(css, /#positions tbody > tr, #trades tbody > tr/);
+  assert.match(css, /width: 100%; max-width: 100%; min-width: 0/);
+  assert.match(css, /#positions-panel \.tbl-wrap/);
+});
