@@ -10,6 +10,7 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 - Navigation compacte par ancres vers les zones du dashboard, accessible au clavier et sur mobile.
 - Positions et ordres ouverts remontés immédiatement après le graphique principal.
 - Graphique en bougies sur 1 h par défaut, largeur étendue sur grand écran et défilement réduit.
+- Survol de bougie conservé lors des rafraîchissements de cours ; remis à zéro lors d'un changement de marché ou de période.
 - Aucun changement de moteur, de stratégie, d'ordres ou de données PAPER.
 
 
