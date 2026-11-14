@@ -149,12 +149,18 @@ button:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
 .duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 @media (max-width: 820px) { .duo { grid-template-columns: minmax(0, 1fr); } }
 .duo > .card { margin: 0; }
-.exp-bar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: rgba(138,150,179,.18); border: 1px solid var(--line); }
-.exp-bar .seg-inv { background: var(--ac2); }
-.exp-bar .seg-com { background: repeating-linear-gradient(45deg, rgba(124,92,255,.85) 0 4px, rgba(124,92,255,.5) 4px 8px); }
+.exp-bar { position: relative; height: 16px; border-radius: 999px; overflow: hidden; background: var(--bg2); border: 1px solid var(--line); }
+.eseg { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(0); }
+.exp-bar.eready .eseg { transition: transform var(--motion-panel) var(--ease-standard); }
+.eseg-free, .sw-free { background: rgba(52,211,153,.55); }
+.eseg-com, .sw-com { background: repeating-linear-gradient(45deg, rgba(124,92,255,.95) 0 4px, rgba(124,92,255,.6) 4px 8px); }
+.eseg-inv, .sw-inv { background: var(--ac2); }
 .exp-txt { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; font-size: 14px; font-variant-numeric: tabular-nums; }
-.exp-txt span[class^="sw-"] { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 7px; vertical-align: -1px; }
-.sw-inv { background: var(--ac2); } .sw-com { background: var(--ac); } .sw-free { background: rgba(138,150,179,.35); border: 1px solid var(--line); }
+.exp-txt li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.exp-txt .e-name { flex: 1 1 auto; }
+.exp-txt .e-note { font-size: 12.5px; margin-top: 2px; }
+.exp-txt span[class^="sw-"] { flex: 0 0 auto; display: inline-block; width: 10px; height: 10px; border-radius: 3px; align-self: center; }
+@media (prefers-reduced-motion: reduce) { .exp-bar.eready .eseg { transition: none !important; } }
 .exp-risk { margin: 10px 0 0; font-size: 14px; line-height: 1.5; font-variant-numeric: tabular-nums; }
 .cd { margin: 0; display: grid; gap: 12px; }
 .cd dt { color: var(--mu); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }

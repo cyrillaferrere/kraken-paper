@@ -8,10 +8,12 @@
   const $ = (id) => document.getElementById(id);
   const nf = (d) => new Intl.NumberFormat("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
   const usdc = (x) => x == null || isNaN(x) ? "—" : nf(2).format(x) + " USDC";
-  const signed = (x, d = 2) => x == null || isNaN(x) ? "—" : (x > 0 ? "+" : x < 0 ? "−" : "") + nf(d).format(Math.abs(x));
+  const signed = (x, d = 2) => { if (x == null || isNaN(x)) return "—"; const r = Math.round(x * 10 ** d) / 10 ** d; return (r > 0 ? "+" : r < 0 ? "−" : "") + nf(d).format(Math.abs(r)); };
   const pctS = (x, d = 2) => x == null || isNaN(x) ? "—" : signed(x * 100, d) + " %";
-  const arrow = (x) => x == null ? "" : x > 0 ? "▲ " : x < 0 ? "▼ " : "= ";
-  const cls = (x) => x > 0 ? "up" : x < 0 ? "dn" : "";
+  // Signe lu sur la valeur affichée (2 décimales en %) : pas de ▲ devant « +0,00 % ».
+  const r4 = (x) => x == null || isNaN(x) ? x : Math.round(x * 1e4) / 1e4;
+  const arrow = (x) => (x = r4(x), x == null ? "" : x > 0 ? "▲ " : x < 0 ? "▼ " : "= ");
+  const cls = (x) => (x = r4(x), x > 0 ? "up" : x < 0 ? "dn" : "");
   const esc = L.esc;
   const hm = (t) => new Date(t).toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
   const dtl = (t) => new Date(t).toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -28,7 +30,7 @@
     if (c && c.etag) h["If-None-Match"] = c.etag;
     let r;
     try { r = await fetch(GH + path, { headers: h, cache: "no-store" }); } catch (e) { return { status: "error" }; }
-    if (r.status === 304 && c) return { status: "ok", body: c.body, fresh: false };
+    if (r.status === 304 && c) { await r.text().catch(() => ""); return { status: "ok", body: c.body, fresh: false }; }
     if (r.status === 403 || r.status === 429) { backoffUntil = Date.now() + 10 * 60e3; return { status: "limited" }; }
     if (!r.ok) return { status: "error", code: r.status };
     const body = await r.text();
@@ -110,14 +112,32 @@
   }
 
   // ---------- exposition ----------
+  // Jauge empilée : cash disponible / réservé dans les ordres / investi (valeur en direct).
+  // Largeurs via transform scaleX (skill motion : transform seulement), transition uniquement si les données changent.
+  let expSig = "";
   function renderExposure() {
     const S = ctx.S, x = L.exposure(S, ctx.price, ctx.orderMath);
-    const free = Math.max(0, x.cash - x.committed);
-    const w = (v) => (x.total ? Math.max(0, Math.min(100, v / x.total * 100)) : 0).toFixed(2) + "%";
-    $("exp-bar").innerHTML = `<span class="seg-inv" style="width:${w(x.invested)}"></span><span class="seg-com" style="width:${w(x.committed)}"></span>`;
-    $("exp-txt").innerHTML = `<li><span class="sw-inv"></span>Investi : <b>${nf(1).format(x.investedPct * 100)} %</b> <span class="muted">(${usdc(x.invested)})</span></li>
-      <li><span class="sw-com"></span>Réservé aux achats en attente : <b>${nf(1).format(x.committedPct * 100)} %</b> <span class="muted">(${usdc(x.committed)})</span></li>
-      <li><span class="sw-free"></span>Cash libre : <b>${nf(1).format(x.total ? free / x.total * 100 : 0)} %</b> <span class="muted">(${usdc(free)})</span></li>`;
+    const cb = L.cashBreakdown(S, ctx.orderMath), avail = Math.max(0, cb.available);
+    const segs = [
+      { k: "free", name: "Cash disponible", v: avail },
+      { k: "com", name: "Réservé dans les ordres", v: cb.reserved },
+      { k: "inv", name: "Investi en positions", v: x.invested },
+    ];
+    const tot = x.total > 0 ? x.total : 1;
+    const pct = (v) => Math.max(0, Math.min(1, v / tot));
+    const bar = $("exp-bar");
+    if (!bar.children.length) bar.innerHTML = segs.map((g) => `<span class="eseg eseg-${g.k}"></span>`).join("");
+    const sig = segs.map((g) => g.v.toFixed(2)).join("|");
+    if (sig !== expSig) {
+      const first = !expSig; expSig = sig;
+      bar.classList.toggle("eready", !first); // pas de transition au premier affichage
+      let off = 0;
+      segs.forEach((g, i) => { const f = pct(g.v); bar.children[i].style.transform = `translateX(${(off * 100).toFixed(3)}%) scaleX(${f.toFixed(5)})`; off += f; });
+    }
+    bar.setAttribute("aria-label", segs.map((g) => `${g.name} ${usdc(g.v)} (${nf(1).format(pct(g.v) * 100)} %)`).join(", "));
+    $("exp-txt").innerHTML = segs.map((g) => `<li><span class="sw-${g.k}" aria-hidden="true"></span><span class="e-name">${g.name}</span>
+        <b>${usdc(g.v)}</b> <span class="muted">${nf(1).format(pct(g.v) * 100)} %</span></li>`).join("")
+      + `<li class="muted e-note">Valeur totale ${usdc(x.total)} · cash total ${usdc(cb.total)} = disponible + réservé (le cash réservé compte dans la valeur totale)</li>`;
     const parts = [];
     if (x.riskPos) parts.push(`${signed(x.riskPos)} USDC sur les positions`);
     if (x.riskPending) parts.push(`${signed(x.riskPending)} USDC sur les achats en attente, s'ils s'exécutent`);

@@ -116,6 +116,14 @@ test("exposure : position au prix en direct, sortie avec stop, position sans sto
   assert.strictEqual(L.exposure(S, (p) => (p === "SOLUSDC" ? null : live[p]), orderMath).missing, true);
 });
 
+test("cashBreakdown : réservé = achats en attente frais maker compris, total inchangé", () => {
+  const c = L.cashBreakdown(S0, orderMath);
+  assert.deepStrictEqual({ ...c }, { total: 6606.42, reserved: 2200, available: 4406.42 });
+  const S = { ...S0, open_orders: [...S0.open_orders, { id: "O0004", pair: "XBTUSDC", side: "sell", qty: 0.01, price: 71500, stop_loss: 63500 }] };
+  assert.strictEqual(L.cashBreakdown(S, orderMath).reserved, 2200); // une vente ne réserve pas de cash
+  assert.strictEqual(L.cashBreakdown({ ...S0, open_orders: [] }, orderMath).available, 6606.42);
+});
+
 test("proximity : à moins de 1 % du déclenchement seulement", () => {
   const o = S0.open_orders[0], m = orderMath(o, S0, 67200);
   const p = L.proximity(o, m, 67200);

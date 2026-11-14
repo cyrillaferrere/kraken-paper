@@ -164,7 +164,9 @@
     } else { setText("k-bench", "—"); $("k-bench-sub").textContent = "Référence fixée au premier cycle"; }
     setText("k-fees", usdc(S.fees_total));
     $("k-fees-sub").textContent = S.closed_trades.length + " trade" + (S.closed_trades.length > 1 ? "s" : "") + " · P&L réalisé " + signed(S.realized_pnl) + " USDC";
-    $("cash").textContent = "Cash : " + usdc(S.cash);
+    // Comme sur Kraken : les achats en attente réservent leur montant (frais maker compris). La valeur totale ne change pas.
+    const cb = window.KPLib ? window.KPLib.cashBreakdown(S, orderMath) : { total: S.cash, reserved: 0, available: S.cash };
+    $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
 
     renderPositions(); renderOrders(); renderTrades(); renderJournal(); renderChart(hold, missing ? null : total);
     if (firstRender) {

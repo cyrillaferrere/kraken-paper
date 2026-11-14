@@ -116,6 +116,14 @@
       riskPos, riskPending, risk: riskPos + riskPending, riskPct: total ? (riskPos + riskPending) / total : 0, unprotected, buysNoStop, missing };
   }
 
+  // ---------- cash réservé comme sur Kraken : achats en attente, frais maker compris ----------
+  function cashBreakdown(st, orderMath) {
+    let reserved = 0;
+    for (const o of st.open_orders || []) if (o.side === "buy") { const m = orderMath(o, st, null); reserved += m.engaged || 0; }
+    reserved = Math.round(reserved * 100) / 100;
+    return { total: st.cash, reserved, available: Math.round((st.cash - reserved) * 100) / 100 };
+  }
+
   // ---------- proximité d'un déclenchement ----------
   function proximity(o, m, live, thr = 0.01) {
     if (live == null) return null;
@@ -128,7 +136,7 @@
     return best;
   }
 
-  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, duration, exposure, proximity };
+  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, duration, exposure, cashBreakdown, proximity };
   if (typeof window !== "undefined") window.KPLib = api;
   if (typeof module !== "undefined") module.exports = api;
 })();
