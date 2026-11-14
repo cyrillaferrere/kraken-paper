@@ -72,8 +72,10 @@
       <button type="button" class="chart-range motion-button" data-bars="60" aria-pressed="false">60 bougies</button>
       <button type="button" class="chart-range motion-button" data-bars="120" aria-pressed="true">120 bougies</button>
       <button type="button" class="chart-range motion-button" data-bars="240" aria-pressed="false">240 bougies</button>
+      <button type="button" id="chart-refresh" class="chart-reset motion-button" title="Actualiser les bougies depuis Kraken">Actualiser</button>
       <button type="button" id="chart-reset" class="chart-reset motion-button" title="Recentrer sur les dernières bougies">Recentrer</button>
       <span id="chart-view-note" class="chart-view-note" aria-live="polite">120 dernières bougies</span>
+      <span id="chart-updated" class="chart-view-note" aria-live="off">Dernière lecture : —</span>
     </div>
     <div id="mlegend" class="mlegend" aria-live="off"></div>
     <div id="mchart-wrap" class="mchart-wrap">
@@ -166,6 +168,7 @@
 <script src="lib.js"></script>
 <script src="data-validators.js"></script>
 <script src="ohlc-utils.js"></script>
+<script src="chart-preferences.js"></script>
 <script src="history-utils.js"></script>
 <script src="markets.js"></script>
 <script src="extras.js"></script>
