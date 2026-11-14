@@ -95,13 +95,14 @@
   ],
   "processed_decisions": [
     "2026-11-13-23h55",
-    "2026-11-14-04h10"
+    "2026-11-14-04h10",
+    "2026-11-14-09h05"
   ],
   "last_decision": {
-    "id": "2026-11-14-04h10",
-    "timestamp": "2026-11-14T04:10:00+01:00",
-    "rationale": "Session 04h. Aucun ordre exécuté. La baisse continue : BTC ~67 600 (plus bas 24 h 66 900, à 0,15 % de mon achat à 66 800), ETH ~1 910 (plus bas 1 877, ordre à 1 870), SOL ~76,1 (ordre à 75,5). RSI 4h extrêmement survendu (BTC 10, ETH 20, SOL 18), tous sous MA20/MA50 en 1h, 4h et 1j. Je garde les trois achats limites tels quels : ils sont placés juste sous les plus bas, ce qui teste exactement l'hypothèse d'un dernier repli avant rebond. Pas d'achat au marché (taker 0,80 %) ni de remontée des prix d'achat pour courir après le marché. Cash 6 606,42 USDC, soit environ +1,5 % devant le BTC gardé (~6 507).",
-    "applied": "2026-11-14T04:09:08+01:00"
+    "id": "2026-11-14-09h05",
+    "timestamp": "2026-11-14T09:05:00+01:00",
+    "rationale": "Session 09h. Achat BTC exécuté à 66 800 sur la bougie de 05h (0,0149 BTC, frais maker 3,98 USDC), le plus bas 24 h est 66 424. SOL acheté à 75,5 est à 75,2 (−0,4 %), BTC à 67 180 (+0,6 %). ETH à 1 898, plus bas 1 877, mon achat à 1 870 attend toujours. Le marché se stabilise depuis 5 h dans un petit range (BTC 66 400 à 67 400) mais reste sous les MA20/MA50 en 1h, 4h et 1j, RSI 1h remontés vers 30, RSI 4h 23 à 29. Je ne touche à rien : stops (BTC 63 500, SOL 70,5) et objectifs (71 500, 83) gardent un ratio gain/risque d'environ 1,4 à 1,6, et resserrer maintenant ferait sauter les positions sur le simple bruit d'un samedi peu liquide. Portefeuille 6 604,56 USDC contre 6 466,82 pour le BTC gardé, soit environ +2,1 %.",
+    "applied": "2026-11-14T09:04:45+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -141,9 +142,9 @@
     "SOLUSDC": 1794639600
   },
   "last_prices": {
-    "XBTUSDC": 67182.41,
-    "ETHUSDC": 1897.69,
-    "SOLUSDC": 75.26
+    "XBTUSDC": 67152.27,
+    "ETHUSDC": 1897.23,
+    "SOLUSDC": 75.17
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -157,8 +158,8 @@
     "order": 5,
     "trade": 2
   },
-  "last_cycle": "2026-11-14T09:03:46+01:00",
-  "last_cycle_ts": 1794643426,
+  "last_cycle": "2026-11-14T09:04:45+01:00",
+  "last_cycle_ts": 1794643485,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
