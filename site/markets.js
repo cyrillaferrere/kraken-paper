@@ -502,9 +502,9 @@
       hoveredCandleTime = null;
       legend();
     });
-    $("chart-refresh").addEventListener("click", () => loadChart(true));
     syncChartRange();
     $("pair-chips").addEventListener("click", (e) => { const b = e.target.closest("[data-pair]"); if (b) selectPair(b.dataset.pair); });
+    $("chart-refresh").addEventListener("click", () => loadChart(true));
     $("markers").addEventListener("click", (e) => {
       const b = e.target.closest("[data-pair]"); if (!b) return;
       selectPair(b.dataset.pair);
