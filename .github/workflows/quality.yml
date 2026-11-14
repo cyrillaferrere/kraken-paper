@@ -1,0 +1,91 @@
+name: quality-gates
+
+on:
+  pull_request:
+    branches: [preprod, main]
+  push:
+    branches: [preprod, 'feature/**', 'fix/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate branch scope and documentation
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git fetch --no-tags origin "$BASE_REF"
+            BASE="origin/$BASE_REF"
+          else
+            git fetch --no-tags origin main
+            BASE="origin/main"
+          fi
+          CHANGED="$(git diff --name-only "$BASE...HEAD")"
+          echo "$CHANGED"
+          if printf '%s\n' "$CHANGED" | grep -Eq '^(state|decisions)/'; then
+            echo "::error::State and trading decisions are protected"
+            exit 1
+          fi
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            if ! printf '%s\n' "$CHANGED" | grep -Eq '^CHANGELOG\.md$'; then
+              echo "::error::Every PR must update CHANGELOG.md"
+              exit 1
+            fi
+            if ! printf '%s\n' "$CHANGED" | grep -Eq '^docs/HANDOFF\.md$'; then
+              echo "::error::Every PR must update docs/HANDOFF.md"
+              exit 1
+            fi
+          fi
+          test -f docs/RUNBOOK.md
+          test -f docs/DECISIONS.md
+          test -f docs/CONTRIBUTING.md
+          test -f VERSION
+      - name: Python engine unit tests (offline)
+        run: python -m unittest -v
+      - name: Dashboard JavaScript tests
+        run: node --test tests/site/*.test.js
+      - name: Scheduled function tests
+        run: node --test tests/functions/*.test.mjs
+      - name: JavaScript syntax checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' f; do
+            node --check "$f"
+          done < <(find site netlify/functions -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+      - name: Shell syntax checks
+        run: |
+          bash -n scripts/deploy.sh
+          bash -n scripts/release.sh
+      - name: Static deployment safety checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'CONFIRM_PROD' scripts/deploy.sh
+          grep -Fq -- '--alias' scripts/deploy.sh
+          grep -Fq -- '--prod' scripts/deploy.sh
+          grep -Fq 'git archive' scripts/deploy.sh
+          grep -Fq 'state|decisions' scripts/release.sh
+          grep -Fq "github.ref == 'refs/heads/main'" .github/workflows/engine.yml
+          if grep -RIlE 'api\.kraken\.com/0/private|api\.kraken\.com/0/private/' site engine netlify/functions; then
+            echo "::error::Private Kraken API endpoint detected"
+            exit 1
+          fi
