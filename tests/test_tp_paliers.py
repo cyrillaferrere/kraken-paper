@@ -156,6 +156,22 @@ class TieredExitTests(unittest.TestCase):
                                       FakeMarket(last=65000), T0 + 60)
         self.assertTrue(any(e["type"] == "rejected" for e in events))
 
+    def test_sell_limit_breakeven_without_stop_is_legacy_noop(self):
+        """Une vente indépendante n'attache pas de sorties : option ignorée historiquement."""
+        state = run.new_state(T0 - 10)
+        run.run_cycle(state, [decision("entry", {"type": "market_buy", "pair": self.pair, "qty": 0.02})],
+                      FakeMarket(last=65000), T0 - 10)
+        a = {"type": "place_limit", "side": "sell", "pair": self.pair,
+             "price": 70000, "qty": 0.01, "breakeven_after_tp1": True}
+        events, _, errors = run.apply_decisions(state, [decision("sell-legacy-be", a)],
+                                                FakeMarket(last=65000), T0)
+        self.assertFalse(errors)
+        self.assertTrue(any(e["type"] == "order_placed" for e in events))
+        sell = [o for o in state["open_orders"] if o["side"] == "sell"]
+        self.assertEqual(len(sell), 1)
+        self.assertNotIn("breakeven_after_tp1", sell[0])
+        self.assertIsNone(sell[0]["stop_loss"])
+
     def test_market_buy_breakeven_requires_stop(self):
         state = run.new_state(T0 - 10)
         a = {"type": "market_buy", "pair": self.pair, "qty": 0.02,
