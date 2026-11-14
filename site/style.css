@@ -286,3 +286,8 @@ html { scroll-behavior: smooth; }
   .table-tools select { flex: 1; }
   .mchart { height: 340px; }
 }
+
+/* Remise à zéro des filtres, accessible au clavier et au toucher. */
+.filter-reset { min-height: 38px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--ac2); font: inherit; font-size: 13px; cursor: pointer; }
+.filter-reset:hover { background: rgba(34,211,238,.08); }
+.filter-reset:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }

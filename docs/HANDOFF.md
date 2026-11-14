@@ -1,5 +1,7 @@
 # Kraken Paper : document de reprise
 
+> Correctif UX 0.2.1 : remise à zéro des filtres en un clic, message explicite sans résultat, tests Node automatisés sur les filtres d'ordres et de marché. Aucun changement moteur. Branche `fix/v0.2.1-filter-reliability`, PR à valider vers `preprod`.
+
 > À lire en premier si tu reprends le projet (GPT, un autre agent, ou un humain).
 > UX 0.2.1 : menu latéral fusionné `0e744d8`, tableaux Positions/Ordres fusionnés `9558c00` dans `preprod`. Branche en cours `feature/v0.2.1-market-workspace` : filtres UI marqueurs/ordres, responsive, aucun changement moteur.
 >

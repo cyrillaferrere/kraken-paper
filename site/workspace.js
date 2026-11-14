@@ -39,7 +39,7 @@
         if (show) visible++;
       }
     }
-    $(config.count).textContent = visible + " / " + total + " affiché" + (visible > 1 ? "s" : "");
+    $(config.count).textContent = visible + " / " + total + " affiché" + (visible > 1 ? "s" : "") + (total && !visible ? " — aucun résultat, modifiez les filtres" : "");
   };
   for (const config of tables) {
     const tb = $(config.name)?.tBodies[0];
@@ -52,6 +52,12 @@
     };
     $(config.search).addEventListener("input", schedule);
     $(config.choice).addEventListener("change", schedule);
+    $(config.name + "-reset").addEventListener("click", () => {
+      $(config.search).value = "";
+      $(config.choice).value = "all";
+      schedule();
+      $(config.search).focus();
+    });
     new MutationObserver(schedule).observe(tb, { childList: true, subtree: true, characterData: true });
     schedule();
   }
