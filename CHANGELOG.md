@@ -145,3 +145,5 @@ Première version numérotée. Elle regroupe tout ce qui a été construit depui
 
 ### Modifié
 - Le workflow du moteur ne s'exécute que depuis `main` (garde-fou contre un lancement manuel depuis une autre branche).
+
+- v0.3.0 PR d'intégration : quatre rubriques et synthèse mobile (code PR #37, ADR PR #38).
