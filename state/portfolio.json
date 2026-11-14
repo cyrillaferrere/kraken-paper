@@ -5,14 +5,8 @@
   "start_capital": 6606.42,
   "start_time": "2026-11-13T22:56:24+01:00",
   "start_ts": 1794606984,
-  "cash": 4406.42055,
+  "cash": 4867.269603,
   "positions": {
-    "SOLUSDC": {
-      "base": "SOL",
-      "qty": 6.59613202,
-      "avg_cost": 75.80200001970245,
-      "fees_paid": 1.992032
-    },
     "XBTUSDC": {
       "base": "BTC",
       "qty": 0.01491041,
@@ -34,19 +28,6 @@
       "qty": 0.01491041,
       "price": 74700.0,
       "stop_loss": 64000.0,
-      "take_profit": null,
-      "created": "2026-11-14T20:20:40+01:00",
-      "active_from": 1794686400,
-      "parent": null,
-      "decision_id": "2026-11-14-20h20"
-    },
-    {
-      "id": "O0011",
-      "pair": "SOLUSDC",
-      "side": "sell",
-      "qty": 6.59613202,
-      "price": 88.22,
-      "stop_loss": 70.5,
       "take_profit": null,
       "created": "2026-11-14T20:20:40+01:00",
       "active_from": 1794686400,
@@ -113,6 +94,22 @@
       "ts": 1794664800,
       "realized_pnl": null,
       "time_source": "m5"
+    },
+    {
+      "id": "T0004",
+      "order_id": "O0011",
+      "pair": "SOLUSDC",
+      "base": "SOL",
+      "side": "sell",
+      "qty": 6.59613202,
+      "price": 70.43,
+      "fee": 3.716525,
+      "liquidity": "taker",
+      "reason": "stop_loss",
+      "time": "2026-11-14T21:50:00+01:00",
+      "ts": 1794689400,
+      "realized_pnl": -39.150946,
+      "time_source": "m5"
     }
   ],
   "processed_decisions": [
@@ -162,14 +159,14 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794682800,
-    "ETHUSDC": 1794682800,
-    "SOLUSDC": 1794682800
+    "XBTUSDC": 1794686400,
+    "ETHUSDC": 1794686400,
+    "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 65623.57,
-    "ETHUSDC": 1831.96,
-    "SOLUSDC": 72.16
+    "XBTUSDC": 64471.1,
+    "ETHUSDC": 1776.87,
+    "SOLUSDC": 70.48
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -177,14 +174,14 @@
     "start_price": 68358.17,
     "start_time": "2026-11-13T22:56:49+01:00"
   },
-  "fees_total": 8.764939,
-  "realized_pnl": 0.0,
+  "fees_total": 12.481464,
+  "realized_pnl": -39.150946,
   "seq": {
     "order": 12,
-    "trade": 3
+    "trade": 4
   },
-  "last_cycle": "2026-11-14T21:09:18+01:00",
-  "last_cycle_ts": 1794686958,
+  "last_cycle": "2026-11-14T22:09:21+01:00",
+  "last_cycle_ts": 1794690561,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
