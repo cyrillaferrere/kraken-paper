@@ -266,7 +266,7 @@ def normalize_take_profits(meta, action, entry_price, qty):
         raise Rejected("fractions des paliers : valeurs positives, somme egale a 1")
     if any(prices[i] <= prices[i - 1] for i in range(1, len(prices))):
         raise Rejected("prix des paliers strictement croissants requis")
-    if any(p <= entry_price for p in prices):
+    if action.get("take_profits") is not None and any(p <= entry_price for p in prices):
         raise Rejected("chaque TP doit etre au-dessus du prix d'entree")
     remaining = qty
     result = []
