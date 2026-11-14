@@ -195,7 +195,7 @@
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });
       firstRender = false;
     }
-    if (window.KPMarkets) window.KPMarkets.onState({ S, journal, price, orderMath });
+    if (window.KPMarkets) window.KPMarkets.onState({ S, journal, price, orderMath, liveOk, liveAt, livePairs: live });
     if (window.KPExtras) window.KPExtras.onState({ S, journal, equity, price, orderMath, branch: (window.KP_VERSION && window.KP_VERSION.branch) || "main", stateChanged });
     stateChanged = false;
   }
@@ -229,6 +229,17 @@
       basis = pos ? o.qty * pos.avg_cost : null;
       tp = o.price ?? null;
     }
+    const tiers = Array.isArray(o.take_profits) ? o.take_profits : [];
+    if (tiers.length && basis != null) {
+      tp = tiers[0].price;
+      const stopPx = stop != null ? roundTo(stop * (1 - f.slippage), pd) : null;
+      const loss = stopPx != null ? cents(sellNet(o.qty, stopPx, f.taker) - basis) : null;
+      const gain = cents(tiers.reduce((sum, tier) => sum + sellNet(tier.qty, tier.price, f.maker), 0) - basis);
+      const rr = loss != null && loss < 0 ? gain / -loss : null;
+      const dist = (lvl) => lvl == null || live == null ? null : (lvl - live) / live;
+      return { engaged: cents(basis), limit: o.side === "buy" ? o.price : tp, stop, stopPx, tp, loss, gain, rr,
+        dLimit: dist(o.side === "buy" ? o.price : tp), dStop: dist(stop), dTp: o.side === "sell" ? dist(tp) : null };
+    }
     const stopPx = stop != null ? roundTo(stop * (1 - f.slippage), pd) : null;
     const loss = stopPx != null && basis != null ? cents(sellNet(o.qty, stopPx, f.taker) - basis) : null;
     const gain = tp != null && basis != null ? cents(sellNet(o.qty, tp, f.maker) - basis) : null;
@@ -242,6 +253,22 @@
   const expanded = new Set();
   const distTxt = (d, lbl) => d == null ? "—" : `${lbl ? lbl + " " : ""}${d < 0 ? "↓" : "↑"} ${pct(d)}`;
   let nearPrev = new Map(), nearNow = new Map();
+  // Texte pur partagé par la table des ordres et les tests de non-régression.
+  function pendingExitText(pending) {
+    if (!pending || !pending.active_from) return "";
+    const stop = pending.stop_loss != null ? "nouveau stop " + px(pending.stop_loss) : "nouveau stop absent";
+    const tiers = Array.isArray(pending.action && pending.action.take_profits)
+      ? pending.action.take_profits.map((tp, i) => "TP" + (i + 1) + " " + px(tp.price) + " (" + nf(2).format(tp.fraction * 100) + " %)").join(" · ")
+      : "";
+    const when = dt(new Date(Number(pending.active_from) * 1000).toISOString());
+    return "Sorties programmées pour " + when + " · " + stop + (tiers ? " · " + tiers : "") + " · ancien stop maintenu jusque-là";
+  }
+  function orderPlacedText(o) {
+    const tiers = Array.isArray(o.take_profits) && o.take_profits.length
+      ? o.take_profits.map((tp, i) => " · TP" + (i + 1) + " " + px(tp.price) + " (" + nf(2).format(tp.fraction * 100) + " %)").join("")
+      : "";
+    return `Ordre ${esc(o.id)} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${tiers || (o.take_profit ? " · TP " + px(o.take_profit) : "")}`;
+  }
   function renderOrders() {
     const tb = $("orders").tBodies[0];
     nearPrev = nearNow; nearNow = new Map();
@@ -254,7 +281,9 @@
       const dist = o.side === "buy" ? distTxt(m.dLimit) : [m.dTp != null ? distTxt(m.dTp, "obj.") : null, m.dStop != null ? distTxt(m.dStop, "stop") : null].filter(Boolean).join("<br>") || "—";
       const limitLbl = o.side === "buy" ? px(m.limit) : m.limit != null ? px(m.limit) + (o.parent ? ' <span class="muted">objectif</span>' : "") : '<span class="muted">aucun</span>';
       const stopTxt = m.stop != null ? px(m.stop) : '<span class="warn-txt">⚠ pas de stop</span>';
-      const tpTxt = m.tp != null ? px(m.tp) : "—";
+      const tpTxt = Array.isArray(o.take_profits) && o.take_profits.length
+        ? o.take_profits.map((tier, i) => `TP${(o.tp_filled || 0) + i + 1} : ${px(tier.price)} · ${qty(tier.qty)} ${esc(base(o.pair))}`).join("<br>")
+        : m.tp != null ? px(m.tp) : "—";
       const lossTxt = m.loss != null ? `<span class="dn">${signed(m.loss)} USDC</span>` : m.stop == null ? '<span class="warn-txt">non bornée</span>' : "—";
       const gainTxt = m.gain != null ? `<span class="${cls(m.gain)}">${signed(m.gain)} USDC</span>` : "—";
       const rrTxt = m.rr != null ? nf(2).format(m.rr) + " : 1" : "—";
@@ -265,16 +294,20 @@
       nearNow.set(o.id, near ? near.kind : null);
       const flash = near && nearPrev.has(o.id) && wasNear !== near.kind; // surlignage unique au changement d'état, jamais clignotant
       const prox = near ? `<span class="prox${flash ? " kpi-updated" : ""}">◎ à ${nf(1).format(near.dist * 100)} % du déclenchement (${near.kind})</span>` : "";
+      const pending = o.pending_exits;
+      const pendingNote = pending && pending.active_from
+        ? `<span class="pending-exits">${pendingExitText(pending)}</span>`
+        : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
       const main = `<tr class="o-row${hit ? " reached" : ""}">
-        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${note}</td>
+        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${pendingNote}${note}</td>
         <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
         <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
         <td class="r c-x">${limitLbl}<br><span class="muted">${px(x)}</span></td><td class="r">${dist}</td>
         <td class="r c-x">${stopTxt}</td><td class="r c-x">${tpTxt}</td><td class="r c-x">${lossTxt}</td><td class="r c-x">${gainTxt}</td><td class="r c-x">${rrTxt}</td></tr>`;
       const det = `<tr class="o-detail" id="od-${esc(o.id)}"${open ? "" : " hidden"}><td colspan="10"><dl class="o-dl">
         <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd>${px(x)}</dd></div>
-        <div><dt>Stop</dt><dd>${stopTxt}</dd></div><div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
+        <div><dt>Stop</dt><dd>${stopTxt}</dd></div>${pendingNote ? `<div class="wide"><dt>Modification programmée</dt><dd>${pendingNote}</dd></div>` : ""}<div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
         <div><dt>Perte max</dt><dd>${lossTxt}</dd></div><div><dt>Gain visé</dt><dd>${gainTxt}</dd></div>
         <div><dt>Gain / risque</dt><dd>${rrTxt}</dd></div><div><dt>Créé</dt><dd>${created}</dd></div><div class="wide"><dt>Décision</dt><dd>${dec}</dd></div></dl></td></tr>`;
       return main + det;
@@ -326,7 +359,7 @@
     const list = S.closed_trades.slice().reverse();
     const rows = list.map((t) => {
       const isNew = !firstRender && !seenTrades.has(t.id);
-      return `<tr class="${isNew ? "motion-row-new" : ""}"><td>${dt(t.time)}</td><td><span class="tag ${t.side}">${t.side === "buy" ? "ACHAT" : "VENTE"}</span> ${esc(t.base)} <span class="muted">${REASON[t.reason] || esc(t.reason)}</span></td><td class="r">${qty(t.qty)}</td><td class="r">${px(t.price)}</td><td class="r">${nf(2).format(t.fee)} <span class="muted">${t.liquidity}</span></td><td class="r ${cls(t.realized_pnl)}">${t.realized_pnl == null ? "—" : signed(t.realized_pnl) + " USDC"}</td></tr>`;
+      return `<tr class="${isNew ? "motion-row-new" : ""}"><td>${dt(t.time)}</td><td><span class="tag ${t.side}">${t.side === "buy" ? "ACHAT" : "VENTE"}</span> ${esc(t.base)} <span class="muted">${t.tp_index ? "TP" + t.tp_index + " · " : ""}${REASON[t.reason] || esc(t.reason)}</span></td><td class="r">${qty(t.qty)}</td><td class="r">${px(t.price)}</td><td class="r">${nf(2).format(t.fee)} <span class="muted">${t.liquidity}</span></td><td class="r ${cls(t.realized_pnl)}">${t.realized_pnl == null ? "—" : signed(t.realized_pnl) + " USDC"}</td></tr>`;
     });
     list.forEach((t) => seenTrades.add(t.id));
     tb.innerHTML = rows.join("") || `<tr><td colspan="6" class="empty">Pas encore de trade.</td></tr>`;
@@ -336,8 +369,10 @@
     switch (e.type) {
       case "start": return `Départ de la simulation avec ${usdc(e.capital)}`;
       case "decision": return `Décision ${esc(e.decision_id)} : ${esc(e.rationale)}`;
-      case "order_placed": { const o = e.order; return `Ordre ${o.id} posé : ${o.side === "buy" ? "achat" : "vente"} ${qty(o.qty)} ${esc(base(o.pair))} à ${px(o.price)}${o.stop_loss ? " · stop " + px(o.stop_loss) : ""}${o.take_profit ? " · TP " + px(o.take_profit) : ""}`; }
-      case "fill": { const t = e.trade; return `✅ Exécuté : ${t.side === "buy" ? "achat" : "vente"} ${qty(t.qty)} ${esc(t.base)} à ${px(t.price)} (${REASON[t.reason] || t.reason})`; }
+      case "order_placed": return orderPlacedText(e.order);
+      case "fill": { const t = e.trade; return `✅ Exécuté : ${t.side === "buy" ? "achat" : "vente"} ${qty(t.qty)} ${esc(t.base)} à ${px(t.price)} (${t.tp_index ? "TP" + t.tp_index + " · " : ""}${REASON[t.reason] || t.reason})`; }
+      case "exits_updated": return `Sorties mises à jour pour ${esc(base(e.pair))} : ${(e.order.take_profits || []).length} palier(s), stop ${px(e.order.stop_loss)}`;
+      case "exits_update_scheduled": return `Modification des sorties de ${esc(base(e.pair))} programmée pour le prochain créneau ; ancien stop conservé jusque-là`;
       case "cancel": return `Ordre ${esc(e.order_id)} annulé${e.reason ? " : " + esc(e.reason) : ""}`;
       case "rejected": return `⛔ Action refusée : ${esc(e.reason)}`;
       case "note": return `📝 ${esc(e.text)}`;

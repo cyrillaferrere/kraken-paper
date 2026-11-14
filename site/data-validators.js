@@ -21,7 +21,7 @@
       if (!line.trim()) continue;
       const [time, eq, , , , hold] = line.split(",");
       const t = Date.parse(time), value = Number(eq), benchmark = hold === "" || hold == null ? null : Number(hold);
-      if (!Number.isFinite(t) || eq === "" || !Number.isFinite(value) || (benchmark !== null && !Number.isFinite(benchmark))) throw new Error("Cycle equity.csv invalide");
+      if (!Number.isFinite(t) || !String(eq).trim() || !Number.isFinite(value) || value < 0 || (benchmark !== null && (!Number.isFinite(benchmark) || benchmark < 0))) throw new Error("Cycle equity.csv invalide");
       if (out.length && t <= out[out.length - 1].t) throw new Error("Cycles equity.csv non chronologiques");
       out.push({ t, eq: value, hold: benchmark });
     }
