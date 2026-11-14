@@ -1,23 +1,9 @@
-## [Unreleased] — v0.3.1 : préparation de la publication
-- Les sorties différées détaillent le nouveau stop et les paliers TP dans Ordres ouverts.
-- Tests du texte des sorties différées, du journal multi-TP et TP historique ; test du comportement historique de la vente limite avec option break-even sans stop.
-- `VERSION` aligné à `0.3.1` sur la branche de préproduction. Aucun déploiement de production autorisé.
-
-## [Unreleased] — v0.3.1 : finitions sorties par paliers
-- Ordres ouverts : signalement explicite des modifications de sorties différées, ancien stop conservé.
-- Journal : affichage des TP fractionnés dès la pose d’un ordre.
-- Moteur PAPER : rejet de `breakeven_after_tp1` sans stop pour les nouveaux `market_buy` et `place_limit` d’achat ; tests de non-régression.
-- Aucun changement de stratégie, frais, état vivant ou production.
-
-## [Unreleased] — correctif UX cours sélectionné (PR #45)
-- Affichage grand format du cours Kraken de la paire choisie au-dessus du graphique, responsive mobile.
-- Actualisation sur le ticker existant (15 s), horodatage et signalement explicite du cours de repli non temps réel.
-- Aucun changement moteur, état ou décisions ; préproduction uniquement.
-
-## [Unreleased] — v0.3.0 sorties par paliers
-- Moteur PAPER : objectifs fractionnés, stop sur quantité restante, option break-even après TP1 et action `update_exits`.
-- Tests de non-régression : TP1/TP2, stop, bougies 5 min, décisions historiques et validation des fractions.
-- ADR-26 ; intégration et dashboard à finaliser avant revue Grok Bot.
+## [0.3.1] - 2026-11-14 (candidat, non publié en production)
+- Publication groupée des fonctionnalités développées en v0.3.0 et des finitions v0.3.1.
+- Moteur PAPER : objectifs de vente fractionnés TP1/TP2, stop sur le reliquat, break-even après TP1, action `update_exits` et validation des stops obligatoires.
+- Interface : cours live de la paire sélectionnée, visibilité des sorties différées, nouveau stop, fractions des TP et journal des ordres enrichi.
+- Tests de compatibilité des ordres historiques, du stop et des TP ; 51 tests Python, 84 tests site et 6 tests functions sur le candidat isolé.
+- ADR-26 et ADR-27 ; recette utilisateur de préproduction validée. **Mise en production en attente de l'approbation GitHub obligatoire et de l'accord explicite de Cyril.**
 
 ## [Unreleased] — Retour au dashboard de production en préproduction
 - Restaurer `site/index.html`, `site/style.css`, `site/markets.js`, `site/navigation.js`, `site/chart-preferences.js` et `site/data-validators.js` depuis `main` ; retirer `site/workspace-tabs.js` absent de la production.
