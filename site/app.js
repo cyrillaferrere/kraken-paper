@@ -9,7 +9,7 @@
   const BENCH = "XBTUSDC";
   const PRICE_EVERY = 15000, STATE_EVERY = 120000, STALE_MS = 2 * 3600 * 1000;
 
-  let S = null, equity = [], journal = [];
+  let S = null, equity = [], journal = [], stateChanged = false;
   let live = {}, liveOk = null, liveAt = null;
   const seenTrades = new Set(); let firstRender = true;
   const $ = (id) => document.getElementById(id);
@@ -100,6 +100,7 @@
       journal = j.trim().split("\n").filter(Boolean).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
       $("alert").hidden = true;
       await loadPrices();
+      stateChanged = true;
       render();
     } catch (err) {
       showAlert("Impossible de lire l'état du portefeuille sur GitHub (" + err.message + "). Nouvel essai dans 2 min.");
@@ -163,12 +164,9 @@
     } else { setText("k-bench", "—"); $("k-bench-sub").textContent = "Référence fixée au premier cycle"; }
     setText("k-fees", usdc(S.fees_total));
     $("k-fees-sub").textContent = S.closed_trades.length + " trade" + (S.closed_trades.length > 1 ? "s" : "") + " · P&L réalisé " + signed(S.realized_pnl) + " USDC";
-    $("cash").textContent = "Cash : " + usdc(S.cash);
-
-    // décision
-    const d = S.last_decision;
-    $("decision").textContent = d ? (d.rationale || "(pas de commentaire)") : "Pas encore de décision : la première arrive à la session du matin.";
-    $("dec-meta").textContent = d ? d.id + " · " + dt(d.timestamp || d.applied) : "";
+    // Comme sur Kraken : les achats en attente réservent leur montant (frais maker compris). La valeur totale ne change pas.
+    const cb = window.KPLib ? window.KPLib.cashBreakdown(S, orderMath) : { total: S.cash, reserved: 0, available: S.cash };
+    $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
 
     renderPositions(); renderOrders(); renderTrades(); renderJournal(); renderChart(hold, missing ? null : total);
     if (firstRender) {
@@ -176,7 +174,9 @@
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });
       firstRender = false;
     }
-    if (window.KPMarkets) window.KPMarkets.onState({ S, journal, price });
+    if (window.KPMarkets) window.KPMarkets.onState({ S, journal, price, orderMath });
+    if (window.KPExtras) window.KPExtras.onState({ S, journal, equity, price, orderMath, branch: (window.KP_VERSION && window.KP_VERSION.branch) || "main", stateChanged });
+    stateChanged = false;
   }
 
   function renderPositions() {
@@ -220,8 +220,10 @@
 
   const expanded = new Set();
   const distTxt = (d, lbl) => d == null ? "—" : `${lbl ? lbl + " " : ""}${d < 0 ? "↓" : "↑"} ${pct(d)}`;
+  let nearPrev = new Map(), nearNow = new Map();
   function renderOrders() {
     const tb = $("orders").tBodies[0];
+    nearPrev = nearNow; nearNow = new Map();
     const rows = S.open_orders.map((o) => {
       const x = price(o.pair), m = orderMath(o, S, x);
       const hitL = x != null && m.limit != null && (o.side === "buy" ? x <= m.limit : x >= m.limit);
@@ -237,9 +239,14 @@
       const rrTxt = m.rr != null ? nf(2).format(m.rr) + " : 1" : "—";
       const created = dt(o.created), dec = o.decision_id ? esc(o.decision_id) : (o.parent ? "sortie de " + esc(o.parent) : "—");
       const open = expanded.has(o.id);
+      const near = window.KPLib ? window.KPLib.proximity(o, m, liveOk ? x : null, 0.01) : null;
+      const wasNear = nearPrev.get(o.id);
+      nearNow.set(o.id, near ? near.kind : null);
+      const flash = near && nearPrev.has(o.id) && wasNear !== near.kind; // surlignage unique au changement d'état, jamais clignotant
+      const prox = near ? `<span class="prox${flash ? " kpi-updated" : ""}">◎ à ${nf(1).format(near.dist * 100)} % du déclenchement (${near.kind})</span>` : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
       const main = `<tr class="o-row${hit ? " reached" : ""}">
-        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="sr">Détail de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${note}</td>
+        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="sr">Détail de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${note}</td>
         <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
         <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
         <td class="r c-x">${limitLbl}<br><span class="muted">${px(x)}</span></td><td class="r">${dist}</td>
@@ -280,14 +287,16 @@
     const env = envFromHost(location.hostname) || (v && ENV_LBL[v.env] ? v.env : "local");
     const b = $("env-badge"); b.textContent = ENV_LBL[env]; b.className = "badge env env-" + env;
     b.title = env === "prod" ? "Production" : env === "preprod" ? "Préproduction : site de test" : env === "feature" ? "Branche de développement" : "Version locale non déployée";
-    if (!v) return;
+    window.KP_VERSION = v;
+    if (!v) return v;
     $("b-version").textContent = "v" + v.version;
     const c = $("b-commit"); c.textContent = "commit " + String(v.commit).slice(0, 7); c.href = "https://github.com/cyrillaferrere/kraken-paper/commit/" + encodeURIComponent(v.commit);
     $("b-branch").textContent = "branche " + v.branch;
     $("b-time").textContent = v.built ? " · déployé le " + dt(v.built) : "";
     if (env !== "prod") document.title = "[" + ENV_LBL[env] + "] " + document.title;
+    return v;
   }
-  loadVersion();
+  window.KP_VERSION_P = loadVersion();
 
   const REASON = { limit: "limite", market: "marché", stop_loss: "stop loss", take_profit: "take profit" };
   function renderTrades() {

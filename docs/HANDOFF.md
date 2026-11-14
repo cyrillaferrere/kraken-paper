@@ -76,7 +76,10 @@ compris). Personne d'autre ne prend de décision de trading sans l'accord explic
 | `state/equity.csv` | Un point par cycle : valeur du portefeuille et de « BTC conservé ». |
 | `site/index.html`, `style.css` | Tableau de bord. |
 | `site/app.js` | Lecture de l'état, KPI, positions, ordres (calcul perte/gain), trades, journal, courbe, version. |
-| `site/markets.js` | Graphiques en bougies, indicateurs (MA, RSI, ATR), tableau des marqueurs. |
+| `site/markets.js` | Graphiques en bougies, indicateurs (MA, RSI, ATR), étiquettes des niveaux, bouton « Ordres », tableau des marqueurs. |
+| `site/lib.js` | Fonctions pures testées : markdown sûr, résumé des actions, performance par jour, comptes à rebours, exposition, proximité. |
+| `site/extras.js` | Exposition, prochains passages, calendrier, fil des décisions, leçons (API GitHub avec ETag et cache local). |
+| `docs/LESSONS.md` | Leçons apprises, affichées dans le dash. Écrites par Grok Bot (bilan hebdo), une entrée par leçon, la plus récente en haut. |
 | `site/version.json` | **Généré au déploiement** par `scripts/deploy.sh` (absent du dépôt). |
 | `scripts/deploy.sh` | Déploiement prod / préprod / feature sur le site unique. |
 | `scripts/release.sh` | Mise en prod du code (preprod → main) avec garde-fou state/decisions. |
@@ -157,5 +160,11 @@ déploiement prod **après l'accord de Cyril** → tag `vX.Y.Z`. Détails : [RUN
 
 ## 10. Où en est le projet
 
-Voir [CHANGELOG](../CHANGELOG.md). Idées en attente : stop suiveur, page de bilan hebdo, historique des décisions
-dans le dash, alertes ntfy plus fines.
+Voir [CHANGELOG](../CHANGELOG.md). Idées en attente : stop suiveur, page de bilan hebdo, alertes ntfy plus fines,
+backtest de la leçon du 14/11 (entrées fractionnées en survendu).
+
+Budget API GitHub du dash (60 requêtes/h par visiteur, sans clé) : état = `commits/main` en sha + ETag (304 gratuit)
+puis 3 fichiers seulement quand le sha change ; décisions = liste `contents/decisions` avec ETag (304 gratuit),
+chaque nouveau fichier lu une seule fois par son sha (`git/blobs`) puis gardé en `localStorage` ; leçons =
+`contents/docs/LESSONS.md` avec ETag, lu sur la branche déployée (`preprod` en préprod, `main` en prod). Sur 403/429
+le dash attend 10 min et affiche les décisions depuis le journal.

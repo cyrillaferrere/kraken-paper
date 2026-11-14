@@ -140,7 +140,8 @@
         panes: { separatorColor: C.line, separatorHoverColor: "rgba(124,92,255,.25)", enableResize: false } },
       grid: { vertLines: { color: "rgba(36,48,73,.55)" }, horzLines: { color: "rgba(36,48,73,.55)" } },
       rightPriceScale: { borderColor: C.line },
-      timeScale: { borderColor: C.line, timeVisible: true, secondsVisible: false, rightOffset: 4,
+      timeScale: { borderColor: C.line, timeVisible: true, secondsVisible: false, rightOffset: 12, // espace à droite : la dernière bougie ne touche jamais l'échelle de prix
+       
         tickMarkFormatter: (t, type) => type <= 1 ? fmtTime(t, { month: "short", year: type === 0 ? "numeric" : undefined })
           : type === 2 ? fmtTime(t, { day: "2-digit", month: "2-digit" }) : fmtTime(t, { hour: "2-digit", minute: "2-digit" }) },
       crosshair: { mode: 0 },
@@ -163,6 +164,7 @@
     const panes = chart.panes();
     panes[0].setStretchFactor(3.2); panes[1].setStretchFactor(0.9); panes[2].setStretchFactor(1.1);
     markersApi = L.createSeriesMarkers(sCandle, []);
+    sCandle.attachPrimitive(labels);
     chart.subscribeCrosshairMove(legend);
     return true;
   }
@@ -234,29 +236,72 @@
     }
   }
 
+  // Étiquettes posées sur les lignes pointillées, à gauche du graphique (primitive de série) :
+  // l'échelle de droite ne garde que de petites étiquettes de prix, les bougies récentes restent dégagées.
+  const labels = {
+    items: [], series: null, req: null,
+    attached(p) { this.series = p.series; this.req = p.requestUpdate; },
+    detached() { this.series = null; this.req = null; },
+    set(items) { this.items = items; if (this.req) this.req(); },
+    updateAllViews() {},
+    paneViews() {
+      const self = this;
+      return [{ zOrder: () => "top", renderer: () => ({ draw(target) {
+        if (!self.series || !self.items.length) return;
+        target.useMediaCoordinateSpace(({ context: c, mediaSize }) => {
+          c.font = "600 10px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+          c.textBaseline = "middle";
+          const H = 15, pts = self.items.map((l) => ({ l, y: self.series.priceToCoordinate(l.price) }))
+            .filter((q) => q.y != null && q.y > H / 2 && q.y < mediaSize.height - H / 2).sort((a, b) => a.y - b.y);
+          let prev = -1e9; // évite les chevauchements : décale vers le bas si deux niveaux sont proches
+          for (const q of pts) {
+            const y = Math.max(q.y, prev + H + 1); prev = y;
+            const w = c.measureText(q.l.label).width + 10, x = 6;
+            c.fillStyle = "rgba(11,15,26,.86)"; c.fillRect(x, y - H / 2, w, H);
+            c.strokeStyle = q.l.color; c.lineWidth = 1; c.strokeRect(x + .5, y - H / 2 + .5, w - 1, H - 1);
+            c.fillStyle = q.l.text || "#e6ebf5"; c.fillText(q.l.label, x + 5, y + .5);
+          }
+        });
+      } }) }];
+    },
+  };
+  const ORD_KEY = "kp.showOrders";
+  let showOrders = (() => { try { return localStorage.getItem(ORD_KEY) !== "0"; } catch { return true; } })();
+  function syncOrdBtn() { const b = $("ord-toggle"); if (b) { b.setAttribute("aria-pressed", String(showOrders)); b.textContent = showOrders ? "Ordres : affichés" : "Ordres : masqués"; } }
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest || !e.target.closest("#ord-toggle")) return;
+    showOrders = !showOrders;
+    try { localStorage.setItem(ORD_KEY, showOrders ? "1" : "0"); } catch { /* navigation privée */ }
+    syncOrdBtn(); linesSig = ""; overlays();
+  });
+  document.addEventListener("DOMContentLoaded", syncOrdBtn); syncOrdBtn();
+
   // Ordres en attente, stops, objectifs, prix de revient, et exécutions du journal.
   function overlays() {
     if (!chart || !ctx.S || !shown.bars.length) return;
     const S = ctx.S, p = selected.pair, iv = TF[selected.tf] * 60;
     const lines = [];
     const pos = S.positions[p];
-    if (pos) lines.push({ price: pos.avg_cost, color: C.mu, lineStyle: 1, title: "Prix de revient" });
+    if (pos) lines.push({ price: pos.avg_cost, color: C.mu, lineStyle: 1, label: "PRU (prix de revient)" });
     for (const o of S.open_orders || []) {
       if (o.pair !== p) continue;
       if (o.side === "buy") {
-        if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, title: `${o.id} achat limite` });
-        if (o.stop_loss) lines.push({ price: o.stop_loss, color: "rgba(248,113,113,.6)", lineStyle: 3, title: `${o.id} stop prévu` });
-        if (o.take_profit) lines.push({ price: o.take_profit, color: "rgba(124,92,255,.75)", lineStyle: 3, title: `${o.id} objectif prévu` });
+        if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite` });
+        if (o.stop_loss) lines.push({ price: o.stop_loss, color: "rgba(248,113,113,.6)", lineStyle: 3, label: `${o.id} stop prévu` });
+        if (o.take_profit) lines.push({ price: o.take_profit, color: "rgba(124,92,255,.75)", lineStyle: 3, label: `${o.id} objectif prévu` });
       } else {
-        if (o.price != null) lines.push({ price: o.price, color: C.ac, lineStyle: 2, title: `${o.id} ${o.parent ? "objectif (TP)" : "vente limite"}` });
-        if (o.stop_loss) lines.push({ price: o.stop_loss, color: C.dn, lineStyle: 2, title: `${o.id} stop` });
+        if (o.price != null) lines.push({ price: o.price, color: C.ac, lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
+        if (o.stop_loss) lines.push({ price: o.stop_loss, color: C.dn, lineStyle: 2, label: `${o.id} stop` });
       }
     }
-    const lsig = p + JSON.stringify(lines);
+    const vis = showOrders ? lines : [];
+    const lsig = p + showOrders + JSON.stringify(lines);
     if (lsig !== linesSig) {
       priceLines.forEach((l) => sCandle.removePriceLine(l));
-      levelPrices = lines.map((l) => l.price).filter((x) => x > 0);
-      priceLines = lines.map((l) => sCandle.createPriceLine(Object.assign({ lineWidth: 1, axisLabelVisible: true }, l)));
+      levelPrices = vis.map((l) => l.price).filter((x) => x > 0);
+      // Sur l'échelle : seulement la petite étiquette de prix, sans titre ; le texte va sur la ligne (primitive).
+      priceLines = vis.map((l) => sCandle.createPriceLine({ price: l.price, color: l.color, lineStyle: l.lineStyle, lineWidth: 1, axisLabelVisible: true, title: "" }));
+      labels.set(vis);
       linesSig = lsig;
     }
     // exécutions : journal (événements "fill"), complété par closed_trades
@@ -274,7 +319,7 @@
     if (msig !== markersSig) { markersApi.setMarkers(mk); markersSig = msig; }
     const n = lines.length, m = mk.length;
     $("moverlay-note").textContent = (n || m)
-      ? `Sur le graphique : ${n} niveau${n > 1 ? "x" : ""} (ordres, stops, objectifs) et ${m} exécution${m > 1 ? "s" : ""} visible${m > 1 ? "s" : ""} sur cette période.`
+      ? `Sur le graphique : ${n} niveau${n > 1 ? "x" : ""} (ordres, stops, objectifs)${n && !showOrders ? " masqué" + (n > 1 ? "s" : "") : ""} et ${m} exécution${m > 1 ? "s" : ""} visible${m > 1 ? "s" : ""} sur cette période.`
       : "Aucun ordre ni exécution sur cette crypto pour l'instant : les niveaux et les flèches d'achat et de vente s'afficheront ici.";
   }
 

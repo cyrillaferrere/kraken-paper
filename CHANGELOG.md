@@ -6,6 +6,25 @@ La version courante est dans le fichier `VERSION` ; chaque version publiée en p
 
 ## [Unreleased]
 
+## [0.2.0] - en attente de validation
+
+En préprod (https://preprod--kraken-paper.netlify.app), pas encore en prod : la date sera fixée à la mise en prod, après l'accord de Cyril.
+
+### Ajouté
+- Fil « Décisions de Grok Bot » : une carte dépliable par décision (date de Paris, id, justification, actions résumées en français avec leur résultat : ordre créé ou refus et sa raison, notes), la plus récente en haut. Source : `decisions/` sur `main` via l'API GitHub (liste avec ETag, fichiers lus une seule fois par sha et gardés en cache local) ; repli sur le journal si l'API est limitée.
+- Carte « Exposition » : part investie aux prix en direct, cash réservé par les achats en attente, cash libre, perte totale si tous les stops sont touchés (positions et achats en attente, frais compris, même calcul que le tableau des ordres), alerte si une position ou un achat n'a pas de stop.
+- Carte « Prochains passages » : prochain cycle du moteur (:07 heure de Paris, retard signalé honnêtement si le dernier cycle a plus de 75 min) et prochaine session de gestion estimée (dernière décision + 5 h).
+- « Performance par jour » : variation du portefeuille et de BTC conservé par jour de Paris (base : dernier cycle de la veille), avec texte et flèches en plus de la couleur ; fonctionne avec un seul jour de données.
+- Alerte de proximité dans les ordres ouverts : badge « à 0,6 % du déclenchement (achat limite / stop / objectif) » sous 1 %, surlignage bref unique quand un ordre entre dans la zone, jamais de clignotement.
+- Section « Leçons » : rendu de `docs/LESSONS.md` (markdown minimal, HTML échappé, liens http(s) seulement) ; première leçon sur le repli de 2-3 % en marché survendu.
+- Cash comme sur Kraken : « cash total », « réservé dans les ordres » (achats en attente, frais maker compris) et « cash disponible » = total − réservé, dans l'en-tête des positions et la carte Exposition. La valeur totale du portefeuille ne change pas (le cash réservé y compte toujours). Le moteur réserve déjà ce cash à la pose d'un ordre (`available_cash`) : affichage seulement, moteur inchangé.
+- `site/lib.js` (fonctions pures) et ses tests `tests/site/lib.test.js` ; `site/extras.js` pour les nouvelles sections.
+
+### Modifié
+- Graphique : les textes des niveaux (« O0001 achat limite », « stop prévu », « objectif », « PRU ») sont posés sur la ligne pointillée à gauche du graphique ; l'échelle de droite ne garde que de petites étiquettes de prix. Marge à droite plus grande (12 bougies) : la dernière bougie ne touche plus l'échelle.
+- Bouton « Ordres » sur le graphique pour masquer ou afficher toutes les lignes d'ordres, stops et objectifs (choix gardé dans le navigateur).
+- La carte « Dernière décision » est remplacée par le fil des décisions.
+
 ## [0.1.0] - 2026-11-14
 
 Première version numérotée. Elle regroupe tout ce qui a été construit depuis le lancement le 13/11/2026.
