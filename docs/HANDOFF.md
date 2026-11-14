@@ -1,3 +1,8 @@
+## Graphite / Signal — prototype en cours (ADR-23)
+- PR #41, branche `feature/analog-robotic-concept` uniquement : nouvelle palette graphite / vert signal / corail, typo sans-serif et hiérarchie des panneaux, sans changement du moteur.
+- `site/analog.css` reste une surcouche réversible ; `site/markets.js` ne change que les couleurs de rendu. VERSION=0.3.1.
+- Vérifier le Deploy Preview Netlify, les tests Node/Python, la lisibilité mobile et desktop et les valeurs de marché réelles avant toute fusion. `main` et `preprod` restent intacts.
+
 ## Concept alternatif Analog / Robotic — branche d'essai
 - Branche `feature/analog-robotic-concept` créée depuis `preprod` v0.3.1 ; pas de remplacement de la préproduction actuelle.
 - `site/analog.css` est la surcouche expérimentale isolée ; `site/index.html` lie le CSS, le monogramme K⌁P et une graduation VU sur la barre d'exposition existante. `site/markets.js` ne change que les couleurs.
