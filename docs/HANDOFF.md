@@ -1,3 +1,8 @@
+## Trading Workspace × Minimal Precision — ADR-24
+- Prototype sur PR #41 : `site/workspace-premium.css` est chargé après `analog.css`, sans modifier `main` ou `preprod`.
+- Nouveau titre de page piloté par `workspace-tabs.js`, navigation synchronisée dans `navigation.js`, onglets secondaires masqués sur desktop. Le graphique est prioritaire sur l’exposition dans la vue générale.
+- Contrôler les 4 espaces et les liens du menu, les interactions du chandelier, le mobile, le contraste et les tests CI avant arbitrage Cyril/Grok Bot.
+
 ## Graphite / Signal — prototype en cours (ADR-23)
 - PR #41, branche `feature/analog-robotic-concept` uniquement : nouvelle palette graphite / vert signal / corail, typo sans-serif et hiérarchie des panneaux, sans changement du moteur.
 - `site/analog.css` reste une surcouche réversible ; `site/markets.js` ne change que les couleurs de rendu. VERSION=0.3.1.
