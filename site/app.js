@@ -230,7 +230,7 @@
     const availablePct = total ? cb.available / total : 0, reservedPct = total ? cb.reserved / total : 0, investedPct = total ? invested / total : 0;
     const put = (id, value, klass) => { const el = $(id); if (!el) return; const changed = el.textContent !== value; if (changed) { el.textContent = value; if (!firstRender) { el.classList.remove("kpi-updated"); void el.offsetWidth; el.classList.add("kpi-updated"); } } if (klass !== undefined) { el.classList.toggle("up", klass === "up"); el.classList.toggle("dn", klass === "dn"); } };
     const putMoney = (id, value, klass) => put(id, value == null ? "—" : signed(value) + " USDC", klass === undefined ? cls(value) : klass);
-    const putPct = (id, value, ref) => put(id, value == null ? "—" : pct(value) + (ref ? " " + ref : ""));
+    const putPct = (id, value, ref) => { put(id, value == null ? "—" : pct(value)); const el = $(id); if (el && ref) { el.title = "Référence : " + ref; el.setAttribute("aria-label", (value == null ? "Indisponible" : pct(value)) + " " + ref); } };
     const unrealized = Object.entries(S.positions).reduce((sum, [p, pos]) => {
       const x = price(p); return sum + (x == null ? 0 : pos.qty * (x - pos.avg_cost));
     }, 0);
