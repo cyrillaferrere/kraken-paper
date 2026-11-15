@@ -1,3 +1,8 @@
+## Recette v0.3.3 — webhook Grok Bot
+- Contrôler le workflow moteur : capture de l'offset avant cycle, POST groupé uniquement en cas de fill, après l'étape « Commit de l'etat ».
+- Contrôler le workflow manuel `Test liaison webhook Grok Bot` : envoi `{"type":"test_connection"}` avec secrets GitHub, affichage du code HTTP uniquement, sans lancer le moteur.
+- Lancer CI Python/Node et garde-fous ; publication ADR-28 sur `deploy/prod-request` avec SHA de fusion et `request_sequence: 3` après GO. Contrôler `version.json` et la publication effective Netlify. Ne pas déclencher le test manuel à la place de Cyril.
+
 ## Publication production — GO unique (ADR-28, remplace la validation humaine ADR-27)
 - Cyril autorise explicitement une version et un SHA précis ; une CI verte ou une PR fusionnée ne vaut pas GO.
 - Après revue Grok Bot, tests et recette préprod, l'assistant soumet `.github/prod-release-request.json` sur `deploy/prod-request` uniquement après ce GO.

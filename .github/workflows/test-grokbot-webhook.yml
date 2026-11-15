@@ -1,0 +1,41 @@
+name: Test liaison webhook Grok Bot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  connection-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Vérifier les secrets requis
+        env:
+          GROKBOT_WEBHOOK_URL: ${{ secrets.GROKBOT_WEBHOOK_URL }}
+          GROKBOT_WEBHOOK_KEY: ${{ secrets.GROKBOT_WEBHOOK_KEY }}
+        shell: bash
+        run: |
+          if [[ -z "$GROKBOT_WEBHOOK_URL" || -z "$GROKBOT_WEBHOOK_KEY" ]]; then
+            echo "Secrets webhook absents"
+            exit 1
+          fi
+      - name: Envoyer test_connection (code HTTP uniquement)
+        env:
+          GROKBOT_WEBHOOK_URL: ${{ secrets.GROKBOT_WEBHOOK_URL }}
+          GROKBOT_WEBHOOK_KEY: ${{ secrets.GROKBOT_WEBHOOK_KEY }}
+        shell: bash
+        run: |
+          set +x
+          http_code=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --max-time 20 --request POST \
+            --header "Authorization: Bearer ${GROKBOT_WEBHOOK_KEY}" \
+            --header 'Content-Type: application/json' \
+            --data '{"type":"test_connection"}' \
+            "$GROKBOT_WEBHOOK_URL") || {
+              echo "HTTP 000"
+              exit 1
+            }
+          echo "HTTP ${http_code}"
+          [[ "$http_code" =~ ^2[0-9][0-9]$ ]]
