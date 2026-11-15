@@ -1,3 +1,8 @@
+## [0.3.3] — candidat main : liaison webhook Grok Bot
+- Intégration sélective depuis `preprod` : notification des fills après commit/push réussi du moteur, groupée par cycle ; authentification Cursor via secrets GitHub et journalisation sans données sensibles.
+- Workflow GitHub Actions manuel `Test liaison webhook Grok Bot` : POST `{"type":"test_connection"}` et code HTTP uniquement. Déclenchement réservé à Cyril après publication.
+- Tests unitaires hors réseau. Aucun changement de stratégie, de moteur de simulation, de fichiers `state/`, `decisions/` ou d'interface (fichiers site déjà identiques sur les deux branches). VERSION déjà à 0.3.3 sur `main`.
+
 ## [0.3.3] - 2026-11-15 (candidat production validé par Cyril)
 - Refonte cockpit consolidée : grille responsive pilotée par la largeur réelle de la zone, typographie financière agrandie, benchmark/allocation/risque réorganisés ; textes de diagnostic masqués proprement avec une classe accessible `sr-only`.
 - Feedback live local rétabli sur les seules valeurs effectivement modifiées (cours, positions, allocation, risque), durée 720 ms, sans flash de carte ni animation des prix.
