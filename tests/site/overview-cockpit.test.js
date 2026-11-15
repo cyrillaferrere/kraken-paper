@@ -78,3 +78,9 @@ test("le cockpit supprime les explications visibles et évite le chevauchement d
   assert.doesNotMatch(extras, /cash réservé compte dans la valeur totale/);
   assert.match(extras, /class="risk-summary"/);
 });
+
+test("les références des pourcentages restent accessibles sans sous-titres", () => {
+  assert.match(app, /el\.title = "Référence : " \+ ref/);
+  assert.match(app, /el\.setAttribute\("aria-label"/);
+  assert.doesNotMatch(app, /pct\(value\) \+ \(ref \? " " \+ ref/);
+});
