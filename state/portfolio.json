@@ -63,6 +63,84 @@
         }
       ],
       "breakeven_after_tp1": true
+    },
+    {
+      "id": "O0016",
+      "pair": "XBTUSDC",
+      "side": "buy",
+      "qty": 0.01075943,
+      "price": 64800.0,
+      "stop_loss": 61200.0,
+      "take_profit": null,
+      "created": "2026-11-15T15:12:46+01:00",
+      "active_from": 1794754800,
+      "parent": null,
+      "decision_id": "2026-11-15-15h15",
+      "take_profits": [
+        {
+          "price": 70000.0,
+          "fraction": 0.5,
+          "qty": 0.00537971
+        },
+        {
+          "price": 75000.0,
+          "fraction": 0.5,
+          "qty": 0.00537972
+        }
+      ],
+      "breakeven_after_tp1": true
+    },
+    {
+      "id": "O0017",
+      "pair": "XBTUSDC",
+      "side": "buy",
+      "qty": 0.01113755,
+      "price": 62600.0,
+      "stop_loss": 61200.0,
+      "take_profit": null,
+      "created": "2026-11-15T15:12:46+01:00",
+      "active_from": 1794754800,
+      "parent": null,
+      "decision_id": "2026-11-15-15h15",
+      "take_profits": [
+        {
+          "price": 70000.0,
+          "fraction": 0.5,
+          "qty": 0.00556877
+        },
+        {
+          "price": 75000.0,
+          "fraction": 0.5,
+          "qty": 0.00556878
+        }
+      ],
+      "breakeven_after_tp1": true
+    },
+    {
+      "id": "O0018",
+      "pair": "ETHUSDC",
+      "side": "buy",
+      "qty": 0.22257339,
+      "price": 1790.0,
+      "stop_loss": 1680.0,
+      "take_profit": null,
+      "created": "2026-11-15T15:12:46+01:00",
+      "active_from": 1794754800,
+      "parent": null,
+      "decision_id": "2026-11-15-15h15",
+      "take_profits": [
+        {
+          "price": 2000.0,
+          "fraction": 0.5,
+          "qty": 0.11128669
+        },
+        {
+          "price": 2150.0,
+          "fraction": 0.5,
+          "qty": 0.1112867
+        }
+      ],
+      "breakeven_after_tp1": true
     }
   ],
   "closed_trades": [
@@ -204,13 +282,14 @@
     "2026-11-15-00h15",
     "2026-11-15-00h14",
     "2026-11-15-05h03",
-    "2026-11-15-10h05"
+    "2026-11-15-10h05",
+    "2026-11-15-15h15"
   ],
   "last_decision": {
-    "id": "2026-11-15-10h05",
-    "timestamp": "2026-11-15T10:05:00+01:00",
-    "rationale": "Ce que je vois : BTC est remonté à 65 580 après un creux à 63 754 vers 8h, plus haut que la mèche de 62 000 de la nuit (creux qui tient) et il repasse au-dessus de la MA20 horaire (64 770). Volume horaire faible, RSI 1h 51, 4h 32, jour 25 : le rebond se construit mais la tendance de fond reste baissière (MA20 4h 68 240). ETH 1 823 et SOL 71,8 suivent le même mouvement. Ce que je fais : rien. Je garde le reste de position BTC (stop au prix d'achat 63 051, objectif 68 500) et l'achat limite O0015 à 63 400 (stop 61 700, paliers 66 000 / 70 000). Pourquoi : remonter l'achat vers 64 300 ferait tomber le ratio gain/risque net sous 1,5 avec le même stop logique sous 62 000, et acheter au prix actuel serait courir après le prix. Rien sur ETH et SOL pour ne pas recréer le pari corrélé d'hier. Ce que j'apprends : creux plus haut puis reprise de la MA20 horaire, deux marqueurs de rebond réunis, mais sans volume ; à confirmer par une clôture 4h au-dessus de 66 000.",
-    "applied": "2026-11-15T10:04:38+01:00"
+    "id": "2026-11-15-15h15",
+    "timestamp": "2026-11-15T15:15:00+01:00",
+    "rationale": "Ce que je vois : BTC 65 200 tient au-dessus du plancher de 62 000 (plus bas 3 mois, mèche de cette nuit), avec un creux plus haut à 63 754 et une clôture au-dessus de la MA20 horaire (64 700). Mais la MA20 4h (67 800) et la tendance journalière restent baissières (RSI jour 24, −12,8 % sur 7 jours) et le volume horaire s'est asséché. ETH 1 822 au-dessus de sa MA20 1h (1 799), plancher 1 711. Ce que je fais : j'applique le plan à trois poches validé par Cyril. Poche moyen terme : premier palier BTC proche du cours, 700 USDC à 64 800 ; O0015 à 63 400 reste le deuxième palier ; troisième palier 700 USDC à 62 600 ; stops à 61 200 sous la mèche de 62 000, moitié à 70 000 puis stop au prix d'achat, reste à 75 000. Un peu d'ETH : 400 USDC à 1 790, stop 1 680 sous le plancher 1 711, moitié à 2 000, reste à 2 150. Ratios gain/risque nets de frais : 1,6 (64 800), 4,2 (62 600), 2,0 (ETH). Poche court terme : rien, pas de pic de volume ni de reprise de la MA20 4h ; aucun altcoin n'est nettement plus fort que BTC sur plusieurs jours. Réserve intacte. Pourquoi : plancher + creux plus haut + mèche basse + clôture au-dessus de la MA20 1h ; des paliers étagés évitent d'acheter tout d'un coup dans une tendance encore baissière. Risque total si tout s'exécute et tout touche les stops : environ 120 USDC (moins de 2 % du portefeuille), BTC et ETH comptés comme un seul pari. Ce que j'apprends : le stop sous le vrai plancher (61 200) impose d'entrer sous 65 000 pour garder un ratio d'au moins 1,5 avec des sorties à 70 000 / 75 000.",
+    "applied": "2026-11-15T15:12:46+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -246,12 +325,12 @@
   },
   "last_candle": {
     "XBTUSDC": 1794747600,
-    "ETHUSDC": 1794690000,
+    "ETHUSDC": 1794747600,
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 65200.38,
-    "ETHUSDC": 1774.47,
+    "XBTUSDC": 65204.5,
+    "ETHUSDC": 1820.75,
     "SOLUSDC": 70.48
   },
   "benchmark": {
@@ -263,11 +342,11 @@
   "fees_total": 27.151147,
   "realized_pnl": -140.998339,
   "seq": {
-    "order": 15,
+    "order": 18,
     "trade": 8
   },
-  "last_cycle": "2026-11-15T15:09:12+01:00",
-  "last_cycle_ts": 1794751752,
+  "last_cycle": "2026-11-15T15:12:46+01:00",
+  "last_cycle_ts": 1794751966,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
