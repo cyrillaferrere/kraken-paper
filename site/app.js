@@ -250,11 +250,11 @@
     const peak = equity.reduce((max,r)=>Math.max(max,r.eq),0);
     const livePeak = Math.max(peak,total);
     const dd = livePeak > 0 ? total / livePeak - 1 : null;
-    let maxDd = 0, runningPeak = 0;
-    for (const row of equity) { runningPeak=Math.max(runningPeak,row.eq); if(runningPeak>0) maxDd=Math.min(maxDd,row.eq/runningPeak-1); }
+    let maxDd = 0, maxDdAmount = 0, runningPeak = 0;
+    for (const row of equity) { runningPeak=Math.max(runningPeak,row.eq); if(runningPeak>0 && row.eq/runningPeak-1 < maxDd) { maxDd=row.eq/runningPeak-1; maxDdAmount=row.eq-runningPeak; } }
     putMoney("ov-dd", dd == null ? null : total-livePeak);
-    putPct("ov-dd-pct",dd,"du sommet récent");
-    putMoney("ov-maxdd", maxDd ? S.start_capital * maxDd : 0);
+    putPct("ov-dd-pct",dd,"du sommet historique");
+    putMoney("ov-maxdd", maxDdAmount);
     putPct("ov-maxdd-pct",maxDd,"du sommet historique");
     put("ov-fee-ratio", S.start_capital ? pct(S.fees_total/S.start_capital) : "—");
     const trades=S.closed_trades||[], wins=trades.filter(t=>Number(t.pnl)>0).length, losses=trades.filter(t=>Number(t.pnl)<0).length;
@@ -275,11 +275,7 @@
       putPct("ov-risk-total-pct",ex.riskPct,"du portefeuille");
       put("ov-risk-note",ex.buysNoStop ? ex.buysNoStop+" achat(s) en attente sans risque chiffrable faute de stop." : (ex.unprotected.length ? "Positions sans protection complète : "+ex.unprotected.join(", ")+".":"Risque calculé frais et glissement inclus."));
     }
-    const bar = $("exp-bar");
-    if(bar && ex && total>0) {
-      bar.innerHTML = '<span class="exp-cash" style="width:'+Math.max(0,availablePct*100)+'%"></span><span class="exp-reserved" style="width:'+Math.max(0,reservedPct*100)+'%"></span><span class="exp-invested" style="width:'+Math.max(0,investedPct*100)+'%"></span>';
-      bar.setAttribute("aria-label","Cash disponible "+usdc(cb.available)+" ("+pct(availablePct)+"), réservé "+usdc(cb.reserved)+" ("+pct(reservedPct)+"), investi "+usdc(invested)+" ("+pct(investedPct)+")");
-    }
+
 
     // Les prix bougent toutes les 15 s ; les historiques ne changent qu'avec un nouveau snapshot.
     // Éviter de reconstruire le journal et le SVG à chaque ticker préserve filtres et interactions.
