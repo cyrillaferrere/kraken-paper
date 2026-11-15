@@ -18,3 +18,7 @@ Les captures desktop et iPhone montrent un dashboard fonctionnel, mais trop proc
 - Ne jamais changer main, state/ ou decisions/ sans autorisation de publication.
 - Recette : comparer desktop 1280/1440, iPhone 375/390/430, navigation active, chandelier, marqueurs et ordres, valeurs exactes, mode reduced-motion, version et commit visibles.
 - Si l'apparence ou l'accessibilité régressent, revenir à la version préprod antérieure ; aucun impact sur les données PAPER.
+
+## Statut après publication (15 novembre 2026)
+- Identité Nocturne Signal intégrée dans la v0.3.1 publiée. Les mentions de préproduction ci-dessus décrivent le périmètre initial de développement et sont conservées pour l'historique.
+- Numérotation vérifiée : ADR-21 reste affecté à Nocturne Signal ; la publication contrôlée relève d'ADR-27 dans `docs/DECISIONS.md`. Aucune renumérotation de cet ADR UX n'est nécessaire.
