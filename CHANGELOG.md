@@ -1,4 +1,5 @@
 ## [0.3.3] — préproduction uniquement
+- Cockpit v3 : sous-titres explicatifs masqués sans perte des informations accessibles, benchmark/frais séparés pour éviter les chevauchements, risque condensé, activité compacte ; flash des seules valeurs modifiées porté à 600 ms.
 - Vue générale : seconde composition du cockpit, suppression des doublons allocation/risque, panneaux à hauteur naturelle, correction des débordements et densité homogène ; compteur de trades limité aux sorties réellement clôturées.
 - Vue générale : cockpit financier haute densité, P&L réalisé/latent, performances 24 h/7 j, drawdown, frais relatifs, allocation en USDC et %, risques actifs/conditionnels en USDC et % ; aucun changement des règles PAPER.
 - Flux Kraken WebSocket v2 : ticker de la paire sélectionnée et bougie OHLC en formation, mises à jour sans réinitialiser le graphique ; repli REST conservé. Moteur PAPER inchangé.
