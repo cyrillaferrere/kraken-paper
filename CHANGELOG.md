@@ -1,3 +1,9 @@
+## [Unreleased] — webhook Grok Bot après cycle
+- Le workflow `engine.yml` mémorise l'offset du journal avant le cycle puis lance `scripts/notify_grokbot.py` après le moteur.
+- Si de nouveaux événements `fill` ont été ajoutés, un seul POST JSON regroupe les trades du cycle (`id`, `order`, `pair`, `side`, `price`, `reason`) et l'heure du cycle.
+- Authentification par les secrets GitHub `GROKBOT_WEBHOOK_URL` et `GROKBOT_WEBHOOK_KEY` ; aucune valeur sensible n'est journalisée. Aucun envoi sans exécution ; toute erreur réseau est absorbée.
+- Test dédié : `tests/test_grokbot_webhook.py`. Aucun changement de logique de trading, de `state/` ou de `decisions/`.
+
 ## [0.3.3] — préproduction uniquement
 - Refonte cockpit consolidée : grille responsive pilotée par la largeur réelle de la zone, typographie financière agrandie, benchmark/allocation/risque réorganisés ; textes de diagnostic masqués proprement avec une classe accessible `sr-only`.
 - Feedback live local rétabli sur les seules valeurs effectivement modifiées (cours, positions, allocation, risque), durée 720 ms, sans flash de carte ni animation des prix.
