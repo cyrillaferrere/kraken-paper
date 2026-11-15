@@ -628,8 +628,23 @@ le dash attend 10 min et affiche les décisions depuis le journal.
 **Statut** : workflow proposé, secret GitHub `preprod` configuré le 14/11/2026 ; attendre la revue Grok Bot, la fusion et le premier run réussi. Le déclencheur manuel a été remplacé par `push` sur `preprod` pour éviter l'exigence GitHub de présence sur la branche par défaut. Aucune règle GitHub changée.
 
 
-## Publication production pilotable depuis GitHub
-- Workflow `.github/workflows/deploy-production-controlled.yml` : une demande explicite `.github/prod-release-request.json` poussée sur `deploy/prod-request` déclenche tests et publication du code `main`, puis vérification du `version.json` public.
-- Ne jamais modifier `state/` ni `decisions/`. Les cycles moteur sur `main` peuvent continuer entre l'approbation et le déploiement ; seuls ces changements sont autorisés après le SHA approuvé.
-- Secret requis : `NETLIFY_AUTH_TOKEN` dans les secrets GitHub accessibles au workflow. Si absent, le job échoue sans déployer ; demander une configuration par l'administrateur, jamais le jeton dans le chat.
-- Une autorisation de Cyril reste nécessaire pour chaque version. Le workflow n'est pas déclenché par les cycles horaires ni par les PR ordinaires.
+## Publication production contrôlée — état v0.3.1 et préparation v0.3.2
+- Production v0.3.1 en service depuis le 14/11/2026 ; publication future selon ADR-28 (GO unique), sans deuxième validation humaine GitHub. La branche `deploy/prod-request` doit recevoir le workflow à jour avant activation. Le champ JSON `approved_by` n'est pas un consentement.
+- Les prochains lots passent par une PR de branche dédiée vers `preprod` ; seul le code et la documentation sont livrables. Jamais de synchronisation globale de `main` qui recopierait `state/` ou `decisions/`.
+- Pour une future production : GO explicite de Cyril pour version et SHA, contrôle des droits de la branche de demande, suivi des jobs et vérification réelle du `version.json` (sans deuxième clic GitHub). Le verrou Netlify **Auto Publishing Locked** peut empêcher le nouveau déploiement de devenir la publication active : inspecter **Deploys** et faire lever ou traiter ce verrou seulement par une personne autorisée, puis re-vérifier le SHA servi.
+- `NETLIFY_AUTH_TOKEN` reste un secret de l'environnement GitHub `production`, jamais un fichier commité ni un jeton partagé par chat.
+- PR v0.3.2 : affichage descriptif du stop remonté après TP1 sur les lignes du graphique ; pas de changement du moteur ni des règles de trading. Le bandeau des sorties différées affiche déjà nouveau stop et objectifs via `pendingExitText`, avec test de régression dédié.
+- Recherche PR #42 (plateaux 2020–09/2026) : conserver pour référence ; espérance nette négative sur chaque scénario testé, aucune modification moteur. Mise à jour de `docs/LESSONS.md` réservée à une session distincte sur la branche de vérité `main`.
+
+## Transition ADR-28 — publication GO unique (15/11/2026)
+- `production` : Required reviewers désactivé et secret NETLIFY_AUTH_TOKEN conservé, branche autorisée deploy/prod-request.
+- La PR d'intégration combine les changements UX v0.3.2 de #52 et le workflow sans workflow_dispatch de #53.
+- Avant activation : revue Grok Bot, CI, recette préprod, synchronisation du workflow sur deploy/prod-request, puis GO explicite de Cyril pour version/SHA.
+- Aucune publication production, aucun changement state/ ou decisions/ dans ce lot.
+
+
+## Candidat release v0.3.2 — 15/11/2026
+- Préprod validée par Cyril sur commit de fusion PR #54 `815eec6` ; revue Grok Bot favorable.
+- Branche `release/v0.3.2-preparation` depuis `preprod` : `VERSION=0.3.2`, CHANGELOG préparé, build Netlify corrigé pour prendre en compte les changements de `VERSION`.
+- Aucun changement de moteur, `state/`, `decisions/` ni de production. CI, revue PR et recette du nouveau bandeau de version à effectuer.
+- Avant toute publication : vérifier droits de modification de `deploy/prod-request`, synchroniser le workflow de publication sans toucher au JSON de demande, puis obtenir un GO explicite de Cyril sur le SHA définitif de la release. La synchronisation du workflow ne constitue pas une autorisation de publication.
