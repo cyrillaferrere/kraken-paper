@@ -37,3 +37,26 @@ test("le nombre de trades clôturés ignore les simples achats", () => {
   assert.match(app, /Number\(t\.realized_pnl\)>0/);
   assert.match(app, /Number\(t\.realized_pnl\)<0/);
 });
+
+test("les ticks live ne relancent pas le rendu complet du dashboard", () => {
+  assert.match(app, /function renderLive\(\) \{ render\(true\); \}/);
+  assert.match(app, /if \(liveOnly\) \{[\s\S]*?KPMarkets\.onPrice[\s\S]*?KPExtras\.onPrice[\s\S]*?return;/);
+  assert.match(app, /loadPrices\(\); renderLive\(\)/);
+  assert.match(app, /tickerRenderAt = tickerLast; renderLive\(\)/);
+  assert.match(app, /function updateLiveTables\(\)/);
+  assert.match(app, /data-position-pair/);
+  assert.match(app, /data-order-id/);
+});
+
+test("les modules Marchés et Extras ont un chemin live ciblé", () => {
+  const markets = fs.readFileSync("site/markets.js", "utf8");
+  assert.match(markets, /onPrice\(c\) \{[\s\S]*?renderLivePrices\(\);[\s\S]*?overlays\(\);/);
+  const extras = fs.readFileSync("site/extras.js", "utf8");
+  assert.match(extras, /onPrice\(c\) \{[\s\S]*?renderExposure\(\);[\s\S]*?\},\s*onState/);
+});
+
+test("le feedback live est progressif et reste désactivable", () => {
+  assert.match(css, /--motion-data:\s*360ms/);
+  assert.match(css, /kpi-flash var\(--motion-data\)/);
+  assert.match(css, /prefers-reduced-motion:\s*reduce/);
+});
