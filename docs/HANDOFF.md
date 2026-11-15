@@ -635,3 +635,9 @@ le dash attend 10 min et affiche les décisions depuis le journal.
 - `NETLIFY_AUTH_TOKEN` reste un secret de l'environnement GitHub `production`, jamais un fichier commité ni un jeton partagé par chat.
 - PR v0.3.2 : affichage descriptif du stop remonté après TP1 sur les lignes du graphique ; pas de changement du moteur ni des règles de trading. Le bandeau des sorties différées affiche déjà nouveau stop et objectifs via `pendingExitText`, avec test de régression dédié.
 - Recherche PR #42 (plateaux 2020–09/2026) : conserver pour référence ; espérance nette négative sur chaque scénario testé, aucune modification moteur. Mise à jour de `docs/LESSONS.md` réservée à une session distincte sur la branche de vérité `main`.
+
+## Transition ADR-28 — publication GO unique (15/11/2026)
+- `production` : Required reviewers désactivé et secret NETLIFY_AUTH_TOKEN conservé, branche autorisée deploy/prod-request.
+- La PR d'intégration combine les changements UX v0.3.2 de #52 et le workflow sans workflow_dispatch de #53.
+- Avant activation : revue Grok Bot, CI, recette préprod, synchronisation du workflow sur deploy/prod-request, puis GO explicite de Cyril pour version/SHA.
+- Aucune publication production, aucun changement state/ ou decisions/ dans ce lot.
