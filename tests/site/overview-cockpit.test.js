@@ -84,3 +84,30 @@ test("les références des pourcentages restent accessibles sans sous-titres", (
   assert.match(app, /el\.setAttribute\("aria-label"/);
   assert.doesNotMatch(app, /pct\(value\) \+ \(ref \? " " \+ ref/);
 });
+
+test("la grille cockpit s'adapte à la largeur réelle du panneau", () => {
+  assert.match(css, /#overview\s*\{[^}]*container-type:inline-size/);
+  assert.match(css, /@container \(min-width:1120px\)/);
+  assert.match(css, /@container \(min-width:700px\) and \(max-width:1119px\)/);
+  assert.match(css, /@container \(max-width:699px\)/);
+  assert.match(css, /\.sr-only\s*\{[^}]*clip:rect\(0,0,0,0\)/);
+});
+
+test("les textes de diagnostic restent masqués visuellement par sr-only", () => {
+  assert.match(html, /id="k-value-sub" class="sr-only"/);
+  assert.match(html, /id="k-bench-sub" class="sr-only"/);
+  assert.match(html, /id="cd-cycle-note" class="sr-only"/);
+  assert.match(html, /id="cd-session-note" class="sr-only"/);
+  assert.match(css, /\.system-strip small\.sr-only\s*\{\s*position:absolute !important/);
+});
+
+test("les valeurs réellement actualisées déclenchent un feedback local", () => {
+  assert.match(css, /--motion-data:\s*720ms/);
+  assert.match(css, /\.kpi-updated\s*\{[^}]*animation:value-flash/);
+  assert.match(app, /flashLiveValue\(priceCell, px\(x\)\)/);
+  assert.match(app, /flashLiveValue\(valueCell, usdc\(val\)\)/);
+  assert.match(markets, /flashLiveValue\(\$\("selected-live-price"\)/);
+  assert.match(markets, /setCell\(tr\.cells\[1\],[\s\S]*?, true\)/);
+  assert.match(extras, /class="e-amount"/);
+  assert.match(extras, /class="risk-summary"/);
+});
