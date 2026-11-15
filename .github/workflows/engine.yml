@@ -45,12 +45,6 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           TZ: Europe/Paris
         run: python engine/run.py
-      - name: Notification Grok Bot (une requête groupée, sans bloquer le cycle)
-        env:
-          JOURNAL_OFFSET: ${{ steps.journal_start.outputs.offset }}
-          GROKBOT_WEBHOOK_URL: ${{ secrets.GROKBOT_WEBHOOK_URL }}
-          GROKBOT_WEBHOOK_KEY: ${{ secrets.GROKBOT_WEBHOOK_KEY }}
-        run: python scripts/notify_grokbot.py
       - name: Commit de l'etat
         env:
           TZ: Europe/Paris
@@ -66,3 +60,9 @@ jobs:
             sleep 5
           done
           exit 1
+      - name: Notification Grok Bot (après commit/push, une requête groupée)
+        env:
+          JOURNAL_OFFSET: ${{ steps.journal_start.outputs.offset }}
+          GROKBOT_WEBHOOK_URL: ${{ secrets.GROKBOT_WEBHOOK_URL }}
+          GROKBOT_WEBHOOK_KEY: ${{ secrets.GROKBOT_WEBHOOK_KEY }}
+        run: python scripts/notify_grokbot.py
