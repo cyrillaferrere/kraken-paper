@@ -5,13 +5,13 @@
   "start_capital": 6606.42,
   "start_time": "2026-11-13T22:56:24+01:00",
   "start_ts": 1794606984,
-  "cash": 6161.404488,
+  "cash": 6315.421595,
   "positions": {
     "XBTUSDC": {
       "base": "BTC",
-      "qty": 0.00475803,
+      "qty": 0.00237902,
       "avg_cost": 63051.19997141675,
-      "fees_paid": 1.195217
+      "fees_paid": 1.81376
     }
   },
   "open_orders": [
@@ -19,20 +19,15 @@
       "id": "O0014",
       "pair": "XBTUSDC",
       "side": "sell",
-      "qty": 0.00475803,
-      "price": 65000.0,
-      "stop_loss": 61500.0,
+      "qty": 0.00237902,
+      "price": 68500.0,
+      "stop_loss": 63051.19997141675,
       "take_profit": null,
       "created": "2026-11-15T02:05:00+01:00",
       "active_from": 1794708000,
       "parent": "O0013",
       "decision_id": null,
       "take_profits": [
-        {
-          "price": 65000.0,
-          "fraction": 0.5,
-          "qty": 0.00237901
-        },
         {
           "price": 68500.0,
           "fraction": 0.5,
@@ -41,7 +36,7 @@
       ],
       "entry_price": 63051.19997141675,
       "breakeven_after_tp1": true,
-      "tp_filled": 0
+      "tp_filled": 1
     }
   ],
   "closed_trades": [
@@ -154,6 +149,23 @@
       "ts": 1794704700,
       "realized_pnl": null,
       "time_source": "m5"
+    },
+    {
+      "id": "T0008",
+      "order_id": "O0014",
+      "pair": "XBTUSDC",
+      "base": "BTC",
+      "side": "sell",
+      "qty": 0.00237901,
+      "price": 65000.0,
+      "fee": 0.618543,
+      "liquidity": "maker",
+      "reason": "take_profit",
+      "time": "2026-11-15T03:55:00+01:00",
+      "ts": 1794711300,
+      "realized_pnl": 4.017672,
+      "time_source": "m5",
+      "tp_index": 1
     }
   ],
   "processed_decisions": [
@@ -205,12 +217,12 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794704400,
+    "XBTUSDC": 1794708000,
     "ETHUSDC": 1794690000,
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 63625.07,
+    "XBTUSDC": 65342.64,
     "ETHUSDC": 1774.47,
     "SOLUSDC": 70.48
   },
@@ -220,14 +232,14 @@
     "start_price": 68358.17,
     "start_time": "2026-11-13T22:56:49+01:00"
   },
-  "fees_total": 26.532604,
-  "realized_pnl": -145.016011,
+  "fees_total": 27.151147,
+  "realized_pnl": -140.998339,
   "seq": {
     "order": 14,
-    "trade": 7
+    "trade": 8
   },
-  "last_cycle": "2026-11-15T03:09:12+01:00",
-  "last_cycle_ts": 1794708552,
+  "last_cycle": "2026-11-15T04:09:13+01:00",
+  "last_cycle_ts": 1794712153,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
