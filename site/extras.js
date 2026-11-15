@@ -195,6 +195,10 @@
     await loadLessons();
   }
   window.KPExtras = {
+    onPrice(c) {
+      ctx = c;
+      renderExposure();
+    },
     onState(c) {
       ctx = c;
       renderExposure(); renderCountdowns(); renderCalendar(); renderDecisions();
