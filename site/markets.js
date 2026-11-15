@@ -627,6 +627,7 @@
   window.KPMarkets = {
     onState(c) {
       ctx = c;
+      renderSelectedLive();
       // Une paire mémorisée peut avoir disparu de la liste Kraken ou du portefeuille.
       let chartPairReset = false;
       if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); chartPairReset = true; }
