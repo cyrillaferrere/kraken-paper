@@ -1,0 +1,103 @@
+name: deploy-production-controlled
+
+# Only an explicit push to the dedicated request branch triggers production.
+# This workflow is NOT triggered by normal main, preprod or engine pushes.
+on:
+  push:
+    branches: [deploy/prod-request]
+    paths: [.github/prod-release-request.json]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kraken-paper-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Read approved deployment request
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Validate explicit request
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/deploy/prod-request" || { echo "::error::Production requires dedicated request branch"; exit 1; }
+          python3 - <<'PY'
+          import json, os, re
+          p = json.load(open('.github/prod-release-request.json'))
+          assert p.get('approved_by') == 'Cyril', 'Missing release requester identity (not authorization)'
+          assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', p.get('version', '')), 'Invalid version'
+          assert re.fullmatch(r'[0-9a-f]{40}', p.get('approved_commit', '')), 'Invalid approved commit'
+          assert p.get('environment') == 'production', 'Wrong environment'
+          with open(os.environ['GITHUB_ENV'], 'a') as out:
+              out.write('APPROVED_SHA=' + p['approved_commit'] + '\n')
+              out.write('RELEASE_VERSION=' + p['version'] + '\n')
+          PY
+      - name: Checkout latest main (source of truth)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify approved code and preserve live state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          git cat-file -e "$APPROVED_SHA^{commit}"
+          git merge-base --is-ancestor "$APPROVED_SHA" HEAD || { echo "::error::Approved SHA not an ancestor of main"; exit 1; }
+          if git diff --name-only "$APPROVED_SHA" HEAD | grep -Ev '^(state|decisions)/$' | grep -Ev '^(state|decisions)/' | grep -q .; then
+            echo "::error::Code changed since explicit approval; request a new review"
+            exit 1
+          fi
+          test "$(tr -d '[:space:]' < VERSION)" = "$RELEASE_VERSION"
+          test -z "$(git status --porcelain)"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Offline tests and shell syntax
+        run: |
+          set -euo pipefail
+          python3 -m unittest -q
+          node --test tests/site/*.test.js
+          node --test tests/functions/*.test.mjs
+          bash -n scripts/deploy.sh
+      - name: Deploy approved main to Netlify production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          CONFIRM_PROD: oui
+          CI: 'true'
+        run: |
+          set -euo pipefail
+          test -n "$NETLIFY_AUTH_TOKEN" || { echo "::error::NETLIFY_AUTH_TOKEN missing; configure production environment secret"; exit 1; }
+          bash scripts/deploy.sh prod
+      - name: Verify published production version and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(git rev-parse HEAD)"
+          for i in 1 2 3 4 5 6; do
+            if curl --fail --silent --show-error --max-time 15 -H 'Cache-Control: no-cache' "https://kraken-paper.netlify.app/version.json?check=$GITHUB_RUN_ID-$i" -o /tmp/kraken-prod-version.json; then
+              if EXPECTED="$expected" python3 -c 'import json,os; d=json.load(open("/tmp/kraken-prod-version.json")); assert d["commit"] == os.environ["EXPECTED"] and d["env"] == "prod" and d["branch"] == "main" and d["version"] == os.environ["RELEASE_VERSION"], d'; then
+                echo "Production verified: $RELEASE_VERSION @ ${expected:0:7}"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "::error::Production deployment not verified"
+          exit 1
