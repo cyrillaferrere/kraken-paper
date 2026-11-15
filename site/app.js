@@ -257,7 +257,7 @@
     putMoney("ov-maxdd", maxDdAmount);
     putPct("ov-maxdd-pct",maxDd,"du sommet historique");
     put("ov-fee-ratio", S.start_capital ? pct(S.fees_total/S.start_capital) : "—");
-    const trades=S.closed_trades||[], wins=trades.filter(t=>Number(t.pnl)>0).length, losses=trades.filter(t=>Number(t.pnl)<0).length;
+    const trades=(S.closed_trades||[]).filter(t=>t.realized_pnl!=null), wins=trades.filter(t=>Number(t.realized_pnl)>0).length, losses=trades.filter(t=>Number(t.realized_pnl)<0).length;
     put("ov-trades",String(trades.length));
     put("ov-winloss",wins+" gagnants · "+losses+" perdants");
     $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
