@@ -1,3 +1,8 @@
+## Release v0.3.3 — candidat sélectif pour main
+- Branche `release/v0.3.3-main-candidate` créée depuis `main`, sans fusion globale de `preprod` : intégration de `.github/workflows/engine.yml`, `scripts/notify_grokbot.py`, `.github/workflows/test-grokbot-webhook.yml` et `tests/test_grokbot_webhook.py`.
+- PR #60 et #62 déjà fusionnées dans `preprod`, revue Grok Bot favorable. `VERSION` est déjà `0.3.3` sur `main` et `preprod` ; aucun changement site requis, leurs fichiers d'affichage étant identiques.
+- Après CI et fusion, demande ADR-28 sur `deploy/prod-request` avec `request_sequence: 3`, `approved_commit` = SHA de fusion `main`. Ne jamais copier `state/` ni `decisions/` ; vérifier `version.json` en production. Test Cursor manuel par Cyril uniquement après publication.
+
 ## Release v0.3.3 — GO production 15/11/2026
 - Cyril a validé la préproduction puis donné le GO production. Livraison strictement UI via branche `release/v0.3.3-ui` issue de `main`, pour éviter d'intégrer les différences moteur non comprises dans ce GO.
 - Fichiers livrés : `site/app.js`, `site/style.css`, `site/index.html`, `site/markets.js`, `site/extras.js` et trois tests UI ; `VERSION=0.3.3`, changelog, handoff.
