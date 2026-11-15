@@ -2,7 +2,7 @@
   --bg: #0b0f1a; --bg2: #121829; --card: #151c30; --line: #243049;
   --tx: #e8ecf6; --mu: #8a96b3; --ac: #7c5cff; --ac2: #22d3ee;
   --up: #34d399; --dn: #f87171; --warn: #fbbf24;
-  --motion-fast: 160ms; --motion-normal: 240ms; --motion-panel: 280ms; --motion-stagger: 30ms; --motion-data: 360ms;
+  --motion-fast: 140ms; --motion-normal: 200ms; --motion-panel: 240ms; --motion-stagger: 30ms; --motion-data: 360ms;
   --ease-enter: cubic-bezier(.2,.8,.2,1); --ease-standard: cubic-bezier(.4,0,.2,1);
 }
 * { box-sizing: border-box; }
