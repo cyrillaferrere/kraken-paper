@@ -166,19 +166,19 @@ la console du navigateur est sans erreur. Après un déploiement de préprod, v�
 Accès public : dans Netlify → Site configuration → Access & security → Visitor access, la protection doit être désactivée
 pour les déploiements non production (sinon la préprod demande une connexion).
 
-## Mettre en prod une release (procédure contrôlée — ADR-27)
+## Mettre en prod une release (procédure contrôlée — ADR-28, remplace ADR-27)
 
 **La fusion de code et la publication sont deux opérations distinctes.** Aucune commande directe `scripts/deploy.sh prod` ni `scripts/release.sh` ne doit être utilisée comme raccourci de publication. La v0.3.1 est déjà publiée ; pour une future release, obtenir un nouvel accord explicite de Cyril.
 
 1. Faire relire et valider la PR dans `preprod` par Grok Bot, vérifier les contrôles CI et la recette sur l'alias Netlify.
 2. Préparer le candidat code sur `main` **uniquement après autorisation explicite**, en préservant les versions courantes de `state/` et `decisions/`. Vérifier les SHA, les tests et la sauvegarde. Les cycles de production peuvent continuer.
 3. Depuis `deploy/prod-request`, après autorisation explicite, soumettre la demande `.github/prod-release-request.json` avec version et SHA approuvé. Ne jamais faire cette opération depuis une branche de fonctionnalité.
-4. L'environnement GitHub `production` doit être protégé par **Required reviewers** ; Cyril valide dans **Actions → Review deployments → Approve and deploy**. Le champ JSON `approved_by` est une trace, pas une approbation.
+4. L'accord explicite de Cyril dans le chat pour une version et un SHA précis constitue l'unique GO humain. L'environnement GitHub `production` conserve son secret et sa restriction à `deploy/prod-request`, mais **Required reviewers** est désactivé selon ADR-28. Le champ JSON `approved_by` reste une trace, pas une authentification. Contrôler les droits d'écriture sur la branche de demande.
 5. Vérifier le résultat réel sur `https://kraken-paper.netlify.app/version.json`, le dashboard et le cycle moteur suivant. Si la vérification échoue, ne pas considérer le site comme publié.
 
 **Blocage Netlify « Auto Publishing Locked » :** un déploiement peut être téléversé sans devenir la version servie sur le domaine de production. Contrôler dans Netlify **Deploys** si le déploiement est publié ou bloqué. Un opérateur autorisé doit décider d'autoriser la publication et de publier le bon déploiement dans Netlify ; ne pas désactiver le verrou par automatisation non approuvée. Recontrôler le SHA réellement servi dans `version.json`. En cas de décalage, arrêter la procédure et consigner l'incident.
 
-L'ancien script de release peut encore contenir des protections utiles, mais il **ne remplace pas** l'approbation GitHub, le verrou Netlify ni les contrôles `state/` et `decisions/`.
+L'ancien script de release peut encore contenir des protections utiles, mais il **ne remplace pas** le GO explicite de Cyril, le verrou Netlify ni les contrôles `state/` et `decisions/`. Aucune deuxième approbation GitHub n'est requise selon ADR-28.
 
 ## Déclenchement horaire du moteur
 
