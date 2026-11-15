@@ -547,6 +547,13 @@
   }
   // Les lignes apparaissent au fil des données reçues ; l'animation d'entrée ne joue qu'à la première insertion.
   const failed = new Set();
+  function renderLivePrices() {
+    const tb = $("markers").tBodies[0];
+    for (const tr of tb.rows) {
+      const p = tr.dataset.pair, r = row(p);
+      setCell(tr.cells[1], r.price == null ? "—" : pxf(p, r.price), false);
+    }
+  }
   function renderTable() {
     const tb = $("markers").tBodies[0], all = trackedPairs();
     const pairs = all.filter((p) => metrics[p] || failed.has(p));
@@ -676,6 +683,12 @@
   let started = false;
   window.KPMarkets = {
     selectedPair: () => selected.pair,
+    onPrice(c) {
+      ctx = c;
+      renderSelectedLive();
+      renderLivePrices();
+      overlays();
+    },
     onState(c) {
       ctx = c;
       renderSelectedLive();
