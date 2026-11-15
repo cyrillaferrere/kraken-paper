@@ -1,3 +1,12 @@
+## Publication production — un seul GO (ADR-28, procédure cible)
+- Cyril donne explicitement son accord pour **une version et un commit précis** dans la conversation. Une CI verte ou une PR approuvée ne vaut pas GO.
+- L'assistant vérifie la recette préprod, les tests et le SHA, puis soumet `.github/prod-release-request.json` sur `deploy/prod-request` **uniquement après ce GO**. Aucun cycle moteur ou push sur `main` ne déclenche la publication.
+- GitHub → Settings → Environments → `production` : **retirer Required reviewers**, conserver l'environnement et son secret `NETLIFY_AUTH_TOKEN`. Ne pas transférer le jeton dans les secrets du dépôt. Contrôler les droits d'écriture de `deploy/prod-request`.
+- Vérifier que `deploy/prod-request` utilise la version actualisée du workflow avant la première demande. La simple fusion sur `preprod` ne modifie pas ce workflow déjà présent sur la branche de demande.
+- Le workflow contrôle la version et le SHA, refuse un changement de code depuis l'accord, exécute les tests, publie puis compare `version.json` avec le commit effectivement déployé. En cas d'échec, STOP et diagnostic ; jamais de nouvelle demande sans GO pour un autre SHA.
+- **Limite de sécurité :** `approved_by: Cyril` est une information déclarative, pas une authentification. La protection contre les déclenchements non autorisés repose sur les droits GitHub et la discipline des assistants. Ne pas confondre cette procédure avec une autorisation cryptographique.
+- Si Netlify indique « Auto Publishing Locked », vérifier la publication réelle avant de considérer le déploiement terminé.
+
 ## Recette finale v0.3.1 avant proposition de production
 - Vérifier VERSION 0.3.1, commit affiché, bandeau pending avec nouveau stop et TP1/TP2, ancien stop actif.
 - Vérifier journal ordre à deux TP et TP unique historique ; vente limite avec break-even sans stop conservée sans effet.
