@@ -178,3 +178,6 @@ Première version numérotée. Elle regroupe tout ce qui a été construit depui
 - Le workflow du moteur ne s'exécute que depuis `main` (garde-fou contre un lancement manuel depuis une autre branche).
 
 - v0.3.0 PR d'intégration : quatre rubriques et synthèse mobile (code PR #37, ADR PR #38).
+
+## [Unreleased] — workflow de publication
+- Préparation ADR-28 : un seul GO explicite de Cyril pour publier ; retrait du déclenchement manuel, maintien des contrôles de version, commit et tests. Changement de réglage GitHub à effectuer séparément ; aucune publication réalisée.
