@@ -1,3 +1,8 @@
+## [Unreleased] — webhook Grok Bot après commit/push
+- La notification Grok Bot est déplacée après l'étape « Commit de l'etat » : le webhook ne réveille Grok Bot qu'une fois le push de l'état réussi (ou si aucun changement d'état n'était à pousser).
+- Le script affiche un statut sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ». Une erreur de notification ne bloque pas le cycle.
+- Tests dédiés couvrant les trois statuts, l'envoi groupé et l'absence de requête quand aucun fill n'est présent. Aucun changement moteur, trading, `state/` ou `decisions/`.
+
 ## [Unreleased] — webhook Grok Bot après cycle
 - Le workflow `engine.yml` mémorise l'offset du journal avant le cycle puis lance `scripts/notify_grokbot.py` après le moteur.
 - Si de nouveaux événements `fill` ont été ajoutés, un seul POST JSON regroupe les trades du cycle (`id`, `order`, `pair`, `side`, `price`, `reason`) et l'heure du cycle.
