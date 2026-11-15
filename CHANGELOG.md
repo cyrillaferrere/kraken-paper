@@ -1,3 +1,8 @@
+## [Unreleased] — PR #60 intégrée en préproduction
+- Revue Grok Bot appliquée : notification après commit/push réussi sur `main`, statuts sans secret et tests dédiés.
+- PR #60 fusionnée dans `preprod` (commit `da19b2631a4a5db92dd56bb2011d44fff90eed2f`) ; CI verte, 55 tests Python.
+- Build Netlify préprod annulé automatiquement pour absence de changement de contenu statique ; aucun déploiement de production.
+
 ## [Unreleased] — webhook Grok Bot après commit/push
 - La notification Grok Bot est déplacée après l'étape « Commit de l'etat » : le webhook ne réveille Grok Bot qu'une fois le push de l'état réussi (ou si aucun changement d'état n'était à pousser).
 - Le script affiche un statut sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ». Une erreur de notification ne bloque pas le cycle.
