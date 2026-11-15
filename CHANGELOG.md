@@ -1,7 +1,8 @@
-## [Unreleased] — ADR-28 : GO unique pour la production
-- Préparation du workflow contrôlé sans deuxième approbation GitHub ; environnement et secret conservés. Aucun déploiement production.
-
-## [Unreleased] — préparation v0.3.2 (préproduction uniquement)
+## [0.3.2] — candidat de publication (non publié en production)
+- ADR-28 : circuit de publication à GO unique, sans deuxième approbation GitHub ; contrôle de branche et SHA à vérifier avant activation.
+- `VERSION` passe à `0.3.2` ; le build Netlify est désormais déclenché aussi lors d'un changement de version.
+- Revue Grok Bot favorable à la préproduction pour PR #54 ; recette préprod validée par Cyril le 15/11/2026.
+- Préparation v0.3.2 (préproduction uniquement)
 - Synchronisation sélective des procédures et fichiers de publication de `main` vers `preprod`, sans `state/` ni `decisions/`.
 - Chandelier : le stop réellement remonté au niveau d'entrée après TP1 est explicitement libellé ; aucune anticipation ni changement du niveau exécuté.
 - Bandeau de sorties différées : conservation du nouveau stop, des objectifs TP et du stop historique actif, avec tests de non-régression.
