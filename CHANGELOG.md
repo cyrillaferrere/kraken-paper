@@ -1,3 +1,13 @@
+## [0.3.3] - 2026-11-15 (candidat production validé par Cyril)
+- Refonte cockpit consolidée : grille responsive pilotée par la largeur réelle de la zone, typographie financière agrandie, benchmark/allocation/risque réorganisés ; textes de diagnostic masqués proprement avec une classe accessible `sr-only`.
+- Feedback live local rétabli sur les seules valeurs effectivement modifiées (cours, positions, allocation, risque), durée 720 ms, sans flash de carte ni animation des prix.
+- Vue générale : cockpit financier haute densité, P&L réalisé/latent, performances 24 h/7 j, drawdown, frais relatifs, allocation en USDC et %, risques actifs/conditionnels en USDC et % ; aucun changement des règles PAPER.
+- Flux Kraken WebSocket v2 : ticker de la paire sélectionnée et bougie OHLC en formation, mises à jour sans réinitialiser le graphique ; repli REST conservé. Moteur PAPER inchangé.
+- Marchés : le cours de la paire sélectionnée est actualisé lors de chaque mise à jour d'état/prix.
+- Marchés : les TP et stops d'un achat limite non exécuté sont masqués par défaut ; aperçu gris conditionnel au survol/toucher de la ligne d'achat.
+- Les sorties actives des positions et des ordres de vente restent inchangées ; tests fonctionnels dédiés.
+- Aucun changement de moteur, de stratégie ou de données PAPER.
+
 ## [0.3.2] — candidat de publication (non publié en production)
 - ADR-28 : circuit de publication à GO unique, sans deuxième approbation GitHub ; contrôle de branche et SHA à vérifier avant activation.
 - `VERSION` passe à `0.3.2` ; le build Netlify est désormais déclenché aussi lors d'un changement de version.
