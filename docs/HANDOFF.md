@@ -1,4 +1,5 @@
 ## Feature v0.3.3 — cockpit haute densité (en cours)
+- Correctif du flash global : `.kpi-updated` est désormais un contenant positionné et isolé ; les mises à jour de métriques `put()` déclenchent le feedback uniquement si leur texte change. Recette visuelle requise sur Deploy Preview.
 - Rafraîchissement live corrigé : `renderLive()` met à jour les métriques et les seules cellules dépendantes des prix ; les tableaux complets, les onglets Marchés, le journal, les décisions et le calendrier ne sont reconstruits que sur nouveau snapshot d'état. `KPMarkets.onPrice` et `KPExtras.onPrice` isolent les zones live.
 - Feedback de changement de valeur adouci à 360 ms ; aucun lissage/interpolation des cours, aucune animation d'entrée rejouée sur polling.
 - Recomposition v2 après recette visuelle : allocation unique via `extras.js` (montants + %), risque unique via `exp-risk`, suppression des rendus en double ; cartes à hauteur naturelle et risque responsive sans débordement.
