@@ -5,13 +5,15 @@
 - Tests mis à jour dans `tests/test_grokbot_webhook.py` pour les statuts, l'envoi groupé et l'absence de fill.
 - Après CI verte, fusionner la PR #60 dans `preprod` uniquement. Ne pas modifier `main`, `state/` ou `decisions/`. Le déploiement Netlify préprod automatique est à vérifier après fusion ; aucune production sans GO explicite de Cyril.
 
-## Feature webhook Grok Bot après cycle (en attente de validation)
-- Branche `feature/grokbot-cycle-webhook` vers `preprod`.
-- Le workflow mesure la taille de `state/journal.jsonl` juste avant `engine/run.py`, puis appelle `scripts/notify_grokbot.py` après le cycle et avant le commit de l'état.
-- Le script ne lit que les lignes ajoutées depuis cet offset, retient les événements `fill` et envoie un seul POST JSON contenant l'heure du cycle et les champs `id`, `order`, `pair`, `side`, `price`, `reason`. Aucun POST si aucun fill.
-- Les secrets attendus dans GitHub Actions sont `GROKBOT_WEBHOOK_URL` et `GROKBOT_WEBHOOK_KEY`. L'échec réseau ou l'absence de secrets n'interrompt pas le workflow ; URL et clé ne sont jamais affichées.
-- Test : `tests/test_grokbot_webhook.py` (POST groupé, absence de fill, credentials absents, panne réseau).
-- Périmètre : workflow, script d'envoi, test et documentation seulement. Aucun changement de `engine/run.py`, `state/`, `decisions/` ou logique de trading. Ne pas publier en production sans GO explicite de Cyril.
+## Feature webhook Grok Bot après cycle — intégrée dans preprod (PR #60)
+- PR #60 fusionnée dans `preprod` ; commit d'intégration : `da19b2631a4a5db92dd56bb2011d44fff90eed2f`.
+- Séquence corrigée après revue Grok Bot : le workflow mesure la taille de `state/journal.jsonl` avant `engine/run.py`, exécute le moteur, commit/pousse l'état sur `main`, puis seulement appelle `scripts/notify_grokbot.py`.
+- Si le commit/push échoue, l'étape de notification n'est pas exécutée. Si aucun état n'a changé, le commit step réussit sans push et la notification peut continuer.
+- Le script envoie un seul POST JSON pour les événements `fill` ajoutés depuis l'offset ; statut loggé sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ».
+- Secrets GitHub Actions attendus : `GROKBOT_WEBHOOK_URL` et `GROKBOT_WEBHOOK_KEY`. Une panne ou l'absence de secrets ne bloque pas le cycle.
+- CI de la PR : `guard-state` et `quality-gates` vertes ; 55 tests Python exécutés, dont les 4 tests webhook.
+- Netlify a annulé le build de branche preprod car aucun contenu statique n'avait changé ; cela ne remet pas en cause l'intégration du workflow et des scripts. Aucun déploiement de production.
+- Aucun changement de `engine/run.py`, `state/`, `decisions/` ou logique de trading. Le nouveau workflow ne sera actif dans l'environnement moteur qu'après une promotion ultérieure sur `main`, avec le processus de release et le GO de Cyril.
 
 ## Feature v0.3.3 — cockpit haute densité (en cours)
 - Passe UX consolidée : retrait des règles CSS cockpit concurrentes, container queries sur la largeur réelle de `#overview` (2 colonnes uniquement à partir de 1120 px), une colonne en espace contraint, grille KPI 4/2 colonnes. Classe `.sr-only` standard et complète pour masquer les notes de diagnostic sans casser l'accessibilité.
