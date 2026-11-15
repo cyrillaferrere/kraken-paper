@@ -60,3 +60,10 @@ test("le feedback live est progressif et reste désactivable", () => {
   assert.match(css, /kpi-flash var\(--motion-data\)/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
 });
+
+test("le flash reste strictement ancré à la valeur modifiée", () => {
+  assert.match(css, /\.kpi-updated\s*\{\s*position:\s*relative;\s*isolation:\s*isolate;/);
+  assert.match(css, /\.kpi-updated::after\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*-2px -4px;/);
+  assert.match(app, /const put = \(id, value, klass\) => \{[^\n]*const changed = el\.textContent !== value;/);
+  assert.match(app, /if \(changed\) \{ el\.textContent = value; if \(!firstRender\)/);
+});
