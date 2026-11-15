@@ -548,3 +548,64 @@ html { scroll-behavior: smooth; }
 }
 
 .allocation-context { color:var(--mu); font-size:9px; font-weight:500; letter-spacing:0; text-transform:none; }
+
+
+/* Cockpit — composition v2 : aucune donnée en double, panneaux à hauteur naturelle. */
+#overview { min-width:0; }
+.cockpit { grid-template-columns:minmax(0,1.18fr) minmax(360px,.92fr); align-items:start; gap:12px; }
+.cockpit-panel { min-width:0; height:auto; align-self:start; padding:15px 16px; }
+.cockpit-main { display:grid; align-content:start; gap:0; }
+.cockpit-head { grid-template-columns:minmax(0,1fr) minmax(205px,.7fr); gap:16px; align-items:center; }
+.capital-value { font-size:clamp(30px,3.2vw,40px); letter-spacing:-.045em; }
+.benchmark-box { min-width:0; grid-template-columns:minmax(0,1fr) auto; gap:4px 10px; padding:11px 12px; }
+.benchmark-box>strong { font-size:16px; }
+.benchmark-box>span { min-width:0; overflow-wrap:anywhere; }
+.metric-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px 14px; padding-top:15px; }
+.metric { min-width:0; padding:0 0 1px; }
+.metric>span { font-size:10.5px; letter-spacing:.01em; }
+.metric>strong { font-size:14px; line-height:1.25; overflow-wrap:anywhere; }
+.metric>small { font-size:10px; line-height:1.35; overflow-wrap:anywhere; }
+.cockpit-side { min-width:0; display:flex; flex-direction:column; gap:10px; }
+.cockpit-side .section-eyebrow { line-height:1.35; }
+.cockpit-side .exp-bar { margin:0; height:9px; border-radius:99px; }
+.cockpit-side .exp-txt { margin:0; display:grid; gap:0; }
+.cockpit-side .exp-txt li { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:6px 10px; padding:5px 0; border-bottom:1px solid rgba(138,150,179,.12); font-size:11.5px; }
+.cockpit-side .exp-txt li .e-name { min-width:0; flex:initial; }
+.cockpit-side .exp-txt li b { white-space:nowrap; font-size:11.5px; font-weight:650; }
+.cockpit-side .exp-txt li .muted { white-space:nowrap; font-size:10.5px; }
+.cockpit-side .exp-txt li.e-note { display:block; border:0; padding:5px 0 0; font-size:10px; line-height:1.35; }
+.cockpit-side .exp-txt li>span[class^="sw-"] { width:8px; height:8px; margin-right:2px; }
+.cockpit-side .exp-txt li:not(.e-note) { grid-template-columns:10px minmax(0,1fr) auto auto; }
+.cockpit-side .side-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; padding:9px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.cockpit-side .side-stats>div { display:grid; gap:3px; min-width:0; }
+.cockpit-side .side-stats span { font-size:10px; }
+.cockpit-side .side-stats strong { font-size:12px; line-height:1.3; overflow-wrap:anywhere; }
+.cockpit-side .risk-block { display:grid; gap:5px; min-width:0; }
+.cockpit-side .exp-risk { margin:0; padding:9px 10px; border-radius:9px; background:rgba(248,113,113,.07); font-size:11.5px; line-height:1.5; overflow-wrap:anywhere; }
+.cockpit-side .exp-risk b { font-size:15px; white-space:nowrap; }
+.cockpit-side .system-strip { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:0; padding-top:10px; border-top:1px solid var(--line); }
+.cockpit-side .system-strip>div { min-width:0; gap:3px; }
+.cockpit-side .system-strip span { font-size:10px; }
+.cockpit-side .system-strip strong { font-size:12px; line-height:1.3; overflow-wrap:anywhere; }
+.cockpit-side .system-strip small { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:9px; line-height:1.3; }
+@media(max-width:1050px) {
+  .cockpit { grid-template-columns:minmax(0,1fr); }
+  .cockpit-side { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; }
+  .cockpit-side>.section-eyebrow,.cockpit-side>.exp-bar,.cockpit-side>.exp-txt { grid-column:1/-1; }
+  .cockpit-side .side-stats,.cockpit-side .risk-block,.cockpit-side .system-strip { min-width:0; }
+}
+@media(max-width:640px) {
+  .cockpit { gap:9px; }
+  .cockpit-panel { padding:12px; }
+  .cockpit-head { grid-template-columns:minmax(0,1fr); gap:10px; }
+  .benchmark-box { grid-template-columns:minmax(0,1fr) auto; }
+  .metric-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 10px; }
+  .cockpit-side { display:flex; }
+  .cockpit-side .exp-txt li { grid-template-columns:10px minmax(0,1fr) auto auto; gap:5px 7px; font-size:11px; }
+  .cockpit-side .exp-txt li b { font-size:11px; }
+  .cockpit-side .exp-txt li .muted { font-size:10px; }
+  .cockpit-side .system-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .cockpit-panel,.cockpit-panel * { scroll-behavior:auto; }
+}
