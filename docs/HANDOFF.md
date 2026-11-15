@@ -1,3 +1,7 @@
+## PR #62 — test de liaison Cursor/Grok Bot
+- Workflow manuel `test-grokbot-webhook.yml` proposé vers `preprod` : envoi `{"type":"test_connection"}`, sortie limitée au code HTTP, secrets GitHub non journalisés. Aucun appel exécuté lors de la PR, aucun accès moteur, `state/` ou `decisions/`.
+- PR #60 déjà fusionnée dans `preprod` : notification moteur après commit/push ; reste inchangée. Publication main seulement après GO explicite de Cyril.
+
 ## PR #60 — correction revue Grok Bot
 - Revue Grok Bot : OK sur le fond ; correction demandée appliquée sur `feature/grokbot-cycle-webhook`.
 - Dans `.github/workflows/engine.yml`, la notification est maintenant placée après « Commit de l'etat ». L'étape de notification ne démarre que si l'étape de commit/push s'est terminée avec succès ; si le push échoue après les tentatives, le job s'arrête avant le webhook.
