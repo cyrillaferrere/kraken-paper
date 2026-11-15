@@ -1,3 +1,6 @@
+## [Unreleased] — ADR-28 : GO unique pour la production
+- Préparation du workflow contrôlé sans deuxième approbation GitHub ; environnement et secret conservés. Aucun déploiement production.
+
 ## [Unreleased] — préparation v0.3.2 (préproduction uniquement)
 - Synchronisation sélective des procédures et fichiers de publication de `main` vers `preprod`, sans `state/` ni `decisions/`.
 - Chandelier : le stop réellement remonté au niveau d'entrée après TP1 est explicitement libellé ; aucune anticipation ni changement du niveau exécuté.
