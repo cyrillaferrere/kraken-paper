@@ -111,12 +111,16 @@
     else if (!lessonsDone) el.innerHTML = '<p class="muted">Leçons indisponibles pour l\'instant (API GitHub). Elles sont aussi dans <a href="https://github.com/cyrillaferrere/kraken-paper/blob/main/docs/LESSONS.md">docs/LESSONS.md</a>.</p>';
   }
 
-  function flashLiveValue(el, value) {
-    if (!el || el.textContent === value) return;
-    el.textContent = value;
+  function triggerValueFlash(el) {
+    if (!el) return;
     el.classList.remove("kpi-updated");
     void el.offsetWidth;
     el.classList.add("kpi-updated");
+  }
+  function flashLiveValue(el, value) {
+    if (!el || el.textContent === value) return;
+    el.textContent = value;
+    triggerValueFlash(el);
   }
 
   // ---------- exposition ----------
@@ -150,8 +154,9 @@
     [...list.querySelectorAll("li[data-key]")].forEach((li) => {
       const old = previous.get(li.dataset.key);
       if (!old) return;
-      flashLiveValue(li.querySelector(".e-amount"), li.querySelector(".e-amount").textContent === old[0] ? old[0] : li.querySelector(".e-amount").textContent);
-      flashLiveValue(li.querySelector(".e-share"), li.querySelector(".e-share").textContent === old[1] ? old[1] : li.querySelector(".e-share").textContent);
+      const amount = li.querySelector(".e-amount"), share = li.querySelector(".e-share");
+      if (amount && amount.textContent !== old[0]) triggerValueFlash(amount);
+      if (share && share.textContent !== old[1]) triggerValueFlash(share);
     });
     const parts = [];
     if (x.riskPos) parts.push(`${signed(x.riskPos)} USDC sur les positions`);
@@ -164,7 +169,7 @@
       + (x.buysNoStop ? `<span class="warn-txt">⚠ ${x.buysNoStop} achat${x.buysNoStop > 1 ? "s" : ""} en attente sans stop</span>` : "")
       + (x.missing ? '<span class="muted">Prix manquant pour une position : valeur partielle.</span>' : "");
     const currentRisk = [risk.querySelector(".risk-summary b"), risk.querySelector(".risk-summary .muted"), risk.querySelector(".risk-breakdown")];
-    currentRisk.forEach((el, i) => { if (el && previousRisk[i] != null && previousRisk[i] !== el.textContent) { el.classList.add("kpi-updated"); } });
+    currentRisk.forEach((el, i) => { if (el && previousRisk[i] != null && previousRisk[i] !== el.textContent) triggerValueFlash(el); });
   }
 
   // ---------- comptes à rebours ----------
