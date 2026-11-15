@@ -62,24 +62,16 @@
     <article class="cockpit-panel cockpit-side">
       <div class="section-eyebrow">ALLOCATION DU CAPITAL <span class="allocation-context">· montants et part de la valeur totale</span></div>
       <div id="exp-bar" class="exp-bar" role="img" aria-label="Répartition investi, réservé dans les ordres et cash disponible"></div>
-      <ul id="exp-txt" class="sr-only"></ul><p id="exp-risk" class="sr-only"></p>
-      <div class="allocation-list">
-        <div><span><i class="dot available"></i>Cash disponible</span><strong id="ov-available">—</strong><b id="ov-available-pct">—</b></div>
-        <div><span><i class="dot reserved"></i>Réservé dans les ordres</span><strong id="ov-reserved">—</strong><b id="ov-reserved-pct">—</b></div>
-        <div><span><i class="dot invested"></i>Investi en positions</span><strong id="ov-invested">—</strong><b id="ov-invested-pct">—</b></div>
-      </div>
-      <div class="side-stats">
+      <ul id="exp-txt" class="exp-txt"></ul>
+      <div class="side-stats" aria-label="Exposition et ordres ouverts">
         <div><span>Positions ouvertes</span><strong id="ov-position-count">—</strong></div>
         <div><span>Ordres ouverts</span><strong id="ov-order-count">—</strong></div>
         <div><span>Exposition totale</span><strong id="ov-exposure">—</strong></div>
       </div>
-      <div class="risk-block">
+      <section class="risk-block" aria-label="Risque du portefeuille">
         <div class="section-eyebrow">RISQUE SI STOPS TOUCHÉS</div>
-        <div class="risk-line"><span>Positions actives</span><strong id="ov-risk-pos">—</strong><b id="ov-risk-pos-pct">—</b></div>
-        <div class="risk-line"><span>Achats en attente</span><strong id="ov-risk-pending">—</strong><b id="ov-risk-pending-pct">—</b></div>
-        <div class="risk-total"><span>Risque cumulé</span><strong id="ov-risk-total">—</strong><b id="ov-risk-total-pct">—</b></div>
-        <p id="ov-risk-note" class="micro-note"></p>
-      </div>
+        <p id="exp-risk" class="exp-risk"></p>
+      </section>
       <div class="system-strip">
         <div><span>Prochain cycle moteur</span><strong id="cd-cycle">—</strong><small id="cd-cycle-note"></small></div>
         <div><span>Session Grok Bot estimée</span><strong id="cd-session">—</strong><small id="cd-session-note"></small></div>
