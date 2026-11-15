@@ -1,9 +1,20 @@
-## [0.3.1] - 2026-11-14 (candidat, non publié en production)
+## [0.3.2] — candidat de publication (non publié en production)
+- ADR-28 : circuit de publication à GO unique, sans deuxième approbation GitHub ; contrôle de branche et SHA à vérifier avant activation.
+- `VERSION` passe à `0.3.2` ; le build Netlify est désormais déclenché aussi lors d'un changement de version.
+- Revue Grok Bot favorable à la préproduction pour PR #54 ; recette préprod validée par Cyril le 15/11/2026.
+- Préparation v0.3.2 (préproduction uniquement)
+- Synchronisation sélective des procédures et fichiers de publication de `main` vers `preprod`, sans `state/` ni `decisions/`.
+- Chandelier : le stop réellement remonté au niveau d'entrée après TP1 est explicitement libellé ; aucune anticipation ni changement du niveau exécuté.
+- Bandeau de sorties différées : conservation du nouveau stop, des objectifs TP et du stop historique actif, avec tests de non-régression.
+- RUNBOOK : procédure de publication humaine et résolution du verrou Netlify « Auto Publishing Locked » ; HANDOFF et ADR réconciliés.
+- Aucun changement moteur, stratégie, frais ou décision PAPER. PR vers `preprod`, revue Grok Bot avant fusion ; aucun déploiement production autorisé.
+
+## [0.3.1] - 2026-11-14 (publié en production)
 - Publication groupée des fonctionnalités développées en v0.3.0 et des finitions v0.3.1.
 - Moteur PAPER : objectifs de vente fractionnés TP1/TP2, stop sur le reliquat, break-even après TP1, action `update_exits` et validation des stops obligatoires.
 - Interface : cours live de la paire sélectionnée, visibilité des sorties différées, nouveau stop, fractions des TP et journal des ordres enrichi.
 - Tests de compatibilité des ordres historiques, du stop et des TP ; 51 tests Python, 84 tests site et 6 tests functions sur le candidat isolé.
-- ADR-26 et ADR-27 ; recette utilisateur de préproduction validée. **Mise en production en attente de l'approbation GitHub obligatoire et de l'accord explicite de Cyril.**
+- ADR-26 et ADR-27 ; recette utilisateur de préproduction validée. **Publié après validation de Cyril.** Publication contrôlée par GitHub (ADR-27).
 
 ## [Unreleased] — Retour au dashboard de production en préproduction
 - Restaurer `site/index.html`, `site/style.css`, `site/markets.js`, `site/navigation.js`, `site/chart-preferences.js` et `site/data-validators.js` depuis `main` ; retirer `site/workspace-tabs.js` absent de la production.
