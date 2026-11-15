@@ -37,6 +37,32 @@
       "entry_price": 63051.19997141675,
       "breakeven_after_tp1": true,
       "tp_filled": 1
+    },
+    {
+      "id": "O0015",
+      "pair": "XBTUSDC",
+      "side": "buy",
+      "qty": 0.00628401,
+      "price": 63400.0,
+      "stop_loss": 61700.0,
+      "take_profit": null,
+      "created": "2026-11-15T05:04:09+01:00",
+      "active_from": 1794718800,
+      "parent": null,
+      "decision_id": "2026-11-15-05h03",
+      "take_profits": [
+        {
+          "price": 66000.0,
+          "fraction": 0.5,
+          "qty": 0.003142
+        },
+        {
+          "price": 70000.0,
+          "fraction": 0.5,
+          "qty": 0.00314201
+        }
+      ],
+      "breakeven_after_tp1": true
     }
   ],
   "closed_trades": [
@@ -176,13 +202,14 @@
     "2026-11-14-19h10",
     "2026-11-14-20h20",
     "2026-11-15-00h15",
-    "2026-11-15-00h14"
+    "2026-11-15-00h14",
+    "2026-11-15-05h03"
   ],
   "last_decision": {
-    "id": "2026-11-15-00h14",
-    "timestamp": "2026-11-15T00:14:00+01:00",
-    "rationale": "Ce que je vois : 100 % cash (6 461 USDC), seul l'achat test BTC O0013 à 62 800 (300 USDC, paliers 65 000 / 68 500, stop 61 500) est posé. La chute continue : BTC 63 530 (plus bas 63 294, plancher 3 mois 62 714), ETH 1 744 et SOL 69,07 cassent leurs plus bas 3 mois (1 728 et 68,56). RSI 1 h, 4 h et 1 j entre 14 et 20, en nouveaux plus bas avec le prix : pas de divergence haussière, pas de plateau, pas de mèche basse marquée, prix loin sous la MA20 1 h. Ce que je fais : rien de plus, je garde O0013 tel quel (ratio net de frais environ 1,6, au-dessus de 1,5). Pourquoi : aucun marqueur de rebond, et ETH/SOL sont le même pari corrélé que BTC, donc pas de nouvelle exposition. Ce que j'apprends : un marché qui casse ses planchers 3 mois peut aller chercher les 6 mois (BTC 57 772, ETH 1 507, SOL 60,18) ; attendre au moins quelques bougies 1 h qui tiennent un creux avant de poser d'autres achats.",
-    "applied": "2026-11-15T00:10:32+01:00"
+    "id": "2026-11-15-05h03",
+    "timestamp": "2026-11-15T05:03:00+01:00",
+    "rationale": "Ce que je vois : BTC a fait une mèche jusqu'à 62 000 vers 2h (nouveau plus bas 3 mois) puis a rebondi fort jusqu'à 65 000 avec du volume (4h : volume 2,1 fois la moyenne, RSI 4h et jour vers 22). Notre achat test à 62 800 a été exécuté puis la moitié revendue à 65 000 (+4 USDC) ; le stop du reste est au prix d'achat, objectif 68 500. Ce que je fais : je garde ce reste tel quel et je pose un petit achat limite de 400 USDC à 63 400, sur un éventuel retour vers la zone cassée, stop 61 700 sous la mèche de 62 000, moitié à 66 000 puis stop au prix d'achat, reste à 70 000. Ratio gain/risque net de frais environ 1,6. Pourquoi : la mèche basse et la reprise rapide sont un premier marqueur de rebond, mais la MA20 horaire (65 350) n'est pas encore reprise, donc j'attends un repli plutôt que d'acheter au prix actuel. Rien sur ETH et SOL : même pari corrélé, exposition totale gardée petite. Ce que j'apprends : une mèche sous un plancher suivie d'une reprise immédiate est un signal à noter, pas une preuve.",
+    "applied": "2026-11-15T05:04:09+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -217,12 +244,12 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794708000,
+    "XBTUSDC": 1794711600,
     "ETHUSDC": 1794690000,
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 65342.64,
+    "XBTUSDC": 64700.0,
     "ETHUSDC": 1774.47,
     "SOLUSDC": 70.48
   },
@@ -235,11 +262,11 @@
   "fees_total": 27.151147,
   "realized_pnl": -140.998339,
   "seq": {
-    "order": 14,
+    "order": 15,
     "trade": 8
   },
-  "last_cycle": "2026-11-15T04:09:13+01:00",
-  "last_cycle_ts": 1794712153,
+  "last_cycle": "2026-11-15T05:04:09+01:00",
+  "last_cycle_ts": 1794715449,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
