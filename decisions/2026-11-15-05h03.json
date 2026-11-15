@@ -1,0 +1,30 @@
+{
+ "id": "2026-11-15-05h03",
+ "timestamp": "2026-11-15T05:03:00+01:00",
+ "rationale": "Ce que je vois : BTC a fait une mèche jusqu'à 62 000 vers 2h (nouveau plus bas 3 mois) puis a rebondi fort jusqu'à 65 000 avec du volume (4h : volume 2,1 fois la moyenne, RSI 4h et jour vers 22). Notre achat test à 62 800 a été exécuté puis la moitié revendue à 65 000 (+4 USDC) ; le stop du reste est au prix d'achat, objectif 68 500. Ce que je fais : je garde ce reste tel quel et je pose un petit achat limite de 400 USDC à 63 400, sur un éventuel retour vers la zone cassée, stop 61 700 sous la mèche de 62 000, moitié à 66 000 puis stop au prix d'achat, reste à 70 000. Ratio gain/risque net de frais environ 1,6. Pourquoi : la mèche basse et la reprise rapide sont un premier marqueur de rebond, mais la MA20 horaire (65 350) n'est pas encore reprise, donc j'attends un repli plutôt que d'acheter au prix actuel. Rien sur ETH et SOL : même pari corrélé, exposition totale gardée petite. Ce que j'apprends : une mèche sous un plancher suivie d'une reprise immédiate est un signal à noter, pas une preuve.",
+ "actions": [
+  {
+   "type": "place_limit",
+   "pair": "XBTUSDC",
+   "side": "buy",
+   "quote_amount": 400,
+   "price": 63400,
+   "stop_loss": 61700,
+   "take_profits": [
+    {
+     "price": 66000,
+     "fraction": 0.5
+    },
+    {
+     "price": 70000,
+     "fraction": 0.5
+    }
+   ],
+   "breakeven_after_tp1": true
+  },
+  {
+   "type": "note",
+   "text": "05h: mèche BTC à 62 000 puis reprise à 65 000 avec volume (marqueur mèche basse). Achat limite 400 USDC à 63 400 sur retest, stop 61 700, paliers 66 000 / 70 000. ETH 1 815 et SOL 71,3 rebondissent aussi depuis 1 711 et 67,4, sans ordre pour limiter le risque corrélé."
+  }
+ ]
+}
