@@ -2,7 +2,7 @@
   "environment": "production",
   "approved_by": "Cyril",
   "version": "0.3.3",
-  "approved_commit": "af569cc63c2d53ac6f6cc69ae3f3c5d64c2c66ba",
-  "reason": "GO production explicite de Cyril le 2026-11-15 après recette préprod; PR #59 UI-only fusionnée dans main, contrôles quality-gates et guard-state validés; aucune modification du moteur, de state/ ou decisions/.",
+  "approved_commit": "183999f5d9f09e8c6b84933421c51529a5081123",
+  "reason": "GO explicite de Cyril pour v0.3.3; revue Grok Bot PR #60/#62 favorable; PR #63 candidate selective depuis main, CI quality-gates et guard-state vertes, fusionnee dans main; aucun changement state/ ni decisions/. Test webhook manuel reserve a Cyril apres publication.",
   "request_sequence": 3
 }
