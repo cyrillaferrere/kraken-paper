@@ -1,3 +1,6 @@
+## [Unreleased] — test manuel webhook Cursor (PR #62)
+- Workflow GitHub Actions manuel isolé : POST `{"type":"test_connection"}` avec authentification Bearer, journalisation du seul code HTTP, aucun moteur ni changement de données. En attente de validation CI et d'intégration préprod ; aucun test envoyé ni déploiement main.
+
 ## [Unreleased] — PR #60 intégrée en préproduction
 - Revue Grok Bot appliquée : notification après commit/push réussi sur `main`, statuts sans secret et tests dédiés.
 - PR #60 fusionnée dans `preprod` (commit `da19b2631a4a5db92dd56bb2011d44fff90eed2f`) ; CI verte, 55 tests Python.
