@@ -180,12 +180,12 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794693600,
+    "XBTUSDC": 1794697200,
     "ETHUSDC": 1794690000,
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 63589.14,
+    "XBTUSDC": 63950.0,
     "ETHUSDC": 1774.47,
     "SOLUSDC": 70.48
   },
@@ -201,8 +201,8 @@
     "order": 13,
     "trade": 6
   },
-  "last_cycle": "2026-11-15T00:10:32+01:00",
-  "last_cycle_ts": 1794697832,
+  "last_cycle": "2026-11-15T01:09:14+01:00",
+  "last_cycle_ts": 1794701354,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
