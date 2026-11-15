@@ -1,12 +1,13 @@
 name: deploy-production-controlled
 
-# Only an explicit push to the dedicated request branch triggers production.
-# This workflow is NOT triggered by normal main, preprod or engine pushes.
+# Single-GO release: only a deliberate request-file push on the dedicated branch.
+# Chat approval is checked by the initiating assistant; GitHub JSON is NOT authentication.
+# The production environment retains scoped secrets but must have NO required reviewers.
+# Normal main, preprod and engine pushes cannot trigger this workflow.
 on:
   push:
     branches: [deploy/prod-request]
     paths: [.github/prod-release-request.json]
-  workflow_dispatch:
 
 permissions:
   contents: read
