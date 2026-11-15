@@ -5,7 +5,7 @@
   publish = "site"
   command = "sh scripts/netlify-build.sh"
   # Ne construit que si le site, la config ou les fonctions changent (économise les minutes Netlify).
-  ignore = "if [ \"$CONTEXT\" = \"deploy-preview\" ]; then exit 1; fi; git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- site/ netlify.toml netlify/ scripts/netlify-build.sh"
+  ignore = "if [ \"$CONTEXT\" = \"deploy-preview\" ]; then exit 1; fi; git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- VERSION site/ netlify.toml netlify/ scripts/netlify-build.sh"
 
 [functions]
   directory = "netlify/functions"
