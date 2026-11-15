@@ -26,6 +26,7 @@
 - ADR-26 et ADR-27 ; recette utilisateur de préproduction validée. **Publié après validation de Cyril.** Publication contrôlée par GitHub (ADR-27).
 
 ## [Unreleased]
+- Correctif du flash global : pseudo-élément ancré sur chaque valeur (`position: relative; isolation: isolate`) et feedback appliqué seulement aux chiffres réellement modifiés, sans réinitialiser les classes d'animation des panneaux.
 - Rafraîchissement live isolé : les ticks Kraken mettent à jour uniquement les valeurs financières, les cellules de prix et les zones dépendantes ; les tableaux complets, commandes de navigation, décisions et journal ne sont plus reconstruits à chaque tick. Feedback visuel adouci à 360 ms, sans interpolation des cours. — Retour au dashboard de production en préproduction
 - Restaurer `site/index.html`, `site/style.css`, `site/markets.js`, `site/navigation.js`, `site/chart-preferences.js` et `site/data-validators.js` depuis `main` ; retirer `site/workspace-tabs.js` absent de la production.
 - Préparation sur `fix/restore-prod-ui-preprod` uniquement ; pas de modification de `state/`, `decisions/`, du moteur ou de `main`.
