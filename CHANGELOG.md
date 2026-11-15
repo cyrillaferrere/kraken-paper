@@ -1,4 +1,5 @@
 ## [0.3.3] — préproduction uniquement
+- Flux Kraken WebSocket v2 : ticker de la paire sélectionnée et bougie OHLC en formation, mises à jour sans réinitialiser le graphique ; repli REST conservé. Moteur PAPER inchangé.
 - Marchés : le cours de la paire sélectionnée est actualisé lors de chaque mise à jour d'état/prix.
 - Marchés : les TP et stops d'un achat limite non exécuté sont masqués par défaut ; aperçu gris conditionnel au survol/toucher de la ligne d'achat.
 - Les sorties actives des positions et des ordres de vente restent inchangées ; tests fonctionnels dédiés.
