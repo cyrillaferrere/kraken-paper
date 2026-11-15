@@ -116,13 +116,21 @@
   const decOf = (p) => (meta[p] && meta[p].dec) ?? (ctx.S && ctx.S.pairs[p] && ctx.S.pairs[p].pair_decimals) ?? 2;
   const pxf = (p, x) => x == null || isNaN(x) ? "—" : nf(Math.min(decOf(p), x >= 1000 ? 2 : 8)).format(x);
 
+  function flashLiveValue(el, value) {
+    if (!el || el.textContent === value) return;
+    el.textContent = value;
+    el.classList.remove("kpi-updated");
+    void el.offsetWidth;
+    el.classList.add("kpi-updated");
+  }
+
   // ---------- cours visible de la paire sélectionnée ----------
   function renderSelectedLive() {
     const pair = selected.pair;
     const value = ctx.price(pair);
     const fresh = ctx.liveOk && ctx.livePairs && ctx.livePairs[pair] != null;
     $("selected-live-pair").textContent = baseOf(pair) + " / USDC";
-    $("selected-live-price").textContent = Number.isFinite(value) ? pxf(pair, value) : "—";
+    flashLiveValue($("selected-live-price"), Number.isFinite(value) ? pxf(pair, value) : "—");
     $("selected-live-status").textContent = fresh && ctx.liveAt
       ? "Kraken · actualisé à " + ctx.liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", second: "2-digit" })
       : Number.isFinite(value) ? "Dernier cours du cycle · pas en direct" : "Cours indisponible";
@@ -551,7 +559,7 @@
     const tb = $("markers").tBodies[0];
     for (const tr of tb.rows) {
       const p = tr.dataset.pair, r = row(p);
-      setCell(tr.cells[1], r.price == null ? "—" : pxf(p, r.price), false);
+      setCell(tr.cells[1], r.price == null ? "—" : pxf(p, r.price), true);
     }
   }
   function renderTable() {
