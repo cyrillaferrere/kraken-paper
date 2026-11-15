@@ -2,7 +2,7 @@
   --bg: #0b0f1a; --bg2: #121829; --card: #151c30; --line: #243049;
   --tx: #e8ecf6; --mu: #8a96b3; --ac: #7c5cff; --ac2: #22d3ee;
   --up: #34d399; --dn: #f87171; --warn: #fbbf24;
-  --motion-fast: 140ms; --motion-normal: 200ms; --motion-panel: 240ms; --motion-stagger: 30ms; --motion-data: 360ms;
+  --motion-fast: 140ms; --motion-normal: 200ms; --motion-panel: 240ms; --motion-stagger: 30ms; --motion-data: 600ms;
   --ease-enter: cubic-bezier(.2,.8,.2,1); --ease-standard: cubic-bezier(.4,0,.2,1);
 }
 * { box-sizing: border-box; }
@@ -610,4 +610,32 @@ html { scroll-behavior: smooth; }
 }
 @media(prefers-reduced-motion:reduce) {
   .cockpit-panel,.cockpit-panel * { scroll-behavior:auto; }
+}
+
+/* Cockpit v3 — hiérarchie des données, zéro collision et libellés sobres. */
+.cockpit-head { grid-template-columns:minmax(0,1fr) minmax(195px,.64fr); align-items:center; }
+.benchmark-box { display:flex; flex-direction:column; align-items:stretch; gap:12px; padding:12px 14px; }
+.benchmark-item { display:grid; grid-template-columns:minmax(0,1fr); gap:4px; min-width:0; }
+.benchmark-item+.benchmark-item { padding-top:10px; border-top:1px solid var(--line); }
+.benchmark-item .eyebrow { display:block; }
+.benchmark-item>strong { display:block; font-size:clamp(15px,1.35vw,20px); line-height:1.25; overflow-wrap:anywhere; min-width:0; }
+.metric-grid { gap:14px 12px; }
+.metric>small { font-size:10.5px; }
+.cockpit-side .exp-txt li.e-note { display:none; }
+.cockpit-side .side-stats strong { font-size:12px; line-height:1.4; }
+.cockpit-side #ov-exposure { font-size:11.5px; overflow-wrap:normal; white-space:normal; }
+.cockpit-side .exp-risk { display:grid; gap:5px; padding:10px 12px; }
+.cockpit-side .risk-summary { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:5px 10px; }
+.cockpit-side .risk-summary b { font-size:19px; line-height:1.25; }
+.cockpit-side .risk-summary .muted { font-size:11px; }
+.cockpit-side .risk-breakdown { display:block; font-size:11px; line-height:1.4; }
+.cockpit-side .system-strip { gap:12px; }
+.cockpit-side .system-strip strong { font-size:13px; }
+.cockpit-side .system-strip small.sr-only { position:absolute; }
+@media(max-width:640px) {
+  .cockpit-head { grid-template-columns:minmax(0,1fr); }
+  .benchmark-box { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .benchmark-item+.benchmark-item { padding-top:0; padding-left:12px; border-top:0; border-left:1px solid var(--line); }
+  .benchmark-item>strong { font-size:15px; }
+  .cockpit-side .risk-summary b { font-size:17px; }
 }
