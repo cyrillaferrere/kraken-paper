@@ -249,7 +249,7 @@
     }
     const peak = equity.reduce((max,r)=>Math.max(max,r.eq),0);
     const livePeak = Math.max(peak,total);
-    const dd = livePeak > 0 ? total / livePeak - 1 : null;
+    const dd = !missing && livePeak > 0 ? total / livePeak - 1 : null;
     let maxDd = 0, maxDdAmount = 0, runningPeak = 0;
     for (const row of equity) { runningPeak=Math.max(runningPeak,row.eq); if(runningPeak>0 && row.eq/runningPeak-1 < maxDd) { maxDd=row.eq/runningPeak-1; maxDdAmount=row.eq-runningPeak; } }
     putMoney("ov-dd", dd == null ? null : total-livePeak);
@@ -260,19 +260,20 @@
     const trades=S.closed_trades||[], wins=trades.filter(t=>Number(t.pnl)>0).length, losses=trades.filter(t=>Number(t.pnl)<0).length;
     put("ov-trades",String(trades.length));
     put("ov-winloss",wins+" gagnants · "+losses+" perdants");
-    put("ov-available",usdc(cb.available)); put("ov-available-pct",pct(availablePct));
-    put("ov-reserved",usdc(cb.reserved)); put("ov-reserved-pct",pct(reservedPct));
-    put("ov-invested",usdc(invested)); put("ov-invested-pct",pct(investedPct));
+    $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
+    put("ov-available",missing ? "—" : usdc(cb.available)); put("ov-available-pct",missing ? "—" : pct(availablePct));
+    put("ov-reserved",usdc(cb.reserved)); put("ov-reserved-pct",missing ? "—" : pct(reservedPct));
+    put("ov-invested",missing ? "—" : usdc(invested)); put("ov-invested-pct",missing ? "—" : pct(investedPct));
     put("ov-position-count",String(Object.keys(S.positions).length));
     put("ov-order-count",String(S.open_orders.length));
     put("ov-exposure",usdc(invested)+" · "+pct(investedPct));
     if(ex){
-      putMoney("ov-risk-pos",ex.riskPos);
-      putPct("ov-risk-pos-pct",total?ex.riskPos/total:null,"du portefeuille");
-      putMoney("ov-risk-pending",ex.riskPending);
-      putPct("ov-risk-pending-pct",total?ex.riskPending/total:null,"du portefeuille");
-      putMoney("ov-risk-total",ex.risk);
-      putPct("ov-risk-total-pct",ex.riskPct,"du portefeuille");
+      putMoney("ov-risk-pos",ex.missing ? null : ex.riskPos);
+      putPct("ov-risk-pos-pct",!ex.missing && total?ex.riskPos/total:null,"du portefeuille");
+      putMoney("ov-risk-pending",ex.missing ? null : ex.riskPending);
+      putPct("ov-risk-pending-pct",!ex.missing && total?ex.riskPending/total:null,"du portefeuille");
+      putMoney("ov-risk-total",ex.missing ? null : ex.risk);
+      putPct("ov-risk-total-pct",ex.missing ? null : ex.riskPct,"du portefeuille");
       put("ov-risk-note",ex.buysNoStop ? ex.buysNoStop+" achat(s) en attente sans risque chiffrable faute de stop." : (ex.unprotected.length ? "Positions sans protection complète : "+ex.unprotected.join(", ")+".":"Risque calculé frais et glissement inclus."));
     }
 
