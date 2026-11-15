@@ -352,7 +352,12 @@
         } else if (o.price != null) {
           lines.push({ price: o.price, color: C.ac, lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
         }
-        if (o.stop_loss) lines.push({ price: o.stop_loss, color: C.dn, lineStyle: 2, label: `${o.id} stop` });
+        if (o.stop_loss) {
+          const breakevenActive = o.breakeven_after_tp1 === true && Number(o.tp_filled) > 0 &&
+            Number.isFinite(Number(o.entry_price)) && Number(o.stop_loss) >= Number(o.entry_price) - 1e-8;
+          const stopLabel = breakevenActive ? "stop remonté au prix d’achat après TP1" : "stop";
+          lines.push({ price: o.stop_loss, color: C.dn, lineStyle: 2, label: `${o.id} ${stopLabel}` });
+        }
       }
     }
     const vis = showOrders ? lines : [];
