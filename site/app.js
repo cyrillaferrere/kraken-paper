@@ -36,7 +36,15 @@
     if (changed && !firstRender) { el.classList.remove("kpi-updated"); void el.offsetWidth; el.classList.add("kpi-updated"); }
   }
 
-  // ---------- données ----------
+function flashLiveValue(el, value) {
+    if (!el || el.textContent === value) return;
+    el.textContent = value;
+    el.classList.remove("kpi-updated");
+    void el.offsetWidth;
+    el.classList.add("kpi-updated");
+  }
+
+    // ---------- données ----------
   // gh.mode : "api" ou "raw" (repli). On interroge d'abord le sha du dernier commit de main avec If-None-Match :
   // une réponse 304 ne compte pas dans la limite de 60 requêtes/h. Les 3 fichiers ne sont relus que si le sha change.
   const gh = { mode: "api", sha: null, etag: null, retryAt: 0, remaining: null };
@@ -312,19 +320,19 @@
       if (!pos) return;
       const val = x == null ? null : pos.qty * x, cost = pos.qty * pos.avg_cost, pnl = val == null ? null : val - cost;
       const priceCell = tr.querySelector(".o-live-price"), valueCell = tr.querySelector(".o-live-value"), pnlCell = tr.querySelector(".o-live-pnl");
-      if (priceCell) priceCell.textContent = px(x);
-      if (valueCell) valueCell.textContent = usdc(val);
-      if (pnlCell) { pnlCell.textContent = pnl == null ? "—" : signed(pnl) + " (" + pct(pnl / cost) + ")"; pnlCell.classList.toggle("up", pnl > 0); pnlCell.classList.toggle("dn", pnl < 0); }
+      if (priceCell) flashLiveValue(priceCell, px(x));
+      if (valueCell) flashLiveValue(valueCell, usdc(val));
+      if (pnlCell) { flashLiveValue(pnlCell, pnl == null ? "—" : signed(pnl) + " (" + pct(pnl / cost) + ")"); pnlCell.classList.toggle("up", pnl > 0); pnlCell.classList.toggle("dn", pnl < 0); }
     });
     document.querySelectorAll("#orders tbody tr.o-row[data-order-id]").forEach((tr) => {
       const o = S.open_orders.find((item) => item.id === tr.dataset.orderId);
       if (!o) return;
       const x = price(o.pair), m = orderMath(o, S, x);
-      const liveCell = tr.querySelector(".o-live-price"); if (liveCell) liveCell.textContent = px(x);
+      const liveCell = tr.querySelector(".o-live-price"); if (liveCell) flashLiveValue(liveCell, px(x));
       const distCell = tr.cells[4];
       if (distCell) distCell.innerHTML = o.side === "buy" ? distTxt(m.dLimit) : [m.dTp != null ? distTxt(m.dTp, "obj.") : null, m.dStop != null ? distTxt(m.dStop, "stop") : null].filter(Boolean).join("<br>") || "—";
       const detail = document.getElementById("od-" + o.id), detailPrice = detail && detail.querySelector(".o-live-price");
-      if (detailPrice) detailPrice.textContent = px(x);
+      if (detailPrice) flashLiveValue(detailPrice, px(x));
     });
   }
 
