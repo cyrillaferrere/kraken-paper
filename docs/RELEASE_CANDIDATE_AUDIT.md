@@ -21,3 +21,6 @@
 - Pour revenir en arrière, redéployer le code sain sans réécrire l'état ou les décisions. Contrôler le SHA et la version réellement publiés.
 
 **Ce compte rendu n'est pas un ordre de déploiement.**
+
+## Note historique après publication v0.3.1 (15/11/2026)
+Ce document décrit le candidat **avant sa publication** et conserve volontairement son statut de l'époque. La v0.3.1 est maintenant en production ; les réserves et validations mentionnées plus haut ne doivent pas être interprétées comme l'état actuel du site. Voir le RUNBOOK et le HANDOFF pour le circuit opérationnel. Cette note ne déclenche aucune publication.
