@@ -1,3 +1,9 @@
+## Release v0.3.3 — GO production 15/11/2026
+- Cyril a validé la préproduction puis donné le GO production. Livraison strictement UI via branche `release/v0.3.3-ui` issue de `main`, pour éviter d'intégrer les différences moteur non comprises dans ce GO.
+- Fichiers livrés : `site/app.js`, `site/style.css`, `site/index.html`, `site/markets.js`, `site/extras.js` et trois tests UI ; `VERSION=0.3.3`, changelog, handoff.
+- Cockpit responsive basé sur la largeur réelle de la zone, huit indicateurs lisibles, notes secondaires masquées, feedback local 720 ms ; WebSocket prix/bougies et lignes d'ordres conditionnelles.
+- Aucun changement dans `engine/`, `state/`, `decisions/`, `netlify.toml` ou les workflows. Production uniquement via la procédure ADR-28 après CI et vérification du SHA de `main`.
+
 ## PR finition v0.3.1 — préparation publication
 - Branche `fix/v0.3.1-release-polish` issue de `preprod`, après fusion PR #46 (`d2942a0`).
 - `VERSION=0.3.1` ; affichage du nouveau stop et des TP dans `pending_exits`, formateurs testables dans `site/app.js`.
