@@ -36,16 +36,12 @@
         <div>
           <div class="eyebrow">CAPITAL TOTAL · PAPER</div>
           <div class="capital-line"><strong id="k-value" class="capital-value">—</strong><span>USDC</span></div>
-          <div class="capital-pnl"><strong id="k-pnl">—</strong><span id="k-pnl-pct">—</span><small>depuis le départ</small></div>
-          <p id="k-value-sub" class="micro-note"></p>
+          <div class="capital-pnl"><strong id="k-pnl">—</strong><span id="k-pnl-pct">—</span></div>
+          <p id="k-value-sub" class="sr-only"></p>
         </div>
         <div class="benchmark-box">
-          <div class="eyebrow">ÉCART VS BTC CONSERVÉ</div>
-          <strong id="k-bench">—</strong>
-          <span id="k-bench-sub">—</span>
-          <div class="eyebrow secondary-eyebrow">FRAIS CUMULÉS</div>
-          <strong id="k-fees">—</strong>
-          <span id="k-fees-sub">—</span>
+          <div class="benchmark-item"><span class="eyebrow">ÉCART VS BTC</span><strong id="k-bench">—</strong><span id="k-bench-sub" class="sr-only">—</span></div>
+          <div class="benchmark-item"><span class="eyebrow">FRAIS CUMULÉS</span><strong id="k-fees">—</strong><span id="k-fees-sub" class="sr-only">—</span></div>
         </div>
       </div>
       <div class="metric-grid">
@@ -55,12 +51,12 @@
         <div class="metric"><span>Performance 7 jours</span><strong id="ov-7d">—</strong><small id="ov-7d-pct">—</small></div>
         <div class="metric"><span>Drawdown actuel</span><strong id="ov-dd">—</strong><small id="ov-dd-pct">—</small></div>
         <div class="metric"><span>Drawdown maximal</span><strong id="ov-maxdd">—</strong><small id="ov-maxdd-pct">historique disponible</small></div>
-        <div class="metric"><span>Frais / capital initial</span><strong id="ov-fee-ratio">—</strong><small>part du capital de départ</small></div>
+        <div class="metric"><span>Frais / capital initial</span><strong id="ov-fee-ratio">—</strong><small class="sr-only">Ratio des frais sur le capital initial</small></div>
         <div class="metric"><span>Trades clôturés</span><strong id="ov-trades">—</strong><small id="ov-winloss">gagnants / perdants</small></div>
       </div>
     </article>
     <article class="cockpit-panel cockpit-side">
-      <div class="section-eyebrow">ALLOCATION DU CAPITAL <span class="allocation-context">· montants et part de la valeur totale</span></div>
+      <div class="section-eyebrow">ALLOCATION DU CAPITAL</div>
       <div id="exp-bar" class="exp-bar" role="img" aria-label="Répartition investi, réservé dans les ordres et cash disponible"></div>
       <ul id="exp-txt" class="exp-txt"></ul>
       <div class="side-stats" aria-label="Exposition et ordres ouverts">
@@ -73,8 +69,8 @@
         <p id="exp-risk" class="exp-risk"></p>
       </section>
       <div class="system-strip">
-        <div><span>Prochain cycle moteur</span><strong id="cd-cycle">—</strong><small id="cd-cycle-note"></small></div>
-        <div><span>Session Grok Bot estimée</span><strong id="cd-session">—</strong><small id="cd-session-note"></small></div>
+        <div><span>Prochain cycle</span><strong id="cd-cycle">—</strong><small id="cd-cycle-note" class="sr-only"></small></div>
+        <div><span>Session Grok · estimée</span><strong id="cd-session">—</strong><small id="cd-session-note" class="sr-only"></small></div>
       </div>
     </article>
   </section>
