@@ -1,3 +1,10 @@
+## PR #60 — correction revue Grok Bot
+- Revue Grok Bot : OK sur le fond ; correction demandée appliquée sur `feature/grokbot-cycle-webhook`.
+- Dans `.github/workflows/engine.yml`, la notification est maintenant placée après « Commit de l'etat ». L'étape de notification ne démarre que si l'étape de commit/push s'est terminée avec succès ; si le push échoue après les tentatives, le job s'arrête avant le webhook.
+- `scripts/notify_grokbot.py` affiche exactement un statut sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ». L'échec reste non bloquant.
+- Tests mis à jour dans `tests/test_grokbot_webhook.py` pour les statuts, l'envoi groupé et l'absence de fill.
+- Après CI verte, fusionner la PR #60 dans `preprod` uniquement. Ne pas modifier `main`, `state/` ou `decisions/`. Le déploiement Netlify préprod automatique est à vérifier après fusion ; aucune production sans GO explicite de Cyril.
+
 ## Feature webhook Grok Bot après cycle (en attente de validation)
 - Branche `feature/grokbot-cycle-webhook` vers `preprod`.
 - Le workflow mesure la taille de `state/journal.jsonl` juste avant `engine/run.py`, puis appelle `scripts/notify_grokbot.py` après le cycle et avant le commit de l'état.
