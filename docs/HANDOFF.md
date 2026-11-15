@@ -1,4 +1,6 @@
 ## Feature v0.3.3 — cockpit haute densité (en cours)
+- Recomposition v2 après recette visuelle : allocation unique via `extras.js` (montants + %), risque unique via `exp-risk`, suppression des rendus en double ; cartes à hauteur naturelle et risque responsive sans débordement.
+- Compteur de trades clôturés calculé uniquement sur `closed_trades[].realized_pnl != null` (les fills d'achat ne sont pas comptés comme des trades clôturés).
 - Branche `feature/v0.3.3-pending-order-lines`, PR #57 vers `preprod`, aucun déploiement production.
 - `site/index.html`, `site/style.css`, `site/app.js` : synthèse portefeuille compacte et dense ; capital + P&L regroupés, écart BTC/frais secondaires, P&L réalisé/latent, performances 24 h/7 j depuis le dernier snapshot disponible, drawdown actuel/maximal, ratio de frais, trades gagnants/perdants, allocation en USDC et % du portefeuille, positions/ordres, risques stops actifs et conditionnels, échéances moteur/Grok.
 - Chaque montant monétaire porte explicitement `USDC` ; chaque pourcentage précise sa base de référence. Données indisponibles ou incomplètes affichées comme indisponibles, pas extrapolées.
