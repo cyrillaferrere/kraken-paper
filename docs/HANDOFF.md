@@ -629,9 +629,9 @@ le dash attend 10 min et affiche les décisions depuis le journal.
 
 
 ## Publication production contrôlée — état v0.3.1 et préparation v0.3.2
-- Production v0.3.1 en service depuis le 14/11/2026 ; workflow `.github/workflows/deploy-production-controlled.yml` à conserver identique à celui de `main` ; `production` est protégé par validation humaine (ADR-27). Le champ JSON `approved_by` n'est pas un consentement.
+- Production v0.3.1 en service depuis le 14/11/2026 ; publication future selon ADR-28 (GO unique), sans deuxième validation humaine GitHub. La branche `deploy/prod-request` doit recevoir le workflow à jour avant activation. Le champ JSON `approved_by` n'est pas un consentement.
 - Les prochains lots passent par une PR de branche dédiée vers `preprod` ; seul le code et la documentation sont livrables. Jamais de synchronisation globale de `main` qui recopierait `state/` ou `decisions/`.
-- Pour une future production : demande explicite de Cyril, contrôle du SHA approuvé, clic **Approve and deploy** dans GitHub, suivi des jobs et vérification réelle du `version.json`. Le verrou Netlify **Auto Publishing Locked** peut empêcher le nouveau déploiement de devenir la publication active : inspecter **Deploys** et faire lever ou traiter ce verrou seulement par une personne autorisée, puis re-vérifier le SHA servi.
+- Pour une future production : GO explicite de Cyril pour version et SHA, contrôle des droits de la branche de demande, suivi des jobs et vérification réelle du `version.json` (sans deuxième clic GitHub). Le verrou Netlify **Auto Publishing Locked** peut empêcher le nouveau déploiement de devenir la publication active : inspecter **Deploys** et faire lever ou traiter ce verrou seulement par une personne autorisée, puis re-vérifier le SHA servi.
 - `NETLIFY_AUTH_TOKEN` reste un secret de l'environnement GitHub `production`, jamais un fichier commité ni un jeton partagé par chat.
 - PR v0.3.2 : affichage descriptif du stop remonté après TP1 sur les lignes du graphique ; pas de changement du moteur ni des règles de trading. Le bandeau des sorties différées affiche déjà nouveau stop et objectifs via `pendingExitText`, avec test de régression dédié.
 - Recherche PR #42 (plateaux 2020–09/2026) : conserver pour référence ; espérance nette négative sur chaque scénario testé, aucune modification moteur. Mise à jour de `docs/LESSONS.md` réservée à une session distincte sur la branche de vérité `main`.
@@ -641,3 +641,10 @@ le dash attend 10 min et affiche les décisions depuis le journal.
 - La PR d'intégration combine les changements UX v0.3.2 de #52 et le workflow sans workflow_dispatch de #53.
 - Avant activation : revue Grok Bot, CI, recette préprod, synchronisation du workflow sur deploy/prod-request, puis GO explicite de Cyril pour version/SHA.
 - Aucune publication production, aucun changement state/ ou decisions/ dans ce lot.
+
+
+## Candidat release v0.3.2 — 15/11/2026
+- Préprod validée par Cyril sur commit de fusion PR #54 `815eec6` ; revue Grok Bot favorable.
+- Branche `release/v0.3.2-preparation` depuis `preprod` : `VERSION=0.3.2`, CHANGELOG préparé, build Netlify corrigé pour prendre en compte les changements de `VERSION`.
+- Aucun changement de moteur, `state/`, `decisions/` ni de production. CI, revue PR et recette du nouveau bandeau de version à effectuer.
+- Avant toute publication : vérifier droits de modification de `deploy/prod-request`, synchroniser le workflow de publication sans toucher au JSON de demande, puis obtenir un GO explicite de Cyril sur le SHA définitif de la release. La synchronisation du workflow ne constitue pas une autorisation de publication.
