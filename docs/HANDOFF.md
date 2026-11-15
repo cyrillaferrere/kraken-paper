@@ -1,4 +1,6 @@
 ## Feature v0.3.3 — cockpit haute densité (en cours)
+- Passe UX consolidée : retrait des règles CSS cockpit concurrentes, container queries sur la largeur réelle de `#overview` (2 colonnes uniquement à partir de 1120 px), une colonne en espace contraint, grille KPI 4/2 colonnes. Classe `.sr-only` standard et complète pour masquer les notes de diagnostic sans casser l'accessibilité.
+- Feedback live local à 720 ms sur les valeurs réellement changées : cours sélectionné, marqueurs, cellules positions/ordres, allocation et risque. Aucun flash de panneau, aucune interpolation.
 - Passe visuelle v3 : `benchmark-box` composé en deux lignes indépendantes (plus de collision), explications masquées visuellement mais conservées pour lecteurs d'écran lorsque pertinent, allocation sans note comptable redondante, risque compact, compteurs moteur/Grok sur une ligne ; feedback local de 600 ms.
 - Recette visuelle desktop/mobile et cohérence des métriques toujours requises avant fusion.
 - Correctif du flash global : `.kpi-updated` est désormais un contenant positionné et isolé ; les mises à jour de métriques `put()` déclenchent le feedback uniquement si leur texte change. Recette visuelle requise sur Deploy Preview.
