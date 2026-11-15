@@ -222,9 +222,64 @@
     } else { setText("k-bench", "—"); $("k-bench-sub").textContent = "Référence fixée au premier cycle"; }
     setText("k-fees", usdc(S.fees_total));
     $("k-fees-sub").textContent = S.closed_trades.length + " trade" + (S.closed_trades.length > 1 ? "s" : "") + " · P&L réalisé " + signed(S.realized_pnl) + " USDC";
-    // Comme sur Kraken : les achats en attente réservent leur montant (frais maker compris). La valeur totale ne change pas.
+    // Synthèse haute densité : les mêmes sources et calculs que les tableaux existants.
     const cb = window.KPLib ? window.KPLib.cashBreakdown(S, orderMath) : { total: S.cash, reserved: 0, available: S.cash };
-    $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
+    const ex = window.KPLib ? window.KPLib.exposure(S, price, orderMath) : null;
+    const invested = posVal;
+    const availablePct = total ? cb.available / total : 0, reservedPct = total ? cb.reserved / total : 0, investedPct = total ? invested / total : 0;
+    const put = (id, value, klass) => { const el = $(id); if (!el) return; el.textContent = value; if (klass !== undefined) el.className = klass || ""; };
+    const putMoney = (id, value, klass) => put(id, value == null ? "—" : signed(value) + " USDC", klass === undefined ? cls(value) : klass);
+    const putPct = (id, value, ref) => put(id, value == null ? "—" : pct(value) + (ref ? " " + ref : ""));
+    const unrealized = Object.entries(S.positions).reduce((sum, [p, pos]) => {
+      const x = price(p); return sum + (x == null ? 0 : pos.qty * (x - pos.avg_cost));
+    }, 0);
+    const investedBasis = Object.values(S.positions).reduce((sum, pos) => sum + pos.qty * pos.avg_cost, 0);
+    putMoney("ov-realized", S.realized_pnl);
+    putPct("ov-realized-pct", S.start_capital ? S.realized_pnl / S.start_capital : null, "du capital initial");
+    putMoney("ov-unrealized", missing ? null : unrealized);
+    putPct("ov-unrealized-pct", investedBasis ? unrealized / investedBasis : null, "du PRU");
+    const equityAt = (ms) => { const rows = equity.filter((r) => r.t <= ms); return rows.length ? rows[rows.length - 1] : null; };
+    const perfWindow = (hours) => {
+      const baseRow = equityAt(Date.now() - hours * 3600e3);
+      if (!baseRow || missing || !Number.isFinite(total) || !baseRow.eq) return null;
+      return { pnl: total - baseRow.eq, pct: total / baseRow.eq - 1 };
+    };
+    for (const [key, hours] of [["24h",24],["7d",168]]) {
+      const p = perfWindow(hours); putMoney("ov-"+key,p && p.pnl); putPct("ov-"+key+"-pct",p && p.pct,"depuis le point de référence");
+    }
+    const peak = equity.reduce((max,r)=>Math.max(max,r.eq),0);
+    const livePeak = Math.max(peak,total);
+    const dd = livePeak > 0 ? total / livePeak - 1 : null;
+    let maxDd = 0, runningPeak = 0;
+    for (const row of equity) { runningPeak=Math.max(runningPeak,row.eq); if(runningPeak>0) maxDd=Math.min(maxDd,row.eq/runningPeak-1); }
+    putMoney("ov-dd", dd == null ? null : total-livePeak);
+    putPct("ov-dd-pct",dd,"du sommet récent");
+    putMoney("ov-maxdd", maxDd ? S.start_capital * maxDd : 0);
+    putPct("ov-maxdd-pct",maxDd,"du sommet historique");
+    put("ov-fee-ratio", S.start_capital ? pct(S.fees_total/S.start_capital) : "—");
+    const trades=S.closed_trades||[], wins=trades.filter(t=>Number(t.pnl)>0).length, losses=trades.filter(t=>Number(t.pnl)<0).length;
+    put("ov-trades",String(trades.length));
+    put("ov-winloss",wins+" gagnants · "+losses+" perdants");
+    put("ov-available",usdc(cb.available)); put("ov-available-pct",pct(availablePct));
+    put("ov-reserved",usdc(cb.reserved)); put("ov-reserved-pct",pct(reservedPct));
+    put("ov-invested",usdc(invested)); put("ov-invested-pct",pct(investedPct));
+    put("ov-position-count",String(Object.keys(S.positions).length));
+    put("ov-order-count",String(S.open_orders.length));
+    put("ov-exposure",usdc(invested)+" · "+pct(investedPct));
+    if(ex){
+      putMoney("ov-risk-pos",ex.riskPos);
+      putPct("ov-risk-pos-pct",total?ex.riskPos/total:null,"du portefeuille");
+      putMoney("ov-risk-pending",ex.riskPending);
+      putPct("ov-risk-pending-pct",total?ex.riskPending/total:null,"du portefeuille");
+      putMoney("ov-risk-total",ex.risk);
+      putPct("ov-risk-total-pct",ex.riskPct,"du portefeuille");
+      put("ov-risk-note",ex.buysNoStop ? ex.buysNoStop+" achat(s) en attente sans risque chiffrable faute de stop." : (ex.unprotected.length ? "Positions sans protection complète : "+ex.unprotected.join(", ")+".":"Risque calculé frais et glissement inclus."));
+    }
+    const bar = $("exp-bar");
+    if(bar && ex && total>0) {
+      bar.innerHTML = '<span class="exp-cash" style="width:'+Math.max(0,availablePct*100)+'%"></span><span class="exp-reserved" style="width:'+Math.max(0,reservedPct*100)+'%"></span><span class="exp-invested" style="width:'+Math.max(0,investedPct*100)+'%"></span>';
+      bar.setAttribute("aria-label","Cash disponible "+usdc(cb.available)+" ("+pct(availablePct)+"), réservé "+usdc(cb.reserved)+" ("+pct(reservedPct)+"), investi "+usdc(invested)+" ("+pct(investedPct)+")");
+    }
 
     // Les prix bougent toutes les 15 s ; les historiques ne changent qu'avec un nouveau snapshot.
     // Éviter de reconstruire le journal et le SVG à chaque ticker préserve filtres et interactions.
