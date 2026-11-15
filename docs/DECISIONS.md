@@ -149,3 +149,7 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 - **Condition bloquante** : si la visibilité du dépôt ou l'abonnement GitHub ne permet pas les relecteurs obligatoires d'environnement, **aucune mise en production via ce workflow** ; il faut un autre mécanisme d'approbation indépendant vérifié. La présence de `environment: production` sans protection active n'est pas suffisante.
 - **Conséquences** : pas de déclenchement de déploiement sans validation GitHub effective. La configuration de l'environnement et la migration du secret sont réalisées par Cyril dans l'interface GitHub, sans partager de jeton dans le chat.
 - **Référence historique** : cette décision remplace l'ancienne entrée « ADR-21 : publication production pilotée par demande explicite » ; **ADR-21** reste réservé à `docs/ADR-21-NOCTURNE-SIGNAL.md`.
+
+## ADR-28 : publication avec un seul GO (15/11/2026) — remplace l'approbation humaine ADR-27
+- **Décision** : accord explicite de Cyril pour une version et un SHA ; suppression de `Required reviewers` dans l'environnement `production`, sans supprimer le secret ni les contrôles automatisés.
+- **Limite** : le champ JSON `approved_by` ne constitue pas une preuve d'autorisation. Voir [ADR-28](ADR-28-SINGLE-GO-PRODUCTION.md).
