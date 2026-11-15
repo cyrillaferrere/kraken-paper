@@ -173,7 +173,7 @@
       liveOk = true;
       liveAt = new Date();
       tickerLast = Date.now();
-      if (tickerLast - tickerRenderAt >= 1000) { tickerRenderAt = tickerLast; render(); }
+      if (tickerLast - tickerRenderAt >= 1000) { tickerRenderAt = tickerLast; renderLive(); }
     };
     socket.onclose = () => {
       if (tickerSocket !== socket) return;
@@ -192,7 +192,8 @@
   const price = (p) => (liveOk && live[p] != null) ? live[p] : (S ? S.last_prices[p] : null);
 
   // ---------- rendu ----------
-  function render() {
+  function renderLive() { render(true); }
+  function render(liveOnly = false) {
     if (!S) return;
     // statut
     const stp = $("st-prices");
@@ -278,12 +279,15 @@
     }
 
 
-    // Les prix bougent toutes les 15 s ; les historiques ne changent qu'avec un nouveau snapshot.
-    // Éviter de reconstruire le journal et le SVG à chaque ticker préserve filtres et interactions.
+    if (liveOnly) {
+      updateLiveTables();
+      if (window.KPMarkets) window.KPMarkets.onPrice({ S, journal, price, orderMath, liveOk, liveAt, livePairs: live });
+      if (window.KPExtras) window.KPExtras.onPrice({ S, journal, equity, price, orderMath });
+      return;
+    }
     renderPositions(); renderOrders();
     if (stateChanged) { renderTrades(); renderJournal(); renderChart(); }
     if (firstRender) {
-      // Entrée des panneaux : une seule fois au premier rendu, jamais au polling.
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });
       firstRender = false;
     }
@@ -297,9 +301,31 @@
     const rows = Object.entries(S.positions).map(([p, pos]) => {
       const x = price(p), val = x == null ? null : pos.qty * x, cost = pos.qty * pos.avg_cost;
       const u = val == null ? null : val - cost;
-      return `<tr><td><b>${esc(pos.base)}</b></td><td class="r">${qty(pos.qty)}</td><td class="r">${px(pos.avg_cost)}</td><td class="r">${px(x)}</td><td class="r">${usdc(val)}</td><td class="r ${cls(u)}">${signed(u)} (${pct(u / cost)})</td></tr>`;
+      return `<tr data-position-pair="${esc(p)}"><td><b>${esc(pos.base)}</b></td><td class="r">${qty(pos.qty)}</td><td class="r">${px(pos.avg_cost)}</td><td class="r o-live-price">${px(x)}</td><td class="r o-live-value">${usdc(val)}</td><td class="r o-live-pnl ${cls(u)}">${signed(u)} (${pct(u / cost)})</td></tr>`;
     });
     tb.innerHTML = rows.join("") || `<tr><td colspan="6" class="empty">Aucune position, tout est en USDC.</td></tr>`;
+  }
+
+  function updateLiveTables() {
+    document.querySelectorAll("#positions tbody tr[data-position-pair]").forEach((tr) => {
+      const p = tr.dataset.positionPair, pos = S.positions[p], x = price(p);
+      if (!pos) return;
+      const val = x == null ? null : pos.qty * x, cost = pos.qty * pos.avg_cost, pnl = val == null ? null : val - cost;
+      const priceCell = tr.querySelector(".o-live-price"), valueCell = tr.querySelector(".o-live-value"), pnlCell = tr.querySelector(".o-live-pnl");
+      if (priceCell) priceCell.textContent = px(x);
+      if (valueCell) valueCell.textContent = usdc(val);
+      if (pnlCell) { pnlCell.textContent = pnl == null ? "—" : signed(pnl) + " (" + pct(pnl / cost) + ")"; pnlCell.classList.toggle("up", pnl > 0); pnlCell.classList.toggle("dn", pnl < 0); }
+    });
+    document.querySelectorAll("#orders tbody tr.o-row[data-order-id]").forEach((tr) => {
+      const o = S.open_orders.find((item) => item.id === tr.dataset.orderId);
+      if (!o) return;
+      const x = price(o.pair), m = orderMath(o, S, x);
+      const liveCell = tr.querySelector(".o-live-price"); if (liveCell) liveCell.textContent = px(x);
+      const distCell = tr.cells[4];
+      if (distCell) distCell.innerHTML = o.side === "buy" ? distTxt(m.dLimit) : [m.dTp != null ? distTxt(m.dTp, "obj.") : null, m.dStop != null ? distTxt(m.dStop, "stop") : null].filter(Boolean).join("<br>") || "—";
+      const detail = document.getElementById("od-" + o.id), detailPrice = detail && detail.querySelector(".o-live-price");
+      if (detailPrice) detailPrice.textContent = px(x);
+    });
   }
 
   // ---------- ordres : calculs nets de frais, mêmes règles que engine/run.py ----------
@@ -391,14 +417,14 @@
         ? `<span class="pending-exits">${pendingExitText(pending)}</span>`
         : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
-      const main = `<tr class="o-row${hit ? " reached" : ""}">
+      const main = `<tr class="o-row${hit ? " reached" : ""}" data-order-id="${esc(o.id)}">
         <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${pendingNote}${note}</td>
         <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
         <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
-        <td class="r c-x">${limitLbl}<br><span class="muted">${px(x)}</span></td><td class="r">${dist}</td>
+        <td class="r c-x">${limitLbl}<br><span class="muted o-live-price">${px(x)}</span></td><td class="r">${dist}</td>
         <td class="r c-x">${stopTxt}</td><td class="r c-x">${tpTxt}</td><td class="r c-x">${lossTxt}</td><td class="r c-x">${gainTxt}</td><td class="r c-x">${rrTxt}</td></tr>`;
       const det = `<tr class="o-detail" id="od-${esc(o.id)}"${open ? "" : " hidden"}><td colspan="10"><dl class="o-dl">
-        <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd>${px(x)}</dd></div>
+        <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd class="o-live-price">${px(x)}</dd></div>
         <div><dt>Stop</dt><dd>${stopTxt}</dd></div>${pendingNote ? `<div class="wide"><dt>Modification programmée</dt><dd>${pendingNote}</dd></div>` : ""}<div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
         <div><dt>Perte max</dt><dd>${lossTxt}</dd></div><div><dt>Gain visé</dt><dd>${gainTxt}</dd></div>
         <div><dt>Gain / risque</dt><dd>${rrTxt}</dd></div><div><dt>Créé</dt><dd>${created}</dd></div><div class="wide"><dt>Décision</dt><dd>${dec}</dd></div></dl></td></tr>`;
@@ -534,7 +560,7 @@
 
   // ---------- boucles ----------
   loadState();
-  setInterval(async () => { if (!S || document.hidden) return; await loadPrices(); render(); }, PRICE_EVERY);
+  setInterval(async () => { if (!S || document.hidden) return; await loadPrices(); renderLive(); }, PRICE_EVERY);
   setInterval(() => { if (!document.hidden) loadState(); }, STATE_EVERY);
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => S && renderChart(), 150); });
 })();
