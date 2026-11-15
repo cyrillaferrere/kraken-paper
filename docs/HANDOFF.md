@@ -1,3 +1,18 @@
+## PR #60 — correction revue Grok Bot
+- Revue Grok Bot : OK sur le fond ; correction demandée appliquée sur `feature/grokbot-cycle-webhook`.
+- Dans `.github/workflows/engine.yml`, la notification est maintenant placée après « Commit de l'etat ». L'étape de notification ne démarre que si l'étape de commit/push s'est terminée avec succès ; si le push échoue après les tentatives, le job s'arrête avant le webhook.
+- `scripts/notify_grokbot.py` affiche exactement un statut sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ». L'échec reste non bloquant.
+- Tests mis à jour dans `tests/test_grokbot_webhook.py` pour les statuts, l'envoi groupé et l'absence de fill.
+- Après CI verte, fusionner la PR #60 dans `preprod` uniquement. Ne pas modifier `main`, `state/` ou `decisions/`. Le déploiement Netlify préprod automatique est à vérifier après fusion ; aucune production sans GO explicite de Cyril.
+
+## Feature webhook Grok Bot après cycle (en attente de validation)
+- Branche `feature/grokbot-cycle-webhook` vers `preprod`.
+- Le workflow mesure la taille de `state/journal.jsonl` juste avant `engine/run.py`, puis appelle `scripts/notify_grokbot.py` après le cycle et avant le commit de l'état.
+- Le script ne lit que les lignes ajoutées depuis cet offset, retient les événements `fill` et envoie un seul POST JSON contenant l'heure du cycle et les champs `id`, `order`, `pair`, `side`, `price`, `reason`. Aucun POST si aucun fill.
+- Les secrets attendus dans GitHub Actions sont `GROKBOT_WEBHOOK_URL` et `GROKBOT_WEBHOOK_KEY`. L'échec réseau ou l'absence de secrets n'interrompt pas le workflow ; URL et clé ne sont jamais affichées.
+- Test : `tests/test_grokbot_webhook.py` (POST groupé, absence de fill, credentials absents, panne réseau).
+- Périmètre : workflow, script d'envoi, test et documentation seulement. Aucun changement de `engine/run.py`, `state/`, `decisions/` ou logique de trading. Ne pas publier en production sans GO explicite de Cyril.
+
 ## Feature v0.3.3 — cockpit haute densité (en cours)
 - Passe UX consolidée : retrait des règles CSS cockpit concurrentes, container queries sur la largeur réelle de `#overview` (2 colonnes uniquement à partir de 1120 px), une colonne en espace contraint, grille KPI 4/2 colonnes. Classe `.sr-only` standard et complète pour masquer les notes de diagnostic sans casser l'accessibilité.
 - Feedback live local à 720 ms sur les valeurs réellement changées : cours sélectionné, marqueurs, cellules positions/ordres, allocation et risque. Aucun flash de panneau, aucune interpolation.

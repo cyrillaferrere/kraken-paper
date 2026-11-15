@@ -31,6 +31,15 @@ jobs:
           python-version: '3.12'
       - name: Tests (sans reseau)
         run: python -m unittest -v
+      - name: Début du journal du cycle
+        id: journal_start
+        shell: bash
+        run: |
+          if [ -f state/journal.jsonl ]; then
+            echo "offset=$(wc -c < state/journal.jsonl | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          else
+            echo "offset=0" >> "$GITHUB_OUTPUT"
+          fi
       - name: Cycle moteur (PAPER, API publique uniquement)
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
@@ -51,3 +60,9 @@ jobs:
             sleep 5
           done
           exit 1
+      - name: Notification Grok Bot (après commit/push, une requête groupée)
+        env:
+          JOURNAL_OFFSET: ${{ steps.journal_start.outputs.offset }}
+          GROKBOT_WEBHOOK_URL: ${{ secrets.GROKBOT_WEBHOOK_URL }}
+          GROKBOT_WEBHOOK_KEY: ${{ secrets.GROKBOT_WEBHOOK_KEY }}
+        run: python scripts/notify_grokbot.py

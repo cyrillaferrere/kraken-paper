@@ -1,3 +1,11 @@
+## Webhook Grok Bot — séquence après commit (PR #60)
+- Le workflow capture la position de départ de `state/journal.jsonl`, exécute le moteur, puis commit et pousse l'état sur `main`.
+- La notification Grok Bot vient **après** l'étape « Commit de l'etat ». Si le commit/push échoue, le job échoue et aucun webhook n'est envoyé. Si aucun fichier d'état n'a changé, l'état courant est déjà à jour et l'étape suivante peut notifier.
+- Le script envoie un seul POST JSON pour tous les fills du cycle. Sans fill : aucun POST et log « aucune exécution ». Après acceptation du POST : log « webhook envoyé ». Secrets absents, erreur HTTP/réseau : log « échec d'envoi » ; le cycle n'est pas bloqué.
+- Les seules variables sensibles utilisées sont les secrets GitHub Actions `GROKBOT_WEBHOOK_URL` et `GROKBOT_WEBHOOK_KEY`. Ne jamais les afficher ni les ajouter au dépôt.
+- Tests : `python -m unittest tests.test_grokbot_webhook -v` (ou la commande globale CI). Vérifier les trois statuts et le contrôle de branche.
+- Cette notification ne change aucune décision ni exécution PAPER. Aucun déploiement de production sans accord explicite de Cyril.
+
 ## Publication production — GO unique (ADR-28, remplace la validation humaine ADR-27)
 - Cyril autorise explicitement une version et un SHA précis ; une CI verte ou une PR fusionnée ne vaut pas GO.
 - Après revue Grok Bot, tests et recette préprod, l'assistant soumet `.github/prod-release-request.json` sur `deploy/prod-request` uniquement après ce GO.
