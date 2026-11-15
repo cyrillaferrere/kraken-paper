@@ -1,4 +1,4 @@
-"""Tests du webhook Grok Bot : groupement, absence de fill et panne réseau."""
+"""Tests du webhook Grok Bot : groupement, absence de fill, statuts et panne réseau."""
 import json
 import os
 import sys
@@ -35,11 +35,13 @@ class GrokBotWebhookTests(unittest.TestCase):
             },
         })
 
-    def test_no_fill_means_no_request(self):
+    def test_no_fill_means_no_request_and_explicit_status(self):
         self.append({"time": "2026-11-15T16:07:00+01:00", "type": "decision"})
         with patch.object(notify_grokbot.urllib.request, "urlopen") as post:
-            sent = notify_grokbot.send_cycle_webhook(self.journal, len(self.prefix), "https://example.test/hook", "key")
-        self.assertFalse(sent)
+            status = notify_grokbot.notify_cycle(
+                self.journal, len(self.prefix), "https://example.test/hook", "key"
+            )
+        self.assertEqual(status, "aucune exécution")
         post.assert_not_called()
 
     def test_multiple_fills_are_sent_in_one_json_post(self):
@@ -59,11 +61,11 @@ class GrokBotWebhookTests(unittest.TestCase):
             return Response()
 
         with patch.object(notify_grokbot.urllib.request, "urlopen", side_effect=fake_post) as post:
-            sent = notify_grokbot.send_cycle_webhook(
+            status = notify_grokbot.notify_cycle(
                 self.journal, len(self.prefix), "https://example.test/hook", "secret-key"
             )
 
-        self.assertTrue(sent)
+        self.assertEqual(status, "webhook envoyé")
         post.assert_called_once()
         request = captured["request"]
         self.assertEqual(request.get_method(), "POST")
@@ -75,20 +77,22 @@ class GrokBotWebhookTests(unittest.TestCase):
         self.assertEqual(payload["trades"][1]["order"], "O0002")
         self.assertEqual(payload["trades"][1]["reason"], "stop_loss")
 
-    def test_network_error_is_swallowed(self):
+    def test_network_error_returns_explicit_failure_without_raising(self):
         self.fill("T0001", "O0001")
         with patch.object(notify_grokbot.urllib.request, "urlopen", side_effect=OSError("offline")) as post:
-            sent = notify_grokbot.send_cycle_webhook(
+            status = notify_grokbot.notify_cycle(
                 self.journal, len(self.prefix), "https://example.test/hook", "secret-key"
             )
-        self.assertFalse(sent)
+        self.assertEqual(status, "échec d'envoi")
         post.assert_called_once()
 
-    def test_missing_credentials_means_no_request(self):
+    def test_missing_credentials_returns_explicit_failure_without_request(self):
         self.fill("T0001", "O0001")
         with patch.object(notify_grokbot.urllib.request, "urlopen") as post:
-            sent = notify_grokbot.send_cycle_webhook(self.journal, len(self.prefix), "", "secret-key")
-        self.assertFalse(sent)
+            status = notify_grokbot.notify_cycle(
+                self.journal, len(self.prefix), "", "secret-key"
+            )
+        self.assertEqual(status, "échec d'envoi")
         post.assert_not_called()
 
 
