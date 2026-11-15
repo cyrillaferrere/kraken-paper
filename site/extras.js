@@ -137,12 +137,12 @@
     bar.setAttribute("aria-label", segs.map((g) => `${g.name} ${usdc(g.v)} (${nf(1).format(pct(g.v) * 100)} %)`).join(", "));
     $("exp-txt").innerHTML = segs.map((g) => `<li><span class="sw-${g.k}" aria-hidden="true"></span><span class="e-name">${g.name}</span>
         <b>${usdc(g.v)}</b> <span class="muted">${nf(1).format(pct(g.v) * 100)} %</span></li>`).join("")
-      + `<li class="muted e-note">Valeur totale ${usdc(x.total)} · cash total ${usdc(cb.total)} = disponible + réservé (le cash réservé compte dans la valeur totale)</li>`;
+;
     const parts = [];
     if (x.riskPos) parts.push(`${signed(x.riskPos)} USDC sur les positions`);
     if (x.riskPending) parts.push(`${signed(x.riskPending)} USDC sur les achats en attente, s'ils s'exécutent`);
-    $("exp-risk").innerHTML = `Si tous les stops sont touchés : <b class="${x.risk < 0 ? "dn" : ""}">${signed(x.risk)} USDC</b> <span class="muted">(${pctS(x.riskPct, 1)} du portefeuille, frais compris)</span>`
-      + (parts.length ? `<br><span class="muted">${parts.join(" · ")}</span>` : "")
+    $("exp-risk").innerHTML = `<span class="risk-summary"><b class="${x.risk < 0 ? "dn" : ""}">${signed(x.risk)} USDC</b><span class="muted">${pctS(x.riskPct, 1)} du portefeuille</span></span>`
+      + (parts.length ? `<span class="risk-breakdown muted">${parts.join(" · ")}</span>` : "")
       + (x.unprotected.length ? `<br><span class="warn-txt">⚠ Sans stop : ${x.unprotected.map(esc).join(", ")}</span>` : "")
       + (x.buysNoStop ? `<br><span class="warn-txt">⚠ ${x.buysNoStop} achat${x.buysNoStop > 1 ? "s" : ""} en attente sans stop</span>` : "")
       + (x.missing ? '<br><span class="muted">Prix manquant pour une position : valeur partielle.</span>' : "");
@@ -152,13 +152,13 @@
   function renderCountdowns() {
     const S = ctx.S, now = Date.now();
     const c = L.nextCycle(now, S.last_cycle ? new Date(S.last_cycle).getTime() : null);
-    $("cd-cycle").textContent = `${hm(c.next)} (dans ${L.duration(c.inMs)})`;
+    $("cd-cycle").textContent = `${hm(c.next)} · ${L.duration(c.inMs)}`;
     const prod = (window.KP_VERSION && window.KP_VERSION.env === "prod") || (window.KP_ENV_FROM_HOST && window.KP_ENV_FROM_HOST(location.hostname) === "prod");
     $("cd-cycle-note").innerHTML = c.late
       ? `<span class="warn-txt">⚠ Dernier cycle il y a ${L.duration(c.ageMs)}. En production, la fonction Netlify (minute 9) devrait lancer le cycle ; le cron GitHub (minute 7) prend le relais si besoin. Chaque décision lance aussi un cycle.</span>`
       : `Dernier cycle : ${S.last_cycle ? hm(S.last_cycle) : "—"}. Déclencheur principal : fonction Netlify à la minute 9, uniquement en production${prod ? "" : " (pas encore active ici)"}. Le cron GitHub (minute 7) prend le relais si besoin.`;
     const d = S.last_decision, s = L.nextSession(d && d.timestamp ? new Date(d.timestamp).getTime() : null, now);
-    $("cd-session").textContent = !s ? "—" : s.overdue ? `estimée à ${hm(s.at)}, en retard de ${L.duration(-s.inMs)}` : `estimée à ${hm(s.at)} (dans ${L.duration(s.inMs)})`;
+    $("cd-session").textContent = !s ? "—" : s.overdue ? `${hm(s.at)} · retard ${L.duration(-s.inMs)}` : `${hm(s.at)} · ${L.duration(s.inMs)}`;
     $("cd-session-note").textContent = d ? `Environ toutes les 5 h après la dernière décision (${d.id}). Estimation, pas un horaire fixe.` : "Aucune décision pour l'instant.";
   }
 
