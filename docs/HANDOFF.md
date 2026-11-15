@@ -1,3 +1,8 @@
+## Publication production à un seul GO — ADR-28
+- Demande validée par Cyril : un accord explicite en conversation suffit, pas de deuxième approbation GitHub. L'environnement `production` conserve son secret, mais `Required reviewers` doit être retiré manuellement.
+- Workflow déclenché uniquement par push du fichier de demande sur `deploy/prod-request` après accord ; tests, SHA et version contrôlés, vérification Netlify obligatoire.
+- ADR-28 détaille le risque résiduel : le JSON de demande n'est pas une preuve d'autorisation. Aucune publication automatique sans GO.
+
 ## PR finition v0.3.1 — préparation publication
 - Branche `fix/v0.3.1-release-polish` issue de `preprod`, après fusion PR #46 (`d2942a0`).
 - `VERSION=0.3.1` ; affichage du nouveau stop et des TP dans `pending_exits`, formateurs testables dans `site/app.js`.
