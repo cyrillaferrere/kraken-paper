@@ -30,26 +30,48 @@
 <button id="nav-toggle" class="nav-toggle motion-button" type="button" aria-controls="dash-nav" aria-expanded="false" aria-label="Ouvrir le menu">☰ <span>Menu</span></button>
 <nav id="dash-nav" class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue générale</span></a><a href="#market-card"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a><a href="#positions-panel"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Positions</span></a><a href="#orders-panel"><span class="nav-ico" aria-hidden="true">≡</span><span class="nav-label">Ordres</span></a><a href="#performance-panel"><span class="nav-ico" aria-hidden="true">↗</span><span class="nav-label">Performance</span></a><a href="#trades-panel"><span class="nav-ico" aria-hidden="true">⇄</span><span class="nav-label">Historique</span></a><a href="#dec-h"><span class="nav-ico" aria-hidden="true">✎</span><span class="nav-label">Décisions</span></a><a href="#journal-panel"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Journal</span></a></nav>
 <main id="overview">
-  <section class="kpis" aria-label="Chiffres clés">
-    <article class="kpi big"><h2>Valeur totale</h2><p id="k-value" class="v">—</p><p id="k-value-sub" class="s"></p></article>
-    <article class="kpi"><h2>P&amp;L depuis le départ</h2><p id="k-pnl" class="v">—</p><p id="k-pnl-pct" class="s"></p></article>
-    <article class="kpi"><h2>Écart vs BTC conservé</h2><p id="k-bench" class="v">—</p><p id="k-bench-sub" class="s"></p></article>
-    <article class="kpi"><h2>Frais payés</h2><p id="k-fees" class="v">—</p><p id="k-fees-sub" class="s"></p></article>
-  </section>
-
-  <section class="duo">
-    <article class="card" aria-labelledby="exp-h">
-      <div class="card-h"><h2 id="exp-h">Cash et exposition</h2><span class="muted">positions aux prix en direct</span></div>
+  <section class="cockpit" aria-label="Synthèse financière et état du portefeuille">
+    <article class="cockpit-panel cockpit-main">
+      <div class="cockpit-head">
+        <div>
+          <div class="eyebrow">CAPITAL TOTAL · PAPER</div>
+          <div class="capital-line"><strong id="k-value" class="capital-value">—</strong><span>USDC</span></div>
+          <div class="capital-pnl"><strong id="k-pnl">—</strong><span id="k-pnl-pct">—</span></div>
+          <p id="k-value-sub" class="sr-only"></p>
+        </div>
+        <div class="benchmark-box">
+          <div class="benchmark-item"><span class="eyebrow">ÉCART VS BTC</span><strong id="k-bench">—</strong><span id="k-bench-sub" class="sr-only">—</span></div>
+          <div class="benchmark-item"><span class="eyebrow">FRAIS CUMULÉS</span><strong id="k-fees">—</strong><span id="k-fees-sub" class="sr-only">—</span></div>
+        </div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><span>P&amp;L réalisé</span><strong id="ov-realized">—</strong><small id="ov-realized-pct">—</small></div>
+        <div class="metric"><span>P&amp;L latent</span><strong id="ov-unrealized">—</strong><small id="ov-unrealized-pct">—</small></div>
+        <div class="metric"><span>Performance 24 h</span><strong id="ov-24h">—</strong><small id="ov-24h-pct">—</small></div>
+        <div class="metric"><span>Performance 7 jours</span><strong id="ov-7d">—</strong><small id="ov-7d-pct">—</small></div>
+        <div class="metric"><span>Drawdown actuel</span><strong id="ov-dd">—</strong><small id="ov-dd-pct">—</small></div>
+        <div class="metric"><span>Drawdown maximal</span><strong id="ov-maxdd">—</strong><small id="ov-maxdd-pct">historique disponible</small></div>
+        <div class="metric"><span>Frais / capital initial</span><strong id="ov-fee-ratio">—</strong><small class="sr-only">Ratio des frais sur le capital initial</small></div>
+        <div class="metric"><span>Trades clôturés</span><strong id="ov-trades">—</strong><small id="ov-winloss">gagnants / perdants</small></div>
+      </div>
+    </article>
+    <article class="cockpit-panel cockpit-side">
+      <div class="section-eyebrow">ALLOCATION DU CAPITAL</div>
       <div id="exp-bar" class="exp-bar" role="img" aria-label="Répartition investi, réservé dans les ordres et cash disponible"></div>
       <ul id="exp-txt" class="exp-txt"></ul>
-      <p id="exp-risk" class="exp-risk"></p>
-    </article>
-    <article class="card" aria-labelledby="cd-h">
-      <div class="card-h"><h2 id="cd-h">Prochains passages</h2><span class="muted">heure de Paris</span></div>
-      <dl class="cd">
-        <div><dt>Cycle du moteur</dt><dd id="cd-cycle">—</dd><dd id="cd-cycle-note" class="muted small"></dd></div>
-        <div><dt>Session de gestion</dt><dd id="cd-session">—</dd><dd id="cd-session-note" class="muted small"></dd></div>
-      </dl>
+      <div class="side-stats" aria-label="Exposition et ordres ouverts">
+        <div><span>Positions ouvertes</span><strong id="ov-position-count">—</strong></div>
+        <div><span>Ordres ouverts</span><strong id="ov-order-count">—</strong></div>
+        <div><span>Exposition totale</span><strong id="ov-exposure">—</strong></div>
+      </div>
+      <section class="risk-block" aria-label="Risque du portefeuille">
+        <div class="section-eyebrow">RISQUE SI STOPS TOUCHÉS</div>
+        <p id="exp-risk" class="exp-risk"></p>
+      </section>
+      <div class="system-strip">
+        <div><span>Prochain cycle</span><strong id="cd-cycle">—</strong><small id="cd-cycle-note" class="sr-only"></small></div>
+        <div><span>Session Grok · estimée</span><strong id="cd-session">—</strong><small id="cd-session-note" class="sr-only"></small></div>
+      </div>
     </article>
   </section>
 
