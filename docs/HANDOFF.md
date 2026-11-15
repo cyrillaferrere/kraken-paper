@@ -1,3 +1,20 @@
+## Feature v0.3.3 — cockpit haute densité (en cours)
+- Passe UX consolidée : retrait des règles CSS cockpit concurrentes, container queries sur la largeur réelle de `#overview` (2 colonnes uniquement à partir de 1120 px), une colonne en espace contraint, grille KPI 4/2 colonnes. Classe `.sr-only` standard et complète pour masquer les notes de diagnostic sans casser l'accessibilité.
+- Feedback live local à 720 ms sur les valeurs réellement changées : cours sélectionné, marqueurs, cellules positions/ordres, allocation et risque. Aucun flash de panneau, aucune interpolation.
+- Passe visuelle v3 : `benchmark-box` composé en deux lignes indépendantes (plus de collision), explications masquées visuellement mais conservées pour lecteurs d'écran lorsque pertinent, allocation sans note comptable redondante, risque compact, compteurs moteur/Grok sur une ligne ; feedback local de 600 ms.
+- Recette visuelle desktop/mobile et cohérence des métriques toujours requises avant fusion.
+- Correctif du flash global : `.kpi-updated` est désormais un contenant positionné et isolé ; les mises à jour de métriques `put()` déclenchent le feedback uniquement si leur texte change. Recette visuelle requise sur Deploy Preview.
+- Rafraîchissement live corrigé : `renderLive()` met à jour les métriques et les seules cellules dépendantes des prix ; les tableaux complets, les onglets Marchés, le journal, les décisions et le calendrier ne sont reconstruits que sur nouveau snapshot d'état. `KPMarkets.onPrice` et `KPExtras.onPrice` isolent les zones live.
+- Feedback de changement de valeur adouci à 360 ms ; aucun lissage/interpolation des cours, aucune animation d'entrée rejouée sur polling.
+- Recomposition v2 après recette visuelle : allocation unique via `extras.js` (montants + %), risque unique via `exp-risk`, suppression des rendus en double ; cartes à hauteur naturelle et risque responsive sans débordement.
+- Compteur de trades clôturés calculé uniquement sur `closed_trades[].realized_pnl != null` (les fills d'achat ne sont pas comptés comme des trades clôturés).
+- Branche `feature/v0.3.3-pending-order-lines`, PR #57 vers `preprod`, aucun déploiement production.
+- `site/index.html`, `site/style.css`, `site/app.js` : synthèse portefeuille compacte et dense ; capital + P&L regroupés, écart BTC/frais secondaires, P&L réalisé/latent, performances 24 h/7 j depuis le dernier snapshot disponible, drawdown actuel/maximal, ratio de frais, trades gagnants/perdants, allocation en USDC et % du portefeuille, positions/ordres, risques stops actifs et conditionnels, échéances moteur/Grok.
+- Chaque montant monétaire porte explicitement `USDC` ; chaque pourcentage précise sa base de référence. Données indisponibles ou incomplètes affichées comme indisponibles, pas extrapolées.
+- `extras.js` conserve son rendu de l'allocation et des comptes à rebours via des éléments de compatibilité masqués accessibles ; aucun calcul métier/moteur, `state/` ou `decisions/` modifié.
+- Skill `kraken-motion-ux` : animations non rejouées au polling, pas d'animation de données financières, respect `prefers-reduced-motion`.
+- À valider : tests Node, CI, Deploy Preview, lecture visuelle desktop/mobile et exactitude des métriques sur les snapshots disponibles.
+
 ## PR finition v0.3.1 — préparation publication
 - Branche `fix/v0.3.1-release-polish` issue de `preprod`, après fusion PR #46 (`d2942a0`).
 - `VERSION=0.3.1` ; affichage du nouveau stop et des TP dans `pending_exits`, formateurs testables dans `site/app.js`.

@@ -8,6 +8,7 @@
   const TICKER = "https://api.kraken.com/0/public/Ticker?pair=";
   const BENCH = "XBTUSDC";
   const PRICE_EVERY = 15000, STATE_EVERY = 120000, STALE_MS = 2 * 3600 * 1000;
+  const WS_URL = "wss://ws.kraken.com/v2";
 
   let S = null, equity = [], journal = [], stateChanged = false;
   let live = {}, liveOk = null, liveAt = null;
@@ -35,7 +36,15 @@
     if (changed && !firstRender) { el.classList.remove("kpi-updated"); void el.offsetWidth; el.classList.add("kpi-updated"); }
   }
 
-  // ---------- données ----------
+function flashLiveValue(el, value) {
+    if (!el || el.textContent === value) return;
+    el.textContent = value;
+    el.classList.remove("kpi-updated");
+    void el.offsetWidth;
+    el.classList.add("kpi-updated");
+  }
+
+    // ---------- données ----------
   // gh.mode : "api" ou "raw" (repli). On interroge d'abord le sha du dernier commit de main avec If-None-Match :
   // une réponse 304 ne compte pas dans la limite de 60 requêtes/h. Les 3 fichiers ne sont relus que si le sha change.
   const gh = { mode: "api", sha: null, etag: null, retryAt: 0, remaining: null };
@@ -149,10 +158,50 @@
     }
   }
 
+  // Flux public Kraken v2 : prix de la paire choisie, sans toucher aux cycles PAPER.
+  let tickerSocket = null, tickerRetry = null, tickerPair = null, tickerLast = 0, tickerRenderAt = 0;
+  const wsSymbol = (p) => p.replace(/^XBT/, "BTC").replace(/^XDG/, "DOGE").replace(/USDC$/, "/USDC");
+  function connectTicker(pair) {
+    if (!pair || document.hidden || typeof WebSocket === "undefined") return;
+    if (tickerPair === pair && tickerSocket && tickerSocket.readyState <= 1) return;
+    if (tickerSocket) { tickerSocket.onclose = null; tickerSocket.close(); }
+    clearTimeout(tickerRetry);
+    tickerPair = pair;
+    const socket = new WebSocket(WS_URL);
+    tickerSocket = socket;
+    socket.onopen = () => socket.send(JSON.stringify({ method: "subscribe", params: { channel: "ticker", symbol: [wsSymbol(pair)], event_trigger: "trades" } }));
+    socket.onmessage = (event) => {
+      let message;
+      try { message = JSON.parse(event.data); } catch { return; }
+      if (message.channel !== "ticker" || !Array.isArray(message.data)) return;
+      const tick = message.data.find((item) => item.symbol === wsSymbol(pair));
+      const value = Number(tick && tick.last);
+      if (tickerSocket !== socket || !Number.isFinite(value) || value <= 0) return;
+      live[pair] = value;
+      liveOk = true;
+      liveAt = new Date();
+      tickerLast = Date.now();
+      if (tickerLast - tickerRenderAt >= 1000) { tickerRenderAt = tickerLast; renderLive(); }
+    };
+    socket.onclose = () => {
+      if (tickerSocket !== socket) return;
+      tickerSocket = null;
+      if (!document.hidden) tickerRetry = setTimeout(() => connectTicker(pair), 5000);
+    };
+    socket.onerror = () => socket.close();
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      clearTimeout(tickerRetry);
+      if (tickerSocket) { tickerSocket.onclose = null; tickerSocket.close(); tickerSocket = null; }
+    } else if (S) connectTicker((window.KPMarkets && window.KPMarkets.selectedPair && window.KPMarkets.selectedPair()) || BENCH);
+  });
+  window.KPTicker = { select: connectTicker };
   const price = (p) => (liveOk && live[p] != null) ? live[p] : (S ? S.last_prices[p] : null);
 
   // ---------- rendu ----------
-  function render() {
+  function renderLive() { render(true); }
+  function render(liveOnly = false) {
     if (!S) return;
     // statut
     const stp = $("st-prices");
@@ -169,7 +218,7 @@
     for (const [p, pos] of Object.entries(S.positions)) { const x = price(p); if (x == null) missing = true; else posVal += pos.qty * x; }
     const total = S.cash + posVal;
     const pnl = total - S.start_capital;
-    setText("k-value", missing ? "—" : usdc(total));
+    setText("k-value", missing ? "—" : nf(2).format(total));
     $("k-value-sub").textContent = "Départ : " + usdc(S.start_capital) + " le " + dt(S.start_time);
     setText("k-pnl", missing ? "—" : signed(pnl) + " USDC", cls(pnl));
     setText("k-pnl-pct", missing ? "" : pct(pnl / S.start_capital), cls(pnl));
@@ -178,20 +227,75 @@
     if (hold != null && !missing) {
       const gap = total - hold;
       setText("k-bench", signed(gap) + " USDC", cls(gap));
-      $("k-bench-sub").textContent = "BTC conservé vaudrait " + usdc(hold);
+      $("k-bench-sub").textContent = "Écart " + pct(gap / hold) + " · BTC conservé : " + usdc(hold);
     } else { setText("k-bench", "—"); $("k-bench-sub").textContent = "Référence fixée au premier cycle"; }
     setText("k-fees", usdc(S.fees_total));
     $("k-fees-sub").textContent = S.closed_trades.length + " trade" + (S.closed_trades.length > 1 ? "s" : "") + " · P&L réalisé " + signed(S.realized_pnl) + " USDC";
-    // Comme sur Kraken : les achats en attente réservent leur montant (frais maker compris). La valeur totale ne change pas.
+    // Synthèse haute densité : les mêmes sources et calculs que les tableaux existants.
     const cb = window.KPLib ? window.KPLib.cashBreakdown(S, orderMath) : { total: S.cash, reserved: 0, available: S.cash };
+    const ex = window.KPLib ? window.KPLib.exposure(S, price, orderMath) : null;
+    const invested = posVal;
+    const availablePct = total ? cb.available / total : 0, reservedPct = total ? cb.reserved / total : 0, investedPct = total ? invested / total : 0;
+    const put = (id, value, klass) => { const el = $(id); if (!el) return; const changed = el.textContent !== value; if (changed) { el.textContent = value; if (!firstRender) { el.classList.remove("kpi-updated"); void el.offsetWidth; el.classList.add("kpi-updated"); } } if (klass !== undefined) { el.classList.toggle("up", klass === "up"); el.classList.toggle("dn", klass === "dn"); } };
+    const putMoney = (id, value, klass) => put(id, value == null ? "—" : signed(value) + " USDC", klass === undefined ? cls(value) : klass);
+    const putPct = (id, value, ref) => { put(id, value == null ? "—" : pct(value)); const el = $(id); if (el && ref) { el.title = "Référence : " + ref; el.setAttribute("aria-label", (value == null ? "Indisponible" : pct(value)) + " " + ref); } };
+    const unrealized = Object.entries(S.positions).reduce((sum, [p, pos]) => {
+      const x = price(p); return sum + (x == null ? 0 : pos.qty * (x - pos.avg_cost));
+    }, 0);
+    const investedBasis = Object.values(S.positions).reduce((sum, pos) => sum + pos.qty * pos.avg_cost, 0);
+    putMoney("ov-realized", S.realized_pnl);
+    putPct("ov-realized-pct", S.start_capital ? S.realized_pnl / S.start_capital : null, "du capital initial");
+    putMoney("ov-unrealized", missing ? null : unrealized);
+    putPct("ov-unrealized-pct", investedBasis ? unrealized / investedBasis : null, "du PRU");
+    const equityAt = (ms) => { const rows = equity.filter((r) => r.t <= ms); return rows.length ? rows[rows.length - 1] : null; };
+    const perfWindow = (hours) => {
+      const baseRow = equityAt(Date.now() - hours * 3600e3);
+      if (!baseRow || missing || !Number.isFinite(total) || !baseRow.eq) return null;
+      return { pnl: total - baseRow.eq, pct: total / baseRow.eq - 1 };
+    };
+    for (const [key, hours] of [["24h",24],["7d",168]]) {
+      const p = perfWindow(hours); putMoney("ov-"+key,p && p.pnl); putPct("ov-"+key+"-pct",p && p.pct,"depuis le point de référence");
+    }
+    const peak = equity.reduce((max,r)=>Math.max(max,r.eq),0);
+    const livePeak = Math.max(peak,total);
+    const dd = !missing && livePeak > 0 ? total / livePeak - 1 : null;
+    let maxDd = 0, maxDdAmount = 0, runningPeak = 0;
+    for (const row of equity) { runningPeak=Math.max(runningPeak,row.eq); if(runningPeak>0 && row.eq/runningPeak-1 < maxDd) { maxDd=row.eq/runningPeak-1; maxDdAmount=row.eq-runningPeak; } }
+    putMoney("ov-dd", dd == null ? null : total-livePeak);
+    putPct("ov-dd-pct",dd,"du sommet historique");
+    putMoney("ov-maxdd", maxDdAmount);
+    putPct("ov-maxdd-pct",maxDd,"du sommet historique");
+    put("ov-fee-ratio", S.start_capital ? pct(S.fees_total/S.start_capital) : "—");
+    const trades=(S.closed_trades||[]).filter(t=>t.realized_pnl!=null), wins=trades.filter(t=>Number(t.realized_pnl)>0).length, losses=trades.filter(t=>Number(t.realized_pnl)<0).length;
+    put("ov-trades",String(trades.length));
+    put("ov-winloss",wins+" gagnants · "+losses+" perdants");
     $("cash").textContent = "Cash total " + usdc(cb.total) + " · réservé dans les ordres " + usdc(cb.reserved) + " · cash disponible " + usdc(cb.available);
+    put("ov-available",missing ? "—" : usdc(cb.available)); put("ov-available-pct",missing ? "—" : pct(availablePct));
+    put("ov-reserved",usdc(cb.reserved)); put("ov-reserved-pct",missing ? "—" : pct(reservedPct));
+    put("ov-invested",missing ? "—" : usdc(invested)); put("ov-invested-pct",missing ? "—" : pct(investedPct));
+    put("ov-position-count",String(Object.keys(S.positions).length));
+    put("ov-order-count",String(S.open_orders.length));
+    put("ov-exposure",usdc(invested)+" · "+pct(investedPct));
+    if(ex){
+      putMoney("ov-risk-pos",ex.missing ? null : ex.riskPos);
+      putPct("ov-risk-pos-pct",!ex.missing && total?ex.riskPos/total:null,"du portefeuille");
+      putMoney("ov-risk-pending",ex.missing ? null : ex.riskPending);
+      putPct("ov-risk-pending-pct",!ex.missing && total?ex.riskPending/total:null,"du portefeuille");
+      putMoney("ov-risk-total",ex.missing ? null : ex.risk);
+      putPct("ov-risk-total-pct",ex.missing ? null : ex.riskPct,"du portefeuille");
+      put("ov-risk-note",ex.buysNoStop ? ex.buysNoStop+" achat(s) en attente sans risque chiffrable faute de stop." : (ex.unprotected.length ? "Positions sans protection complète : "+ex.unprotected.join(", ")+".":"Risque calculé frais et glissement inclus."));
+    }
 
-    // Les prix bougent toutes les 15 s ; les historiques ne changent qu'avec un nouveau snapshot.
-    // Éviter de reconstruire le journal et le SVG à chaque ticker préserve filtres et interactions.
+
+    if (liveOnly) {
+      updateLiveTables();
+      if (window.KPMarkets) window.KPMarkets.onPrice({ S, journal, price, orderMath, liveOk, liveAt, livePairs: live });
+      if (window.KPExtras) window.KPExtras.onPrice({ S, journal, equity, price, orderMath });
+      return;
+    }
     renderPositions(); renderOrders();
     if (stateChanged) { renderTrades(); renderJournal(); renderChart(); }
     if (firstRender) {
-      // Entrée des panneaux : une seule fois au premier rendu, jamais au polling.
       document.querySelectorAll(".kpi, .card").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 5)); el.classList.add("motion-panel-enter"); });
       firstRender = false;
     }
@@ -205,9 +309,31 @@
     const rows = Object.entries(S.positions).map(([p, pos]) => {
       const x = price(p), val = x == null ? null : pos.qty * x, cost = pos.qty * pos.avg_cost;
       const u = val == null ? null : val - cost;
-      return `<tr><td><b>${esc(pos.base)}</b></td><td class="r">${qty(pos.qty)}</td><td class="r">${px(pos.avg_cost)}</td><td class="r">${px(x)}</td><td class="r">${usdc(val)}</td><td class="r ${cls(u)}">${signed(u)} (${pct(u / cost)})</td></tr>`;
+      return `<tr data-position-pair="${esc(p)}"><td><b>${esc(pos.base)}</b></td><td class="r">${qty(pos.qty)}</td><td class="r">${px(pos.avg_cost)}</td><td class="r o-live-price">${px(x)}</td><td class="r o-live-value">${usdc(val)}</td><td class="r o-live-pnl ${cls(u)}">${signed(u)} (${pct(u / cost)})</td></tr>`;
     });
     tb.innerHTML = rows.join("") || `<tr><td colspan="6" class="empty">Aucune position, tout est en USDC.</td></tr>`;
+  }
+
+  function updateLiveTables() {
+    document.querySelectorAll("#positions tbody tr[data-position-pair]").forEach((tr) => {
+      const p = tr.dataset.positionPair, pos = S.positions[p], x = price(p);
+      if (!pos) return;
+      const val = x == null ? null : pos.qty * x, cost = pos.qty * pos.avg_cost, pnl = val == null ? null : val - cost;
+      const priceCell = tr.querySelector(".o-live-price"), valueCell = tr.querySelector(".o-live-value"), pnlCell = tr.querySelector(".o-live-pnl");
+      if (priceCell) flashLiveValue(priceCell, px(x));
+      if (valueCell) flashLiveValue(valueCell, usdc(val));
+      if (pnlCell) { flashLiveValue(pnlCell, pnl == null ? "—" : signed(pnl) + " (" + pct(pnl / cost) + ")"); pnlCell.classList.toggle("up", pnl > 0); pnlCell.classList.toggle("dn", pnl < 0); }
+    });
+    document.querySelectorAll("#orders tbody tr.o-row[data-order-id]").forEach((tr) => {
+      const o = S.open_orders.find((item) => item.id === tr.dataset.orderId);
+      if (!o) return;
+      const x = price(o.pair), m = orderMath(o, S, x);
+      const liveCell = tr.querySelector(".o-live-price"); if (liveCell) flashLiveValue(liveCell, px(x));
+      const distCell = tr.cells[4];
+      if (distCell) distCell.innerHTML = o.side === "buy" ? distTxt(m.dLimit) : [m.dTp != null ? distTxt(m.dTp, "obj.") : null, m.dStop != null ? distTxt(m.dStop, "stop") : null].filter(Boolean).join("<br>") || "—";
+      const detail = document.getElementById("od-" + o.id), detailPrice = detail && detail.querySelector(".o-live-price");
+      if (detailPrice) flashLiveValue(detailPrice, px(x));
+    });
   }
 
   // ---------- ordres : calculs nets de frais, mêmes règles que engine/run.py ----------
@@ -299,14 +425,14 @@
         ? `<span class="pending-exits">${pendingExitText(pending)}</span>`
         : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
-      const main = `<tr class="o-row${hit ? " reached" : ""}">
+      const main = `<tr class="o-row${hit ? " reached" : ""}" data-order-id="${esc(o.id)}">
         <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${pendingNote}${note}</td>
         <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
         <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
-        <td class="r c-x">${limitLbl}<br><span class="muted">${px(x)}</span></td><td class="r">${dist}</td>
+        <td class="r c-x">${limitLbl}<br><span class="muted o-live-price">${px(x)}</span></td><td class="r">${dist}</td>
         <td class="r c-x">${stopTxt}</td><td class="r c-x">${tpTxt}</td><td class="r c-x">${lossTxt}</td><td class="r c-x">${gainTxt}</td><td class="r c-x">${rrTxt}</td></tr>`;
       const det = `<tr class="o-detail" id="od-${esc(o.id)}"${open ? "" : " hidden"}><td colspan="10"><dl class="o-dl">
-        <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd>${px(x)}</dd></div>
+        <div><dt>Prix limite</dt><dd>${limitLbl}</dd></div><div><dt>Prix actuel</dt><dd class="o-live-price">${px(x)}</dd></div>
         <div><dt>Stop</dt><dd>${stopTxt}</dd></div>${pendingNote ? `<div class="wide"><dt>Modification programmée</dt><dd>${pendingNote}</dd></div>` : ""}<div><dt>Objectif</dt><dd>${tpTxt}</dd></div>
         <div><dt>Perte max</dt><dd>${lossTxt}</dd></div><div><dt>Gain visé</dt><dd>${gainTxt}</dd></div>
         <div><dt>Gain / risque</dt><dd>${rrTxt}</dd></div><div><dt>Créé</dt><dd>${created}</dd></div><div class="wide"><dt>Décision</dt><dd>${dec}</dd></div></dl></td></tr>`;
@@ -442,7 +568,7 @@
 
   // ---------- boucles ----------
   loadState();
-  setInterval(async () => { if (!S || document.hidden) return; await loadPrices(); render(); }, PRICE_EVERY);
+  setInterval(async () => { if (!S || document.hidden) return; await loadPrices(); renderLive(); }, PRICE_EVERY);
   setInterval(() => { if (!document.hidden) loadState(); }, STATE_EVERY);
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => S && renderChart(), 150); });
 })();
