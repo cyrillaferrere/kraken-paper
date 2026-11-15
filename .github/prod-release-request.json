@@ -1,8 +1,8 @@
 {
   "environment": "production",
   "approved_by": "Cyril",
-  "version": "0.3.2",
-  "approved_commit": "35bb8e55764fa6f30427b3c7b4ecc0a3c06d067e",
-  "reason": "Publication v0.3.2 after explicit Cyril GO PROD and Grok Bot counter-check on 2026-11-15; PR #56 merged as 3a0eca10704abbb96196f1d1a10c6d63fa282d2d",
-  "request_sequence": 2
+  "version": "0.3.3",
+  "approved_commit": "af569cc63c2d53ac6f6cc69ae3f3c5d64c2c66ba",
+  "reason": "GO production explicite de Cyril le 2026-11-15 après recette préprod; PR #59 UI-only fusionnée dans main, contrôles quality-gates et guard-state validés; aucune modification du moteur, de state/ ou decisions/.",
+  "request_sequence": 3
 }
