@@ -1,4 +1,6 @@
 ## Feature v0.3.3 — cockpit haute densité (en cours)
+- Rafraîchissement live corrigé : `renderLive()` met à jour les métriques et les seules cellules dépendantes des prix ; les tableaux complets, les onglets Marchés, le journal, les décisions et le calendrier ne sont reconstruits que sur nouveau snapshot d'état. `KPMarkets.onPrice` et `KPExtras.onPrice` isolent les zones live.
+- Feedback de changement de valeur adouci à 360 ms ; aucun lissage/interpolation des cours, aucune animation d'entrée rejouée sur polling.
 - Recomposition v2 après recette visuelle : allocation unique via `extras.js` (montants + %), risque unique via `exp-risk`, suppression des rendus en double ; cartes à hauteur naturelle et risque responsive sans débordement.
 - Compteur de trades clôturés calculé uniquement sur `closed_trades[].realized_pnl != null` (les fills d'achat ne sont pas comptés comme des trades clôturés).
 - Branche `feature/v0.3.3-pending-order-lines`, PR #57 vers `preprod`, aucun déploiement production.
