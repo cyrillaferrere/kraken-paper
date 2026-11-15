@@ -50,16 +50,16 @@ def send_cycle_webhook(journal_path, offset, url, key):
         ensure_ascii=False,
         separators=(",", ":"),
     ).encode("utf-8")
-    request = urllib.request.Request(
-        url,
-        data=payload,
-        headers={
-            "Authorization": "Bearer " + key,
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
     try:
+        request = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                "Authorization": "Bearer " + key,
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
         with urllib.request.urlopen(request, timeout=10):
             pass
     except Exception:
@@ -71,12 +71,16 @@ def send_cycle_webhook(journal_path, offset, url, key):
 def main():
     journal_path = os.path.join("state", "journal.jsonl")
     offset = os.environ.get("JOURNAL_OFFSET", "0")
-    send_cycle_webhook(
-        journal_path,
-        offset,
-        os.environ.get("GROKBOT_WEBHOOK_URL", ""),
-        os.environ.get("GROKBOT_WEBHOOK_KEY", ""),
-    )
+    try:
+        send_cycle_webhook(
+            journal_path,
+            offset,
+            os.environ.get("GROKBOT_WEBHOOK_URL", ""),
+            os.environ.get("GROKBOT_WEBHOOK_KEY", ""),
+        )
+    except Exception:
+        # Dernier filet de sécurité : aucun problème de notification ne bloque le workflow.
+        pass
 
 
 if __name__ == "__main__":
