@@ -20,7 +20,7 @@ test("la vue générale n'affiche qu'une seule allocation et un seul résumé du
 
 test("l'allocation et le risque affichent les montants USDC et leurs pourcentages", () => {
   assert.match(extras, /usdc\(g\.v\)/);
-  assert.match(extras, /nf\(1\)\.format\(pct\(g\.v\) \* 100\) \+ " %"/);
+  assert.match(extras, /nf\(1\)\.format\(pct\(g\.v\) \* 100\)\} %/);
   assert.match(extras, /signed\(x\.risk\) \+ " USDC"/);
   assert.match(extras, /pctS\(x\.riskPct, 1\)/);
 });
