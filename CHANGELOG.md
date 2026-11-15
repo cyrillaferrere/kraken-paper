@@ -1,3 +1,8 @@
+## [0.3.3] — préproduction uniquement
+- Marchés : les TP et stops d'un achat limite non exécuté sont masqués par défaut ; aperçu gris conditionnel au survol/toucher de la ligne d'achat.
+- Les sorties actives des positions et des ordres de vente restent inchangées ; tests fonctionnels dédiés.
+- Aucun changement de moteur, de stratégie ou de données PAPER.
+
 ## [0.3.2] — candidat de publication (non publié en production)
 - ADR-28 : circuit de publication à GO unique, sans deuxième approbation GitHub ; contrôle de branche et SHA à vérifier avant activation.
 - `VERSION` passe à `0.3.2` ; le build Netlify est désormais déclenché aussi lors d'un changement de version.
