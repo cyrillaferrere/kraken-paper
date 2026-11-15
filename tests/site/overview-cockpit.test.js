@@ -29,7 +29,7 @@ test("le cockpit garde des panneaux à hauteur naturelle et évite le débordeme
   assert.match(css, /\.cockpit\s*\{[^}]*align-items:start/s);
   assert.match(css, /\.cockpit-side \.risk-block\s*\{[^}]*min-width:0/s);
   assert.match(css, /\.cockpit-side \.exp-risk\s*\{[^}]*overflow-wrap:anywhere/s);
-  assert.match(css, /@media\(max-width:640px\)/);
+  assert.match(css, /@container \(max-width:699px\)/);
 });
 
 test("le nombre de trades clôturés ignore les simples achats", () => {
