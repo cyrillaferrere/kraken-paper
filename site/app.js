@@ -8,6 +8,7 @@
   const TICKER = "https://api.kraken.com/0/public/Ticker?pair=";
   const BENCH = "XBTUSDC";
   const PRICE_EVERY = 15000, STATE_EVERY = 120000, STALE_MS = 2 * 3600 * 1000;
+  const WS_URL = "wss://ws.kraken.com/v2";
 
   let S = null, equity = [], journal = [], stateChanged = false;
   let live = {}, liveOk = null, liveAt = null;
@@ -149,6 +150,45 @@
     }
   }
 
+  // Flux public Kraken v2 : prix de la paire choisie, sans toucher aux cycles PAPER.
+  let tickerSocket = null, tickerRetry = null, tickerPair = null, tickerLast = 0, tickerRenderAt = 0;
+  const wsSymbol = (p) => p.replace(/^XBT/, "BTC").replace(/^XDG/, "DOGE").replace(/USDC$/, "/USDC");
+  function connectTicker(pair) {
+    if (!pair || document.hidden || typeof WebSocket === "undefined") return;
+    if (tickerPair === pair && tickerSocket && tickerSocket.readyState <= 1) return;
+    if (tickerSocket) { tickerSocket.onclose = null; tickerSocket.close(); }
+    clearTimeout(tickerRetry);
+    tickerPair = pair;
+    const socket = new WebSocket(WS_URL);
+    tickerSocket = socket;
+    socket.onopen = () => socket.send(JSON.stringify({ method: "subscribe", params: { channel: "ticker", symbol: [wsSymbol(pair)], event_trigger: "trades" } }));
+    socket.onmessage = (event) => {
+      let message;
+      try { message = JSON.parse(event.data); } catch { return; }
+      if (message.channel !== "ticker" || !Array.isArray(message.data)) return;
+      const tick = message.data.find((item) => item.symbol === wsSymbol(pair));
+      const value = Number(tick && tick.last);
+      if (tickerSocket !== socket || !Number.isFinite(value) || value <= 0) return;
+      live[pair] = value;
+      liveOk = true;
+      liveAt = new Date();
+      tickerLast = Date.now();
+      if (tickerLast - tickerRenderAt >= 1000) { tickerRenderAt = tickerLast; render(); }
+    };
+    socket.onclose = () => {
+      if (tickerSocket !== socket) return;
+      tickerSocket = null;
+      if (!document.hidden) tickerRetry = setTimeout(() => connectTicker(pair), 5000);
+    };
+    socket.onerror = () => socket.close();
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      clearTimeout(tickerRetry);
+      if (tickerSocket) { tickerSocket.onclose = null; tickerSocket.close(); tickerSocket = null; }
+    } else if (S) connectTicker((window.KPMarkets && window.KPMarkets.selectedPair && window.KPMarkets.selectedPair()) || BENCH);
+  });
+  window.KPTicker = { select: connectTicker };
   const price = (p) => (liveOk && live[p] != null) ? live[p] : (S ? S.last_prices[p] : null);
 
   // ---------- rendu ----------
