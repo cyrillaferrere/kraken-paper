@@ -209,7 +209,7 @@
     for (const [p, pos] of Object.entries(S.positions)) { const x = price(p); if (x == null) missing = true; else posVal += pos.qty * x; }
     const total = S.cash + posVal;
     const pnl = total - S.start_capital;
-    setText("k-value", missing ? "—" : usdc(total));
+    setText("k-value", missing ? "—" : nf(2).format(total));
     $("k-value-sub").textContent = "Départ : " + usdc(S.start_capital) + " le " + dt(S.start_time);
     setText("k-pnl", missing ? "—" : signed(pnl) + " USDC", cls(pnl));
     setText("k-pnl-pct", missing ? "" : pct(pnl / S.start_capital), cls(pnl));
