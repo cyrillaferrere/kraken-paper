@@ -135,6 +135,8 @@ button:focus-visible { outline: 2px solid var(--ac2); outline-offset: 2px; }
 /* Valeur réellement mise à jour : bref voile neutre (violet, ni vert ni rouge) qui s'efface. La vraie valeur est affichée tout de suite. */
 .kpi .v, .val { position: relative; }
 .val { display: inline-block; border-radius: 4px; }
+/* Le voile doit être ancré à la valeur, jamais au conteneur ni à la page entière. */
+.kpi-updated { position: relative; isolation: isolate; }
 .kpi-updated::after { content: ""; position: absolute; inset: -2px -4px; border-radius: 6px; background: rgba(124,92,255,.13); opacity: 0; pointer-events: none; animation: kpi-flash var(--motion-data) var(--ease-standard) 1; }
 @keyframes kpi-flash { 0% { opacity: .7; } 100% { opacity: 0; } }
 .motion-critical-alert, .alert { animation: none; }
