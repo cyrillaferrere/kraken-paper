@@ -1,3 +1,7 @@
+
+## ADR-28 : publication production avec un seul GO (15/11/2026)
+- **Décision** : l'accord explicite de Cyril suffit ; suppression de l'approbation GitHub redondante. Conserver l'environnement `production` et son secret, désactiver `Required reviewers`, garder les tests et contrôles de commit.
+- **Limite** : la demande JSON est une trace et non une preuve d'autorisation ; voir [ADR-28](ADR-28-SINGLE-GO-PRODUCTION.md).
 # Décisions techniques (ADR)
 
 Chaque entrée : contexte, décision, conséquences. Ajouter une entrée pour tout nouveau choix structurant ;
@@ -141,3 +145,8 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 - **Contexte** : les choix de paire, d'unité de temps et de fenêtre visible sont perdus au rechargement ; l'utilisateur ne peut pas demander explicitement une relecture OHLC ni voir quand les bougies ont été chargées.
 - **Décision** : mémoriser uniquement les préférences du graphique en `sessionStorage` avec validation stricte et repli sur BTC/1 h/120 bougies ; afficher un bouton d'actualisation et l'heure de dernière lecture des bougies. Ne mémoriser aucun ordre, capital, décision ni secret.
 - **Conséquences** : les préférences survivent au rechargement de l'onglet mais pas à une nouvelle session ; le bouton relit les bougies Kraken sans modifier la simulation ; l'heure correspond à la lecture réussie, pas à l'horodatage du dernier trade.
+
+## ADR-28 : publication production avec un seul GO (15/11/2026) — remplace la validation humaine ADR-27
+- **Contexte** : l'approbation GitHub `Required reviewers` s'ajoutait au GO explicite de Cyril.
+- **Décision** : une seule autorisation humaine, explicite pour une version et un SHA ; conserver les contrôles automatisés et le secret d'environnement `production`, sans `Required reviewers`.
+- **Conséquences** : `approved_by` est déclaratif et ne prouve pas l'accord ; restreindre les écritures sur `deploy/prod-request` et les modifications du workflow. Voir [ADR-28](ADR-28-SINGLE-GO-PRODUCTION.md). L'ADR-27 reste conservé pour l'historique.
