@@ -218,7 +218,7 @@
     if (hold != null && !missing) {
       const gap = total - hold;
       setText("k-bench", signed(gap) + " USDC", cls(gap));
-      $("k-bench-sub").textContent = "BTC conservé vaudrait " + usdc(hold);
+      $("k-bench-sub").textContent = "Écart " + pct(gap / hold) + " · BTC conservé : " + usdc(hold);
     } else { setText("k-bench", "—"); $("k-bench-sub").textContent = "Référence fixée au premier cycle"; }
     setText("k-fees", usdc(S.fees_total));
     $("k-fees-sub").textContent = S.closed_trades.length + " trade" + (S.closed_trades.length > 1 ? "s" : "") + " · P&L réalisé " + signed(S.realized_pnl) + " USDC";
