@@ -3,7 +3,6 @@
 
 import json
 import os
-import sys
 import urllib.request
 
 
@@ -39,11 +38,13 @@ def cycle_trades(journal_path, offset):
     return cycle_time, trades
 
 
-def send_cycle_webhook(journal_path, offset, url, key):
-    """Envoie un POST groupé. Retourne False sans erreur si rien n'est à notifier."""
+def notify_cycle(journal_path, offset, url, key):
+    """Retourne un statut explicite, sans jamais exposer l'URL ni la clé."""
     cycle_time, trades = cycle_trades(journal_path, offset)
-    if not trades or not url or not key:
-        return False
+    if not trades:
+        return "aucune exécution"
+    if not url or not key:
+        return "échec d'envoi"
 
     payload = json.dumps(
         {"cycle_time": cycle_time, "trades": trades},
@@ -63,24 +64,21 @@ def send_cycle_webhook(journal_path, offset, url, key):
         with urllib.request.urlopen(request, timeout=10):
             pass
     except Exception:
-        # Le webhook est externe au moteur : son indisponibilité ne doit pas bloquer le cycle.
-        return False
-    return True
+        # Le webhook est externe au moteur : son indisponibilité ne bloque pas le cycle.
+        return "échec d'envoi"
+    return "webhook envoyé"
 
 
 def main():
     journal_path = os.path.join("state", "journal.jsonl")
-    offset = os.environ.get("JOURNAL_OFFSET", "0")
-    try:
-        send_cycle_webhook(
-            journal_path,
-            offset,
-            os.environ.get("GROKBOT_WEBHOOK_URL", ""),
-            os.environ.get("GROKBOT_WEBHOOK_KEY", ""),
-        )
-    except Exception:
-        # Dernier filet de sécurité : aucun problème de notification ne bloque le workflow.
-        pass
+    status = notify_cycle(
+        journal_path,
+        os.environ.get("JOURNAL_OFFSET", "0"),
+        os.environ.get("GROKBOT_WEBHOOK_URL", ""),
+        os.environ.get("GROKBOT_WEBHOOK_KEY", ""),
+    )
+    # Statut volontairement limité à trois libellés, sans données sensibles.
+    print(status)
 
 
 if __name__ == "__main__":
