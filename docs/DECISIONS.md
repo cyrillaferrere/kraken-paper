@@ -1,3 +1,7 @@
+
+## ADR-28 : publication production avec un seul GO (15/11/2026)
+- **Décision** : l'accord explicite de Cyril suffit ; suppression de l'approbation GitHub redondante. Conserver l'environnement `production` et son secret, désactiver `Required reviewers`, garder les tests et contrôles de commit.
+- **Limite** : la demande JSON est une trace et non une preuve d'autorisation ; voir [ADR-28](ADR-28-SINGLE-GO-PRODUCTION.md).
 # Décisions techniques (ADR)
 
 Chaque entrée : contexte, décision, conséquences. Ajouter une entrée pour tout nouveau choix structurant ;
