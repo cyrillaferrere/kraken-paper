@@ -202,6 +202,7 @@
     markersApi = L.createSeriesMarkers(sCandle, []);
     sCandle.attachPrimitive(labels);
     chart.subscribeCrosshairMove(legend);
+    setupPendingPreview();
     return true;
   }
 
@@ -325,26 +326,20 @@
   });
   document.addEventListener("DOMContentLoaded", syncOrdBtn); syncOrdBtn();
 
-  // Ordres en attente, stops, objectifs, prix de revient, et exécutions du journal.
-  function overlays() {
-    if (!chart || !ctx.S || !shown.bars.length) return;
-    const S = ctx.S, p = selected.pair, iv = TF[selected.tf] * 60;
+  // Niveaux de marché : un achat non exécuté n'active jamais ses sorties.
+  function buildOrderLines(orders, pair, previewId = null) {
     const lines = [];
-    const pos = S.positions[p];
-    if (pos) {
-      const live = ctx.price(p) ?? (shown.bars.length ? shown.bars[shown.bars.length - 1].c : null);
-      const pru = (window.KPLib && window.KPLib.pruLabel) ? window.KPLib.pruLabel(pos, live) : { label: "PRU (prix de revient)", tone: "mu" };
-      const col = C[pru.tone] || C.mu;
-      lines.push({ price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
-    }
-    for (const o of S.open_orders || []) {
-      if (o.pair !== p) continue;
+    for (const o of orders || []) {
+      if (o.pair !== pair) continue;
       if (o.side === "buy") {
-        if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite` });
-        if (o.stop_loss) lines.push({ price: o.stop_loss, color: "rgba(248,113,113,.6)", lineStyle: 3, label: `${o.id} stop prévu` });
-        if (o.take_profit) lines.push({ price: o.take_profit, color: "rgba(124,92,255,.75)", lineStyle: 3, label: `${o.id} objectif prévu` });
-        if (Array.isArray(o.take_profits)) o.take_profits.forEach((tp, i) =>
-          lines.push({ price: tp.price, color: C.ac, lineStyle: 3, label: `${o.id} TP${i + 1} prévu` }));
+        if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite`, pendingBuyId: o.id });
+        if (previewId !== o.id) continue;
+        const planned = (price, name) => {
+          if (price != null) lines.push({ price, color: "#9299a9", lineStyle: 3, label: `${o.id} ${name} si l'achat passe`, conditional: true });
+        };
+        planned(o.stop_loss, "stop");
+        planned(o.take_profit, "objectif");
+        if (Array.isArray(o.take_profits)) o.take_profits.forEach((tp, i) => planned(tp.price, `TP${i + 1}`));
       } else {
         if (Array.isArray(o.take_profits) && o.take_profits.length) {
           o.take_profits.forEach((tp, i) =>
@@ -360,6 +355,54 @@
         }
       }
     }
+    return lines;
+  }
+  window.KPMarketOrderLines = buildOrderLines;
+  let pendingPreviewId = null;
+  function pendingBuyAt(y) {
+    if (!sCandle || !ctx.S || !shown.bars.length || !showOrders) return null;
+    const price = sCandle.coordinateToPrice(y);
+    if (!Number.isFinite(price)) return null;
+    const tolerance = Math.abs(sCandle.coordinateToPrice(y + 9) - price);
+    const buys = (ctx.S.open_orders || []).filter((o) => o.pair === selected.pair && o.side === "buy" && o.price != null);
+    const hit = buys.find((o) => Math.abs(o.price - price) <= tolerance);
+    return hit ? hit.id : null;
+  }
+  function setupPendingPreview() {
+    const el = $("mchart");
+    el.addEventListener("pointermove", (e) => {
+      if (e.pointerType === "touch") return;
+      const id = pendingBuyAt(e.clientY - el.getBoundingClientRect().top);
+      if (pendingPreviewId !== id) { pendingPreviewId = id; overlays(); }
+    });
+    el.addEventListener("pointerleave", () => {
+      if (pendingPreviewId != null) { pendingPreviewId = null; overlays(); }
+    });
+    el.addEventListener("click", (e) => {
+      const id = pendingBuyAt(e.clientY - el.getBoundingClientRect().top);
+      if (e.pointerType === "touch" || e.detail === 0) {
+        pendingPreviewId = pendingPreviewId === id ? null : id;
+        overlays();
+      }
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (!e.target.closest || e.target.closest("#mchart")) return;
+      if (pendingPreviewId != null) { pendingPreviewId = null; overlays(); }
+    });
+  }
+  // Ordres en attente, stops, objectifs, prix de revient, et exécutions du journal.
+  function overlays() {
+    if (!chart || !ctx.S || !shown.bars.length) return;
+    const S = ctx.S, p = selected.pair, iv = TF[selected.tf] * 60;
+    const lines = [];
+    const pos = S.positions[p];
+    if (pos) {
+      const live = ctx.price(p) ?? (shown.bars.length ? shown.bars[shown.bars.length - 1].c : null);
+      const pru = (window.KPLib && window.KPLib.pruLabel) ? window.KPLib.pruLabel(pos, live) : { label: "PRU (prix de revient)", tone: "mu" };
+      const col = C[pru.tone] || C.mu;
+      lines.push({ price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
+    }
+    lines.push(...buildOrderLines(S.open_orders, p, pendingPreviewId));
     const vis = showOrders ? lines : [];
     // La signature des lignes de prix ignore le texte du P&L (il change toutes les 15 s) :
     // on recrée les traits seulement si un niveau change, et on rafraîchit toujours les étiquettes.
@@ -392,7 +435,7 @@
     if (msig !== markersSig) { markersApi.setMarkers(mk); markersSig = msig; }
     const n = lines.length, m = mk.length;
     $("moverlay-note").textContent = (n || m)
-      ? `Sur le graphique : ${n} niveau${n > 1 ? "x" : ""} (ordres, stops, objectifs)${n && !showOrders ? " masqué" + (n > 1 ? "s" : "") : ""} et ${m} exécution${m > 1 ? "s" : ""} visible${m > 1 ? "s" : ""} sur cette période.`
+      ? `Sur le graphique : ${n} niveau${n > 1 ? "x" : ""} (ordres, stops, objectifs)${n && !showOrders ? " masqué" + (n > 1 ? "s" : "") : ""} et ${m} exécution${m > 1 ? "s" : ""} visible${m > 1 ? "s" : ""} sur cette période. Les objectifs d’un achat en attente s’affichent au survol ou au toucher de sa ligne.`
       : "Aucun ordre ni exécution sur cette crypto pour l'instant : les niveaux et les flèches d'achat et de vente s'afficheront ici.";
   }
 
