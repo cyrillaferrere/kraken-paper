@@ -6,6 +6,7 @@ const html = fs.readFileSync("site/index.html", "utf8");
 const css = fs.readFileSync("site/style.css", "utf8");
 const app = fs.readFileSync("site/app.js", "utf8");
 const extras = fs.readFileSync("site/extras.js", "utf8");
+const markets = fs.readFileSync("site/markets.js", "utf8");
 
 test("la vue générale n'affiche qu'une seule allocation et un seul résumé du risque", () => {
   for (const id of ["exp-bar", "exp-txt", "exp-risk"]) {
@@ -56,14 +57,14 @@ test("les modules Marchés et Extras ont un chemin live ciblé", () => {
 });
 
 test("le feedback live est progressif et reste désactivable", () => {
-  assert.match(css, /--motion-data:\s*600ms/);
-  assert.match(css, /kpi-flash var\(--motion-data\)/);
+  assert.match(css, /--motion-data:\s*720ms/);
+  assert.match(css, /animation:value-flash var\(--motion-data\)/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
 });
 
 test("le flash reste strictement ancré à la valeur modifiée", () => {
   assert.match(css, /\.kpi-updated\s*\{\s*position:\s*relative;\s*isolation:\s*isolate;/);
-  assert.match(css, /\.kpi-updated::after\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*-2px -4px;/);
+  assert.match(css, /\.kpi-updated\s*\{[^}]*position:relative;[^}]*animation:value-flash/);
   assert.match(app, /const put = \(id, value, klass\) => \{[^\n]*const changed = el\.textContent !== value;/);
   assert.match(app, /if \(changed\) \{ el\.textContent = value; if \(!firstRender\)/);
 });
@@ -73,7 +74,7 @@ test("le cockpit supprime les explications visibles et évite le chevauchement d
   assert.doesNotMatch(html, /allocation-context/);
   assert.doesNotMatch(html, /<small>depuis le départ<\/small>/);
   assert.match(html, /id="cd-cycle-note" class="sr-only"/);
-  assert.match(css, /\.benchmark-box\s*\{\s*display:flex;\s*flex-direction:column/);
+  assert.match(css, /\.benchmark-box\s*\{\s*display:grid;\s*gap:11px/);
   assert.match(css, /\.benchmark-item>strong\s*\{[^}]*overflow-wrap:anywhere/);
   assert.doesNotMatch(extras, /cash réservé compte dans la valeur totale/);
   assert.match(extras, /class="risk-summary"/);
