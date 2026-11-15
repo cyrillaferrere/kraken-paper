@@ -5,6 +5,7 @@
   "use strict";
   const API = "https://api.kraken.com/0/public/";
   const BENCH = "XBTUSDC";
+  const WS_URL = "wss://ws.kraken.com/v2";
   // Liste de suivi : paires USDC ouvertes en France, classées par volume 24 h (Ticker public, 13/11/2026),
   // hors stablecoins et memecoins. Le site revérifie chaque paire via AssetPairs?country_code=FR.
   const WATCH = ["XBTUSDC", "ETHUSDC", "SOLUSDC", "XRPUSDC", "LINKUSDC", "AVAXUSDC", "ADAUSDC", "XDCUSDC",
@@ -142,6 +143,53 @@
     }).join("");
   }
 
+  // Bougies OHLC réelles de Kraken v2 ; REST reste la source de repli et de réconciliation.
+  let candleSocket = null, candleRetry = null, candleKey = null, candleLast = 0;
+  const wsSymbol = (p) => p.replace(/^XBT/, "BTC").replace(/^XDG/, "DOGE").replace(/USDC$/, "/USDC");
+  function closeCandleStream() {
+    clearTimeout(candleRetry);
+    if (candleSocket) { candleSocket.onclose = null; candleSocket.close(); candleSocket = null; }
+  }
+  function connectCandleStream() {
+    if (!shown.bars.length || document.hidden || typeof WebSocket === "undefined") return;
+    const pair = selected.pair, interval = TF[selected.tf], key = pair + "|" + interval;
+    if (candleKey === key && candleSocket && candleSocket.readyState <= 1) return;
+    closeCandleStream();
+    candleKey = key;
+    const socket = new WebSocket(WS_URL);
+    candleSocket = socket;
+    socket.onopen = () => socket.send(JSON.stringify({ method: "subscribe", params: { channel: "ohlc", symbol: [wsSymbol(pair)], interval } }));
+    socket.onmessage = (event) => {
+      let message;
+      try { message = JSON.parse(event.data); } catch { return; }
+      if (message.channel !== "ohlc" || !Array.isArray(message.data) || candleSocket !== socket || shown.key !== key) return;
+      const item = message.data.find((b) => b.symbol === wsSymbol(pair) && Number(b.interval) === interval);
+      if (!item) return;
+      const time = Math.floor(Date.parse(item.interval_begin) / 1000);
+      const bar = { t: time, o: Number(item.open), h: Number(item.high), l: Number(item.low), c: Number(item.close), v: Number(item.volume) };
+      if (!Number.isFinite(time) || ![bar.o, bar.h, bar.l, bar.c, bar.v].every(Number.isFinite) || bar.c <= 0) return;
+      const last = shown.bars.at(-1);
+      if (time < last.t || time > last.t + interval * 60) return;
+      const bars = time === last.t ? [...shown.bars.slice(0, -1), bar] : [...shown.bars, bar];
+      const data = seriesData(bars), i = bars.length - 1;
+      sCandle.update(data.candles[i]); sMa20.update(data.ma20[i]); sMa50.update(data.ma50[i]); sVol.update(data.vol[i]); sRsi.update(data.rsi[i]);
+      shown = { ...shown, lastT: time, bars };
+      legendData = { bars, data, idx: new Map(bars.map((b, j) => [b.t, j])) };
+      candleLast = Date.now();
+      legend();
+    };
+    socket.onclose = () => {
+      if (candleSocket !== socket) return;
+      candleSocket = null;
+      if (!document.hidden) candleRetry = setTimeout(connectCandleStream, 5000);
+    };
+    socket.onerror = () => socket.close();
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) closeCandleStream();
+    else connectCandleStream();
+  });
+
   // ---------- graphique principal ----------
   let levelPrices = [];
   let chart = null, sCandle, sMa20, sMa50, sVol, sRsi, markersApi, priceLines = [], linesSig = "", markersSig = "";
@@ -272,6 +320,7 @@
         }
       }
       shown = { key, lastT: bars.length ? bars[bars.length - 1].t : null, bars };
+      connectCandleStream();
       const stamp = $("chart-updated");
       if (stamp) stamp.textContent = "Bougies lues à " + new Date().toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" });
       syncChartRange();
@@ -580,6 +629,7 @@
     selected.pair = p;
     saveChartPrefs();
     renderChips(); renderSelectedLive(); renderTable(); loadChart();
+    if (window.KPTicker) window.KPTicker.select(p);
   }
   function selectTf(tf, focus) {
     if (!TF[tf]) return;
@@ -625,9 +675,11 @@
   // ---------- point d'entrée appelé par app.js après chaque rendu ----------
   let started = false;
   window.KPMarkets = {
+    selectedPair: () => selected.pair,
     onState(c) {
       ctx = c;
       renderSelectedLive();
+      if (window.KPTicker) window.KPTicker.select(selected.pair);
       // Une paire mémorisée peut avoir disparu de la liste Kraken ou du portefeuille.
       let chartPairReset = false;
       if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); chartPairReset = true; }
