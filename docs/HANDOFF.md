@@ -1,3 +1,11 @@
+## Feature v0.3.3 — cockpit haute densité (en cours)
+- Branche `feature/v0.3.3-pending-order-lines`, PR #57 vers `preprod`, aucun déploiement production.
+- `site/index.html`, `site/style.css`, `site/app.js` : synthèse portefeuille compacte et dense ; capital + P&L regroupés, écart BTC/frais secondaires, P&L réalisé/latent, performances 24 h/7 j depuis le dernier snapshot disponible, drawdown actuel/maximal, ratio de frais, trades gagnants/perdants, allocation en USDC et % du portefeuille, positions/ordres, risques stops actifs et conditionnels, échéances moteur/Grok.
+- Chaque montant monétaire porte explicitement `USDC` ; chaque pourcentage précise sa base de référence. Données indisponibles ou incomplètes affichées comme indisponibles, pas extrapolées.
+- `extras.js` conserve son rendu de l'allocation et des comptes à rebours via des éléments de compatibilité masqués accessibles ; aucun calcul métier/moteur, `state/` ou `decisions/` modifié.
+- Skill `kraken-motion-ux` : animations non rejouées au polling, pas d'animation de données financières, respect `prefers-reduced-motion`.
+- À valider : tests Node, CI, Deploy Preview, lecture visuelle desktop/mobile et exactitude des métriques sur les snapshots disponibles.
+
 ## PR finition v0.3.1 — préparation publication
 - Branche `fix/v0.3.1-release-polish` issue de `preprod`, après fusion PR #46 (`d2942a0`).
 - `VERSION=0.3.1` ; affichage du nouveau stop et des TP dans `pending_exits`, formateurs testables dans `site/app.js`.
