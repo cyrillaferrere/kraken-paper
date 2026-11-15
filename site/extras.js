@@ -111,6 +111,14 @@
     else if (!lessonsDone) el.innerHTML = '<p class="muted">Leçons indisponibles pour l\'instant (API GitHub). Elles sont aussi dans <a href="https://github.com/cyrillaferrere/kraken-paper/blob/main/docs/LESSONS.md">docs/LESSONS.md</a>.</p>';
   }
 
+  function flashLiveValue(el, value) {
+    if (!el || el.textContent === value) return;
+    el.textContent = value;
+    el.classList.remove("kpi-updated");
+    void el.offsetWidth;
+    el.classList.add("kpi-updated");
+  }
+
   // ---------- exposition ----------
   // Jauge empilée : cash disponible / réservé dans les ordres / investi (valeur en direct).
   // Largeurs via transform scaleX (skill motion : transform seulement), transition uniquement si les données changent.
@@ -135,17 +143,28 @@
       segs.forEach((g, i) => { const f = pct(g.v); bar.children[i].style.transform = `translateX(${(off * 100).toFixed(3)}%) scaleX(${f.toFixed(5)})`; off += f; });
     }
     bar.setAttribute("aria-label", segs.map((g) => `${g.name} ${usdc(g.v)} (${nf(1).format(pct(g.v) * 100)} %)`).join(", "));
-    $("exp-txt").innerHTML = segs.map((g) => `<li><span class="sw-${g.k}" aria-hidden="true"></span><span class="e-name">${g.name}</span>
-        <b>${usdc(g.v)}</b> <span class="muted">${nf(1).format(pct(g.v) * 100)} %</span></li>`).join("")
-;
+    const list = $("exp-txt");
+    const previous = new Map([...list.querySelectorAll("li[data-key]")].map((li) => [li.dataset.key, [li.querySelector(".e-amount")?.textContent, li.querySelector(".e-share")?.textContent]]));
+    list.innerHTML = segs.map((g) => `<li data-key="${g.k}"><span class="sw-${g.k}" aria-hidden="true"></span><span class="e-name">${g.name}</span>
+        <b class="e-amount">${usdc(g.v)}</b><span class="muted e-share">${nf(1).format(pct(g.v) * 100)} %</span></li>`).join("");
+    [...list.querySelectorAll("li[data-key]")].forEach((li) => {
+      const old = previous.get(li.dataset.key);
+      if (!old) return;
+      flashLiveValue(li.querySelector(".e-amount"), li.querySelector(".e-amount").textContent === old[0] ? old[0] : li.querySelector(".e-amount").textContent);
+      flashLiveValue(li.querySelector(".e-share"), li.querySelector(".e-share").textContent === old[1] ? old[1] : li.querySelector(".e-share").textContent);
+    });
     const parts = [];
     if (x.riskPos) parts.push(`${signed(x.riskPos)} USDC sur les positions`);
     if (x.riskPending) parts.push(`${signed(x.riskPending)} USDC sur les achats en attente, s'ils s'exécutent`);
-    $("exp-risk").innerHTML = `<span class="risk-summary"><b class="${x.risk < 0 ? "dn" : ""}">${signed(x.risk)} USDC</b><span class="muted">${pctS(x.riskPct, 1)} du portefeuille</span></span>`
+    const risk = $("exp-risk");
+    const previousRisk = [risk.querySelector(".risk-summary b")?.textContent, risk.querySelector(".risk-summary .muted")?.textContent, risk.querySelector(".risk-breakdown")?.textContent];
+    risk.innerHTML = `<span class="risk-summary"><b class="${x.risk < 0 ? "dn" : ""}">${signed(x.risk)} USDC</b><span class="muted">${pctS(x.riskPct, 1)} du portefeuille</span></span>`
       + (parts.length ? `<span class="risk-breakdown muted">${parts.join(" · ")}</span>` : "")
-      + (x.unprotected.length ? `<br><span class="warn-txt">⚠ Sans stop : ${x.unprotected.map(esc).join(", ")}</span>` : "")
-      + (x.buysNoStop ? `<br><span class="warn-txt">⚠ ${x.buysNoStop} achat${x.buysNoStop > 1 ? "s" : ""} en attente sans stop</span>` : "")
-      + (x.missing ? '<br><span class="muted">Prix manquant pour une position : valeur partielle.</span>' : "");
+      + (x.unprotected.length ? `<span class="warn-txt">⚠ Sans stop : ${x.unprotected.map(esc).join(", ")}</span>` : "")
+      + (x.buysNoStop ? `<span class="warn-txt">⚠ ${x.buysNoStop} achat${x.buysNoStop > 1 ? "s" : ""} en attente sans stop</span>` : "")
+      + (x.missing ? '<span class="muted">Prix manquant pour une position : valeur partielle.</span>' : "");
+    const currentRisk = [risk.querySelector(".risk-summary b"), risk.querySelector(".risk-summary .muted"), risk.querySelector(".risk-breakdown")];
+    currentRisk.forEach((el, i) => { if (el && previousRisk[i] != null && previousRisk[i] !== el.textContent) { el.classList.add("kpi-updated"); } });
   }
 
   // ---------- comptes à rebours ----------
