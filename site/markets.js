@@ -5,6 +5,7 @@
   "use strict";
   const API = "https://api.kraken.com/0/public/";
   const BENCH = "XBTUSDC";
+  const WS_URL = "wss://ws.kraken.com/v2";
   // Liste de suivi : paires USDC ouvertes en France, classées par volume 24 h (Ticker public, 13/11/2026),
   // hors stablecoins et memecoins. Le site revérifie chaque paire via AssetPairs?country_code=FR.
   const WATCH = ["XBTUSDC", "ETHUSDC", "SOLUSDC", "XRPUSDC", "LINKUSDC", "AVAXUSDC", "ADAUSDC", "XDCUSDC",
@@ -115,13 +116,21 @@
   const decOf = (p) => (meta[p] && meta[p].dec) ?? (ctx.S && ctx.S.pairs[p] && ctx.S.pairs[p].pair_decimals) ?? 2;
   const pxf = (p, x) => x == null || isNaN(x) ? "—" : nf(Math.min(decOf(p), x >= 1000 ? 2 : 8)).format(x);
 
+  function flashLiveValue(el, value) {
+    if (!el || el.textContent === value) return;
+    el.textContent = value;
+    el.classList.remove("kpi-updated");
+    void el.offsetWidth;
+    el.classList.add("kpi-updated");
+  }
+
   // ---------- cours visible de la paire sélectionnée ----------
   function renderSelectedLive() {
     const pair = selected.pair;
     const value = ctx.price(pair);
     const fresh = ctx.liveOk && ctx.livePairs && ctx.livePairs[pair] != null;
     $("selected-live-pair").textContent = baseOf(pair) + " / USDC";
-    $("selected-live-price").textContent = Number.isFinite(value) ? pxf(pair, value) : "—";
+    flashLiveValue($("selected-live-price"), Number.isFinite(value) ? pxf(pair, value) : "—");
     $("selected-live-status").textContent = fresh && ctx.liveAt
       ? "Kraken · actualisé à " + ctx.liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", second: "2-digit" })
       : Number.isFinite(value) ? "Dernier cours du cycle · pas en direct" : "Cours indisponible";
@@ -141,6 +150,53 @@
       return `<button type="button" class="chip motion-button" data-pair="${esc(p)}" aria-pressed="${p === selected.pair}">${esc(baseOf(p))}${tag}</button>`;
     }).join("");
   }
+
+  // Bougies OHLC réelles de Kraken v2 ; REST reste la source de repli et de réconciliation.
+  let candleSocket = null, candleRetry = null, candleKey = null, candleLast = 0;
+  const wsSymbol = (p) => p.replace(/^XBT/, "BTC").replace(/^XDG/, "DOGE").replace(/USDC$/, "/USDC");
+  function closeCandleStream() {
+    clearTimeout(candleRetry);
+    if (candleSocket) { candleSocket.onclose = null; candleSocket.close(); candleSocket = null; }
+  }
+  function connectCandleStream() {
+    if (!shown.bars.length || document.hidden || typeof WebSocket === "undefined") return;
+    const pair = selected.pair, interval = TF[selected.tf], key = pair + "|" + interval;
+    if (candleKey === key && candleSocket && candleSocket.readyState <= 1) return;
+    closeCandleStream();
+    candleKey = key;
+    const socket = new WebSocket(WS_URL);
+    candleSocket = socket;
+    socket.onopen = () => socket.send(JSON.stringify({ method: "subscribe", params: { channel: "ohlc", symbol: [wsSymbol(pair)], interval } }));
+    socket.onmessage = (event) => {
+      let message;
+      try { message = JSON.parse(event.data); } catch { return; }
+      if (message.channel !== "ohlc" || !Array.isArray(message.data) || candleSocket !== socket || shown.key !== key) return;
+      const item = message.data.find((b) => b.symbol === wsSymbol(pair) && Number(b.interval) === interval);
+      if (!item) return;
+      const time = Math.floor(Date.parse(item.interval_begin) / 1000);
+      const bar = { t: time, o: Number(item.open), h: Number(item.high), l: Number(item.low), c: Number(item.close), v: Number(item.volume) };
+      if (!Number.isFinite(time) || ![bar.o, bar.h, bar.l, bar.c, bar.v].every(Number.isFinite) || bar.c <= 0) return;
+      const last = shown.bars.at(-1);
+      if (time < last.t || time > last.t + interval * 60) return;
+      const bars = time === last.t ? [...shown.bars.slice(0, -1), bar] : [...shown.bars, bar];
+      const data = seriesData(bars), i = bars.length - 1;
+      sCandle.update(data.candles[i]); sMa20.update(data.ma20[i]); sMa50.update(data.ma50[i]); sVol.update(data.vol[i]); sRsi.update(data.rsi[i]);
+      shown = { ...shown, lastT: time, bars };
+      legendData = { bars, data, idx: new Map(bars.map((b, j) => [b.t, j])) };
+      candleLast = Date.now();
+      legend();
+    };
+    socket.onclose = () => {
+      if (candleSocket !== socket) return;
+      candleSocket = null;
+      if (!document.hidden) candleRetry = setTimeout(connectCandleStream, 5000);
+    };
+    socket.onerror = () => socket.close();
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) closeCandleStream();
+    else connectCandleStream();
+  });
 
   // ---------- graphique principal ----------
   let levelPrices = [];
@@ -202,6 +258,7 @@
     markersApi = L.createSeriesMarkers(sCandle, []);
     sCandle.attachPrimitive(labels);
     chart.subscribeCrosshairMove(legend);
+    setupPendingPreview();
     return true;
   }
 
@@ -271,6 +328,7 @@
         }
       }
       shown = { key, lastT: bars.length ? bars[bars.length - 1].t : null, bars };
+      connectCandleStream();
       const stamp = $("chart-updated");
       if (stamp) stamp.textContent = "Bougies lues à " + new Date().toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" });
       syncChartRange();
@@ -325,26 +383,20 @@
   });
   document.addEventListener("DOMContentLoaded", syncOrdBtn); syncOrdBtn();
 
-  // Ordres en attente, stops, objectifs, prix de revient, et exécutions du journal.
-  function overlays() {
-    if (!chart || !ctx.S || !shown.bars.length) return;
-    const S = ctx.S, p = selected.pair, iv = TF[selected.tf] * 60;
+  // Niveaux de marché : un achat non exécuté n'active jamais ses sorties.
+  function buildOrderLines(orders, pair, previewId = null) {
     const lines = [];
-    const pos = S.positions[p];
-    if (pos) {
-      const live = ctx.price(p) ?? (shown.bars.length ? shown.bars[shown.bars.length - 1].c : null);
-      const pru = (window.KPLib && window.KPLib.pruLabel) ? window.KPLib.pruLabel(pos, live) : { label: "PRU (prix de revient)", tone: "mu" };
-      const col = C[pru.tone] || C.mu;
-      lines.push({ price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
-    }
-    for (const o of S.open_orders || []) {
-      if (o.pair !== p) continue;
+    for (const o of orders || []) {
+      if (o.pair !== pair) continue;
       if (o.side === "buy") {
-        if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite` });
-        if (o.stop_loss) lines.push({ price: o.stop_loss, color: "rgba(248,113,113,.6)", lineStyle: 3, label: `${o.id} stop prévu` });
-        if (o.take_profit) lines.push({ price: o.take_profit, color: "rgba(124,92,255,.75)", lineStyle: 3, label: `${o.id} objectif prévu` });
-        if (Array.isArray(o.take_profits)) o.take_profits.forEach((tp, i) =>
-          lines.push({ price: tp.price, color: C.ac, lineStyle: 3, label: `${o.id} TP${i + 1} prévu` }));
+        if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite`, pendingBuyId: o.id });
+        if (previewId !== o.id) continue;
+        const planned = (price, name) => {
+          if (price != null) lines.push({ price, color: "#9299a9", lineStyle: 3, label: `${o.id} ${name} si l'achat passe`, conditional: true });
+        };
+        planned(o.stop_loss, "stop");
+        planned(o.take_profit, "objectif");
+        if (Array.isArray(o.take_profits)) o.take_profits.forEach((tp, i) => planned(tp.price, `TP${i + 1}`));
       } else {
         if (Array.isArray(o.take_profits) && o.take_profits.length) {
           o.take_profits.forEach((tp, i) =>
@@ -360,6 +412,54 @@
         }
       }
     }
+    return lines;
+  }
+  window.KPMarketOrderLines = buildOrderLines;
+  let pendingPreviewId = null;
+  function pendingBuyAt(y) {
+    if (!sCandle || !ctx.S || !shown.bars.length || !showOrders) return null;
+    const price = sCandle.coordinateToPrice(y);
+    if (!Number.isFinite(price)) return null;
+    const tolerance = Math.abs(sCandle.coordinateToPrice(y + 9) - price);
+    const buys = (ctx.S.open_orders || []).filter((o) => o.pair === selected.pair && o.side === "buy" && o.price != null);
+    const hit = buys.find((o) => Math.abs(o.price - price) <= tolerance);
+    return hit ? hit.id : null;
+  }
+  function setupPendingPreview() {
+    const el = $("mchart");
+    el.addEventListener("pointermove", (e) => {
+      if (e.pointerType === "touch") return;
+      const id = pendingBuyAt(e.clientY - el.getBoundingClientRect().top);
+      if (pendingPreviewId !== id) { pendingPreviewId = id; overlays(); }
+    });
+    el.addEventListener("pointerleave", () => {
+      if (pendingPreviewId != null) { pendingPreviewId = null; overlays(); }
+    });
+    el.addEventListener("click", (e) => {
+      const id = pendingBuyAt(e.clientY - el.getBoundingClientRect().top);
+      if (e.pointerType === "touch" || e.detail === 0) {
+        pendingPreviewId = pendingPreviewId === id ? null : id;
+        overlays();
+      }
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (!e.target.closest || e.target.closest("#mchart")) return;
+      if (pendingPreviewId != null) { pendingPreviewId = null; overlays(); }
+    });
+  }
+  // Ordres en attente, stops, objectifs, prix de revient, et exécutions du journal.
+  function overlays() {
+    if (!chart || !ctx.S || !shown.bars.length) return;
+    const S = ctx.S, p = selected.pair, iv = TF[selected.tf] * 60;
+    const lines = [];
+    const pos = S.positions[p];
+    if (pos) {
+      const live = ctx.price(p) ?? (shown.bars.length ? shown.bars[shown.bars.length - 1].c : null);
+      const pru = (window.KPLib && window.KPLib.pruLabel) ? window.KPLib.pruLabel(pos, live) : { label: "PRU (prix de revient)", tone: "mu" };
+      const col = C[pru.tone] || C.mu;
+      lines.push({ price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
+    }
+    lines.push(...buildOrderLines(S.open_orders, p, pendingPreviewId));
     const vis = showOrders ? lines : [];
     // La signature des lignes de prix ignore le texte du P&L (il change toutes les 15 s) :
     // on recrée les traits seulement si un niveau change, et on rafraîchit toujours les étiquettes.
@@ -392,7 +492,7 @@
     if (msig !== markersSig) { markersApi.setMarkers(mk); markersSig = msig; }
     const n = lines.length, m = mk.length;
     $("moverlay-note").textContent = (n || m)
-      ? `Sur le graphique : ${n} niveau${n > 1 ? "x" : ""} (ordres, stops, objectifs)${n && !showOrders ? " masqué" + (n > 1 ? "s" : "") : ""} et ${m} exécution${m > 1 ? "s" : ""} visible${m > 1 ? "s" : ""} sur cette période.`
+      ? `Sur le graphique : ${n} niveau${n > 1 ? "x" : ""} (ordres, stops, objectifs)${n && !showOrders ? " masqué" + (n > 1 ? "s" : "") : ""} et ${m} exécution${m > 1 ? "s" : ""} visible${m > 1 ? "s" : ""} sur cette période. Les objectifs d’un achat en attente s’affichent au survol ou au toucher de sa ligne.`
       : "Aucun ordre ni exécution sur cette crypto pour l'instant : les niveaux et les flèches d'achat et de vente s'afficheront ici.";
   }
 
@@ -455,6 +555,13 @@
   }
   // Les lignes apparaissent au fil des données reçues ; l'animation d'entrée ne joue qu'à la première insertion.
   const failed = new Set();
+  function renderLivePrices() {
+    const tb = $("markers").tBodies[0];
+    for (const tr of tb.rows) {
+      const p = tr.dataset.pair, r = row(p);
+      setCell(tr.cells[1], r.price == null ? "—" : pxf(p, r.price), true);
+    }
+  }
   function renderTable() {
     const tb = $("markers").tBodies[0], all = trackedPairs();
     const pairs = all.filter((p) => metrics[p] || failed.has(p));
@@ -537,6 +644,7 @@
     selected.pair = p;
     saveChartPrefs();
     renderChips(); renderSelectedLive(); renderTable(); loadChart();
+    if (window.KPTicker) window.KPTicker.select(p);
   }
   function selectTf(tf, focus) {
     if (!TF[tf]) return;
@@ -582,8 +690,17 @@
   // ---------- point d'entrée appelé par app.js après chaque rendu ----------
   let started = false;
   window.KPMarkets = {
+    selectedPair: () => selected.pair,
+    onPrice(c) {
+      ctx = c;
+      renderSelectedLive();
+      renderLivePrices();
+      overlays();
+    },
     onState(c) {
       ctx = c;
+      renderSelectedLive();
+      if (window.KPTicker) window.KPTicker.select(selected.pair);
       // Une paire mémorisée peut avoir disparu de la liste Kraken ou du portefeuille.
       let chartPairReset = false;
       if (!trackedPairs().includes(selected.pair)) { selected.pair = BENCH; saveChartPrefs(); chartPairReset = true; }
