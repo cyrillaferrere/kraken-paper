@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-15-10h05",
+ "timestamp": "2026-11-15T10:05:00+01:00",
+ "rationale": "Ce que je vois : BTC est remonté à 65 580 après un creux à 63 754 vers 8h, plus haut que la mèche de 62 000 de la nuit (creux qui tient) et il repasse au-dessus de la MA20 horaire (64 770). Volume horaire faible, RSI 1h 51, 4h 32, jour 25 : le rebond se construit mais la tendance de fond reste baissière (MA20 4h 68 240). ETH 1 823 et SOL 71,8 suivent le même mouvement. Ce que je fais : rien. Je garde le reste de position BTC (stop au prix d'achat 63 051, objectif 68 500) et l'achat limite O0015 à 63 400 (stop 61 700, paliers 66 000 / 70 000). Pourquoi : remonter l'achat vers 64 300 ferait tomber le ratio gain/risque net sous 1,5 avec le même stop logique sous 62 000, et acheter au prix actuel serait courir après le prix. Rien sur ETH et SOL pour ne pas recréer le pari corrélé d'hier. Ce que j'apprends : creux plus haut puis reprise de la MA20 horaire, deux marqueurs de rebond réunis, mais sans volume ; à confirmer par une clôture 4h au-dessus de 66 000.",
+ "actions": [
+  {
+   "type": "note",
+   "text": "10h05 : aucun changement. BTC 65 580, creux plus haut (63 754 vs 62 000) et reprise de la MA20 1h, volume faible. On garde le reste BTC (stop 63 051, TP 68 500) et l'achat limite O0015 à 63 400."
+  }
+ ]
+}
