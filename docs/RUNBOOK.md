@@ -1,14 +1,10 @@
-## Déploiement de production — validation humaine obligatoire (ADR-27)
-
-**Ne pas lancer sans l'accord explicite de Cyril.** La recette préproduction et la CI verte ne constituent pas une autorisation.
-
-1. Cyril ouvre **GitHub → Settings → Environments → New environment**, nomme l'environnement exactement `production`. Il active **Required reviewers**, choisit son propre compte, désactive **Allow administrators to bypass configured protection rules** si l'option existe, et limite les branches de déploiement à `deploy/prod-request`. Vérifier que ces protections sont **effectivement disponibles et actives pour ce dépôt** ; sinon STOP, aucune production.
-2. Dans **Environment production → Environment secrets**, créer `NETLIFY_AUTH_TOKEN` avec la valeur du jeton existant **sans l'afficher**. Vérifier le secret de l'environnement, puis supprimer `NETLIFY_AUTH_TOKEN` de **Settings → Secrets and variables → Actions → Repository secrets**. Ne jamais recopier le jeton dans un fichier ou dans le chat.
-3. Vérifier que le workflow protégé est bien présent **sur `deploy/prod-request`**, branche qui exécute le déclencheur : une ancienne copie sans `environment: production` est un contournement. Synchroniser ce fichier uniquement après autorisation, sans créer ni modifier le JSON de demande à cette étape. Le workflow `.github/workflows/deploy-production-controlled.yml` doit déclarer `environment: production` dans `jobs.deploy`. La demande JSON sur `deploy/prod-request` identifie version et SHA, mais `approved_by: Cyril` ne constitue **pas** une preuve d'approbation. La publication attend le clic de Cyril dans **Actions → Review deployments → Approve and deploy**.
-4. Avant toute demande : vérifier le SHA courant de main, l'intégrité de `state/` et `decisions/`, la sauvegarde restaurable, la CI sur le candidat combiné et le GO Grok Bot. Aucun push direct sur main ni déclenchement de workflow sans l'accord explicite de Cyril.
-5. Après approbation : vérifier les logs du job, `version.json` sur le domaine production (version, branche, SHA), le dashboard et le cycle PAPER suivant. En cas d'incident, suspendre les nouvelles publications, conserver l'état vivant, et revenir au code antérieur sans réécrire `state/` ni `decisions/`.
-
-**Point d'arrêt :** tant que les relecteurs obligatoires et le secret d'environnement ne sont pas confirmés dans GitHub, ne pas créer de demande de déploiement et ne pas lancer de publication. Les protections d'environnement GitHub peuvent dépendre de l'offre et de la visibilité du dépôt.
+## Publication production — GO unique (ADR-28, remplace la validation humaine ADR-27)
+- Cyril autorise explicitement une version et un SHA précis ; une CI verte ou une PR fusionnée ne vaut pas GO.
+- Après revue Grok Bot, tests et recette préprod, l'assistant soumet `.github/prod-release-request.json` sur `deploy/prod-request` uniquement après ce GO.
+- Environnement `production` : `Required reviewers` désactivé par Cyril le 15/11/2026 ; secret `NETLIFY_AUTH_TOKEN` conservé ; branche autorisée `deploy/prod-request` seulement.
+- Le workflow doit être synchronisé sur `deploy/prod-request` avant activation. Vérifier SHA, version, tests et `version.json` après déploiement.
+- `approved_by` est déclaratif, non une preuve cryptographique ; limiter les droits de modification de la branche et du workflow.
+- Ne jamais publier automatiquement ni modifier `state/` ou `decisions/`. Si Netlify indique `Auto Publishing Locked`, vérifier la publication effective.
 
 ## Recette finale v0.3.1 avant proposition de production
 - Vérifier VERSION 0.3.1, commit affiché, bandeau pending avec nouveau stop et TP1/TP2, ancien stop actif.
@@ -575,7 +571,7 @@ Le workflow `.github/workflows/deploy-preprod.yml` se déclenche **uniquement su
 
 
 ## Publication production contrôlée depuis GitHub
-- Après accord explicite de Cyril et fusion de la release sur `main`, créer ou mettre à jour sur la branche `deploy/prod-request` le fichier `.github/prod-release-request.json` contenant `environment: production`, `approved_by: Cyril`, `version: X.Y.Z` et `approved_commit: <SHA main approuvé>`.
+- Selon ADR-28 (un seul GO, sans approbation GitHub supplémentaire), après accord explicite de Cyril et fusion de la release sur `main`, créer ou mettre à jour sur la branche `deploy/prod-request` le fichier `.github/prod-release-request.json` contenant `environment: production`, `approved_by: Cyril`, `version: X.Y.Z` et `approved_commit: <SHA main approuvé>`.
 - Le push de ce fichier déclenche `deploy-production-controlled` ; il vérifie que le code de `main` est identique au SHA approuvé (hors cycles `state/` et `decisions/`), exécute les tests, publie via `scripts/deploy.sh prod`, puis contrôle `https://kraken-paper.netlify.app/version.json`.
 - Le secret `NETLIFY_AUTH_TOKEN` doit être accessible au workflow via GitHub Secrets ; s'il est absent, le job échoue avant toute publication. Ne jamais l'envoyer par message ni le commiter.
 - Aucun push sur `main`, y compris les cycles moteur, ne publie automatiquement la production. Le déclenchement ne vaut que pour la version explicitement approuvée. En cas d'échec, lire les logs du job, corriger, puis redéclencher par une nouvelle demande approuvée.
