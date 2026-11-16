@@ -370,13 +370,14 @@
     "2026-11-15-05h03",
     "2026-11-15-10h05",
     "2026-11-15-15h15",
-    "2026-11-15-20h25"
+    "2026-11-15-20h25",
+    "2026-11-16-23h30"
   ],
   "last_decision": {
-    "id": "2026-11-15-20h25",
-    "timestamp": "2026-11-15T20:25:00+01:00",
-    "rationale": "Ce que je vois : BTC 64 940 se stabilise depuis la mèche à 62 000 de cette nuit (plus bas 3 mois) avec des creux de plus en plus hauts (63 860 puis 64 240) et une clôture au-dessus de la MA20 horaire (64 730). La tendance de fond reste baissière : MA20 4h à 67 400, RSI jour 23, −13 % sur 7 jours, volume horaire faible ce soir. ETH 1 822 et SOL 71,6 suivent le même rebond ; aucun altcoin autorisé n'est nettement plus fort que BTC sur plusieurs jours (LINK −11 %, AVAX −9 % sur 7 jours mais plus faibles sur 30 jours et sur 24 h). Ce que je fais : poche court terme, premier trade : achat limite BTC 400 USDC à 64 600 (bas du range de la soirée), stop 63 700 sous le dernier creux plus haut, moitié à 66 700 (au-dessus du plus haut du jour 66 100) puis stop au prix d'achat, reste à 69 000. Gain/risque net de frais 1,57, perte max environ 11 USDC. Poche moyen terme inchangée : palier 1 exécuté à 64 800, O0015 (63 400) et O0017 (62 600) en attente, ETH O0018 à 1 790 en attente, reste du test O0014 au prix d'achat. Réserve intacte. Pourquoi : deux marqueurs de rebond (mèche basse sur plancher, creux plus hauts) et la confirmation par clôture au-dessus de la MA20 1h ; ordre limite pour payer les frais maker. Risque corrélé : BTC et ETH comptent comme un seul pari, risque total si tout s'exécute et touche les stops environ 130 USDC, soit 2 % du portefeuille. Ce que j'apprends : en trade court sur BTC, avec 1,3 % de frais à l'aller-retour en cas de stop, il faut viser au moins +4 % pour tenir un ratio de 1,5, ce qui pousse le TP2 vers la résistance des 69 000.",
-    "applied": "2026-11-15T20:26:03+01:00"
+    "id": "2026-11-16-23h30",
+    "timestamp": "2026-11-16T23:30:00+01:00",
+    "rationale": "Ce que je vois : BTC 65 295 remonte au-dessus de la MA20 horaire (64 740) mais reste −4,4 % sur 3 jours et −13 % sur 7 jours, plancher 3 mois à 62 000 intact. ETH 1 832 (−4,9 % sur 3 j, −14 % sur 7 j), SOL 71,9 (−8 % sur 3 j, −17 % sur 7 j), XRP 0,961 (−4,7 % sur 3 j, −12,5 % sur 7 j) : aucun n'est nettement plus fort que BTC sur plusieurs jours. Ce que je fais : rien de nouveau. Pourquoi : la poche court terme a déjà O0020 ouvert, pas de second signal confirmé (pas de pic de volume ni de creux plus haut net sur les alts) ; la poche moyen terme est engagée (BTC et ETH détenus, paliers O0015 63 400 et O0017 62 600 en attente) ; réserve intacte. Les stops restent où ils sont. Ce que j'apprends : en marché qui se stabilise sans tendance, ne pas forcer une entrée juste pour être investi ; le risque reste un seul pari corrélé.",
+    "applied": "2026-11-16T23:31:18+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -416,8 +417,8 @@
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 65427.53,
-    "ETHUSDC": 1834.04,
+    "XBTUSDC": 65316.79,
+    "ETHUSDC": 1832.2,
     "SOLUSDC": 70.48
   },
   "benchmark": {
@@ -432,8 +433,8 @@
     "order": 22,
     "trade": 11
   },
-  "last_cycle": "2026-11-16T23:12:35+01:00",
-  "last_cycle_ts": 1794867155,
+  "last_cycle": "2026-11-16T23:31:18+01:00",
+  "last_cycle_ts": 1794868278,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
