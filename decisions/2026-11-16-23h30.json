@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-16-23h30",
+ "timestamp": "2026-11-16T23:30:00+01:00",
+ "rationale": "Ce que je vois : BTC 65 295 remonte au-dessus de la MA20 horaire (64 740) mais reste −4,4 % sur 3 jours et −13 % sur 7 jours, plancher 3 mois à 62 000 intact. ETH 1 832 (−4,9 % sur 3 j, −14 % sur 7 j), SOL 71,9 (−8 % sur 3 j, −17 % sur 7 j), XRP 0,961 (−4,7 % sur 3 j, −12,5 % sur 7 j) : aucun n'est nettement plus fort que BTC sur plusieurs jours. Ce que je fais : rien de nouveau. Pourquoi : la poche court terme a déjà O0020 ouvert, pas de second signal confirmé (pas de pic de volume ni de creux plus haut net sur les alts) ; la poche moyen terme est engagée (BTC et ETH détenus, paliers O0015 63 400 et O0017 62 600 en attente) ; réserve intacte. Les stops restent où ils sont. Ce que j'apprends : en marché qui se stabilise sans tendance, ne pas forcer une entrée juste pour être investi ; le risque reste un seul pari corrélé.",
+ "actions": [
+  {
+   "type": "note",
+   "text": "23h30 : aucune décision. Bilan du jour : 6 487 USDC contre 6 298 pour le BTC gardé (+3,0 %), depuis le départ −1,8 % contre −4,7 %. Frais cumulés 33,1 USDC, réalisé −141 (triple stop du 14/11). Moyen terme : BTC (reste O0014 et O0016) et ETH O0018 achetés aujourd'hui à 1 790, latent légèrement positif ; court terme : BTC O0020 à 64 600, latent ~+4 ; réserve intacte. Ce qui a marché : achats limites après stabilisation au-dessus du plancher, aucun stop touché depuis le 14/11."
+  }
+ ]
+}
