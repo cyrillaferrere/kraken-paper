@@ -5,13 +5,13 @@
   "start_capital": 6606.42,
   "start_time": "2026-11-13T22:56:24+01:00",
   "start_ts": 1794606984,
-  "cash": 5615.421687,
+  "cash": 5215.421774,
   "positions": {
     "XBTUSDC": {
       "base": "BTC",
-      "qty": 0.01313845,
-      "avg_cost": 64695.60517077737,
-      "fees_paid": 4.602604
+      "qty": 0.01930573,
+      "avg_cost": 64747.610515427274,
+      "fees_paid": 6.196229
     }
   },
   "open_orders": [
@@ -145,17 +145,17 @@
       "tp_filled": 0
     },
     {
-      "id": "O0020",
+      "id": "O0021",
       "pair": "XBTUSDC",
-      "side": "buy",
+      "side": "sell",
       "qty": 0.00616728,
-      "price": 64600.0,
+      "price": 66700.0,
       "stop_loss": 63700.0,
       "take_profit": null,
-      "created": "2026-11-15T20:26:03+01:00",
-      "active_from": 1794772800,
-      "parent": null,
-      "decision_id": "2026-11-15-20h25",
+      "created": "2026-11-16T02:55:00+01:00",
+      "active_from": 1794794400,
+      "parent": "O0020",
+      "decision_id": null,
       "take_profits": [
         {
           "price": 66700.0,
@@ -168,7 +168,9 @@
           "qty": 0.00308364
         }
       ],
-      "breakeven_after_tp1": true
+      "entry_price": 64747.610515427274,
+      "breakeven_after_tp1": true,
+      "tp_filled": 0
     }
   ],
   "closed_trades": [
@@ -314,6 +316,22 @@
       "ts": 1794754800,
       "realized_pnl": null,
       "time_source": "m5"
+    },
+    {
+      "id": "T0010",
+      "order_id": "O0020",
+      "pair": "XBTUSDC",
+      "base": "BTC",
+      "side": "buy",
+      "qty": 0.00616728,
+      "price": 64600.0,
+      "fee": 1.593625,
+      "liquidity": "maker",
+      "reason": "limit",
+      "time": "2026-11-16T02:55:00+01:00",
+      "ts": 1794794100,
+      "realized_pnl": null,
+      "time_source": "m5"
     }
   ],
   "processed_decisions": [
@@ -369,13 +387,13 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794787200,
-    "ETHUSDC": 1794787200,
+    "XBTUSDC": 1794790800,
+    "ETHUSDC": 1794790800,
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 64779.3,
-    "ETHUSDC": 1808.76,
+    "XBTUSDC": 64944.77,
+    "ETHUSDC": 1814.28,
     "SOLUSDC": 70.48
   },
   "benchmark": {
@@ -384,14 +402,14 @@
     "start_price": 68358.17,
     "start_time": "2026-11-13T22:56:49+01:00"
   },
-  "fees_total": 29.939991,
+  "fees_total": 31.533616,
   "realized_pnl": -140.998339,
   "seq": {
-    "order": 20,
-    "trade": 9
+    "order": 21,
+    "trade": 10
   },
-  "last_cycle": "2026-11-16T02:51:59+01:00",
-  "last_cycle_ts": 1794793919,
+  "last_cycle": "2026-11-16T03:09:19+01:00",
+  "last_cycle_ts": 1794794959,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
