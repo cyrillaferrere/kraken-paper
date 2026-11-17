@@ -128,9 +128,32 @@
     ];
     html("focus-indicators", '<dl class="v035-indicators">' + cells.map(([k,v]) => '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join("") + "</dl>");
   }
-  function onMarket(p, metric) {
+  function renderOrderLevels(p, ctx) {
+    if (!ctx?.S) return;
+    const orders = (ctx.S.open_orders || []).filter((o) => o.pair === p);
+    const pos = ctx.S.positions?.[p];
+    const nodes = [];
+    if (pos?.avg_cost != null) nodes.push('<span class="v035-level v035-level-pru">PRU · ' + esc(numberPx(pos.avg_cost)) + '</span>');
+    for (const o of orders.slice(0, 9)) {
+      const entry = o.side === "buy";
+      const showOrder = (price, label, conditional = false) => {
+        if (price == null) return;
+        nodes.push('<button class="v035-level ' + (entry ? "v035-level-buy" : "v035-level-sell") +
+          '" type="button" data-v035-order="' + esc(o.id) + '" title="Ouvrir les détails de l’ordre ' + esc(o.id) + '">' +
+          esc(label) + ' · ' + esc(numberPx(price)) + (conditional ? ' <small>si achat exécuté</small>' : '') + '</button>');
+      };
+      showOrder(o.price, entry ? "Achat limite" : "Vente / objectif");
+      showOrder(o.stop_loss, "Stop", entry);
+      if (Array.isArray(o.take_profits) && o.take_profits.length) {
+        o.take_profits.slice(0,3).forEach((t,i) => showOrder(t.price, "TP" + (i+1), entry));
+      } else showOrder(o.take_profit, "Objectif", entry);
+    }
+    html("chart-order-levels", nodes.length ? '<span class="v035-level-label">NIVEAUX SUR LE GRAPHIQUE</span>' + nodes.join("") : '<span class="hint">Aucun niveau PAPER actif pour cette paire.</span>');
+  }
+  function onMarket(p, metric, ctx) {
     switchPair(p);
     renderIndicators(metric);
+    renderOrderLevels(p, ctx);
   }
 
   // Comparaison sans extrapolation : uniquement la même fenêtre et les mêmes cycles.
@@ -200,11 +223,22 @@
       const stamp = datetime(e.when);
       const desc = (e.symbol ? esc(e.symbol) + " · " : "") + (e.side ? (e.side==="buy"?"Achat":"Vente") + " · " : "") + (e.price == null ? "" : numberPx(e.price)+" USDC");
       const anchor = e.id ? '<a href="#dec-h" data-v035-decision="' + esc(e.id) + '">Décision ' + esc(e.id) + '</a>' : "";
-      const badge = e.orderId ? '<span>Ordre ' + esc(e.orderId) + '</span>' : "";
+      const badge = e.orderId ? '<button type="button" data-v035-order="' + esc(e.orderId) + '">Ordre ' + esc(e.orderId) + '</button>' : "";
       return '<div class="v035-event v035-event-' + esc(e.type) + '"><time>' + esc(stamp) + '</time><div><strong>' + esc(e.label) + '</strong><small>' + desc + '</small><div class="v035-event-refs">' + anchor + badge + '</div></div></div>';
     }).join("") : '<p class="hint">Aucun événement de décision ou d’exécution disponible.</p>');
   }
   document.addEventListener("click", (event) => {
+    const o = event.target.closest("[data-v035-order]");
+    if (o) {
+      const id = o.dataset.v035Order;
+      const button = [...document.querySelectorAll("#orders .o-toggle")].find((b) => b.dataset.oid === id);
+      if (!button) return;
+      if (document.body.classList.contains("market-focus")) window.KPFocus?.close();
+      if (button.getAttribute("aria-expanded") !== "true") button.click();
+      $("orders-panel")?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start" });
+      button.focus({preventScroll:true});
+      return;
+    }
     const a = event.target.closest("[data-v035-decision]");
     if (!a) return;
     const ref = a.dataset.v035Decision;
