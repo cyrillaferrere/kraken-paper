@@ -1,3 +1,11 @@
+## Recette UX v0.3.5 — branche feature uniquement (17/11/2026)
+1. Vérifier l'aperçu Netlify de la PR et son SHA exact ; contrôler le badge FEATURE et `VERSION=0.3.5`.
+2. Marchés : sélectionner BTC, ETH puis SOL ; carnet Kraken récupéré séparément pour chaque paire, 10 niveaux max, bid inférieur ou égal à ask, spread en prix et %, heure d'instantané. Tester coupure réseau/onglet masqué et changement rapide de paire : aucun ancien carnet ne doit rester présenté comme frais.
+3. Mode Focus : indicateurs du scanner 4 h/1 j, RSI et ATR cohérents ; lorsqu'une paire n'est pas calculée afficher l'indisponibilité. Ruban de niveaux PAPER : un stop/TP associé à un achat non exécuté indique « si achat exécuté ». Cliquer pour afficher le détail de l'ordre, aucune simulation modifiée.
+4. Performance : période 24 h, 7 j, tout ; bornes et écart vs BTC calculés seulement si données présentes. Vérifier les valeurs indisponibles et l'absence d'extrapolation.
+5. Décisions : ouvrir la chronologie et vérifier les liens de décision seulement quand `decision_id` est présent. Vérifier le clavier, Escape mode Focus et responsive à 390/768/1440 px, plus `prefers-reduced-motion`.
+6. Tests Node `node --test tests/site/*.test.js` et contrôles CI. Ne rien modifier dans moteur, `state/`, `decisions/`, `main` ; GO indépendant requis pour preprod puis production.
+
 ## Recette feature v0.3.4 — Focus marché et micrographe
 - Depuis `feature/v0.3.4` en Deploy Preview, vérifier le SHA exact de Netlify puis ouvrir Marchés et activer « Mode Focus ». Contrôler Esc, Tab, focus rendu au déclencheur, absence de scroll arrière-plan, largeur desktop et petit écran.
 - Cliquer sur « Graphique ↗ » depuis une position et un ordre : la paire choisie doit être affichée, ainsi que son cours et ses niveaux; cliquer un ordre du panneau pour ouvrir son détail.

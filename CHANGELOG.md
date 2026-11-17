@@ -1,3 +1,10 @@
+## [Unreleased] — UX v0.3.5 (feature)
+- Carnet spot Kraken public : instantanés bid/ask (10 niveaux), spread absolu et relatif, timestamp et repli honnête si données absentes ; aucun ordre passé.
+- Focus enrichi : tendances 4 h et 1 j, RSI 14, ATR, variation 24 h et force vs BTC issus du scanner existant, niveaux PAPER cliquables avec étiquettes conditionnelles pour achats en attente.
+- Performance : bornes réelles de la période, P&L brut observé et écart de rendement vs BTC lorsque les deux références sont disponibles.
+- Audit : chronologie repliable des décisions, ordres et exécutions réellement présentes, liens vers détails quand disponibles, sans inférence d'identifiants.
+- Finitions desktop/mobile, contraste, états indisponibles, mouvement réduit, tests Node et ADR-30. Aucun changement moteur/stratégie/state/decisions. Aucune fusion ni déploiement production.
+
 - Feature UX v0.3.4 enrichie : mode Focus marché plein écran avec panneau contextuel alimenté par l'état réel, lecture OHLC au survol préservée lors du streaming, sélection directe des paires depuis positions et ordres, micrographe d'equity 24 h / 7 j sans interpolation des trous, navigation inférieure mobile et focus clavier. Tests Node ciblés ; aucune modification PAPER/moteur/state/decisions.
 - Refonte visuelle de la feature v0.3.4 : nouvelle hiérarchie éditoriale, cockpit capital/risque, présentation du marché, graphique et outils, tableaux densifiés, sidebar cohérente et ergonomie mobile ; CSS additif et repères de sections HTML sans changer les IDs ni les calculs.
 - Contrôles à réponse immédiate, mouvement sobre et réductible selon les préférences ; aucun prix, chandelier, ordre ou alerte animé artificiellement. Preview feature uniquement.
