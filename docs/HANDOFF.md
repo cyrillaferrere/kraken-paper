@@ -1,3 +1,10 @@
+## Feature v0.3.4 — Design System (17/11/2026)
+- Branche `feature/v0.3.4` depuis `preprod` ; ajout de `site/design-system.css` et chargement après `style.css`.
+- Hiérarchie financière stable, contrôle tactile immédiat, indicateurs de focus cohérents, cibles mobiles, suppression des mouvements non essentiels en mode réduit.
+- ADR-29 : principes d'interface native adaptés à un terminal PAPER sans lisser ou inventer de prix.
+- À vérifier : CI Python/Node, affichage sur mobile et desktop, menu rétractable, chandeliers 1 h, survol et pollings sans clignotement ; revue Grok Bot avant fusion.
+- `main`, `state/`, `decisions/`, moteur et stratégie inchangés. Aucun déploiement en production.
+
 ## PR #62 — test de liaison Cursor/Grok Bot
 - Workflow manuel `test-grokbot-webhook.yml` proposé vers `preprod` : envoi `{"type":"test_connection"}`, sortie limitée au code HTTP, secrets GitHub non journalisés. Aucun appel exécuté lors de la PR, aucun accès moteur, `state/` ou `decisions/`.
 - PR #60 déjà fusionnée dans `preprod` : notification moteur après commit/push ; reste inchangée. Publication main seulement après GO explicite de Cyril.
