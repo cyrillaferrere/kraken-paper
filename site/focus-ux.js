@@ -94,7 +94,8 @@
   function visitPair(pair) {
     if (!pair || !window.KPMarkets?.selectPair) return;
     window.KPMarkets.selectPair(pair);
-    market.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+    if (window.KPRouter) window.KPRouter.navigate("marches", "market-card");
+    else market.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
   }
   document.addEventListener("click", (event) => {
     const p = event.target.closest("[data-market-pair]");
@@ -103,6 +104,7 @@
     if (order) {
       const id = order.dataset.focusOrder;
       if (focused) setFocus(false);
+      window.KPRouter?.navigate("portefeuille", "orders-panel");
       const b = [...document.querySelectorAll("#orders .o-toggle")].find((el) => el.dataset.oid === id);
       if (b) {
         if (b.getAttribute("aria-expanded") !== "true") b.click();
@@ -163,6 +165,7 @@
     onPortfolio({ equity: lastEquity });
   }));
 
+  /* La barre mobile et ses destinations sont gérées par le routeur v0.3.6. */
   function syncMobileNav() {
     const hash = location.hash || "#overview";
     document.querySelectorAll("#mobile-primary-nav a").forEach((a) => {
@@ -171,12 +174,7 @@
     });
   }
   window.addEventListener("hashchange", syncMobileNav);
-  document.querySelectorAll("#mobile-primary-nav a").forEach((a) => a.addEventListener("click", () => {
-    if (focused) setFocus(false);
-    const href = a.getAttribute("href");
-    history.replaceState(null, "", href);
-    syncMobileNav();
-  }));
+  // Les clics de navigation ne modifient plus history directement ici.
   syncMobileNav();
   window.KPFocus = { updateMarket, onPortfolio, close: () => setFocus(false) };
 })();
