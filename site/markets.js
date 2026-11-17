@@ -135,6 +135,7 @@
       ? "Kraken · actualisé à " + ctx.liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", second: "2-digit" })
       : Number.isFinite(value) ? "Dernier cours du cycle · pas en direct" : "Cours indisponible";
     $("selected-live-status").classList.toggle("stale", !fresh);
+    if (window.KPFocus) window.KPFocus.updateMarket(pair, ctx);
   }
 
   // ---------- puces de paires ----------
@@ -258,6 +259,8 @@
     markersApi = L.createSeriesMarkers(sCandle, []);
     sCandle.attachPrimitive(labels);
     chart.subscribeCrosshairMove(legend);
+    // Un événement sans temps valide pendant le streaming ne doit pas effacer la lecture OHLC.
+    el.addEventListener("pointerleave", () => { hoveredCandleTime = null; legend(); });
     setupPendingPreview();
     return true;
   }
@@ -283,7 +286,7 @@
   let legendData = null;
   let hoveredCandleTime = null;
   function legend(param) {
-    if (param !== undefined) hoveredCandleTime = param && param.time != null ? param.time : null;
+    if (param !== undefined && param && param.time != null) hoveredCandleTime = param.time;
     const el = $("mlegend"); if (!el || !legendData) return;
     let i = legendData.bars.length - 1;
     if (hoveredCandleTime != null) { const j = legendData.idx.get(hoveredCandleTime); if (j != null) i = j; }
@@ -691,6 +694,7 @@
   let started = false;
   window.KPMarkets = {
     selectedPair: () => selected.pair,
+    selectPair: (pair) => { if (!trackedPairs().includes(pair)) return false; selectPair(pair); return true; },
     onPrice(c) {
       ctx = c;
       renderSelectedLive();

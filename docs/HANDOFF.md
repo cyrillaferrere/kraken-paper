@@ -1,3 +1,26 @@
+## Feature v0.3.4 — Focus marché et parcours UX (17/11/2026)
+- `site/index.html` : bouton Focus marché, scène graphique + panneau contextuel par paire, micrographe d'equity 24 h / 7 j, navigation inférieure mobile à 4 destinations.
+- `site/focus-ux.js` : commandes plein écran (Escape, Tab cyclique, bouton de sortie et aria-modal), position/ordres de la paire sélectionnée calculés depuis le contexte public existant, navigation vers le détail d'ordre, micrographe SVG fondé uniquement sur cycles disponibles avec coupures si intervalle > 2 h 30.
+- `site/markets.js` : sélection de paire exposée pour les tableaux, conservation du temps OHLC sur streaming jusqu'à sortie réelle du pointeur ; lignes de stop/TP et marqueurs d'exécutions existants conservés.
+- `site/app.js` : boutons « Graphique » dans positions et ordres, notification de nouveaux cycles au micrographe, aucune écriture backend.
+- `site/design-system.css` : focus isolé, panneau contextuel, tracés financiers sobres, barre mobile et reduced-motion.
+- Tests : `node --test tests/site/focus-ux.test.js`, puis suite complète `node --test tests/site/*.test.js`, `python -m unittest -v`, contrôles CI et navigation desktop/mobile sur Deploy Preview. Vérifier le commit SHA exact dans Netlify (PR #64).
+- Aucune modification du moteur, `state/`, `decisions/` ou `main`; ne pas fusionner ni publier en production sans GO explicite.
+
+## UX v0.3.4 — refonte visible du dashboard (17/11/2026)
+- `site/index.html` : accueil éditorial et raccourcis Marchés/Ordres ; titres à deux niveaux pour les principales sections ; IDs existants inchangés.
+- `site/design-system.css` : palette graphite/jade, rythme et typographie, capital et P&L mis en avant, cockpit rééquilibré dès 940 px de largeur utile, marché et chandelier privilégiés, tableaux plus clairs, navigation active, mobile et mode réduction de mouvement.
+- `VERSION=0.3.4` sur la feature uniquement ; `main` non modifiée ; le site continue de lire l'état PAPER sur `main`.
+- Recette à terminer : échelle 390/768/1280/1600 px, composants générés, hover chandelier durant polling Kraken, menu ouvert/rétracté, filtres et accès clavier ; vérifier le SHA dans `version.json` sur l'aperçu Netlify.
+- Pas de changement de moteur, ordres, stratégie, `state/` ou `decisions/`. Pas de fusion preprod/prod dans cette passe.
+
+## Feature v0.3.4 — Design System (17/11/2026)
+- Branche `feature/v0.3.4` depuis `preprod` ; ajout de `site/design-system.css` et chargement après `style.css`.
+- Hiérarchie financière stable, contrôle tactile immédiat, indicateurs de focus cohérents, cibles mobiles, suppression des mouvements non essentiels en mode réduit.
+- ADR-29 : principes d'interface native adaptés à un terminal PAPER sans lisser ou inventer de prix.
+- À vérifier : CI Python/Node, affichage sur mobile et desktop, menu rétractable, chandeliers 1 h, survol et pollings sans clignotement ; revue Grok Bot avant fusion.
+- `main`, `state/`, `decisions/`, moteur et stratégie inchangés. Aucun déploiement en production.
+
 ## PR #62 — test de liaison Cursor/Grok Bot
 - Workflow manuel `test-grokbot-webhook.yml` proposé vers `preprod` : envoi `{"type":"test_connection"}`, sortie limitée au code HTTP, secrets GitHub non journalisés. Aucun appel exécuté lors de la PR, aucun accès moteur, `state/` ou `decisions/`.
 - PR #60 déjà fusionnée dans `preprod` : notification moteur après commit/push ; reste inchangée. Publication main seulement après GO explicite de Cyril.

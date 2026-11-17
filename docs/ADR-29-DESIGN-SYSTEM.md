@@ -1,0 +1,12 @@
+## ADR-29 : refonte du Design System de Kraken Paper v0.3.4 (17/11/2026)
+- **Contexte** : la couche de micro-interactions existante ne modifiait pas assez la lecture du dashboard. Le guide ELVINFX distingue « look » (hiérarchie, espacement, typographie, contrastes) et « mouvement » (réactivité, ressorts, interruptibilité), inspirés des Human Interface Guidelines Apple et de la WWDC 2018.
+- **Décision** : réorganiser la hiérarchie visuelle et les titres de sections dans `site/index.html`, ajouter une bande d'accueil avec raccourcis non financiers et utiliser une couche additive `site/design-system.css` après le CSS historique. Palette graphite/jade, capital dominant, cockpit capital/exposition en deux colonnes dès que la largeur utile le permet, marché graphique dominant et tableaux de densité professionnelle.
+- **Mouvement** : pressions instantanées, transitions courtes de navigation et d'état, pas de ressort superflu ni déplacement des bougies. Réduction des mouvements respectée ; aucune transition ne retarde l'alerte risque ou invente une valeur financière.
+- **Compatibilité** : mêmes IDs, même ordre des sections de données, mêmes points d'entrée des scripts et formats de données. HTML/CSS uniquement ; le moteur PAPER, `state/`, `decisions/` et `main` restent intacts.
+- **Conséquences** : la superposition CSS minimise le risque de régression JS mais devra être consolidée après validation visuelle. Vérification des différentes largeurs, de la sidebar ouverte/rétractée, du chandelier et du mode réduit avant promotion en préproduction. Un déploiement d'aperçu de feature n'autorise jamais la production.
+
+## Extension ADR-29 : interactions de contexte et navigation (17/11/2026)
+- **Contexte** : la simple refonte typographique ne permettait pas de relier directement la situation du portefeuille à un graphique.
+- **Décision** : ajouter un contrôleur UX autonome `site/focus-ux.js`, sans dépendance ni accès réseau, alimenté par l'état déjà lu par `app.js` et `markets.js`. Les actions sont lecture seule, les boutons d'ordres renvoient aux détails existants et la modale Focus respecte Escape, le parcours Tab et la réduction des mouvements.
+- **Traçabilité** : micrographes des seules valeurs d'equity observées ; interruption des traits après plus de 2 h 30 sans cycle ; aucune inférence de prix. Contrat des ordres et des indicateurs inchangé.
+- **Conséquences** : le JS d'orchestration côté navigateur devra être surveillé sur mobile et pendant les rafraîchissements ; tests ciblés ajoutés, sans modification du moteur.

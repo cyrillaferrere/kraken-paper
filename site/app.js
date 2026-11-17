@@ -287,6 +287,7 @@ function flashLiveValue(el, value) {
     }
 
 
+    if (window.KPFocus) window.KPFocus.onPortfolio({ equity });
     if (liveOnly) {
       updateLiveTables();
       if (window.KPMarkets) window.KPMarkets.onPrice({ S, journal, price, orderMath, liveOk, liveAt, livePairs: live });
@@ -309,7 +310,7 @@ function flashLiveValue(el, value) {
     const rows = Object.entries(S.positions).map(([p, pos]) => {
       const x = price(p), val = x == null ? null : pos.qty * x, cost = pos.qty * pos.avg_cost;
       const u = val == null ? null : val - cost;
-      return `<tr data-position-pair="${esc(p)}"><td><b>${esc(pos.base)}</b></td><td class="r">${qty(pos.qty)}</td><td class="r">${px(pos.avg_cost)}</td><td class="r o-live-price">${px(x)}</td><td class="r o-live-value">${usdc(val)}</td><td class="r o-live-pnl ${cls(u)}">${signed(u)} (${pct(u / cost)})</td></tr>`;
+      return `<tr data-position-pair="${esc(p)}"><td><b>${esc(pos.base)}</b><button type="button" class="market-jump" data-market-pair="${esc(p)}" aria-label="Voir ${esc(pos.base)} sur le graphique">Graphique ↗</button></td><td class="r">${qty(pos.qty)}</td><td class="r">${px(pos.avg_cost)}</td><td class="r o-live-price">${px(x)}</td><td class="r o-live-value">${usdc(val)}</td><td class="r o-live-pnl ${cls(u)}">${signed(u)} (${pct(u / cost)})</td></tr>`;
     });
     tb.innerHTML = rows.join("") || `<tr><td colspan="6" class="empty">Aucune position, tout est en USDC.</td></tr>`;
   }
@@ -426,7 +427,7 @@ function flashLiveValue(el, value) {
         : "";
       const note = hit ? '<span class="reached-note">⚡ Niveau atteint en direct, pas encore enregistré par le moteur</span>' : "";
       const main = `<tr class="o-row${hit ? " reached" : ""}" data-order-id="${esc(o.id)}">
-        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${pendingNote}${note}</td>
+        <td><button type="button" class="o-toggle motion-button" aria-expanded="${open}" aria-controls="od-${esc(o.id)}" data-oid="${esc(o.id)}"><span class="chev" aria-hidden="true">▸</span><span class="o-toggle-label">${open ? "Réduire" : "Détails"}</span><span class="sr"> de l'ordre </span></button>${esc(o.id)} · <b>${pair}</b> <button type="button" class="market-jump" data-market-pair="${esc(o.pair)}" aria-label="Voir ${pair} sur le graphique">Graphique ↗</button> <span class="tag ${o.side} m-only">${o.side === "buy" ? "ACHAT" : "VENTE"}</span><span class="o-meta">${created} · ${dec}</span>${prox}${pendingNote}${note}</td>
         <td class="c-s"><span class="tag ${o.side}">${o.side === "buy" ? "ACHAT" : "VENTE"}</span></td>
         <td class="r">${m.engaged != null ? usdc(m.engaged) : "—"}<br><span class="muted">${qty(o.qty)} ${esc(base(o.pair))}</span></td>
         <td class="r c-x">${limitLbl}<br><span class="muted o-live-price">${px(x)}</span></td><td class="r">${dist}</td>

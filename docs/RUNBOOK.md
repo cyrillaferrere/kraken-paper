@@ -1,3 +1,11 @@
+## Recette feature v0.3.4 — Focus marché et micrographe
+- Depuis `feature/v0.3.4` en Deploy Preview, vérifier le SHA exact de Netlify puis ouvrir Marchés et activer « Mode Focus ». Contrôler Esc, Tab, focus rendu au déclencheur, absence de scroll arrière-plan, largeur desktop et petit écran.
+- Cliquer sur « Graphique ↗ » depuis une position et un ordre : la paire choisie doit être affichée, ainsi que son cours et ses niveaux; cliquer un ordre du panneau pour ouvrir son détail.
+- Vérifier qu'un cours indisponible donne « — », qu'aucun stop ou TP absent n'est inventé, et que la légende OHLC conserve la bougie survolée pendant la mise à jour des cours; les niveaux d'ordres restent conditionnels quand l'achat n'est pas exécuté.
+- Micrographe 24 h / 7 j : moins de deux cycles = message, trous > 2 h 30 = lignes disjointes; prix jamais interpolés. Tester via `node --test tests/site/focus-ux.test.js` puis tests Node/Python globaux.
+- Mobile 390 px : barre basse Accueil/Marchés/Ordres/Performance, aucune superposition avec le contenu et possibilité d'ouvrir le menu latéral. Vérifier `prefers-reduced-motion` et le comportement pendant le polling Kraken.
+- Ne jamais toucher au moteur PAPER, `state/`, `decisions/` ni à la production.
+
 ## Webhook Grok Bot — séquence après commit (PR #60)
 - Le workflow capture la position de départ de `state/journal.jsonl`, exécute le moteur, puis commit et pousse l'état sur `main`.
 - La notification Grok Bot vient **après** l'étape « Commit de l'etat ». Si le commit/push échoue, le job échoue et aucun webhook n'est envoyé. Si aucun fichier d'état n'a changé, l'état courant est déjà à jour et l'étape suivante peut notifier.
