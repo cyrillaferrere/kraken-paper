@@ -377,13 +377,14 @@
     "2026-11-15-10h05",
     "2026-11-15-15h15",
     "2026-11-15-20h25",
-    "2026-11-16-23h30"
+    "2026-11-16-23h30",
+    "2026-11-17-17h32"
   ],
   "last_decision": {
-    "id": "2026-11-16-23h30",
-    "timestamp": "2026-11-16T23:30:00+01:00",
-    "rationale": "Ce que je vois : BTC 65 295 remonte au-dessus de la MA20 horaire (64 740) mais reste −4,4 % sur 3 jours et −13 % sur 7 jours, plancher 3 mois à 62 000 intact. ETH 1 832 (−4,9 % sur 3 j, −14 % sur 7 j), SOL 71,9 (−8 % sur 3 j, −17 % sur 7 j), XRP 0,961 (−4,7 % sur 3 j, −12,5 % sur 7 j) : aucun n'est nettement plus fort que BTC sur plusieurs jours. Ce que je fais : rien de nouveau. Pourquoi : la poche court terme a déjà O0020 ouvert, pas de second signal confirmé (pas de pic de volume ni de creux plus haut net sur les alts) ; la poche moyen terme est engagée (BTC et ETH détenus, paliers O0015 63 400 et O0017 62 600 en attente) ; réserve intacte. Les stops restent où ils sont. Ce que j'apprends : en marché qui se stabilise sans tendance, ne pas forcer une entrée juste pour être investi ; le risque reste un seul pari corrélé.",
-    "applied": "2026-11-16T23:31:18+01:00"
+    "id": "2026-11-17-17h32",
+    "timestamp": "2026-11-17T17:32:00+01:00",
+    "rationale": "Ce que je vois : BTC 63 856 sous sa MA20 horaire (64 683), mèche à 63 298 à 16h avec pic de volume puis rebond mou sans clôture au-dessus de la MA20 ; −1,6 % sur 24 h, −13,4 % sur 7 j, plancher 3 mois 62 000 intact. ETH 1 776 plus faible que BTC (−2,9 % sur 24 h). SOL 72,4 et XRP 0,962 tiennent mieux sur 24 h et 72 h (SOL 0 %, XRP +0,5 % contre −2,2 % pour BTC) et XRP résiste mieux sur 7 j (−8,8 % contre −13,4 %), mais les deux sont sous leur MA20 horaire, sans creux plus haut ni pic de volume de confirmation. Ce que je fais : rien de nouveau. Pourquoi : poche moyen terme engagée (BTC dont O0015 rempli à 63 400 aujourd'hui, ETH détenu, dernier palier O0017 62 600 en attente, stops 61 200 à 61 700 et 1 680 sous les planchers) ; poche court terme vide après le stop d'O0020 (−8,3 USDC) mais aucun signal confirmé, XRP reste le premier candidat si une clôture au-dessus de la MA20 avec volume apparaît ; réserve intacte. Les stops ne bougent pas en pleine baisse. Ce que j'apprends : un stop court terme posé à 1,4 % sous l'entrée se fait sortir par une simple mèche ; le prochain trade court terme devra placer son stop sous un vrai plancher, quitte à réduire la taille.",
+    "applied": "2026-11-17T17:33:19+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -423,8 +424,8 @@
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 64326.02,
-    "ETHUSDC": 1793.99,
+    "XBTUSDC": 63779.35,
+    "ETHUSDC": 1778.58,
     "SOLUSDC": 70.48
   },
   "benchmark": {
@@ -439,8 +440,8 @@
     "order": 23,
     "trade": 13
   },
-  "last_cycle": "2026-11-17T17:09:24+01:00",
-  "last_cycle_ts": 1794931764,
+  "last_cycle": "2026-11-17T17:33:19+01:00",
+  "last_cycle_ts": 1794933199,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
