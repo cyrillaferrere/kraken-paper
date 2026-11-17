@@ -63,3 +63,30 @@ main#overview > .app-view[hidden] { display:none!important; }
 @media(prefers-reduced-motion:reduce) {
   .app-view,.mobile-primary-nav *, .dash-nav a {scroll-behavior:auto!important;animation:none!important;transition:none!important;}
 }
+
+/* Focus v0.3.6 : immersion dans la vue Marchés, sans overlay ni piège clavier. */
+body.market-focus {overflow:auto;}
+body.market-focus::after {display:none!important;}
+body.market-focus .top,body.market-focus #build,body.market-focus #status,body.market-focus #alert,
+body.market-focus #dash-nav,body.market-focus #nav-toggle,body.market-focus #mobile-primary-nav,
+body.market-focus footer,body.market-focus .app-view[data-view="marches"] > .app-page-head,
+body.market-focus #markers-panel {display:none!important;}
+body.market-focus main#overview {max-width:none;width:auto;margin:0;padding:10px 16px 30px;}
+body.market-focus #market-card {
+ position:static;inset:auto;z-index:auto;max-width:none;width:auto;height:auto;
+ margin:0;padding:18px 22px;overflow:visible;overscroll-behavior:auto;
+ border:1px solid rgba(103,223,210,.3);border-radius:15px;
+ background:var(--ui-surface);box-shadow:none;
+}
+body.market-focus #market-card .market-stage {grid-template-columns:minmax(0,1fr) minmax(300px,350px);}
+body.market-focus #market-card .market-context {position:sticky;top:8px;}
+body.market-focus #market-card .mchart {height:clamp(470px,68vh,870px);}
+@media(max-width:1024px) {
+ body.market-focus #market-card .market-stage {grid-template-columns:minmax(0,1fr);}
+ body.market-focus #market-card .market-context {position:static;}
+}
+@media(max-width:760px) {
+ body.market-focus main#overview {padding:8px 9px 26px;}
+ body.market-focus #market-card {padding:13px 12px;border-radius:13px;}
+ body.market-focus #market-card .mchart {height:clamp(350px,59vh,530px);}
+}
