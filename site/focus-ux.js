@@ -27,35 +27,19 @@
     focused = Boolean(value);
     document.body.classList.toggle("market-focus", focused);
     trigger.setAttribute("aria-pressed", String(focused));
-    trigger.setAttribute("aria-label", focused ? "Fermer le mode Focus marché" : "Ouvrir le mode Focus marché");
+    trigger.setAttribute("aria-label", focused ? "Quitter le mode Focus marché" : "Ouvrir le mode Focus marché");
     setText("market-focus-label", focused ? "Quitter le Focus" : "Mode Focus");
-    if (focused) {
-      market.setAttribute("role", "dialog");
-      market.setAttribute("aria-modal", "true");
-      market.scrollTop = 0;
-    } else {
-      market.removeAttribute("role");
-      market.removeAttribute("aria-modal");
-    }
-    trigger.focus({ preventScroll: true });
+    // Le mode Focus est une vue agrandie, non une boîte de dialogue modale.
+    market.removeAttribute("role");
+    market.removeAttribute("aria-modal");
+    trigger.focus({ preventScroll:true });
     window.requestAnimationFrame(() => window.KPMarkets?.resizeChart?.());
   }
   trigger?.addEventListener("click", () => setFocus(!focused));
   document.addEventListener("keydown", (event) => {
-    if (!focused) return;
-    if (event.key === "Escape") {
+    if (focused && event.key === "Escape") {
       event.preventDefault();
       setFocus(false);
-    } else if (event.key === "Tab") {
-      const items = [...market.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex="0"]')]
-        .filter((el) => el.getClientRects().length && !el.closest("[hidden]"));
-      if (!items.length) return;
-      const first = items[0], last = items[items.length - 1];
-      if (event.shiftKey && (document.activeElement === first || !market.contains(document.activeElement))) {
-        event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || !market.contains(document.activeElement))) {
-        event.preventDefault(); first.focus();
-      }
     }
   });
 
