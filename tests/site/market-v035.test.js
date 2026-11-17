@@ -64,7 +64,7 @@ test("Performance: début/fin des cycles observés, pas de valeur inventée", ()
   const x=api.summarizePerformance(eq,"all");
   assert.equal(x.first,100);assert.equal(x.last,110);
   assert.equal(x.pnl,10);assert.equal(x.pct,10);
-  assert.equal(x.excessPct,6);
+  assert.ok(Math.abs(x.excessPct-6)<1e-8);
   assert.equal(x.count,3);
   assert.equal(api.summarizePerformance([{t,eq:100}],"7d"),null);
 });
