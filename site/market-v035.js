@@ -234,6 +234,7 @@
       const button = [...document.querySelectorAll("#orders .o-toggle")].find((b) => b.dataset.oid === id);
       if (!button) return;
       if (document.body.classList.contains("market-focus")) window.KPFocus?.close();
+      window.KPRouter?.navigate("portefeuille", "orders-panel");
       if (button.getAttribute("aria-expanded") !== "true") button.click();
       $("orders-panel")?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block:"start" });
       button.focus({preventScroll:true});
@@ -245,6 +246,7 @@
     const details = [...document.querySelectorAll("#dec-feed details[data-id]")].find((x)=>x.dataset.id===ref);
     if (!details) return;
     event.preventDefault();
+    window.KPRouter?.navigate("activite", "decisions-panel");
     details.open = true;
     details.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
     details.querySelector("summary")?.focus({ preventScroll:true });
