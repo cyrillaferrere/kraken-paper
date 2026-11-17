@@ -35,6 +35,7 @@
 
   let pair = null, lastBookPair = null, startedAt = 0, token = 0, busy = false, controller = null, nextAllowed = 0;
   const BOOK_INTERVAL = 18000;
+  const marketVisible = () => !window.KPRouter || window.KPRouter.active() === "marches";
   function clearBook(label) {
     for (const id of ["book-bid", "book-ask", "book-spread"]) show(id, "—");
     for (const id of ["book-bids","book-asks"]) html(id, '<p class="v035-quiet">Aucune profondeur disponible.</p>');
@@ -57,7 +58,7 @@
     show("book-status", "Instantané Kraken · " + new Date(at).toLocaleTimeString("fr-FR", { timeZone:"Europe/Paris" }) + " · 10 niveaux / côté");
   }
   async function refreshBook(force = false) {
-    if (!pair || document.hidden || busy || (!force && Date.now() < nextAllowed)) return;
+    if (!pair || document.hidden || !marketVisible() || busy || (!force && Date.now() < nextAllowed)) return;
     const requested = pair, current = ++token;
     busy = true;
     controller?.abort();
@@ -103,14 +104,25 @@
     if (!busy) { nextAllowed = 0; refreshBook(true); }
   });
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && pair && Date.now() - startedAt > BOOK_INTERVAL) {
+    if (!document.hidden && marketVisible() && pair && Date.now() - startedAt > BOOK_INTERVAL) {
       nextAllowed = 0;
       refreshBook(true);
     }
   });
   setInterval(() => {
-    if (pair && !document.hidden) refreshBook();
+    if (pair && !document.hidden && marketVisible()) refreshBook();
   }, 4000);
+  document.addEventListener("kp:view", (event) => {
+    if (event.detail?.route === "marches") {
+      nextAllowed = 0;
+      refreshBook(true);
+    } else {
+      token++;
+      controller?.abort();
+      busy = false;
+      nextAllowed = 0;
+    }
+  });
 
   function renderIndicators(metric) {
     if (!metric || metric.loading) {
