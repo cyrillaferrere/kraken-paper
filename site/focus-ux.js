@@ -165,16 +165,6 @@
     onPortfolio({ equity: lastEquity });
   }));
 
-  /* La barre mobile et ses destinations sont gérées par le routeur v0.3.6. */
-  function syncMobileNav() {
-    const hash = location.hash || "#overview";
-    document.querySelectorAll("#mobile-primary-nav a").forEach((a) => {
-      if (a.getAttribute("href") === hash) a.setAttribute("aria-current", "location");
-      else a.removeAttribute("aria-current");
-    });
-  }
-  window.addEventListener("hashchange", syncMobileNav);
-  // Les clics de navigation ne modifient plus history directement ici.
-  syncMobileNav();
+  // Le routeur SPA v0.3.6 gère désormais intégralement la navigation mobile.
   window.KPFocus = { updateMarket, onPortfolio, close: () => setFocus(false) };
 })();
