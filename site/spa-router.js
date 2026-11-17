@@ -67,7 +67,9 @@
   let active = null;
 
   function parseHash(hash) {
-    const raw = decodeURIComponent(String(hash||"").replace(/^#/,""));
+    let raw;
+    try { raw = decodeURIComponent(String(hash||"").replace(/^#/,"")); }
+    catch (_) { return {route:"accueil",target:null}; }
     if (!raw) return {route:"accueil",target:null};
     if (raw.startsWith("/")) {
       const body = raw.slice(1), pos = body.indexOf("#");
@@ -110,7 +112,7 @@
         visibleTarget.scrollIntoView({behavior:"auto",block:"start"});
         if(focus && typeof visibleTarget.focus==="function" && visibleTarget.tabIndex>=0) visibleTarget.focus({preventScroll:true});
       } else if(changed) {
-        window.scrollTo({top:0,behavior:"instant"});
+        window.scrollTo({top:0,behavior:"auto"});
         const title=document.getElementById("view-title-"+route);
         if(focus && title) title.focus({preventScroll:true});
       }
