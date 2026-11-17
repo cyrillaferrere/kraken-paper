@@ -102,6 +102,32 @@
       "entry_price": 64478.95702558915,
       "breakeven_after_tp1": true,
       "tp_filled": 0
+    },
+    {
+      "id": "O0025",
+      "pair": "XRPUSDC",
+      "side": "buy",
+      "qty": 412.42895911,
+      "price": 0.966,
+      "stop_loss": 0.928,
+      "take_profit": null,
+      "created": "2026-11-17T22:07:10+01:00",
+      "active_from": 1794952800,
+      "parent": null,
+      "decision_id": "2026-11-17-22h10",
+      "take_profits": [
+        {
+          "price": 1.03,
+          "fraction": 0.5,
+          "qty": 206.21447955
+        },
+        {
+          "price": 1.08,
+          "fraction": 0.5,
+          "qty": 206.21447956
+        }
+      ],
+      "breakeven_after_tp1": true
     }
   ],
   "closed_trades": [
@@ -328,13 +354,14 @@
     "2026-11-15-20h25",
     "2026-11-16-23h30",
     "2026-11-17-17h32",
-    "2026-11-17-17h50"
+    "2026-11-17-17h50",
+    "2026-11-17-22h10"
   ],
   "last_decision": {
-    "id": "2026-11-17-17h50",
-    "timestamp": "2026-11-17T17:50:00+01:00",
-    "rationale": "Ce que je vois : revue globale de tous les ordres par crypto, comme une seule exposition. BTC détenu 0,0194 en trois morceaux de sorties incohérents entre eux : reste d'O0014 avec stop au prix d'achat 63 051, au-dessus du palier d'achat O0017 à 62 600 encore en attente (le marché pourrait faire vendre à 63 051 puis racheter à 62 600, comme cet après-midi avec O0020 et O0015) ; O0019 stop 61 200 ; O0023 stop 61 700. ETH : un seul groupe de sorties O0022 (stop 1 680 sous le plancher 1 711, TP 2 000 / 2 150), aucun achat en attente, cohérent. Marché : BTC 63 770 sous sa MA20 horaire (64 740), ETH 1 779 sous sa MA20, SOL 72,2 et XRP 0,958 collés à leur MA20 sans clôture au-dessus ni pic de volume. Ce que je fais : poche moyen terme BTC, j'annule les trois groupes de sorties O0014, O0019 et O0023 et je les remplace par un seul groupe sur toute la position : stop 61 200 sous le vrai plancher 62 000 et sous le palier O0017, vente de la moitié à 70 000 puis du reste à 75 000, stop au prix d'achat après le premier palier. O0017 (moyen terme, 62 600, stop 61 200, sorties 70 000 / 75 000) reste en attente avec le même stop. ETH inchangé. Court terme : pas de trade, aucun vrai signal (XRP sous sa MA20 avec un volume normal). Réserve intacte. Pourquoi : aucun stop ne doit être au-dessus d'un achat en attente sur la même crypto, et une même position doit avoir une seule logique de stop ; les stops sont élargis, jamais resserrés. Gain/risque net de frais environ 2. Ce que j'apprends : gérer les ordres globalement par crypto, toutes poches confondues, et vérifier à chaque passage qu'aucun ordre ne fait vendre puis racheter.",
-    "applied": "2026-11-17T17:49:55+01:00"
+    "id": "2026-11-17-22h10",
+    "timestamp": "2026-11-17T22:10:00+01:00",
+    "rationale": "Ce que je vois : revue globale par crypto. BTC détenu 0,0194 (PRU 64 479) avec un seul groupe de sorties O0024 (stop 61 200, TP 70 000 / 75 000) et le palier O0017 à 62 600 avec le même stop 61 200 sous lui : cohérent. ETH 0,2226 avec O0022 (stop 1 680 sous le plancher 1 711, TP 2 000 / 2 150), aucun achat en attente : cohérent. Marché : BTC 64 065 sous sa MA20 horaire (64 397), volume à 0,3 fois la moyenne, plus bas 24 h 63 298, plancher 3 mois 62 000 intact. XRP 0,972 nettement plus fort que BTC (+6,7 % contre −0,7 % sur 72 h, −7,8 % contre −13,1 % sur 7 jours) : capitulation le 14/11 à 0,893 avec gros volume et longue mèche basse, puis trois jours de range 0,942–0,978 avec creux de plus en plus hauts (0,900, 0,942, 0,946) et volume qui s'assèche, clôture horaire au-dessus de la MA20 (0,960), RSI 1 h 57. SOL plus fort que BTC aussi mais moins net. Ce que je fais : poche court terme, achat limite XRP 400 USDC à 0,966 (ordre maker, léger repli dans le range), stop 0,928 sous le plancher du range testé quatre fois (0,942) avec de la marge pour les mèches, sorties moitié à 1,03 (ancien support du 12-13/11) et reste à 1,08, stop au prix d'achat après TP1. Gain/risque net de frais environ 1,7, risque environ 19 USDC. Moyen terme BTC et ETH inchangés, réserve intacte. Risque corrélé total, O0017 compris, environ 120 USDC (1,9 %). Pourquoi : plancher + deux marqueurs de rebond + clôture au-dessus de la MA20, sur la crypto la plus forte face à BTC, ce qui diversifie hors BTC comme Cyril le demande, sans aucun conflit avec un palier moyen terme. Ce que j'apprends : tester un trade court terme avec un stop sous un plancher de range plutôt que 1,4 % sous l'entrée, après la mèche qui a sorti O0020.",
+    "applied": "2026-11-17T22:07:10+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -366,17 +393,29 @@
       "pair_decimals": 2,
       "ordermin": 0.05,
       "costmin": 0.5
+    },
+    "XRPUSDC": {
+      "key": "XRPUSDC",
+      "altname": "XRPUSDC",
+      "wsname": "XRP/USDC",
+      "base": "XRP",
+      "lot_decimals": 8,
+      "pair_decimals": 5,
+      "ordermin": 4.0,
+      "costmin": 0.5
     }
   },
   "last_candle": {
-    "XBTUSDC": 1794942000,
-    "ETHUSDC": 1794942000,
-    "SOLUSDC": 1794686400
+    "XBTUSDC": 1794945600,
+    "ETHUSDC": 1794945600,
+    "SOLUSDC": 1794686400,
+    "XRPUSDC": 1794945600
   },
   "last_prices": {
-    "XBTUSDC": 63720.0,
-    "ETHUSDC": 1792.18,
-    "SOLUSDC": 70.48
+    "XBTUSDC": 63984.33,
+    "ETHUSDC": 1799.35,
+    "SOLUSDC": 70.48,
+    "XRPUSDC": 0.97215
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -387,11 +426,11 @@
   "fees_total": 37.860569,
   "realized_pnl": -149.334944,
   "seq": {
-    "order": 24,
+    "order": 25,
     "trade": 13
   },
-  "last_cycle": "2026-11-17T21:09:18+01:00",
-  "last_cycle_ts": 1794946158,
+  "last_cycle": "2026-11-17T22:07:10+01:00",
+  "last_cycle_ts": 1794949630,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
