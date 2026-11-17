@@ -22,29 +22,6 @@
   },
   "open_orders": [
     {
-      "id": "O0014",
-      "pair": "XBTUSDC",
-      "side": "sell",
-      "qty": 0.00237902,
-      "price": 68500.0,
-      "stop_loss": 63051.19997141675,
-      "take_profit": null,
-      "created": "2026-11-15T02:05:00+01:00",
-      "active_from": 1794708000,
-      "parent": "O0013",
-      "decision_id": null,
-      "take_profits": [
-        {
-          "price": 68500.0,
-          "fraction": 0.5,
-          "qty": 0.00237902
-        }
-      ],
-      "entry_price": 63051.19997141675,
-      "breakeven_after_tp1": true,
-      "tp_filled": 1
-    },
-    {
       "id": "O0017",
       "pair": "XBTUSDC",
       "side": "buy",
@@ -69,34 +46,6 @@
         }
       ],
       "breakeven_after_tp1": true
-    },
-    {
-      "id": "O0019",
-      "pair": "XBTUSDC",
-      "side": "sell",
-      "qty": 0.01075943,
-      "price": 70000.0,
-      "stop_loss": 61200.0,
-      "take_profit": null,
-      "created": "2026-11-15T16:00:00+01:00",
-      "active_from": 1794758400,
-      "parent": "O0016",
-      "decision_id": null,
-      "take_profits": [
-        {
-          "price": 70000.0,
-          "fraction": 0.5,
-          "qty": 0.00537971
-        },
-        {
-          "price": 75000.0,
-          "fraction": 0.5,
-          "qty": 0.00537972
-        }
-      ],
-      "entry_price": 64695.60517077737,
-      "breakeven_after_tp1": true,
-      "tp_filled": 0
     },
     {
       "id": "O0022",
@@ -127,27 +76,27 @@
       "tp_filled": 0
     },
     {
-      "id": "O0023",
+      "id": "O0024",
       "pair": "XBTUSDC",
       "side": "sell",
-      "qty": 0.00628401,
-      "price": 66000.0,
-      "stop_loss": 61700.0,
+      "qty": 0.01942246,
+      "price": 70000.0,
+      "stop_loss": 61200.0,
       "take_profit": null,
-      "created": "2026-11-17T16:50:00+01:00",
-      "active_from": 1794931200,
-      "parent": "O0015",
+      "created": "2026-11-17T17:49:55+01:00",
+      "active_from": 1794934800,
+      "parent": "2026-11-17-17h50",
       "decision_id": null,
       "take_profits": [
         {
-          "price": 66000.0,
-          "fraction": 0.5,
-          "qty": 0.003142
-        },
-        {
           "price": 70000.0,
           "fraction": 0.5,
-          "qty": 0.00314201
+          "qty": 0.00971123
+        },
+        {
+          "price": 75000.0,
+          "fraction": 0.5,
+          "qty": 0.00971123
         }
       ],
       "entry_price": 64478.95702558915,
@@ -378,13 +327,14 @@
     "2026-11-15-15h15",
     "2026-11-15-20h25",
     "2026-11-16-23h30",
-    "2026-11-17-17h32"
+    "2026-11-17-17h32",
+    "2026-11-17-17h50"
   ],
   "last_decision": {
-    "id": "2026-11-17-17h32",
-    "timestamp": "2026-11-17T17:32:00+01:00",
-    "rationale": "Ce que je vois : BTC 63 856 sous sa MA20 horaire (64 683), mèche à 63 298 à 16h avec pic de volume puis rebond mou sans clôture au-dessus de la MA20 ; −1,6 % sur 24 h, −13,4 % sur 7 j, plancher 3 mois 62 000 intact. ETH 1 776 plus faible que BTC (−2,9 % sur 24 h). SOL 72,4 et XRP 0,962 tiennent mieux sur 24 h et 72 h (SOL 0 %, XRP +0,5 % contre −2,2 % pour BTC) et XRP résiste mieux sur 7 j (−8,8 % contre −13,4 %), mais les deux sont sous leur MA20 horaire, sans creux plus haut ni pic de volume de confirmation. Ce que je fais : rien de nouveau. Pourquoi : poche moyen terme engagée (BTC dont O0015 rempli à 63 400 aujourd'hui, ETH détenu, dernier palier O0017 62 600 en attente, stops 61 200 à 61 700 et 1 680 sous les planchers) ; poche court terme vide après le stop d'O0020 (−8,3 USDC) mais aucun signal confirmé, XRP reste le premier candidat si une clôture au-dessus de la MA20 avec volume apparaît ; réserve intacte. Les stops ne bougent pas en pleine baisse. Ce que j'apprends : un stop court terme posé à 1,4 % sous l'entrée se fait sortir par une simple mèche ; le prochain trade court terme devra placer son stop sous un vrai plancher, quitte à réduire la taille.",
-    "applied": "2026-11-17T17:33:19+01:00"
+    "id": "2026-11-17-17h50",
+    "timestamp": "2026-11-17T17:50:00+01:00",
+    "rationale": "Ce que je vois : revue globale de tous les ordres par crypto, comme une seule exposition. BTC détenu 0,0194 en trois morceaux de sorties incohérents entre eux : reste d'O0014 avec stop au prix d'achat 63 051, au-dessus du palier d'achat O0017 à 62 600 encore en attente (le marché pourrait faire vendre à 63 051 puis racheter à 62 600, comme cet après-midi avec O0020 et O0015) ; O0019 stop 61 200 ; O0023 stop 61 700. ETH : un seul groupe de sorties O0022 (stop 1 680 sous le plancher 1 711, TP 2 000 / 2 150), aucun achat en attente, cohérent. Marché : BTC 63 770 sous sa MA20 horaire (64 740), ETH 1 779 sous sa MA20, SOL 72,2 et XRP 0,958 collés à leur MA20 sans clôture au-dessus ni pic de volume. Ce que je fais : poche moyen terme BTC, j'annule les trois groupes de sorties O0014, O0019 et O0023 et je les remplace par un seul groupe sur toute la position : stop 61 200 sous le vrai plancher 62 000 et sous le palier O0017, vente de la moitié à 70 000 puis du reste à 75 000, stop au prix d'achat après le premier palier. O0017 (moyen terme, 62 600, stop 61 200, sorties 70 000 / 75 000) reste en attente avec le même stop. ETH inchangé. Court terme : pas de trade, aucun vrai signal (XRP sous sa MA20 avec un volume normal). Réserve intacte. Pourquoi : aucun stop ne doit être au-dessus d'un achat en attente sur la même crypto, et une même position doit avoir une seule logique de stop ; les stops sont élargis, jamais resserrés. Gain/risque net de frais environ 2. Ce que j'apprends : gérer les ordres globalement par crypto, toutes poches confondues, et vérifier à chaque passage qu'aucun ordre ne fait vendre puis racheter.",
+    "applied": "2026-11-17T17:49:55+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -424,8 +374,8 @@
     "SOLUSDC": 1794686400
   },
   "last_prices": {
-    "XBTUSDC": 63779.35,
-    "ETHUSDC": 1778.58,
+    "XBTUSDC": 63720.87,
+    "ETHUSDC": 1777.41,
     "SOLUSDC": 70.48
   },
   "benchmark": {
@@ -437,11 +387,11 @@
   "fees_total": 37.860569,
   "realized_pnl": -149.334944,
   "seq": {
-    "order": 23,
+    "order": 24,
     "trade": 13
   },
-  "last_cycle": "2026-11-17T17:33:19+01:00",
-  "last_cycle_ts": 1794933199,
+  "last_cycle": "2026-11-17T17:49:55+01:00",
+  "last_cycle_ts": 1794934195,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.004,
