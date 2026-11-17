@@ -1,3 +1,10 @@
+## UX v0.3.4 — refonte visible du dashboard (17/11/2026)
+- `site/index.html` : accueil éditorial et raccourcis Marchés/Ordres ; titres à deux niveaux pour les principales sections ; IDs existants inchangés.
+- `site/design-system.css` : palette graphite/jade, rythme et typographie, capital et P&L mis en avant, cockpit rééquilibré dès 940 px de largeur utile, marché et chandelier privilégiés, tableaux plus clairs, navigation active, mobile et mode réduction de mouvement.
+- `VERSION=0.3.4` sur la feature uniquement ; `main` non modifiée ; le site continue de lire l'état PAPER sur `main`.
+- Recette à terminer : échelle 390/768/1280/1600 px, composants générés, hover chandelier durant polling Kraken, menu ouvert/rétracté, filtres et accès clavier ; vérifier le SHA dans `version.json` sur l'aperçu Netlify.
+- Pas de changement de moteur, ordres, stratégie, `state/` ou `decisions/`. Pas de fusion preprod/prod dans cette passe.
+
 ## Feature v0.3.4 — Design System (17/11/2026)
 - Branche `feature/v0.3.4` depuis `preprod` ; ajout de `site/design-system.css` et chargement après `style.css`.
 - Hiérarchie financière stable, contrôle tactile immédiat, indicateurs de focus cohérents, cibles mobiles, suppression des mouvements non essentiels en mode réduit.
