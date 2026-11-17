@@ -67,3 +67,17 @@
 @media (prefers-reduced-motion:reduce) {
   .v035-depth-row i,.v035-ghost,.v035-timeline-intro button {animation:none!important;transition:none!important;}
 }
+/* Les niveaux de prix restent fidèles au moteur PAPER : les sorties d'achats non exécutés sont conditionnelles. */
+.v035-level-strip {display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:8px 0 12px;min-height:22px;}
+.v035-level-label {font-size:10px;font-weight:800;letter-spacing:.1em;color:#8cacb5;margin-right:3px;}
+.v035-level {border:1px solid rgba(116,158,164,.28);background:rgba(18,41,50,.65);border-radius:8px;color:#d5e7eb;font:600 11px/1.4 system-ui,sans-serif;white-space:normal;min-height:29px;padding:5px 8px;}
+button.v035-level {cursor:pointer;transition:border-color 140ms ease-out,background-color 140ms ease-out;}
+button.v035-level:hover {border-color:var(--ac2);background:rgba(103,223,210,.12);}
+.v035-level-buy {border-color:rgba(66,214,162,.3);}
+.v035-level-sell {border-color:rgba(255,126,138,.28);}
+.v035-level small {font-size:10px;color:#e3bf83;}
+.v035-level-pru {color:#bad7e7;}
+.v035-event-refs button {cursor:pointer;background:transparent;border:0;padding:0;color:var(--ac2);font:600 11px/1.3 system-ui,sans-serif;text-decoration:underline;text-underline-offset:2px;}
+.v035-event-refs button:hover {color:#d2fff9;}
+@media(max-width:760px) {.v035-level-strip {gap:5px;}.v035-level {font-size:10px;padding:4px 6px;}}
+@media(prefers-reduced-motion:reduce) {.v035-level {transition:none!important;}}
