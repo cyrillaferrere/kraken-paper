@@ -1,3 +1,12 @@
+## Feature v0.3.6 — navigation multi-vues (17/11/2026)
+- Branche `feature/v0.3.6` **basée sur `feature/v0.3.5`** (feature parente non fusionnée). PR empilée vers `feature/v0.3.5` ; `preprod` reste sur v0.3.4.
+- `site/index.html` : menu principal 5 vues et navigation mobile 4 accès + « Plus », chargement `spa-v036.css` et `spa-router.js`.
+- `site/spa-router.js` : déplace les nœuds d'origine (mêmes IDs et contrôles) dans les cinq vues, gère hashes `#/accueil`, `#/marches`, `#/portefeuille`, `#/performance`, `#/activite` et anciennes ancres. Historique du navigateur préservé.
+- `site/navigation.js` conserve le menu desktop et expose `KPNav.sync` pour sa fermeture ; `site/focus-ux.js` et `site/market-v035.js` naviguent à la vue avant de montrer l'ordre/décision.
+- `site/markets.js` expose `KPMarkets.resizeChart` ; `site/app.js` expose `KPAppUX.redrawPerformance`. Pas de changement de données ni moteur.
+- Test ciblé `node --test tests/site/spa-router.test.js`, puis ensemble `node --test tests/site/*.test.js` et qualité CI. Confirmer l'aperçu Netlify et son SHA avant diffusion ; recette visuelle navigateur à terminer.
+- Ne jamais toucher `state/`, `decisions/`, moteur ou `main`; pas de fusion ni prod sans GO distinct.
+
 ## Feature v0.3.5 — marché, performance et audit (17/11/2026)
 - Départ : `preprod` après intégration #64 (v0.3.4), nouvelle branche `feature/v0.3.5` ; `main`, `state/` et `decisions/` inchangés.
 - Front HTML/CSS : `site/index.html`, `site/v035.css`; nouveau module `site/market-v035.js`. Chargé après `site/focus-ux.js` ; pas de dépendance ni de build additionnels.
