@@ -14,6 +14,7 @@ function harness() {
       const events = {};
       elements.set(id, {
         id, innerHTML: "", textContent: "",
+        replaceChildren() { this.innerHTML = ""; this.textContent = ""; },
         attrs, events, classList: { toggle() {} },
         addEventListener(name, fn) { events[name] = fn; },
         setAttribute(k, v) { attrs[k] = v; },
