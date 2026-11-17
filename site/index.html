@@ -30,6 +30,7 @@
 
 <button id="nav-toggle" class="nav-toggle motion-button" type="button" aria-controls="dash-nav" aria-expanded="false" aria-label="Ouvrir le menu">☰ <span>Menu</span></button>
 <nav id="dash-nav" class="dash-nav" aria-label="Navigation du tableau de bord"><a href="#overview"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue générale</span></a><a href="#market-card"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a><a href="#positions-panel"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Positions</span></a><a href="#orders-panel"><span class="nav-ico" aria-hidden="true">≡</span><span class="nav-label">Ordres</span></a><a href="#performance-panel"><span class="nav-ico" aria-hidden="true">↗</span><span class="nav-label">Performance</span></a><a href="#trades-panel"><span class="nav-ico" aria-hidden="true">⇄</span><span class="nav-label">Historique</span></a><a href="#dec-h"><span class="nav-ico" aria-hidden="true">✎</span><span class="nav-label">Décisions</span></a><a href="#journal-panel"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Journal</span></a></nav>
+<nav id="mobile-primary-nav" class="mobile-primary-nav" aria-label="Navigation rapide mobile"><a href="#overview" aria-label="Vue générale" aria-current="location"><span aria-hidden="true">⌂</span><small>Accueil</small></a><a href="#market-card" aria-label="Marchés"><span aria-hidden="true">▥</span><small>Marchés</small></a><a href="#orders-panel" aria-label="Ordres"><span aria-hidden="true">≡</span><small>Ordres</small></a><a href="#performance-panel" aria-label="Performance"><span aria-hidden="true">↗</span><small>Performance</small></a></nav>
 <main id="overview">
   <div class="workspace-intro" aria-label="Accueil du tableau de bord">
     <div class="workspace-intro-copy"><span class="workspace-kicker"><span class="workspace-kicker-dot" aria-hidden="true"></span> TERMINAL PAPER · VUE GÉNÉRALE</span><h2>Votre portefeuille, <em>en un regard.</em></h2><p>Capital, exposition et marché. Des prix réels, une simulation sans ordre réel.</p></div>
@@ -49,6 +50,7 @@
           <div class="benchmark-item"><span class="eyebrow">FRAIS CUMULÉS</span><strong id="k-fees">—</strong><span id="k-fees-sub" class="sr-only">—</span></div>
         </div>
       </div>
+      <div class="mini-performance" aria-labelledby="mini-perf-title"><div class="mini-performance-head"><div><span id="mini-perf-title">TRAJECTOIRE DU PORTEFEUILLE</span><span id="mini-perf-summary" class="mini-performance-summary">Historique en attente</span></div><div class="mini-period" role="group" aria-label="Période du micrographe"><button type="button" data-spark-period="24h" aria-pressed="true">24 h</button><button type="button" data-spark-period="7d" aria-pressed="false">7 j</button></div></div><div id="mini-equity" class="mini-equity" role="img" aria-label="Historique du portefeuille indisponible"></div></div>
       <div class="metric-grid">
         <div class="metric"><span>P&amp;L réalisé</span><strong id="ov-realized">—</strong><small id="ov-realized-pct">—</small></div>
         <div class="metric"><span>P&amp;L latent</span><strong id="ov-unrealized">—</strong><small id="ov-unrealized-pct">—</small></div>
@@ -92,6 +94,7 @@
         <button type="button" role="tab" class="motion-button" data-tf="1d" aria-selected="false">1 j</button>
       </div>
       <button type="button" id="ord-toggle" class="tgl motion-button" aria-pressed="true" title="Afficher ou masquer les lignes d'ordres, stops et objectifs">Ordres : affichés</button>
+      <button type="button" id="market-focus-toggle" class="focus-toggle motion-button" aria-pressed="false" aria-controls="market-stage" aria-label="Ouvrir le mode Focus marché"><span aria-hidden="true">⛶</span> <span id="market-focus-label">Mode Focus</span></button>
     </div>
     <div id="pair-chips" class="chips" aria-label="Choix de la crypto"></div>
     <div class="selected-live" aria-label="Cours de la crypto sélectionnée">
@@ -108,7 +111,9 @@
       <span id="chart-view-note" class="chart-view-note" aria-live="polite">120 dernières bougies</span>
       <span id="chart-updated" class="chart-view-note" aria-live="off">Dernière lecture : —</span>
     </div>
-    <div id="mlegend" class="mlegend" aria-live="off"></div>
+    <div id="market-stage" class="market-stage">
+      <div class="market-stage-chart">
+      <div id="mlegend" class="mlegend" aria-live="off"></div>
     <div id="mchart-wrap" class="mchart-wrap">
       <div id="mchart" class="mchart" role="img" aria-label="Graphique en bougies avec moyennes mobiles 20 et 50, volume et RSI 14"></div>
       <p id="mchart-msg" class="mchart-msg" role="status" hidden></p>
@@ -119,6 +124,9 @@
     </div>
     <p id="moverlay-note" class="hint"></p>
     <p class="hint">Bougies réelles de l'API publique Kraken, la dernière est encore en cours. Heures de Paris. Rien n'est lissé ni interpolé.</p>
+      </div>
+      <aside id="market-context" class="market-context" aria-label="Situation de la crypto sélectionnée"><div class="market-context-head"><span class="section-eyebrow">CONTEXTE DE MARCHÉ</span><strong id="focus-pair-name">BTC / USDC</strong><small>Simulation PAPER · lecture seule</small></div><div class="market-context-live"><span>DERNIER COURS DISPONIBLE</span><strong id="focus-price">—</strong><small id="focus-freshness">En attente du marché</small></div><div class="market-context-block"><h3>Position détenue</h3><div id="focus-position" class="market-context-data">Aucune position connue.</div></div><div class="market-context-block"><h3>Ordres & protections</h3><div id="focus-orders" class="market-context-data">Aucun ordre connu.</div></div><p class="market-context-disclaimer">Les cours peuvent précéder le dernier cycle moteur. Un niveau touché en direct ne confirme pas une exécution.</p><a class="market-context-link" href="#orders-panel">Explorer tous les ordres <span aria-hidden="true">↗</span></a></aside>
+    </div>
   </section>
 
   <section class="card" id="positions-panel">
@@ -205,6 +213,7 @@
 <script src="extras.js"></script>
 <script src="app.js"></script>
 <script src="navigation.js"></script>
+<script src="focus-ux.js"></script>
 <script src="workspace.js"></script>
 <script src="portfolio-workspace.js"></script>
 <script src="journal-workspace.js"></script>
