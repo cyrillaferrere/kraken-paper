@@ -6,6 +6,13 @@ Format d'une entrée : date (Paris), titre, source, constat, conclusion, suite.
 
 ---
 
+## 17/11/2026 · Gérer les ordres globalement par crypto
+
+- **Source** : journal du 17/11, le stop du trade court BTC O0020 a vendu à 63 636 à 16h45, puis le palier moyen terme O0015 a racheté à 63 400 à 16h50 (deux fois des frais, perte 8,3 USDC). Remarque de Cyril.
+- **Constat** : les poches court terme et moyen terme étaient gérées ordre par ordre ; pour le marché il n'y a qu'une seule exposition au BTC. Le reste d'O0014 avait aussi un stop à 63 051 au-dessus du palier O0017 à 62 600.
+- **Conclusion** : avant chaque décision, revoir ensemble tous les ordres et positions d'une même crypto, toutes poches confondues. Aucun stop au-dessus d'un achat en attente sur la même crypto, une seule logique de stop par position, aucun couple d'ordres qui ferait vendre puis racheter.
+- **Suite** : décision `2026-11-17-17h50`, sorties BTC unifiées (stop 61 200, TP 70 000 / 75 000) ; règle ajoutée aux sessions de gestion et aux réveils.
+
 ## 15/11/2026 · Verdict de l'étude des plateaux (close)
 
 - **Source** : PR #42, backtest sur bougies Kraken 2020–2026.
