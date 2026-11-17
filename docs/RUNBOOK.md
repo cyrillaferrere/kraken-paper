@@ -1,3 +1,12 @@
+## Recette UX v0.3.6 — cinq vues (feature seulement)
+1. Ouvrir le Deploy Preview de la PR v0.3.6, vérifier `VERSION=0.3.6` et le SHA Netlify exact.
+2. À 390, 768 et 1440 px, parcourir les cinq URLs `#/accueil`, `#/marches`, `#/portefeuille`, `#/performance`, `#/activite`. Une seule vue visible à la fois, aucune section dupliquée, même sélection de paire et données encore fraîches.
+3. Tester les anciennes ancres `#market-card`, `#orders-panel`, `#dec-h` et les liens Graphique depuis positions/ordres, liens d'ordres de la chronologie et boutons Focus. Navigateur précédent/suivant doit fonctionner.
+4. Marchés : changer de paire puis naviguer vers Performance et revenir ; conserver la paire, le carnet et les bougies, graphique visible/redimensionné. Vérifier que les actualisations ne réinitialisent pas le survol OHLC.
+5. Performance : sélectionner une période, changer de vue, revenir ; le SVG s'adapte sans réinventer les valeurs.
+6. Menu desktop : réduire/développer et recharger ; menu mobile : 4 destinations + Plus → Activité ; Échap/Tab, focus visible, `prefers-reduced-motion`.
+7. `node --test tests/site/spa-router.test.js` puis `node --test tests/site/*.test.js`, contrôle quality et guard-state. Aucune fusion preprod/prod sans GO explicite.
+
 ## Recette UX v0.3.5 — branche feature uniquement (17/11/2026)
 1. Vérifier l'aperçu Netlify de la PR et son SHA exact ; contrôler le badge FEATURE et `VERSION=0.3.5`.
 2. Marchés : sélectionner BTC, ETH puis SOL ; carnet Kraken récupéré séparément pour chaque paire, 10 niveaux max, bid inférieur ou égal à ask, spread en prix et %, heure d'instantané. Tester coupure réseau/onglet masqué et changement rapide de paire : aucun ancien carnet ne doit rester présenté comme frais.
