@@ -136,6 +136,7 @@
       : Number.isFinite(value) ? "Dernier cours du cycle · pas en direct" : "Cours indisponible";
     $("selected-live-status").classList.toggle("stale", !fresh);
     if (window.KPFocus) window.KPFocus.updateMarket(pair, ctx);
+    if (window.KPV035) window.KPV035.onMarket(pair, row(pair));
   }
 
   // ---------- puces de paires ----------
