@@ -1,3 +1,6 @@
+## [Unreleased] — UX v0.3.4
+- Design System léger : couche CSS additive, métriques tabulaires, navigation et contrôles plus cohérents, focus clavier, cibles mobiles et prise en charge renforcée du mouvement réduit. Voir ADR-29. Aucun moteur ni donnée modifiés.
+
 ## [Unreleased] — test manuel webhook Cursor (PR #62)
 - Workflow GitHub Actions manuel isolé : POST `{"type":"test_connection"}` avec authentification Bearer, journalisation du seul code HTTP, aucun moteur ni changement de données. En attente de validation CI et d'intégration préprod ; aucun test envoyé ni déploiement main.
 
