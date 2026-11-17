@@ -531,6 +531,7 @@ function flashLiveValue(el, value) {
     journalLimit = event.target.value === "all" ? Infinity : Number(event.target.value);
     renderJournal();
   });
+  window.KPAppUX = { redrawPerformance: () => renderChart() };
   function renderChart() {
     const el = $("chart");
     const end = equity.length ? equity[equity.length - 1].t : 0;
