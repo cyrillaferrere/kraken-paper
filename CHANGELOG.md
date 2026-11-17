@@ -1,3 +1,5 @@
+- Refonte visuelle de la feature v0.3.4 : nouvelle hiérarchie éditoriale, cockpit capital/risque, présentation du marché, graphique et outils, tableaux densifiés, sidebar cohérente et ergonomie mobile ; CSS additif et repères de sections HTML sans changer les IDs ni les calculs.
+- Contrôles à réponse immédiate, mouvement sobre et réductible selon les préférences ; aucun prix, chandelier, ordre ou alerte animé artificiellement. Preview feature uniquement.
 ## [Unreleased] — UX v0.3.4
 - Design System léger : couche CSS additive, métriques tabulaires, navigation et contrôles plus cohérents, focus clavier, cibles mobiles et prise en charge renforcée du mouvement réduit. Voir ADR-29. Aucun moteur ni donnée modifiés.
 
