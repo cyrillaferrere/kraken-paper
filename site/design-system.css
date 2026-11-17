@@ -1,0 +1,72 @@
+/* Kraken Paper v0.3.4 — Design System: lisibilité et interactions sobres.
+   Couche additive après style.css. Aucun changement de donnée ou de moteur. */
+:root {
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-5: 24px;
+  --ui-radius-control: 10px;
+  --ui-ring: 0 0 0 3px rgba(34, 211, 238, .2);
+  --ui-ease-emphasis: cubic-bezier(.2,.8,.2,1);
+}
+/* Stabiliser la lecture des valeurs, même quand les flux sont actualisés. */
+.cockpit, .kpis, .selected-live, .tbl-wrap, #status {
+  font-variant-numeric: tabular-nums;
+}
+.cockpit-panel, .card {
+  min-width: 0;
+}
+.cockpit-panel .eyebrow, .cockpit-panel .section-eyebrow {
+  line-height: 1.45;
+}
+.metric > strong, .benchmark-item > strong, .capital-value {
+  text-wrap: pretty;
+  font-feature-settings: "tnum" 1;
+}
+/* Une réponse au clic, distincte de toute variation financière. */
+button:not(:disabled), .dash-nav a, .table-tools select {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button:not(:disabled) { transition: border-color 140ms ease-out, background-color 140ms ease-out, transform 140ms var(--ui-ease-emphasis); }
+button:not(:disabled):active { transform: scale(.98); }
+.dash-nav a {
+  transition: background-color 160ms ease-out, border-color 160ms ease-out, color 160ms ease-out;
+}
+.dash-nav a[aria-current="location"] {
+  border-color: rgba(34,211,238,.32);
+  box-shadow: inset 3px 0 0 var(--ac2);
+}
+:where(button, a, input, select, summary):focus-visible {
+  outline: 2px solid var(--ac2);
+  outline-offset: 3px;
+  box-shadow: var(--ui-ring);
+}
+/* Affordance claire, sans animer les chiffres ni les chandeliers. */
+:where(button, select):disabled { cursor: not-allowed; opacity: .58; }
+.table-tools :is(button, select, input) { border-radius: var(--ui-radius-control); }
+.table-tools :is(input, select):focus-visible { border-color: var(--ac2); }
+#alert[role="alert"] { animation: none !important; }
+/* Tables financières: ligne courante perceptible, jamais utilisée pour suggérer un prix. */
+@media (hover: hover) and (pointer: fine) {
+  #orders tbody tr:hover, #positions tbody tr:hover,
+  #trades tbody tr:hover, #markers tbody tr:hover {
+    background-color: rgba(138,150,179,.055);
+  }
+}
+@media (max-width: 680px) {
+  .cockpit-head { gap: var(--ui-space-3); }
+  .metric-grid { row-gap: var(--ui-space-4); }
+  .dash-nav a { min-height: 44px; }
+  .table-tools :is(button, input, select) { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  button, .dash-nav, .dash-nav a, .motion-button, .motion-panel-enter,
+  .motion-row-new, .kpi-updated, .motion-popover-enter {
+    animation: none !important;
+    transition: none !important;
+  }
+  button:active, .motion-button:active { transform: none !important; }
+}
