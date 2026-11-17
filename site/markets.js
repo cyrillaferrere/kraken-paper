@@ -695,6 +695,11 @@
   let started = false;
   window.KPMarkets = {
     selectedPair: () => selected.pair,
+    resizeChart: () => {
+      if (!chart) { if (ctx.S) loadChart(); return; }
+      const el = $("mchart");
+      if (el && el.clientWidth > 0 && el.clientHeight > 0) chart.resize(el.clientWidth, el.clientHeight);
+    },
     selectPair: (pair) => { if (!trackedPairs().includes(pair)) return false; selectPair(pair); return true; },
     onPrice(c) {
       ctx = c;
