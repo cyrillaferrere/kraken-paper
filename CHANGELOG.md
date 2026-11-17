@@ -1,3 +1,9 @@
+## [Unreleased] — UX v0.3.6 (feature)
+- Navigation SPA statique en cinq espaces distincts : Vue d'ensemble, Marchés, Portefeuille, Performance, Activité & Bot. Hash URLs partageables et compatibilité avec les anciennes ancres.
+- Menu latéral réduit/déployé, navigation mobile (quatre raccourcis + menu Plus), état actif accessible, titres et transitions discrètes. Aucune duplication de la page ni rechargement de WebSocket.
+- Accès direct entre ordres/positions, chandelier et décisions ; redimensionnement du graphique à la réapparition, SVG performance redessiné si nécessaire, valeurs/observateurs préservés.
+- Tests de routage/deep links et ADR-31. Aucun changement moteur, stratégie, état PAPER ou production.
+
 ## [Unreleased] — UX v0.3.5 (feature)
 - Carnet spot Kraken public : instantanés bid/ask (10 niveaux), spread absolu et relatif, timestamp et repli honnête si données absentes ; aucun ordre passé.
 - Focus enrichi : tendances 4 h et 1 j, RSI 14, ATR, variation 24 h et force vs BTC issus du scanner existant, niveaux PAPER cliquables avec étiquettes conditionnelles pour achats en attente.
