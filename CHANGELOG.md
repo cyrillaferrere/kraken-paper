@@ -1,3 +1,4 @@
+- Feature UX v0.3.4 enrichie : mode Focus marché plein écran avec panneau contextuel alimenté par l'état réel, lecture OHLC au survol préservée lors du streaming, sélection directe des paires depuis positions et ordres, micrographe d'equity 24 h / 7 j sans interpolation des trous, navigation inférieure mobile et focus clavier. Tests Node ciblés ; aucune modification PAPER/moteur/state/decisions.
 - Refonte visuelle de la feature v0.3.4 : nouvelle hiérarchie éditoriale, cockpit capital/risque, présentation du marché, graphique et outils, tableaux densifiés, sidebar cohérente et ergonomie mobile ; CSS additif et repères de sections HTML sans changer les IDs ni les calculs.
 - Contrôles à réponse immédiate, mouvement sobre et réductible selon les préférences ; aucun prix, chandelier, ordre ou alerte animé artificiellement. Preview feature uniquement.
 ## [Unreleased] — UX v0.3.4
