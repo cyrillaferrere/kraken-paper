@@ -16,7 +16,7 @@ function harness(initialHash="") {
       append(...xs){for(const x of xs){if(x.parent)x.parent.children=x.parent.children.filter(y=>y!==x);x.parent=this;this.children.push(x);}},
       querySelectorAll(){return[]},setAttribute(k,v){attrs[k]=v},removeAttribute(k){delete attrs[k]},
       contains(t){return this===t||this.children.some(c=>c.contains?.(t))},
-      focus(){},scrollIntoView(){},
+      addEventListener(){},focus(){},scrollIntoView(){},
     };
     if(id)byId.set(id,n);
     created.push(n);
