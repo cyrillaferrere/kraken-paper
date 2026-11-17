@@ -1,3 +1,11 @@
+## Feature v0.3.5 — marché, performance et audit (17/11/2026)
+- Départ : `preprod` après intégration #64 (v0.3.4), nouvelle branche `feature/v0.3.5` ; `main`, `state/` et `decisions/` inchangés.
+- Front HTML/CSS : `site/index.html`, `site/v035.css`; nouveau module `site/market-v035.js`. Chargé après `site/focus-ux.js` ; pas de dépendance ni de build additionnels.
+- Marchés : `site/markets.js` transmet la paire, les indicateurs calculés et le contexte PAPER au nouveau module, via `KPV035.onMarket`. Le module charge exclusivement la profondeur via l'API REST publique Kraken et affiche spreads/volumes par niveau. Échecs, changement de paire et arrière-plan gérés sans mélanger les livres.
+- Performance/chronologie : `site/app.js` passe equity et journal à `KPV035.onPortfolio`. Comparaison des bornes observées, aucune interpolation. Corrélation des événements uniquement sur des IDs effectivement présents.
+- Tests : `node --test tests/site/market-v035.test.js` puis `node --test tests/site/*.test.js` ; CI, contrôle mobile, panne API, raccourcis ordres et accessibilité avant intégration.
+- ADR-30 : portée, limites de REST, conventions d'audit et garde-fous. La PR vers preprod reste en brouillon en attendant un GO d'intégration. Aucun ordre n'est créé par le front.
+
 ## Feature v0.3.4 — Focus marché et parcours UX (17/11/2026)
 - `site/index.html` : bouton Focus marché, scène graphique + panneau contextuel par paire, micrographe d'equity 24 h / 7 j, navigation inférieure mobile à 4 destinations.
 - `site/focus-ux.js` : commandes plein écran (Escape, Tab cyclique, bouton de sortie et aria-modal), position/ordres de la paire sélectionnée calculés depuis le contexte public existant, navigation vers le détail d'ordre, micrographe SVG fondé uniquement sur cycles disponibles avec coupures si intervalle > 2 h 30.
