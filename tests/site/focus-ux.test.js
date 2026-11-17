@@ -94,5 +94,5 @@ test("Micrographe : ruptures entre cycles non raccordées", () => {
   assert.match(svg, /<svg/);
   const paths = svg.match(/<path/g) || [];
   assert.equal(paths.length, 3); // repère horizontal + deux segments séparés
-  assert.match(el("mini-perf-summary").textContent, /7,?00 USDC/);
+  assert.match(el("mini-perf-summary").textContent, /\+7(?:,00)? USDC/);
 });
