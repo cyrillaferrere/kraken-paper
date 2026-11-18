@@ -653,10 +653,10 @@
   function selectTf(tf, focus) {
     if (!TF[tf]) return;
     const tabs = [...document.querySelectorAll("#tf-tabs [role=tab]")];
-    tabs.forEach((b, i) => {
+    tabs.forEach((b) => {
       const on = b.dataset.tf === tf;
       b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1;
-      if (on) { $("tf-tabs").style.setProperty("--idx", i); if (focus) b.focus(); }
+      if (on && focus) b.focus();
     });
     if (tf === selected.tf) return;
     hoveredCandleTime = null;
