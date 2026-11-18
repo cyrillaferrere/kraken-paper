@@ -94,6 +94,24 @@ class EngineV02Tests(unittest.TestCase):
         self.assertEqual(st["closed_trades"][0]["time_source"], "m5")
         self.assertEqual(st["last_m5"]["XBTUSDC"], T0 + 300)
 
+    def test_fee_tier_uses_global_m5_order_across_pairs(self):
+        st = run.new_state(T0 - 10)
+        for pair in ("AAAUSDC", "ZZZUSDC"):
+            st["pairs"][pair] = {"base": pair[:3], "altname": pair,
+                                  "pair_decimals": 2, "lot_decimals": 8,
+                                  "ordermin": .0001, "costmin": .5}
+            st["open_orders"].append({"id": "O" + pair[:3], "pair": pair,
+                                      "side": "buy", "qty": 1., "price": 3000.,
+                                      "active_from": T0, "parent": None})
+        def bars(touch):
+            return [(T0 + n * 300, 3050., 3070., 2980. if n == touch else 3020., 3050.)
+                    for n in range(12)]
+        m = FakeMarket(candles5={"ZZZUSDC": bars(0), "AAAUSDC": bars(1)})
+        run.run_cycle(st, [], m, T0 + H + 10)
+        self.assertEqual([t["pair"] for t in st["closed_trades"]],
+                         ["ZZZUSDC", "AAAUSDC"])
+        self.assertEqual([t["fee_rate"] for t in st["closed_trades"]], [.004, .003])
+
     def test_fallback_is_explicitly_logged(self):
         st = run.new_state(T0 - 10)
         d = decision("b", {"type": "place_limit", "pair": "XBTUSDC",
