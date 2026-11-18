@@ -3,6 +3,7 @@ import copy
 import json
 import os
 import unittest
+from unittest import mock
 
 from engine import run
 from tests.test_engine import FakeMarket, T0, H, decision
@@ -112,6 +113,61 @@ class EngineV02Tests(unittest.TestCase):
                          ["ZZZUSDC", "AAAUSDC"])
         self.assertEqual([t["fee_rate"] for t in st["closed_trades"]], [.004, .003])
 
+    def test_api_error_never_falls_back_or_advances_cursors(self):
+        st = run.new_state(T0 - 10)
+        st["pairs"]["XBTUSDC"] = {
+            "base": "BTC", "altname": "XBTUSDC", "pair_decimals": 2,
+            "lot_decimals": 8, "ordermin": .00005, "costmin": .5}
+        st["open_orders"] = [{"id": "O0017", "pair": "XBTUSDC",
+                              "side": "buy", "qty": .01, "price": 65000,
+                              "active_from": T0}]
+        st["last_candle"]["XBTUSDC"] = T0 - H
+        original = (dict(st["last_candle"]), dict(st["last_m5"]))
+        m = FakeMarket(candles={"XBTUSDC": [
+            (T0, 66000, 66500, 64900, 65000)]}, fail5=True)
+        with mock.patch.object(run, "RETENTION_5M", -1):
+            ev, fills, errors = run.replay_candles(st, m, T0 + H + 60)
+        self.assertEqual((st["last_candle"], st["last_m5"]), original)
+        self.assertFalse(fills)
+        self.assertFalse(any(e["type"] == "execution_fallback" for e in ev))
+        self.assertTrue(any("reprise au prochain cycle" in e for e in errors))
+        # Nouvel essai : le moteur retrouve les bougies et peut les traiter.
+        bars = [(T0 + i * 300, 66000, 66200, 64900 if i == 0 else 65100, 66000)
+                for i in range(12)]
+        recovered = FakeMarket(candles5={"XBTUSDC": bars})
+        _, fills, _ = run.replay_candles(st, recovered, T0 + H + 60)
+        self.assertEqual(len(fills), 1)
+        self.assertEqual(st["last_candle"]["XBTUSDC"], T0)
+
+    def test_partially_processed_hour_never_replayed_in_hourly(self):
+        st = run.new_state(T0 - 10)
+        st["pairs"]["XBTUSDC"] = {
+            "base": "BTC", "altname": "XBTUSDC", "pair_decimals": 2,
+            "lot_decimals": 8, "ordermin": .00005, "costmin": .5}
+        st["last_candle"]["XBTUSDC"] = T0 - H
+        st["last_m5"]["XBTUSDC"] = T0 + 300
+        m = FakeMarket(candles={"XBTUSDC": [
+            (T0, 66000, 66500, 64900, 65000)]})
+        with mock.patch.object(run, "RETENTION_5M", -1):
+            events, fills, errors = run.replay_candles(st, m, T0 + H + 60)
+        self.assertEqual(st["last_m5"]["XBTUSDC"], T0 + 300)
+        self.assertEqual(st["last_candle"]["XBTUSDC"], T0 - H)
+        self.assertFalse(fills)
+        self.assertFalse(any(e["type"] == "execution_fallback" for e in events))
+        self.assertTrue(any("repli 1h interdit" in e for e in errors))
+
+    def test_missing_recent_m5_waits_and_preserves_cursor(self):
+        st = run.new_state(T0 - 10)
+        st["last_candle"]["XBTUSDC"] = T0 - H
+        m = FakeMarket(candles={"XBTUSDC": [
+            (T0, 66000, 66500, 64900, 65000)]})
+        events, fills, errors = run.replay_candles(st, m, T0 + H + 60)
+        self.assertEqual(st["last_candle"]["XBTUSDC"], T0 - H)
+        self.assertFalse(fills)
+        self.assertFalse(any(e["type"] == "execution_fallback" for e in events))
+        self.assertTrue(any("attente sans repli" in e for e in errors))
+
+    @mock.patch.object(run, "RETENTION_5M", -1)
     def test_fallback_is_explicitly_logged(self):
         st = run.new_state(T0 - 10)
         d = decision("b", {"type": "place_limit", "pair": "XBTUSDC",
