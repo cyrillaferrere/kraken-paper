@@ -142,28 +142,6 @@
     ];
     html("focus-indicators", '<dl class="v035-indicators">' + cells.map(([k,v]) => '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>').join("") + "</dl>");
   }
-  function renderOrderLevels(p, ctx) {
-    if (!ctx?.S) return;
-    const orders = (ctx.S.open_orders || []).filter((o) => o.pair === p);
-    const pos = ctx.S.positions?.[p];
-    const nodes = [];
-    if (pos?.avg_cost != null) nodes.push('<span class="v035-level v035-level-pru">PRU · ' + esc(numberPx(pos.avg_cost)) + '</span>');
-    for (const o of orders.slice(0, 9)) {
-      const entry = o.side === "buy";
-      const showOrder = (price, label, conditional = false) => {
-        if (price == null) return;
-        nodes.push('<button class="v035-level ' + (entry ? "v035-level-buy" : "v035-level-sell") +
-          '" type="button" data-v035-order="' + esc(o.id) + '" title="Ouvrir les détails de l’ordre ' + esc(o.id) + '">' +
-          esc(label) + ' · ' + esc(numberPx(price)) + (conditional ? ' <small>si achat exécuté</small>' : '') + '</button>');
-      };
-      showOrder(o.price, entry ? "Achat limite" : "Vente / objectif");
-      showOrder(o.stop_loss, "Stop", entry);
-      if (Array.isArray(o.take_profits) && o.take_profits.length) {
-        o.take_profits.slice(0,3).forEach((t,i) => showOrder(t.price, "TP" + (i+1), entry));
-      } else showOrder(o.take_profit, "Objectif", entry);
-    }
-    html("chart-order-levels", nodes.length ? '<span class="v035-level-label">NIVEAUX SUR LE GRAPHIQUE</span>' + nodes.join("") : '<span class="hint">Aucun niveau PAPER actif pour cette paire.</span>');
-  }
   // Niveaux purement descriptifs issus des positions et ordres PAPER existants.
   // Un stop ou TP associé à un achat en attente n'est pas une protection active.
   function collectPriceLevels(pair, state, price) {
@@ -212,10 +190,17 @@
       return '<span class="v036-ruler-pin v036-ruler-'+esc(r.kind)+'" style="left:'+left.toFixed(2)+'%" title="'+esc(r.label+' · '+numberPx(r.value))+'"></span>';
     }).join("")+'</div>';
     const items=rows.map(r => {
-      const detail=esc(r.label+(r.conditional?" · si achat exécuté":"")+" · "+numberPx(r.value)+" USDC · "+distanceLabel(r.distance));
-      return '<li class="v036-level-row v036-kind-'+esc(r.kind)+'" title="'+detail+'"><span class="v036-level-name">'+esc(r.label)+'</span><span class="v036-level-value">'+esc(numberPx(r.value))+' <small>USDC</small></span><span class="v036-level-distance">'+esc(distanceLabel(r.distance))+'</span>'+(r.conditional?'<small class="v036-conditional">si achat exécuté</small>':'')+'</li>';
+      const detail=r.label+(r.orderId?" · ordre "+r.orderId:"")+(r.conditional?" · si achat exécuté":"")+" · "+numberPx(r.value)+" USDC · "+distanceLabel(r.distance);
+      const type='<span class="v036-level-name">'+esc(r.label)+'</span>';
+      const value='<span class="v036-level-value">'+esc(numberPx(r.value))+'</span>';
+      const distance='<span class="v036-level-distance">'+esc(distanceLabel(r.distance))+'</span>';
+      const condition=r.conditional?'<small class="v036-conditional">si achat exécuté</small>':'';
+      const order=r.orderId
+        ? '<button type="button" class="v036-level-order" data-v035-order="'+esc(r.orderId)+'" title="'+esc(detail)+'" aria-label="Voir le détail de l’ordre '+esc(r.orderId)+', '+esc(detail)+'">'+esc(r.orderId)+' ↗</button>'
+        : '<span class="v036-level-no-order">—</span>';
+      return '<tr class="v036-level-row v036-kind-'+esc(r.kind)+'" title="'+esc(detail)+'"><th scope="row">'+type+condition+'</th><td>'+value+'</td><td>'+distance+'</td><td>'+order+'</td></tr>';
     }).join("");
-    el.innerHTML=line+'<ul class="v036-level-list">'+items+'</ul>';
+    el.innerHTML=line+'<div class="v036-level-table-wrap"><table class="v036-level-table"><thead><tr><th scope="col">Niveau</th><th scope="col">Prix USDC</th><th scope="col">Distance</th><th scope="col">Ordre</th></tr></thead><tbody>'+items+'</tbody></table></div>';
     el.setAttribute("aria-label",rows.map(r=>r.label+": "+numberPx(r.value)+" USDC, "+distanceLabel(r.distance)+(r.conditional?", si achat exécuté":"")).join(". "));
   }
   const eventLabels = {
@@ -229,7 +214,7 @@
       if (!e || !Object.prototype.hasOwnProperty.call(eventLabels,e.type)) return false;
       // Référence explicite seulement : aucune association inventée par proximité temporelle.
       return (e.order?.pair || e.trade?.pair || e.pair) === pair;
-    }).slice(-4).reverse().map(e=>({
+    }).slice(-3).reverse().map(e=>({
       type:e.type, label:eventLabels[e.type], time:e.time || e.timestamp || e.trade?.ts || null,
       orderId:e.order?.id || e.order_id || e.trade?.order_id || null,
       decisionId:e.decision_id || null,
@@ -253,7 +238,6 @@
     lastMarketCtx=ctx;
     switchPair(p);
     renderIndicators(metric);
-    renderOrderLevels(p, ctx);
     renderPriceScale(p,ctx);
     renderPairEvents(p,lastJournal);
   }
