@@ -1,3 +1,10 @@
+## Recette v0.3.6 — haut de tuile Marchés
+1. Vérifier cours BTC/USDC et statut de disponibilité après rafraîchissement, changement BTC/ETH, puis changement TF 5m/1h/1j ; le prix live conserve les mises à jour.
+2. En desktop large : cours, six TF et boutons Ordres/Focus sur une barre compacte ; deuxième ligne de paires scrollable sans retour ; troisième ligne toolbar 60/120/240, Actualiser/Recentrer, nb de bougies et date de lecture.
+3. Sous la toolbar : vérifier la ligne OHLC avec le survol stable malgré le flux et la ligne MA20/MA50/RSI ; les chiffres doivent correspondre à ceux du chandelier, pas à des valeurs calculées ailleurs.
+4. À 320/390/768/1280/1440 px et zoom 125/200 %, vérifier absence de chevauchement et retour adapté des contrôles, actions accessibles au clavier, et réduction des animations.
+5. `node --test tests/site/*.test.js`, CI guard-state/quality-gates, commit Netlify exact. Aucun passage préprod/prod sans GO.
+
 ## Recette v0.3.6 — analyse de la paire compactée
 1. Vérifier six indicateurs toujours visibles, lisibles en grille 3×2 sur desktop et 2×3 sur mobile.
 2. Sous la réglette, une seule liste détaillée subsiste : tableau Niveau / Prix USDC / Distance / Ordre, sans double rangée de puces. Le graphique conserve ses propres marqueurs.
