@@ -1,9 +1,31 @@
-## Release ciblée v0.3.6.2 — 18/11/2026
-- GO production de Cyril reçu ; release basée sur main (et non fusion globale de preprod) pour éviter les changements anciens du moteur et du dashboard.
-- La publication contrôlée accepte les versions à quatre segments ; la branche deploy/prod-request a été synchronisée.
-- netlify.toml empêche les builds Git de production, mais ne protège pas contre les deploy hooks, la CLI manuelle ou l'interface Netlify.
-- Tests : tests/site/netlify-build-gate.test.js et CI ; contrôler le SHA publié via version.json après workflow.
-- Aucun changement engine/, state/, decisions/ ou docs/LESSONS.md.
+## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
+- Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
+  Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,
+  le repli 1 h n'est possible que si aucune barre de l'heure n'a deja ete traitee.
+- Versions visibles partout : Dash v0.3.7 · Moteur v0.2.0 lorsque le nouvel
+  etat existe. Tant que le moteur prod 0.1 produit les fichiers vivants,
+  l'aperçu affiche correctement Moteur v0.1.0.
+- Palier des frais affiche par volume PAPER glissant 30 jours sans nouveau fill.
+- Tests : `tests/test_engine_v02.py`, `tests/test_precise_fills.py`,
+  `tests/site/version-header.test.js`; PR brouillon jusqu'a confirmation CI.
+
+## Feature moteur 0.2.0 / site v0.3.7 — 18/11/2026
+- Branche : `feature/engine-v0.2.0`, base `preprod`; PR à relire par Grok Bot avant validation.
+- Moteur : `engine/run.py` garde les ordres existants; ajoute `engine_version=0.2.0`, curseur `last_m5`, limites avec pénétration, slippage dynamique, frais selon volume 30 j.
+- Anciennes exécutions 0.1 non réécrites; `state/`, `decisions/` jamais inclus dans la PR.
+- Source de vérité : `docs/ADR-35-ENGINE-EXECUTION.md`, historique : `docs/ENGINE_CHANGELOG.md`.
+- Repli horaire explicite `execution_fallback`; volume 5 min public lorsque disponible; fills toujours PAPER.
+- Fichiers à examiner : `engine/run.py`, `tests/test_engine_v02.py`, `tests/test_precise_fills.py`, `site/app.js`, `site/index.html`.
+- Les nouveaux ordres sont actifs à la bougie 5 min suivante. Grok doit adapter les sessions avant tout GO prod.
+- Pas de production, pas de modification de state/ ou decisions/ avant validation et recette.
+
+## Feature v0.3.6.2 — verrou de production (18/11/2026)
+- Branche `fix/v0.3.6.2-production-gate` depuis `preprod` ; `VERSION=0.3.6.2`.
+- Cause : le workflow `deploy-production-controlled.yml` n'acceptait que trois segments de version, tandis que Netlify pouvait publier automatiquement après un merge sur `main`.
+- Correction : regex à trois/quatre segments ; `netlify.toml` appelle `scripts/netlify-ignore-build.sh` pour ignorer tout build Git sur `main` / `production`. Les previews et builds non-production restent possibles. Le chemin CLI `scripts/deploy.sh prod` est inchangé.
+- ADR-34 ; tests `tests/site/netlify-build-gate.test.js`. Vérifier une build Netlify production Git *skipped* lors d'un prochain push de code autorisé sur `main`, et vérifier qu'un déploiement CLI contrôlé fonctionne avec son GO ; ne pas provoquer ces actions pour tester.
+- Limite : la configuration UI Netlify, les deploy hooks et les publications manuelles sont à inspecter/restricter séparément.
+- Ne pas toucher `state/`, `decisions/`, `docs/LESSONS.md`, `engine/`, `main` ; pas de promotion sans GO.
 
 ## Fix v0.3.6.1 — échelle du graphique au changement de paire (18/11/2026)
 - Capture de Cyril (prod v0.3.6, 12h18) : XRP/USDC 1 h affiché sur une échelle 63 000–71 000, étiquettes 0,987 et 0,966 collées en bas.
