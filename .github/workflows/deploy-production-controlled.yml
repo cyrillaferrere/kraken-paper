@@ -37,7 +37,7 @@ jobs:
           import json, os, re
           p = json.load(open('.github/prod-release-request.json'))
           assert p.get('approved_by') == 'Cyril', 'Missing release requester identity (not authorization)'
-          assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', p.get('version', '')), 'Invalid version'
+          assert re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+(?:\.[0-9]+)?', p.get('version', '')), 'Invalid version'
           assert re.fullmatch(r'[0-9a-f]{40}', p.get('approved_commit', '')), 'Invalid approved commit'
           assert p.get('environment') == 'production', 'Wrong environment'
           with open(os.environ['GITHUB_ENV'], 'a') as out:
