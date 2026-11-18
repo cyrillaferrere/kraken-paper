@@ -33,3 +33,8 @@ La page Terminal est plus longue mais orientée par priorités et ancres rapides
 - Le bandeau de prix existant est **déplacé dans l'en-tête**, jamais cloné : identifiants DOM et flux websocket inchangés. Le titre de section reste accessible aux lecteurs d'écran mais ne redouble plus visuellement le prix. Le statut de fraîcheur conserve son nœud DOM (notamment pour les traitements de données), avec informations temporelles visibles dans la barre des bougies.
 - La légende OHLC est rendue en deux lignes logiques et garde sa stabilité sur le survol; les boutons et sélections conservent leurs handlers. Mise en page adaptative à 1260/760 px, paires sur une ligne scrollable et effets de mouvement réduits.
 - Aucune modification de simulation, stratégie, ordre, `state/`, `decisions/` ou version ; l'objectif est de réduire la hauteur d'en-tête sans dissimuler les informations de marché importantes.
+
+## Correctif sélecteur d'intervalle (18/11/2026)
+- L'ancien curseur `.seg-thumb` partageait la largeur du conteneur en six colonnes identiques. Le compactage a rendu les boutons intrinsèquement différents en largeur et déplacé visuellement le fond actif.
+- Suppression du curseur HTML et de la position `--idx` ; le bouton de timeframe actif possède directement son fond, sa bordure et `aria-selected=true`. Les six intervalles, les contrôles clavier et la logique de récupération des bougies sont conservés.
+- Le sélecteur s'adapte en affichage mobile via défilement horizontal, sans recouvrir les autres commandes. Un test d'intégration vérifie l'unicité de la sélection et l'absence du curseur flottant.
