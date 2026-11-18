@@ -13,7 +13,7 @@ test("dashboard IDs are unique and every route or legacy anchor has a target", (
   for (const [, id] of html.matchAll(/<a\s+href="#([^"]+)"/g)) {
     if (id.startsWith("/")) {
       const [route, target] = id.slice(1).split("#");
-      assert.ok(["accueil", "marches", "portefeuille", "performance", "activite"].includes(route), "route inconnue : " + route);
+      assert.ok(["terminal", "activite", "accueil", "marches", "portefeuille", "performance"].includes(route), "route inconnue : " + route);
       if (target) assert.ok(ids.includes(target), "cible inconnue : " + target);
     } else assert.ok(ids.includes(id), "missing anchor target: " + id);
   }
