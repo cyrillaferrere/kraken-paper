@@ -813,7 +813,8 @@ def replay_candles(state, market, now):
     for pair in sorted(pairs):
         starts = [hour_floor(o["active_from"]) - HOUR for o in state["open_orders"]
                   if o["pair"] == pair]
-        default_last = min([hour_floor(now) - 2 * HOUR] + starts)
+        default_last = (min(starts) if starts else
+                        hour_floor(state.get("last_cycle_ts") or now) - HOUR)
         last_hour = state["last_candle"].get(pair, default_last)
         try:
             hourly = {c[0]: c for c in market.ohlc(pair, last_hour, interval=60)}
