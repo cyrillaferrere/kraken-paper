@@ -1,3 +1,8 @@
+## Recette v0.3.6 — correctif sélection des timeframes
+- Faire défiler les six TF (5 min, 15 min, 30 min, 1 h, 4 h, 1 j) : le fond jade reste strictement sur le bouton actif, et il n'y a ni superposition ni texte rogné.
+- Vérifier navigations au clavier par flèches et `aria-selected`; refaire le test avec le bouton Focus et à largeur mobile (scroll horizontal si nécessaire).
+- Confirmer que l'OHLC et le chandelier changent selon la période sélectionnée et que l'état reste stable lors des updates Kraken. `node --test tests/site/*.test.js`, CI guard-state / quality-gates et SHA Netlify à vérifier avant toute intégration.
+
 ## Recette v0.3.6 — haut de tuile Marchés
 1. Vérifier cours BTC/USDC et statut de disponibilité après rafraîchissement, changement BTC/ETH, puis changement TF 5m/1h/1j ; le prix live conserve les mises à jour.
 2. En desktop large : cours, six TF et boutons Ordres/Focus sur une barre compacte ; deuxième ligne de paires scrollable sans retour ; troisième ligne toolbar 60/120/240, Actualiser/Recentrer, nb de bougies et date de lecture.
