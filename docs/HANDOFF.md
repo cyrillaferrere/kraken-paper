@@ -1,11 +1,11 @@
-## Feature v0.3.6 — navigation multi-vues (17/11/2026)
-- Branche `feature/v0.3.6` **basée sur `feature/v0.3.5`** (feature parente non fusionnée). PR empilée vers `feature/v0.3.5` ; `preprod` reste sur v0.3.4.
-- `site/index.html` : menu principal 5 vues et navigation mobile 4 accès + « Plus », chargement `spa-v036.css` et `spa-router.js`.
-- `site/spa-router.js` : déplace les nœuds d'origine (mêmes IDs et contrôles) dans les cinq vues, gère hashes `#/accueil`, `#/marches`, `#/portefeuille`, `#/performance`, `#/activite` et anciennes ancres. Historique du navigateur préservé.
-- `site/navigation.js` conserve le menu desktop et expose `KPNav.sync` pour sa fermeture ; `site/focus-ux.js` et `site/market-v035.js` naviguent à la vue avant de montrer l'ordre/décision.
-- `site/markets.js` expose `KPMarkets.resizeChart` ; `site/app.js` expose `KPAppUX.redrawPerformance`. Pas de changement de données ni moteur.
-- Test ciblé `node --test tests/site/spa-router.test.js`, puis ensemble `node --test tests/site/*.test.js` et qualité CI. Confirmer l'aperçu Netlify et son SHA avant diffusion ; recette visuelle navigateur à terminer.
-- Ne jamais toucher `state/`, `decisions/`, moteur ou `main`; pas de fusion ni prod sans GO distinct.
+## Feature v0.3.6 — Terminal et heartbeat Grok (18/11/2026)
+- **Version toujours 0.3.6**. Branche `feature/v0.3.6`, PR #66 en brouillon vers `preprod` ; elle inclut aussi les ajouts de la v0.3.5 encore en feature. Ne fusionner aucune PR sans GO de Cyril.
+- `site/index.html` + `site/spa-router.js` + `site/spa-v036.css` : seulement deux vues, `#/terminal` (cockpit, marchés, positions, ordres, performance, calendrier, scanner en fin) et `#/activite`. Liens historiques redirigés, barre rapide adhésive, quatre raccourcis internes mobiles plus Activité.
+- `engine/run.py` accepte `type=heartbeat` + `actions=[]` + `note` + timestamp ISO 8601 décalé, puis saute le heartbeat avant toute mutation de `state`, journal, refus ou ordre. Contrat : `docs/ADR-32-GROK-HEARTBEAT.md`. Aucune création/modification de `state/` et `decisions/`.
+- `site/lib.js` contient `latestSession` ; `site/extras.js` lit `decisions/*.json` sur main, choisit le passage le plus récent, plus 5 h, évite « retard » sans preuve et groupe les heartbeats repliés. Le dépôt est interrogé par ETag toutes les cinq minutes même sans cycle d'état.
+- Convention Grok **après mise en prod uniquement** : `decisions/YYYY-MM-DD-HHMM-heartbeat.json`, ID `heartbeat-YYYYMMDD-HHMM`, note, timestamp local Paris avec offset. README + ADR-32.
+- Tests : `python -m unittest discover -s tests`, `node --test tests/site/*.test.js` et CI ; test runtime 03:09 +5 h = 08:09 ; heartbeat ne modifie pas `processed_decisions` ni `last_decision`.
+- ADR-33 remplace la disposition 5 vues initiale de l'ADR-31 sans nouvelle version. Les règles de trading, préprod et prod restent inchangées.
 
 ## Feature v0.3.5 — marché, performance et audit (17/11/2026)
 - Départ : `preprod` après intégration #64 (v0.3.4), nouvelle branche `feature/v0.3.5` ; `main`, `state/` et `decisions/` inchangés.
