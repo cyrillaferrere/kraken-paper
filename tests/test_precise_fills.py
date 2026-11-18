@@ -2,6 +2,7 @@
 import os
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine"))
 import run  # noqa: E402
@@ -29,6 +30,8 @@ def bars5(hour, touches):
     return out
 
 
+# Legacy 0.1 fallback expectations, exercised only beyond OHLC retention.
+@mock.patch.object(run, "RETENTION_5M", -1)
 class PreciseFillTests(unittest.TestCase):
     def setUp(self):
         self.s = run.new_state(T0 - 10)
