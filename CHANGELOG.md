@@ -1,3 +1,11 @@
+### Revue Grok Bot — correctifs PR #73 (18/11/2026)
+- Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
+- Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour
+  une heure deja partiellement traitee en 5 min.
+- Bandeau Dash/Moteur permanent en navigation/mobile; palier frais PAPER
+  actualise depuis les trades du portefeuille meme sans execution recente.
+- Ajout de tests API, curseurs, intervalle incomplet, versions et mobile.
+
 ## [0.3.7] — préparation préprod (18/11/2026)
 - Moteur PAPER 0.2.0 versionné séparément; affichage du moteur dans le dashboard.
 - Exécution en bougies 5 min clôturées; activation à la 5 min suivante; repli horaire journalisé.
