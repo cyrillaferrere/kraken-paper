@@ -1,5 +1,7 @@
 # ADR-31 — Navigation SPA légère en cinq vues (17 novembre 2026)
 
+**Disposition à cinq vues remplacée par ADR-33 le 18/11/2026, avant la préproduction.** La décision de conserver une SPA sans rechargement reste applicable.
+
 ## Contexte
 Le dashboard v0.3.5 fonctionne comme une seule longue page avec des ancres. Les sections marché, portefeuille, performance et décisions sont nombreuses, ce qui impose une navigation verticale excessive, particulièrement sur mobile. L'objectif est de séparer les espaces **sans casser le flux Kraken ni le moteur PAPER**.
 
