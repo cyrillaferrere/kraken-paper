@@ -35,7 +35,7 @@
 
   let pair = null, lastBookPair = null, startedAt = 0, token = 0, busy = false, controller = null, nextAllowed = 0;
   const BOOK_INTERVAL = 18000;
-  const marketVisible = () => !window.KPRouter || window.KPRouter.active() === "marches";
+  const marketVisible = () => !window.KPRouter || window.KPRouter.active() === "terminal";
   function clearBook(label) {
     for (const id of ["book-bid", "book-ask", "book-spread"]) show(id, "—");
     for (const id of ["book-bids","book-asks"]) html(id, '<p class="v035-quiet">Aucune profondeur disponible.</p>');
@@ -113,7 +113,7 @@
     if (pair && !document.hidden && marketVisible()) refreshBook();
   }, 4000);
   document.addEventListener("kp:view", (event) => {
-    if (event.detail?.route === "marches") {
+    if (event.detail?.route === "terminal") {
       nextAllowed = 0;
       refreshBook(true);
     } else {
