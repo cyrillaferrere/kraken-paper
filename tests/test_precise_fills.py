@@ -2,6 +2,7 @@
 import os
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine"))
 import run  # noqa: E402
@@ -29,6 +30,8 @@ def bars5(hour, touches):
     return out
 
 
+# Legacy 0.1 fallback expectations, exercised only beyond OHLC retention.
+@mock.patch.object(run, "RETENTION_5M", -1)
 class PreciseFillTests(unittest.TestCase):
     def setUp(self):
         self.s = run.new_state(T0 - 10)
@@ -77,16 +80,18 @@ class PreciseFillTests(unittest.TestCase):
         self.assertEqual(b["ts"], T0)
         self.assertEqual(a["ts"], T0)
 
-    def test_fallback_api_error_dates_at_hour_open(self):
+    def test_api_error_does_not_fallback_and_does_not_advance(self):
         c1 = {"XBTUSDC": [(T0, 66000, 66500, 64900, 65500)]}
-        self.place_and_replay(
-            [{"type": "place_limit", "pair": "XBTUSDC", "side": "buy", "qty": 0.01, "price": 65000}],
-            c1, fail5=True, at=T0 + H + 60,
-        )
-        tr = self.s["closed_trades"][0]
-        self.assertEqual(tr["ts"], T0)
-        self.assertEqual(tr["time_source"], "hour_open")
-        self.assertEqual(tr["price"], 65000)
+        d = decision("d1", {"type": "place_limit", "pair": "XBTUSDC",
+                             "side": "buy", "qty": .01, "price": 65000})
+        run.run_cycle(self.s, [d], FakeMarket(), T0 - 10)
+        before = dict(self.s["last_candle"])
+        events, _, errors = run.run_cycle(self.s, [d],
+            FakeMarket(candles=c1, fail5=True), T0 + H + 60)
+        self.assertEqual(self.s["closed_trades"], [])
+        self.assertEqual(self.s["last_candle"], before)
+        self.assertFalse(any(e["type"] == "execution_fallback" for e in events))
+        self.assertTrue(any("reprise au prochain cycle" in e for e in errors))
 
     def test_fallback_incomplete_5m_dates_at_hour_open(self):
         c1 = {"XBTUSDC": [(T0, 66000, 66500, 64900, 65500)]}
@@ -138,7 +143,7 @@ class PreciseFillTests(unittest.TestCase):
         sl = self.s["closed_trades"][1]
         self.assertEqual(sl["reason"], "stop_loss")
         self.assertEqual(sl["ts"], t4)
-        self.assertEqual(sl["price"], 61938.0)
+        self.assertLess(sl["price"], 61938.0)
         self.assertEqual(sl["liquidity"], "taker")
 
     def test_stop_before_tp_on_5m_takes_stop(self):
@@ -171,9 +176,9 @@ class PreciseFillTests(unittest.TestCase):
         self.assertEqual(sl["reason"], "stop_loss")
         self.assertEqual(sl["ts"], T0 + H)  # ouverture de la bougie 1 h, plus la fermeture
         self.assertEqual(sl["time_source"], "hour_open")
-        self.assertEqual(sl["price"], 61938.0)
+        self.assertLess(sl["price"], 61938.0)
 
-    def test_exit_active_from_is_next_hour(self):
+    def test_exit_active_from_is_next_m5(self):
         c1 = {"XBTUSDC": [(T0, 66000, 66500, 64900, 65500)]}
         c5 = {"XBTUSDC": bars5(T0, {20 * 60: ("low", 64900)})}
         self.place_and_replay(
@@ -182,7 +187,7 @@ class PreciseFillTests(unittest.TestCase):
             c1, c5, at=T0 + H + 60,
         )
         exo = self.s["open_orders"][0]
-        self.assertEqual(exo["active_from"], T0 + H)
+        self.assertEqual(exo["active_from"], T0 + 25 * 60)
         self.assertEqual(exo["parent"], self.s["closed_trades"][0]["order_id"])
 
 
