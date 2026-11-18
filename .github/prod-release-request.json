@@ -1,8 +1,8 @@
 {
   "environment": "production",
   "approved_by": "Cyril",
-  "version": "0.3.6",
-  "approved_commit": "6703205006d4d76e8a351daa6b872aecfd1bb4d3",
-  "reason": "GO production explicite de Cyril transmis avec la revue Grok Bot de preprod v0.3.6 (2b6a812, PR #66). Candidat selectif PR #67 fusionne sur main; aucune difference state/, decisions/, docs/LESSONS.md; ordres O0017, O0022 ETH, O0024, O0025, O0026 identiques; CI Python/Node et guard-state vertes. Publication uniquement via GitHub Actions ADR-28, pas de deploiement Netlify direct.",
-  "request_sequence": 4
+  "version": "0.3.6.1",
+  "approved_commit": "f6ac17f55c065d1c3dbfb7b1db04675d1d247587",
+  "reason": "GO production explicite de Cyril le 18/11 a 12h51 pour v0.3.6.1 (correctif echelle du graphique au changement de paire, PR #68 preprod 066f9b1). Candidat selectif PR #69 fusionne sur main; aucune difference state/, decisions/, docs/LESSONS.md, engine/; CI Python/Node et guard-state vertes. Publication uniquement via GitHub Actions ADR-28, pas de deploiement Netlify direct.",
+  "request_sequence": 5
 }
