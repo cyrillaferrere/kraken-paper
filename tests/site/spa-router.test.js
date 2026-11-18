@@ -60,33 +60,33 @@ function harness(initialHash="") {
   vm.runInNewContext(fs.readFileSync(path.resolve(__dirname,"../../site/spa-router.js"),"utf8"),context);
   return{router:window.KPRouter,root,nodes,byId,location,handlers};
 }
-test("Cinq vues : un seul exemplaire de chaque composant, aucun clone",()=>{
+test("Deux vues : les quatre espaces financiers réunis sans cloner le DOM",()=>{
   const a=harness(), sections=a.root.children.filter(x=>x.className==="app-view");
-  assert.equal(sections.length,5);
-  assert.equal(sections[0].children.includes(a.nodes[".cockpit"]),true);
-  assert.equal(sections[1].children.includes(a.nodes["#market-card"]),true);
-  assert.equal(sections[1].children.includes(a.nodes["#markers-panel"]),true);
-  assert.equal(sections[2].children.includes(a.nodes["#orders-panel"]),true);
-  assert.equal(sections[3].children.includes(a.nodes["#performance-panel"]),true);
-  assert.equal(sections[4].children.includes(a.nodes["#journal-panel"]),true);
+  assert.equal(sections.length,2);
+  const terminal=sections[0], bot=sections[1];
+  for(const sel of [".cockpit","#market-card","#positions-panel","#orders-panel","#performance-panel","#calendar-panel","#markers-panel"]) {
+    assert.equal(terminal.children.includes(a.nodes[sel]),true,sel);
+  }
+  assert.equal(bot.children.includes(a.nodes["#journal-panel"]),true);
+  assert.equal(bot.children.includes(a.nodes["#trades-panel"]),true);
   assert.equal(sections.filter(x=>!x.hidden).length,1);
-  assert.equal(a.router.active(),"accueil");
+  assert.equal(a.router.active(),"terminal");
 });
-test("Liens historiques et URLs de vues : deep links conservés",()=>{
+test("Anciens liens et deep links sont redirigés vers le Terminal",()=>{
   const a=harness("#orders-panel");
-  assert.equal(a.router.active(),"portefeuille");
-  assert.equal(a.router.parseHash("#dec-h").route,"activite");
-  assert.equal(a.router.parseHash("#market-card").route,"marches");
-  assert.equal(a.router.parseHash("#/performance").route,"performance");
+  assert.equal(a.router.active(),"terminal");
+  assert.equal(a.router.parseHash("#market-card").route,"terminal");
+  assert.equal(a.router.parseHash("#/marches").target,"market-card");
   assert.equal(a.router.parseHash("#/portefeuille#orders-panel").target,"orders-panel");
+  assert.equal(a.router.parseHash("#/performance").route,"terminal");
   a.router.navigate("marches","market-card");
-  assert.equal(a.router.active(),"marches");
-  assert.equal(a.location.hash,"#/marches#market-card");
+  assert.equal(a.router.active(),"terminal");
+  assert.equal(a.location.hash,"#/terminal#market-card");
   assert.equal(a.root.children.filter(x=>x.className==="app-view"&&!x.hidden).length,1);
 });
-test("Route inconnue : accueil sans effacer le document",()=>{
+test("Une route inconnue revient au Terminal, et Activité reste accessible",()=>{
   const a=harness("#/route-inconnue");
-  assert.equal(a.router.active(),"accueil");
+  assert.equal(a.router.active(),"terminal");
   a.router.navigate("activite");
   assert.equal(a.router.active(),"activite");
   assert.equal(a.nodes["#decisions-panel"].parent.hidden,false);
