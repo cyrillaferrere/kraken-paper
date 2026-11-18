@@ -1,3 +1,9 @@
+## Feature v0.3.6 — correction des onglets bougies (18/11/2026)
+- Capture utilisateur : fond actif 1 h décalé et texte des intervalles comprimé après compactage de l'en-tête.
+- `site/index.html` : retirer le seul `.seg-thumb` du `tf-tabs` ; `site/markets.js` : ne plus positionner `--idx`, conserver `aria-selected` et le focus clavier ; `site/spa-v036.css` : états actifs sur les boutons, tailles intrinsèques et défilement horizontal mobile.
+- Test `tests/site/dashboard-integration.test.js` : six TF, un seul sélectionné, suppression du thumb et état ARIA. Vérifier chaque TF visuellement à 320/390/768/1440 px, Focus, retour du navigateur, et la récupération des bougies.
+- Version 0.3.6 et PR #66 inchangées, `state/`, `decisions/`, `main` et préprod intacts.
+
 ## Feature v0.3.6 — en-tête Marchés compact (18/11/2026)
 - `site/index.html` : déplacer l'unique bloc `.selected-live` dans `.card-h` (via `.market-header-live`), sans dupliquer les IDs ; titre conservé pour accessibilité. L'ordre des contrôles est prix/live, timeframes, Ordres/Focus, paires, toolbar bougies.
 - `site/markets.js` : modifier seulement le balisage de `legend()` pour deux lignes logiques, OHLC puis MA20/MA50/RSI, en conservant les calculs et le temps survolé.
