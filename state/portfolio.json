@@ -458,13 +458,14 @@
     "2026-11-17-17h50",
     "2026-11-17-22h10",
     "2026-11-18-08h10",
-    "2026-11-18-16h15"
+    "2026-11-18-16h15",
+    "2026-11-18-18h12"
   ],
   "last_decision": {
-    "id": "2026-11-18-16h15",
-    "timestamp": "2026-11-18T16:15:00+01:00",
-    "rationale": "Ce que je vois : premier cycle du moteur 0.2.0 sans erreur, SOL O0026 exécuté à 74,0 (sorties O0027 stop 69,6, TP 80 / 87). BTC 63 500 sous ses MA20 1h (64 350) et 4h (64 690), plus bas du jour 63 000. Revue globale BTC : position O0024 (0,0194 BTC, PRU 64 479) et achat en attente O0017 à 62 600 partagent un stop à 61 200, seulement 1,3 % sous le plancher de 62 000 du 15/11 (61 970 sur BTC/USD). C'est la zone où une mèche vient chercher les stops sous un plancher, alors que BTC bouge en moyenne de 3,3 % par jour ; le prochain vrai appui est le plus bas de février à 60 500, puis 59 000 à 60 000. Ce que je fais : poche moyen terme BTC, je descends le stop commun à 60 400, sous le plus bas de février. O0024 : mêmes sorties 70 000 / 75 000 par moitiés, stop au prix d'achat après TP1. O0017 : annulé et replacé à l'identique (même quantité, 62 600) avec le stop 60 400. ETH O0022, SOL O0027 et XRP O0025 inchangés. Réserve intacte. Pourquoi : un stop doit être sous un vrai plancher avec de la marge pour les mèches et le glissement du moteur 0.2 (environ 0,2 %) ; c'est un élargissement, pas un resserrement ; aucun stop au-dessus de l'achat en attente. Risque BTC total 96 à 121 USDC (1,9 % du capital), gain/risque net d'O0017 de 4,6 à 3,3 (2,4 au premier palier seul), frais 0,30 / 0,60 %.",
-    "applied": "2026-11-18T16:14:19+01:00"
+    "id": "2026-11-18-18h12",
+    "timestamp": "2026-11-18T18:12:00+01:00",
+    "rationale": "Ce que je vois : cycle 18h09 sain (moteur 0.2.0). Deux exécutions dans la baisse de 17h : palier moyen terme BTC O0028 à 62 600 (17h15) et court terme XRP O0025 à 0,966 (17h20). BTC 62 700, mèche à 62 226 avec pic de volume, juste au-dessus du plancher 3 mois de 62 000, sous ses MA20 1h (64 180) et 4h (64 520), RSI 1h 29 : survendu mais sans confirmation de rebond. ETH 1 752 plus faible que BTC sur 24 h. SOL (+1,1 % sur 24 h, +2,4 % sur 72 h) et XRP (+1,7 % / +2,6 %) restent plus forts que BTC (−1,5 % / −2,7 %). Revue globale par crypto : BTC 0,0306 (PRU 63 863) avec deux groupes de sorties O0029 et O0030 aux mêmes niveaux (stop 60 400, TP 70 000 / 75 000 par moitiés, stop au prix d'achat après TP1), plus aucun achat en attente : cohérent, ratio net ~2,1. ETH O0022 (stop 1 680, TP 2 000 / 2 150) ratio net ~2,1. SOL O0027 (stop 69,6, TP 80 / 87) ratio net ~1,7. XRP O0031 (stop 0,928 sous le plancher 0,942, TP 1,03 / 1,08) ratio net ~1,7. Aucun stop au-dessus d'un achat, aucun ordre qui vend puis rachète. Ce que je fais : rien de nouveau. Pourquoi : la poche court terme a ses deux positions (maximum), la poche moyen terme est à ~36 % (BTC 1 917 + ETH 390) pour 40 % visés, et le risque total corrélé atteint ~197 USDC (3,1 %) ; ajouter un palier dans un marché qui baisse sans confirmation contredit la leçon du 14/11. Je ne resserre aucun stop pendant la baisse. Réserve 3 306 USDC (52 %) intacte. Ce que j'apprends : les achats limites en repli se remplissent tous ensemble quand tout le marché baisse ; c'est un seul pari corrélé, donc pas de nouvel ordre avant que BTC reprenne sa MA20 horaire avec volume.",
+    "applied": "2026-11-18T18:10:36+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -515,10 +516,10 @@
     "XRPUSDC": 1795017600
   },
   "last_prices": {
-    "XBTUSDC": 62741.06,
-    "ETHUSDC": 1754.27,
-    "SOLUSDC": 73.26,
-    "XRPUSDC": 0.97669
+    "XBTUSDC": 62652.42,
+    "ETHUSDC": 1749.62,
+    "SOLUSDC": 73.09,
+    "XRPUSDC": 0.97465
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -532,8 +533,8 @@
     "order": 31,
     "trade": 16
   },
-  "last_cycle": "2026-11-18T18:09:15+01:00",
-  "last_cycle_ts": 1795021755,
+  "last_cycle": "2026-11-18T18:10:36+01:00",
+  "last_cycle_ts": 1795021836,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.003,
@@ -541,10 +542,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795021200,
-    "SOLUSDC": 1795021200,
-    "XBTUSDC": 1795021200,
-    "XRPUSDC": 1795021200
+    "ETHUSDC": 1795021500,
+    "SOLUSDC": 1795021500,
+    "XBTUSDC": 1795021500,
+    "XRPUSDC": 1795021500
   },
   "engine_version": "0.2.0"
 }
