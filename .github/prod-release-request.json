@@ -1,8 +1,8 @@
 {
   "environment": "production",
   "approved_by": "Cyril",
-  "version": "0.3.3",
-  "approved_commit": "183999f5d9f09e8c6b84933421c51529a5081123",
-  "reason": "GO explicite de Cyril pour v0.3.3; revue Grok Bot PR #60/#62 favorable; PR #63 candidate selective depuis main, CI quality-gates et guard-state vertes, fusionnee dans main; aucun changement state/ ni decisions/. Test webhook manuel reserve a Cyril apres publication.",
-  "request_sequence": 3
+  "version": "0.3.6",
+  "approved_commit": "6703205006d4d76e8a351daa6b872aecfd1bb4d3",
+  "reason": "GO production explicite de Cyril transmis avec la revue Grok Bot de preprod v0.3.6 (2b6a812, PR #66). Candidat selectif PR #67 fusionne sur main; aucune difference state/, decisions/, docs/LESSONS.md; ordres O0017, O0022 ETH, O0024, O0025, O0026 identiques; CI Python/Node et guard-state vertes. Publication uniquement via GitHub Actions ADR-28, pas de deploiement Netlify direct.",
+  "request_sequence": 4
 }
