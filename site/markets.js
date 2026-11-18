@@ -294,9 +294,9 @@
     const b = legendData.bars[i]; if (!b) return;
     const p = selected.pair, d = legendData.data;
     const chg = (b.c - b.o) / b.o * 100;
-    el.innerHTML = `<b>${esc(baseOf(p))}/USDC</b> <span class="muted">${esc(TF_LBL[selected.tf] || selected.tf)} · ${fmtTime(b.t, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}${i === legendData.bars.length - 1 ? " · bougie en cours" : ""}</span><br>
-      O ${pxf(p, b.o)} · H ${pxf(p, b.h)} · B ${pxf(p, b.l)} · C ${pxf(p, b.c)} <span class="${chg >= 0 ? "up" : "dn"}">(${chg >= 0 ? "▲" : "▼"} ${signed(chg)} %)</span><br>
-      <span class="sw ma20">MA20 ${pxf(p, d.m20[i])}</span> <span class="sw ma50">MA50 ${pxf(p, d.m50[i])}</span> <span class="sw rsi">RSI 14 ${d.r[i] == null ? "—" : nf(0).format(d.r[i])}</span>`;
+    el.innerHTML = `<span class="market-ohlc-line"><b>${esc(baseOf(p))}/USDC</b> <span class="muted">${esc(TF_LBL[selected.tf] || selected.tf)} · ${fmtTime(b.t, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}${i === legendData.bars.length - 1 ? " · bougie en cours" : ""}</span>
+      <span class="market-ohlc-values">O ${pxf(p, b.o)} · H ${pxf(p, b.h)} · B ${pxf(p, b.l)} · C ${pxf(p, b.c)} <span class="${chg >= 0 ? "up" : "dn"}">(${chg >= 0 ? "▲" : "▼"} ${signed(chg)} %)</span></span></span>
+      <span class="market-indicators-line"><span class="sw ma20">MA20 ${pxf(p, d.m20[i])}</span> <span class="sw ma50">MA50 ${pxf(p, d.m50[i])}</span> <span class="sw rsi">RSI 14 ${d.r[i] == null ? "—" : nf(0).format(d.r[i])}</span></span>`;
   }
 
   function setChartMsg(msg) { const m = $("mchart-msg"); m.textContent = msg || ""; m.hidden = !msg; }
