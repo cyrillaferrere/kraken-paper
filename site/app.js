@@ -205,7 +205,14 @@ function flashLiveValue(el, value) {
     if (!S) return;
     // statut
     const eng = $("b-engine");
-    if (eng) eng.textContent = "moteur v" + (S.engine_version || "0.1.0");
+    if (eng) eng.textContent = "Moteur v" + (S.engine_version || "0.1.0");
+    // Le palier d'affichage est calcule sans attendre un nouveau fill.
+    // Aucun changement du moteur ou du compte ; seules les executions PAPER
+    // du portefeuille dans les 30 derniers jours sont retenues.
+    const fees = window.KPVersionStatus && window.KPVersionStatus.feeTier(S.closed_trades, Date.now());
+    const feeEl = $("b-fee-tier");
+    if (feeEl && fees) feeEl.textContent = "Frais " + nf(2).format(fees.maker * 100) +
+      " / " + nf(2).format(fees.taker * 100) + " % (maker/taker)";
     const stp = $("st-prices");
     if (liveOk) { const partial = liveCoverage.found < liveCoverage.requested; stp.textContent = "Prix Kraken " + (partial ? "partiels " + liveCoverage.found + "/" + liveCoverage.requested : "en direct") + " · " + liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" }); stp.className = "pill " + (partial ? "warn" : "ok"); }
     else { stp.textContent = "Prix Kraken indisponibles : dernier cycle moteur"; stp.className = "pill warn"; }
@@ -474,7 +481,7 @@ function flashLiveValue(el, value) {
     b.title = env === "prod" ? "Production" : env === "preprod" ? "Préproduction : site de test" : env === "feature" ? "Branche de développement" : "Version locale non déployée";
     window.KP_VERSION = v;
     if (!v) return v;
-    $("b-version").textContent = "v" + v.version;
+    $("b-version").textContent = "Dash v" + v.version;
     const c = $("b-commit"); c.textContent = "commit " + String(v.commit).slice(0, 7); c.href = "https://github.com/cyrillaferrere/kraken-paper/commit/" + encodeURIComponent(v.commit);
     $("b-branch").textContent = "branche " + v.branch;
     $("b-time").textContent = v.built ? " · déployé le " + dt(v.built) : "";
