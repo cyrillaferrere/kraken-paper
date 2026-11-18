@@ -1,3 +1,11 @@
+## [0.3.7] — préparation préprod (18/11/2026)
+- Moteur PAPER 0.2.0 versionné séparément; affichage du moteur dans le dashboard.
+- Exécution en bougies 5 min clôturées; activation à la 5 min suivante; repli horaire journalisé.
+- Limites avec dépassement de 0,05 %, stops à glissement dynamique selon volatilité et volume.
+- Paliers de frais Kraken Pro selon volume glissant 30 jours du portefeuille.
+- Compatibilité de l'historique sans recalcul, migration de l'en-tête equity.csv par moteur seulement.
+- Tests de non-régression historiques et nouveaux cas, documentation ADR-35.
+
 ## [Unreleased] — v0.3.6.2 (contrôle de publication)
 - Le workflow de publication contrôlée accepte `X.Y.Z` et `X.Y.Z.W` (notamment `0.3.6.2`) ; ses validations SHA, VERSION et tests restent en place.
 - Le build Git Netlify de la production est systématiquement ignoré ; les préproductions/previews restent automatisées et le déploiement CLI contrôlé demeure la voie de publication.
