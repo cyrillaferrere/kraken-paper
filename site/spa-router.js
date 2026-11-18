@@ -6,7 +6,7 @@
   const main = document.getElementById("overview");
   if (!main) return;
   const views = [
-    { id:"terminal", name:"Terminal", blocks:[".workspace-intro",".cockpit","#market-card","#markers-panel","#positions-panel","#orders-panel","#performance-panel","#calendar-panel"] },
+    { id:"terminal", name:"Terminal", blocks:[".workspace-intro",".cockpit","#market-card","#positions-panel","#orders-panel","#performance-panel","#calendar-panel","#markers-panel"] },
     { id:"activite", name:"Activité & Bot", blocks:["#decisions-panel","#trades-panel","#journal-panel","#lessons-panel"] }
   ];
   const legacyRoutes = {
