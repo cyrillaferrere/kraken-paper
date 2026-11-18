@@ -1,5 +1,7 @@
 """Regression v0.3.7 / moteur 0.2.0. Aucun acces reseau ou state/."""
 import copy
+import json
+import os
 import unittest
 
 from engine import run
@@ -7,6 +9,27 @@ from tests.test_engine import FakeMarket, T0, H, decision
 
 
 class EngineV02Tests(unittest.TestCase):
+    def test_frozen_production_snapshot_replayed_without_mutation(self):
+        """Copie isolee du portefeuille PAPER du 18/11, aucun ecrit sur state/."""
+        fixture = os.path.join(os.path.dirname(__file__), "fixtures",
+                               "portfolio_2026-11-18.json")
+        with open(fixture, encoding="utf-8") as f:
+            source = json.load(f)
+        st = copy.deepcopy(source)
+        old_orders = copy.deepcopy(st["open_orders"])
+        old_positions = copy.deepcopy(st["positions"])
+        old_trades = copy.deepcopy(st["closed_trades"])
+        expected = {"O0017", "O0022", "O0024", "O0025", "O0026"}
+        self.assertEqual({x["id"] for x in old_orders}, expected)
+        run.run_cycle(st, [], FakeMarket(), st["last_cycle_ts"] + 60)
+        self.assertEqual(st["engine_version"], run.ENGINE_VERSION)
+        self.assertEqual(st["open_orders"], old_orders)
+        self.assertEqual(st["positions"], old_positions)
+        self.assertEqual(st["closed_trades"], old_trades)
+        self.assertNotIn("engine_version", source)
+        with open(fixture, encoding="utf-8") as f:
+            self.assertEqual(json.load(f), source)
+
     def test_version_and_old_portfolio_remain_compatible(self):
         state = run.new_state(T0)
         state.pop("engine_version")
