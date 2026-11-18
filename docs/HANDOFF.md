@@ -1,3 +1,8 @@
+## Feature v0.3.6 — analyse sous chandelier (18/11/2026)
+- `site/index.html` : les six indicateurs existants sont déplacés de la colonne contexte vers une bande sous le chandelier ; ajout `v036-price-scale` et `v036-pair-events` dans la colonne graphique. Les IDs antérieurs `focus-indicators`, `chart-order-levels` sont uniques et préservés.
+- `site/market-v035.js` : `collectPriceLevels()` construit exclusivement prix live connu, PRU, limites/stops/TP de la paire ; distance au cours en %. Une protection d'achat en attente est signalée conditionnelle. `recentPairEvents()` limite à quatre événements explicitement associés à la paire, à partir du journal, et dirige vers Activité, sans relier artificiellement les décisions.
+- `site/spa-v036.css` : grille indicateurs et réglette, hauteur contrôlée des modules, responsive. Test `tests/site/market-v035.test.js` étendu. Aucun nouveau flux, aucun changement d'ordre ni de simulation, version maintenue à 0.3.6.
+
 ## Feature v0.3.6 — stabilité du panneau Marchés (18/11/2026)
 - Dans `site/spa-v036.css`, les tuiles d'ordres du Focus sont normalisées à 94 px (96 px mobile), titre une ligne et description deux lignes. Les détails complets restent accessibles par l'attribut `title` et `aria-label` dans `site/focus-ux.js`, avec ouverture du détail d'ordre au clic.
 - `site/index.html` expose `book-spread-pct` sous `book-spread`, et `site/market-v035.js` renseigne séparément les deux valeurs, y compris leur indisponibilité. Les trois tuiles du carnet gardent 100 px, le statut réserve deux lignes et les dix rangs de profondeur 287 px, y compris en cas de chargement/échec. Aucun chiffre/trade inventé ni données tronquées côté logique.
