@@ -1,4 +1,6 @@
 ## [Unreleased] — UX v0.3.6 (feature, non fusionnée)
+- Correctif du sélecteur 5m/15m/30m/1h/4h/1j : suppression du fond animé calculé sur six colonnes égales, sélection fixée au bouton actif avec focus clavier et débordement mobile maîtrisé. Aucun changement des intervalles ou des bougies.
+
 - Barre supérieure Marchés densifiée : paire/cours live, unités de temps et actions sur une même zone, paires en ruban horizontal, outils bougies regroupés, OHLC et MA20/MA50/RSI sur deux lignes lisibles. Maintien des identifiants de streaming et des interactions ; responsive et tests d'intégration ajoutés.
 
 - Analyse du marché compactée : six indicateurs resserrés, réglette visuelle maintenue, tableau de niveaux PAPER à quatre colonnes avec accès à chaque ordre, suppression de la liste de niveaux redondante, trois événements de paire par défaut. Données et conditions de protection conservées, hauteurs limitées pendant les mises à jour.
