@@ -2,6 +2,7 @@
 import os
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine"))
 import run  # noqa: E402
@@ -49,6 +50,8 @@ def decision(did, *actions):
             "actions": list(actions)}
 
 
+# Legacy 0.1 fallback expectations, exercised only beyond OHLC retention.
+@mock.patch.object(run, "RETENTION_5M", -1)
 class EngineTests(unittest.TestCase):
     def setUp(self):
         self.state = run.new_state(T0 - 10)
@@ -199,6 +202,8 @@ if __name__ == "__main__":
     unittest.main()
 
 
+# Legacy 0.1 fallback expectations, exercised only beyond OHLC retention.
+@mock.patch.object(run, "RETENTION_5M", -1)
 class LateOrderTests(unittest.TestCase):
     def test_order_ignores_candle_started_before_it(self):
         st = run.new_state(T0 - 10)
