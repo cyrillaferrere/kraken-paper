@@ -477,3 +477,155 @@ body.market-focus #market-card .v036-market-analysis {margin-top:18px;}
 @media(prefers-reduced-motion:reduce){
   .v036-ruler-pin,.v036-level-row,.v036-event {animation:none!important;transition:none!important;}
 }
+
+
+/* v0.3.6 — terminal compact : trois lignes d'indicateurs supprimées,
+   niveaux lisibles en vrai tableau sans répétition de puces. */
+#market-card .v036-market-analysis {
+  gap:10px;
+  margin-top:14px;
+  padding:13px;
+}
+#market-card .v036-insights-head {gap:6px;}
+#market-card .v036-insights-head h3 {margin:2px 0 0;font-size:13px;}
+#market-card .v036-market-analysis .v035-indicators {
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+}
+#market-card .v036-market-analysis .v035-indicators > div {
+  min-height:48px;
+  padding:7px 10px;
+  gap:1px;
+  border-radius:7px;
+}
+#market-card .v036-market-analysis .v035-indicators dt {
+  min-height:auto;
+  font-size:10px;
+  line-height:1.3;
+}
+#market-card .v036-market-analysis .v035-indicators dd {
+  min-height:auto;
+  font-size:12px;
+  line-height:1.4;
+}
+#market-card .v036-price-panel,
+#market-card .v036-activity-panel {
+  padding:11px 12px;
+  border-radius:9px;
+}
+#market-card .v036-price-scale {padding-top:9px;}
+#market-card .v036-ruler-track {margin:4px 9px 11px;height:11px;}
+#market-card .v036-ruler-pin {height:16px;width:7px;}
+#market-card .v036-ruler-current {height:19px;width:10px;}
+#market-card .v036-level-table-wrap {
+  max-height:228px;
+  overflow-y:auto;
+  overflow-x:auto;
+  scrollbar-gutter:stable;
+  border:1px solid rgba(128,163,173,.16);
+  border-radius:8px;
+}
+#market-card .v036-level-table {
+  width:100%;
+  border-collapse:collapse;
+  border-spacing:0;
+  table-layout:fixed;
+  font-variant-numeric:tabular-nums;
+}
+#market-card .v036-level-table th,
+#market-card .v036-level-table td {
+  padding:7px 9px;
+  text-align:left;
+  line-height:1.4;
+  vertical-align:middle;
+}
+#market-card .v036-level-table thead th {
+  position:sticky;
+  top:0;
+  z-index:2;
+  padding:8px 9px;
+  background:#142830;
+  color:#a3b9c3;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+  border-bottom:1px solid rgba(128,163,173,.2);
+}
+#market-card .v036-level-table th:nth-child(1){width:34%;}
+#market-card .v036-level-table th:nth-child(2){width:26%;}
+#market-card .v036-level-table th:nth-child(3){width:19%;}
+#market-card .v036-level-table th:nth-child(4){width:21%;}
+#market-card .v036-level-table tbody tr {
+  height:36px;
+  border-bottom:1px solid rgba(128,163,173,.10);
+  background:rgba(7,20,27,.42);
+}
+#market-card .v036-level-table tbody tr:nth-child(even){background:rgba(15,36,44,.55);}
+#market-card .v036-level-table tbody tr:last-child{border-bottom:0;}
+#market-card .v036-level-table .v036-level-name{
+  display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:11px;font-weight:650;
+}
+#market-card .v036-level-table .v036-level-value {
+  display:block;font-size:11px;
+  overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#market-card .v036-level-table .v036-level-distance {
+  display:block;justify-self:auto;white-space:nowrap;font-size:11px;
+}
+#market-card .v036-level-table .v036-conditional{
+  display:block;white-space:nowrap;font-size:9px;
+}
+#market-card .v036-level-table .v036-level-order {
+  display:inline-flex;align-items:center;
+  max-width:100%;
+  min-height:28px;
+  padding:3px 6px;
+  border:1px solid rgba(103,223,210,.3);
+  border-radius:6px;
+  background:rgba(103,223,210,.07);
+  color:#a4e7da;
+  font-size:10px;
+  font-weight:650;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#market-card .v036-level-table .v036-level-order:hover {
+  border-color:var(--ac2);background:rgba(103,223,210,.15);
+}
+#market-card .v036-level-table .v036-level-order:focus-visible {
+  outline:2px solid var(--ac2);outline-offset:2px;
+}
+#market-card .v036-level-table .v036-level-no-order {color:#708994;}
+#market-card .v036-level-table .v036-kind-current {background:rgba(81,212,194,.085);}
+#market-card .v036-events {gap:4px;margin-top:9px;}
+#market-card .v036-event {
+  grid-template-columns:95px minmax(0,1fr) auto;
+  min-height:39px;
+  padding:6px 9px;
+  gap:7px;
+}
+#market-card .v036-event-info strong {font-size:11px;}
+#market-card .v036-event-info small {font-size:10px;}
+#market-card .v036-event-time {font-size:10px;}
+@media(max-width:1000px){
+  #market-card .v036-market-analysis .v035-indicators {grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:760px){
+  #market-card .v036-market-analysis {padding:10px;margin-top:11px;gap:8px;}
+  #market-card .v036-market-analysis .v035-indicators {grid-template-columns:repeat(2,minmax(0,1fr));}
+  #market-card .v036-market-analysis .v035-indicators > div {padding:7px;min-height:47px;}
+  #market-card .v036-level-table th,
+  #market-card .v036-level-table td {padding:6px 5px;}
+  #market-card .v036-level-table thead th {padding:7px 5px;font-size:9px;}
+  #market-card .v036-level-table .v036-level-name,
+  #market-card .v036-level-table .v036-level-value,
+  #market-card .v036-level-table .v036-level-distance {font-size:10px;}
+  #market-card .v036-level-table .v036-level-order {font-size:9px;padding:3px 4px;}
+  #market-card .v036-event {grid-template-columns:1fr auto;gap:3px;}
+  #market-card .v036-event-time {grid-column:1/-1;}
+}
+@media(prefers-reduced-motion:reduce){
+  #market-card .v036-level-table .v036-level-order {animation:none!important;transition:none!important;}
+}
