@@ -97,6 +97,10 @@
 
   <section class="card" id="market-card" aria-labelledby="market-h">
     <div class="card-h"><h2 id="market-h"><span class="heading-index">03 / MARCHÉS</span><span class="heading-title">Le marché en direct</span></h2>
+      <div class="market-header-live"><div class="selected-live" aria-label="Cours de la crypto sélectionnée">
+      <div class="selected-live-main"><span id="selected-live-pair" class="selected-live-pair">BTC / USDC</span><strong id="selected-live-price" class="selected-live-price">—</strong><span class="selected-live-unit">USDC</span></div>
+      <span id="selected-live-status" class="selected-live-status" aria-live="off">Chargement du cours Kraken…</span>
+    </div></div>
       <div id="tf-tabs" class="seg" role="tablist" aria-label="Unité de temps des bougies">
         <span class="seg-thumb" aria-hidden="true"></span>
         <button type="button" role="tab" class="motion-button" data-tf="5m" aria-selected="false">5 min</button>
@@ -110,10 +114,6 @@
       <button type="button" id="market-focus-toggle" class="focus-toggle motion-button" aria-pressed="false" aria-controls="market-stage" aria-label="Ouvrir le mode Focus marché"><span aria-hidden="true">⛶</span> <span id="market-focus-label">Mode Focus</span></button>
     </div>
     <div id="pair-chips" class="chips" aria-label="Choix de la crypto"></div>
-    <div class="selected-live" aria-label="Cours de la crypto sélectionnée">
-      <div class="selected-live-main"><span id="selected-live-pair" class="selected-live-pair">BTC / USDC</span><strong id="selected-live-price" class="selected-live-price">—</strong><span class="selected-live-unit">USDC</span></div>
-      <span id="selected-live-status" class="selected-live-status" aria-live="off">Chargement du cours Kraken…</span>
-    </div>
     <div class="chart-tools" role="group" aria-label="Fenêtre visible du graphique">
       <span class="chart-tools-label">Vue</span>
       <button type="button" class="chart-range motion-button" data-bars="60" aria-pressed="false">60 bougies</button>
