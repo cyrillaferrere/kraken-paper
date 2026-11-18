@@ -1,3 +1,16 @@
+## Addendum revue Grok Bot — 18/11/2026 (bloquant)
+- Une erreur OHLC 5 min (limitation Kraken, indisponibilite du reseau, serveur)
+  **interdit** le repli 1 h pour cette paire pendant le cycle. Le moteur
+  n'avance ni `last_m5` ni `last_candle` et reessaie au cycle suivant.
+- Un retour incomplet OHLC 5 min dans la fenetre des ~60 h de retention
+  entraine l'attente, jamais un repli. Le repli 1 h n'est autorise qu'une
+  fois le segment entier strictement plus ancien que 60 h ; il est journalise.
+- Si le curseur 5 min a deja progresse a l'interieur d'une heure, cette heure
+  est definitivement exclue du repli 1 h (anti-double-execution). Il faut
+  recuperer les 5 min manquantes ; au-dela de la retention, une intervention
+  documentee sera necessaire, sans inventer de fills.
+- Aucun changement de `state/` ou `decisions/` par cette PR.
+
 # ADR-35 — Fidelite des executions PAPER, moteur 0.2.0 (18/11/2026)
 
 Statut : propose / implante en feature, non valide en production.
