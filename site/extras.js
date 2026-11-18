@@ -69,7 +69,7 @@
     const S = ctx.S, list = (decSource === "api" ? decisions : decisionsFromJournal()).filter((d) => d && d.id);
     const processed = new Set(S.processed_decisions || []);
     const evs = ctx.journal.filter((e) => e.decision_id);
-    const sig = JSON.stringify([decSource, list.map((d) => d.id + (d.rationale || "").length), [...processed], evs.length]);
+    const sig = JSON.stringify([decSource, list.map((d) => [d.id, d.type, d.timestamp, d.note, d.rationale]), [...processed], evs.length]);
     if (sig === decSig) return;
     decSig = sig;
     const box = $("dec-feed");
@@ -77,6 +77,14 @@
     const sorted = list.slice().sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")) || String(b.id).localeCompare(String(a.id)));
     if (!sorted.length) { box.innerHTML = '<p class="muted">Pas encore de décision : la première arrive à la prochaine session.</p>'; return; }
     box.innerHTML = sorted.map((d, i) => {
+      if (d.type === "heartbeat") {
+        // Une presence sans ordre n'est ni appliquee ni en attente du moteur.
+        return `<details class="dec dec-heartbeat" data-id="${esc(d.id)}">
+          <summary><span class="chev" aria-hidden="true">▸</span><span class="heartbeat-label">Session confirmée · aucun changement</span>
+          <span class="muted">${d.timestamp ? esc(dtl(d.timestamp)) : ""}</span></summary>
+          <div class="dec-body"><p class="muted">${esc(d.note || "Aucune modification proposée.")}</p></div>
+        </details>`;
+      }
       const done = processed.has(d.id);
       const acts = Array.isArray(d.actions) ? d.actions : null;
       const notes = acts ? acts.filter((a) => a.type === "note") : [];
@@ -181,9 +189,14 @@
     $("cd-cycle-note").innerHTML = c.late
       ? `<span class="warn-txt">⚠ Dernier cycle il y a ${L.duration(c.ageMs)}. En production, la fonction Netlify (minute 9) devrait lancer le cycle ; le cron GitHub (minute 7) prend le relais si besoin. Chaque décision lance aussi un cycle.</span>`
       : `Dernier cycle : ${S.last_cycle ? hm(S.last_cycle) : "—"}. Déclencheur principal : fonction Netlify à la minute 9, uniquement en production${prod ? "" : " (pas encore active ici)"}. Le cron GitHub (minute 7) prend le relais si besoin.`;
-    const d = S.last_decision, s = L.nextSession(d && d.timestamp ? new Date(d.timestamp).getTime() : null, now);
-    $("cd-session").textContent = !s ? "—" : s.overdue ? `${hm(s.at)} · retard ${L.duration(-s.inMs)}` : `${hm(s.at)} · ${L.duration(s.inMs)}`;
-    $("cd-session-note").textContent = d ? `Environ toutes les 5 h après la dernière décision (${d.id}). Estimation, pas un horaire fixe.` : "Aucune décision pour l'instant.";
+    const last = L.latestSession(decSource === "api" ? decisions : [], S.last_decision);
+    const s = L.nextSession(last ? last.ms : null, now);
+    $("cd-session").textContent = !s ? "—" : s.overdue
+      ? `${hm(s.at)} · estimation dépassée`
+      : `${hm(s.at)} · dans ${L.duration(s.inMs)}`;
+    $("cd-session-note").textContent = last
+      ? `Dernière session documentée : ${dtl(last.timestamp)} (${last.kind === "heartbeat" ? "passage sans modification" : "décision"} · ${last.id || "id inconnu"}). Prochaine estimation : +5 h. Une estimation dépassée ne prouve pas un retard du bot.`
+      : "Aucune session documentée. Impossible de confirmer les passages sans décision ou heartbeat.";
   }
 
   // ---------- calendrier ----------
@@ -215,7 +228,7 @@
   async function refreshRemote() {
     lastApi = Date.now();
     await loadDecisions();
-    renderDecisions();
+    if (ctx) { renderDecisions(); renderCountdowns(); }
     await loadLessons();
   }
   window.KPExtras = {
@@ -226,8 +239,18 @@
     onState(c) {
       ctx = c;
       renderExposure(); renderCountdowns(); renderCalendar(); renderDecisions();
-      if (!started) { started = true; refreshRemote(); setInterval(() => { if (!document.hidden && ctx) renderCountdowns(); }, 30e3); }
-      else if (c.stateChanged && Date.now() - lastApi > 60e3) refreshRemote();
+      if (!started) {
+        started = true;
+        refreshRemote();
+        setInterval(() => { if (!document.hidden && ctx) renderCountdowns(); }, 30e3);
+        // Un heartbeat n'affecte pas state/ : interroger le depot aussi en
+        // l'absence de nouveaux cycles, sous ETag, a cadence raisonnable.
+        setInterval(async () => {
+          if (document.hidden || !ctx || Date.now() - lastApi < 5 * 60e3) return;
+          lastApi = Date.now();
+          if (await loadDecisions()) { renderDecisions(); renderCountdowns(); }
+        }, 5 * 60e3);
+      } else if (c.stateChanged && Date.now() - lastApi > 5 * 60e3) refreshRemote();
     },
   };
 })();
