@@ -27,3 +27,9 @@ La page Terminal est plus longue mais orientée par priorités et ancres rapides
 - Suppression de la seconde liste de boutons « Niveaux sur le graphique », redondante avec le tableau. Les lignes et marqueurs déjà présents dans le chandelier ne sont pas retirés.
 - La zone Activité récente présente trois événements explicitement associés à la paire ; l'historique complet reste accessible dans Activité & Bot. Les hauteurs de lignes et la zone de tableau sont stabilisées pour éviter les sauts durant les actualisations.
 - Aucun impact moteur, calcul PAPER, état, stratégie ou API ; tests Node renforcés sur les identifiants d'ordre et niveaux partageant un prix.
+
+## Raffinement de la barre Marchés v0.3.6 (18/11/2026)
+- La zone haute du marché est structurée en cinq lignes fonctionnelles : (1) cours live de la paire + onglets temporels + boutons Ordres/Focus, (2) paires suivies à défilement horizontal, (3) fenêtre des bougies et informations de lecture, (4) OHLC de la bougie survolée, (5) MA20/MA50/RSI.
+- Le bandeau de prix existant est **déplacé dans l'en-tête**, jamais cloné : identifiants DOM et flux websocket inchangés. Le titre de section reste accessible aux lecteurs d'écran mais ne redouble plus visuellement le prix. Le statut de fraîcheur conserve son nœud DOM (notamment pour les traitements de données), avec informations temporelles visibles dans la barre des bougies.
+- La légende OHLC est rendue en deux lignes logiques et garde sa stabilité sur le survol; les boutons et sélections conservent leurs handlers. Mise en page adaptative à 1260/760 px, paires sur une ligne scrollable et effets de mouvement réduits.
+- Aucune modification de simulation, stratégie, ordre, `state/`, `decisions/` ou version ; l'objectif est de réduire la hauteur d'en-tête sans dissimuler les informations de marché importantes.
