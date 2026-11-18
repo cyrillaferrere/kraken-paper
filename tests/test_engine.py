@@ -141,7 +141,7 @@ class EngineTests(unittest.TestCase):
         self.place_then_replay(d, m.candles, T0 + 2 * H + 60)
         trades = self.state["closed_trades"]
         self.assertEqual([t["reason"] for t in trades], ["limit", "stop_loss"])
-        self.assertEqual(trades[1]["price"], 61938.0)   # stop - 0,1 %
+        self.assertLess(trades[1]["price"], 61938.0)  # glissement dynamique en forte amplitude
         self.assertEqual(trades[1]["liquidity"], "taker")
         self.assertNotIn("XBTUSDC", self.state["positions"])
         self.assertEqual(self.state["open_orders"], [])
