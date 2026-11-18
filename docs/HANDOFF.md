@@ -1,3 +1,10 @@
+## Release ciblée v0.3.6.2 — 18/11/2026
+- GO production de Cyril reçu ; release basée sur main (et non fusion globale de preprod) pour éviter les changements anciens du moteur et du dashboard.
+- La publication contrôlée accepte les versions à quatre segments ; la branche deploy/prod-request a été synchronisée.
+- netlify.toml empêche les builds Git de production, mais ne protège pas contre les deploy hooks, la CLI manuelle ou l'interface Netlify.
+- Tests : tests/site/netlify-build-gate.test.js et CI ; contrôler le SHA publié via version.json après workflow.
+- Aucun changement engine/, state/, decisions/ ou docs/LESSONS.md.
+
 ## Fix v0.3.6.1 — échelle du graphique au changement de paire (18/11/2026)
 - Capture de Cyril (prod v0.3.6, 12h18) : XRP/USDC 1 h affiché sur une échelle 63 000–71 000, étiquettes 0,987 et 0,966 collées en bas.
 - Cause (`site/markets.js`, `loadChartInner` / `overlays`) : (1) si l'échelle de prix n'était plus en autoscale (glisser ou zoom vertical sur BTC), le changement de paire gardait la plage BTC ; (2) `setData` des bougies XRP partait avec les niveaux BTC encore dans `levelPrices`, et Lightweight Charts ne recalcule pas l'échelle quand on retire ou crée une priceLine.
