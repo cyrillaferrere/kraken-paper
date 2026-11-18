@@ -1,3 +1,9 @@
+## Recette v0.3.6 — stabilité des hauteurs du carnet (18/11/2026)
+- Dans Marché, tester prix changeant, rafraîchissement manuel, erreur de l'API et changement de paire : aucun des trois blocs meilleur achat/spread/meilleure vente ne doit changer de hauteur et le tableau réserve toujours 10 niveaux.
+- Dans Ordres & protections, titres sur une ligne et descriptions sur deux lignes maximum ; les cartes restent de hauteur uniforme même avec plusieurs TP. Vérifier lecture du texte intégral au survol / par technologie d'assistance, et accès aux détails au clic.
+- Mesurer en particulier à 320, 390, 768 et 1440 px ainsi qu'avec zoom navigateur à 125 % et 200 %. Si les prix sont illisibles ou coupés, ajuster la taille des colonnes sans fausser les données.
+- Exécuter `node --test tests/site/*.test.js`, conserver `VERSION=0.3.6`, PR #66 en feature sans fusion ni production.
+
 ## Recette v0.3.6 — Terminal unifié + heartbeat (feature uniquement)
 1. Confirmer `VERSION=0.3.6`, PR #66 brouillon, Netlify avec SHA identique au dernier commit feature. `preprod` reste sur v0.3.4 et `main` inchangée.
 2. Naviguer entre `#/terminal` et `#/activite` à 390, 768 et 1440 px. Dans Terminal, barre interne Synthèse / Marché / Ordres / Performance, et mobile cinq raccourcis dont Activité. Vérifier `#/marches`, `#/portefeuille`, `#market-card` et `#orders-panel` comme liens anciens.
