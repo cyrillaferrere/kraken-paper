@@ -93,8 +93,9 @@ test("Focus: niveaux issus des ordres et stop conditionnel au nouvel achat", () 
     positions:{},
     open_orders:[{id:"O1",pair:"XBTUSDC",side:"buy",price:100,stop_loss:95,take_profit:110}]
   }});
-  assert.match(get("chart-order-levels").innerHTML,/si achat exécuté/);
-  assert.match(get("chart-order-levels").innerHTML,/data-v035-order="O1"/);
+  assert.match(get("v036-price-scale").innerHTML,/si achat exécuté/);
+  assert.match(get("v036-price-scale").innerHTML,/data-v035-order="O1"/);
+  assert.match(get("v036-price-scale").innerHTML,/<table class="v036-level-table">/);
 });
 
 
@@ -123,7 +124,7 @@ test("Réglette : aucun niveau ni distance fictive si le cours manque",()=>{
   api.onMarket("XBTUSDC",{}, {S:state,price:()=>null});
   assert.match(get("v036-price-scale").innerHTML,/Aucun niveau connu/);
 });
-test("Activité par paire : quatre événements maximum, aucune association temporelle inventée",()=>{
+test("Activité par paire : trois événements maximum, aucune association temporelle inventée",()=>{
   const {api}=harness();
   const journal=[
     {type:"decision",decision_id:"D1",time:"2026-11-17T08:00:00Z"},
@@ -136,8 +137,8 @@ test("Activité par paire : quatre événements maximum, aucune association temp
     {type:"fill",trade:{id:"T3",pair:"XBTUSDC",price:63500}},
   ];
   const events=toPlain(api.recentPairEvents(journal,"XBTUSDC"));
-  assert.equal(events.length,4);
-  assert.deepEqual(events.map(e=>e.type),["fill","exits_updated","cancel","fill"]);
+  assert.equal(events.length,3);
+  assert.deepEqual(events.map(e=>e.type),["fill","exits_updated","cancel"]);
   assert.ok(events.every(e=>!e.decisionId));
   assert.equal(api.recentPairEvents(journal,"SOLUSDC").length,0);
 });
@@ -147,4 +148,24 @@ test("Activité : mise à jour journal affichée quand la paire a déjà été c
   api.onPortfolio({equity:[],journal:[{type:"order_placed",time:"2026-11-18T08:00:00Z",order:{id:"O7",pair:"XBTUSDC",price:64400}}]});
   assert.match(get("v036-pair-events").innerHTML,/Ordre créé/);
   assert.match(get("v036-pair-events").innerHTML,/Journal/);
+});
+
+
+test("Niveaux PAPER: conserver chaque ordre même si plusieurs partagent le même prix",()=>{
+  const {api,get}=harness();
+  const S={positions:{},open_orders:[
+    {id:"O17",pair:"XBTUSDC",side:"buy",price:62500,stop_loss:61200,take_profit:70000},
+    {id:"O24",pair:"XBTUSDC",side:"sell",price:70000,stop_loss:61200,take_profit:75000}
+  ]};
+  api.onMarket("XBTUSDC",{}, {S,price:()=>64500});
+  const levels=toPlain(api.collectPriceLevels("XBTUSDC",S,64500));
+  const stops=levels.filter(x=>x.label==="Stop" && x.value===61200);
+  assert.equal(stops.length,2);
+  assert.deepEqual(stops.map(x=>x.orderId),["O17","O24"]);
+  const markup=get("v036-price-scale").innerHTML;
+  assert.match(markup,/<table class="v036-level-table">/);
+  assert.match(markup,/data-v035-order="O17"/);
+  assert.match(markup,/data-v035-order="O24"/);
+  assert.doesNotMatch(markup,/v036-level-list/);
+  assert.match(markup,/si achat exécuté/);
 });
