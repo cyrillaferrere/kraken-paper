@@ -32,28 +32,24 @@
 
 <button id="nav-toggle" class="nav-toggle motion-button" type="button" aria-controls="dash-nav" aria-expanded="false" aria-label="Ouvrir le menu">☰ <span>Menu</span></button>
 <nav id="dash-nav" class="dash-nav" aria-label="Navigation principale">
-  <div class="app-nav-head"><span class="app-nav-mark">KP</span><div class="app-nav-title"><strong>Terminal</strong><small>Navigation</small></div></div>
-  <a href="#/accueil" data-route="accueil"><span class="nav-ico" aria-hidden="true">⌂</span><span class="nav-label">Vue d'ensemble</span></a>
-  <a href="#/marches" data-route="marches"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Marchés</span></a>
-  <a href="#/portefeuille" data-route="portefeuille"><span class="nav-ico" aria-hidden="true">◫</span><span class="nav-label">Portefeuille</span></a>
-  <a href="#/performance" data-route="performance"><span class="nav-ico" aria-hidden="true">↗</span><span class="nav-label">Performance</span></a>
+  <div class="app-nav-head"><span class="app-nav-mark">KP</span><div class="app-nav-title"><strong>Terminal</strong><small>Simulation PAPER</small></div></div>
+  <a href="#/terminal" data-route="terminal"><span class="nav-ico" aria-hidden="true">▥</span><span class="nav-label">Terminal</span></a>
   <a href="#/activite" data-route="activite"><span class="nav-ico" aria-hidden="true">◷</span><span class="nav-label">Activité & Bot</span></a>
-  <div class="app-nav-foot"><span class="app-nav-status-dot"></span><span class="nav-label">Simulation PAPER</span></div>
+  <div class="app-nav-foot"><span class="app-nav-status-dot"></span><span class="nav-label">Aucun ordre réel</span></div>
 </nav>
 <nav id="mobile-primary-nav" class="mobile-primary-nav" aria-label="Navigation mobile">
-  <a href="#/accueil" data-route="accueil"><span aria-hidden="true">⌂</span><small>Accueil</small></a>
-  <a href="#/marches" data-route="marches"><span aria-hidden="true">▥</span><small>Marchés</small></a>
-  <a href="#/portefeuille" data-route="portefeuille"><span aria-hidden="true">◫</span><small>Portefeuille</small></a>
-  <a href="#/performance" data-route="performance"><span aria-hidden="true">↗</span><small>Perf.</small></a>
-  <button id="mobile-more-toggle" type="button" aria-expanded="false" aria-controls="mobile-more-menu"><span aria-hidden="true">⋯</span><small>Plus</small></button>
-  <div id="mobile-more-menu" class="mobile-more-menu" hidden><a href="#/activite" data-route="activite">Activité & Bot <span aria-hidden="true">↗</span></a></div>
+  <a href="#/terminal#cockpit" data-route="terminal" aria-label="Synthèse du Terminal"><span aria-hidden="true">⌂</span><small>Synthèse</small></a>
+  <a href="#/terminal#market-card" data-route="terminal" aria-label="Marché"><span aria-hidden="true">▥</span><small>Marché</small></a>
+  <a href="#/terminal#orders-panel" data-route="terminal" aria-label="Ordres"><span aria-hidden="true">≡</span><small>Ordres</small></a>
+  <a href="#/terminal#performance-panel" data-route="terminal" aria-label="Performance"><span aria-hidden="true">↗</span><small>Perf.</small></a>
+  <a href="#/activite" data-route="activite" aria-label="Activité et Bot"><span aria-hidden="true">◷</span><small>Activité</small></a>
 </nav>
 <main id="overview">
   <div class="workspace-intro" aria-label="Accueil du tableau de bord">
     <div class="workspace-intro-copy"><span class="workspace-kicker"><span class="workspace-kicker-dot" aria-hidden="true"></span> TERMINAL PAPER · VUE GÉNÉRALE</span><h2>Votre portefeuille, <em>en un regard.</em></h2><p>Capital, exposition et marché. Des prix réels, une simulation sans ordre réel.</p></div>
-    <div class="workspace-shortcuts" aria-label="Accès rapides"><a href="#/marches">Explorer le marché <span aria-hidden="true">↗</span></a><a href="#/portefeuille#orders-panel">Suivre les ordres <span aria-hidden="true">↗</span></a></div>
+    <div class="workspace-shortcuts" aria-label="Accès rapides"><a href="#/terminal#market-card">Explorer le marché <span aria-hidden="true">↗</span></a><a href="#/terminal#orders-panel">Suivre les ordres <span aria-hidden="true">↗</span></a></div>
   </div>
-  <section class="cockpit" aria-label="Synthèse financière et état du portefeuille">
+  <section class="cockpit" id="cockpit" aria-label="Synthèse financière et état du portefeuille">
     <article class="cockpit-panel cockpit-main">
       <div class="cockpit-head">
         <div>
@@ -94,7 +90,7 @@
       </section>
       <div class="system-strip">
         <div><span>Prochain cycle</span><strong id="cd-cycle">—</strong><small id="cd-cycle-note" class="sr-only"></small></div>
-        <div><span>Session Grok · estimée</span><strong id="cd-session">—</strong><small id="cd-session-note" class="sr-only"></small></div>
+        <div><span>Prochaine session Grok · estimée</span><strong id="cd-session">—</strong><small id="cd-session-note" class="sr-only"></small></div>
       </div>
     </article>
   </section>
