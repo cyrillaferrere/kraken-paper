@@ -4,8 +4,9 @@
 [build]
   publish = "site"
   command = "sh scripts/netlify-build.sh"
-  # Ne construit que si le site, la config ou les fonctions changent (économise les minutes Netlify).
-  ignore = "if [ \"$CONTEXT\" = \"deploy-preview\" ]; then exit 1; fi; git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- VERSION site/ netlify.toml netlify/ scripts/netlify-build.sh"
+  # Git main : ignorer systématiquement ; seul le déploiement CLI contrôlé publie la prod.
+  # Préprod / previews : build automatique quand le site ou la config change.
+  ignore = "sh scripts/netlify-ignore-build.sh"
 
 [functions]
   directory = "netlify/functions"
