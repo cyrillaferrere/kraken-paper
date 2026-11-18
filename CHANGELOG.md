@@ -1,3 +1,8 @@
+## [0.3.6.2] — 2026-11-18 — publication contrôlée
+- Validation des versions X.Y.Z et X.Y.Z.W dans le workflow de publication.
+- Blocage des builds Git automatiques Netlify sur main ; previews et préproduction conservées.
+- Tests de sécurité et ADR-34. Aucune modification du moteur PAPER, des ordres, de l'état ou des décisions.
+
 ## [Unreleased] — correctif v0.3.6.1 (fix/v0.3.6.1-chart-pair-scale)
 - Graphique Terminal : en passant d'une paire à l'autre (ex. BTC → XRP), l'échelle de prix restait sur la plage de la paire précédente (63 000–71 000) et les bougies XRP sortaient du cadre. Au changement de paire ou de TF, les lignes d'ordres, stops, objectifs et PRU de l'ancienne paire sont retirées avant de charger les bougies, et l'échelle repart en automatique. Les niveaux tracés sont filtrés sur la paire affichée, l'échelle est recalculée quand ils changent, et « Recentrer » remet aussi l'échelle de prix en automatique. Test `tests/site/chart-pair-scale.test.js`. Aucun changement de moteur, d'état ni de décisions.
 
