@@ -96,3 +96,55 @@ test("Focus: niveaux issus des ordres et stop conditionnel au nouvel achat", () 
   assert.match(get("chart-order-levels").innerHTML,/si achat exécuté/);
   assert.match(get("chart-order-levels").innerHTML,/data-v035-order="O1"/);
 });
+
+
+test("Réglette : cours, PRU, stop et objectifs sont des niveaux PAPER réels", () => {
+  const {api,get}=harness();
+  const state={positions:{XBTUSDC:{avg_cost:64000}},open_orders:[
+    {id:"O10",pair:"XBTUSDC",side:"buy",price:62500,stop_loss:61000,take_profits:[{price:70000},{price:75000}]},
+    {id:"O11",pair:"ETHUSDC",side:"buy",price:2000,stop_loss:1900},
+  ]};
+  const levels=toPlain(api.collectPriceLevels("XBTUSDC",state,65000));
+  assert.deepEqual(levels.map(x=>x.label),["Cours observé","Prix de revient","Achat limite","Stop","TP1","TP2"]);
+  assert.equal(levels[3].conditional,true);
+  assert.equal(levels[4].conditional,true);
+  assert.equal(levels[0].distance,0);
+  assert.ok(Math.abs(levels[3].distance - (61000/65000-1)*100)<1e-8);
+  api.onMarket("XBTUSDC",{}, {S:state,price:()=>65000});
+  assert.match(get("v036-price-scale").innerHTML,/Cours observé/);
+  assert.match(get("v036-price-scale").innerHTML,/si achat exécuté/);
+  assert.doesNotMatch(get("v036-price-scale").innerHTML,/2 000/);
+  assert.match(get("v036-price-scale").attrs["aria-label"],/Stop/);
+});
+test("Réglette : aucun niveau ni distance fictive si le cours manque",()=>{
+  const {api,get}=harness();
+  const state={positions:{},open_orders:[]};
+  assert.equal(api.collectPriceLevels("XBTUSDC",state,null).length,0);
+  api.onMarket("XBTUSDC",{}, {S:state,price:()=>null});
+  assert.match(get("v036-price-scale").innerHTML,/Aucun niveau connu/);
+});
+test("Activité par paire : quatre événements maximum, aucune association temporelle inventée",()=>{
+  const {api}=harness();
+  const journal=[
+    {type:"decision",decision_id:"D1",time:"2026-11-17T08:00:00Z"},
+    {type:"order_placed",decision_id:"D1",order:{id:"O1",pair:"XBTUSDC",price:64000}},
+    {type:"fill",trade:{id:"T1",pair:"ETHUSDC",price:2000}},
+    {type:"fill",trade:{id:"T2",pair:"XBTUSDC",price:63000}},
+    {type:"cancel",pair:"XBTUSDC",order_id:"O1"},
+    {type:"rejected",decision_id:"D2"},
+    {type:"exits_updated",pair:"XBTUSDC"},
+    {type:"fill",trade:{id:"T3",pair:"XBTUSDC",price:63500}},
+  ];
+  const events=toPlain(api.recentPairEvents(journal,"XBTUSDC"));
+  assert.equal(events.length,4);
+  assert.deepEqual(events.map(e=>e.type),["fill","exits_updated","cancel","fill"]);
+  assert.ok(events.every(e=>!e.decisionId));
+  assert.equal(api.recentPairEvents(journal,"SOLUSDC").length,0);
+});
+test("Activité : mise à jour journal affichée quand la paire a déjà été choisie",()=>{
+  const {api,get}=harness();
+  api.onMarket("XBTUSDC",{}, {S:{positions:{},open_orders:[]},price:()=>65000});
+  api.onPortfolio({equity:[],journal:[{type:"order_placed",time:"2026-11-18T08:00:00Z",order:{id:"O7",pair:"XBTUSDC",price:64400}}]});
+  assert.match(get("v036-pair-events").innerHTML,/Ordre créé/);
+  assert.match(get("v036-pair-events").innerHTML,/Journal/);
+});
