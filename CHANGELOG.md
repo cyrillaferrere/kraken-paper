@@ -1,3 +1,6 @@
+## [Unreleased] — correctif v0.3.6.1 (fix/v0.3.6.1-chart-pair-scale)
+- Graphique Terminal : en passant d'une paire à l'autre (ex. BTC → XRP), l'échelle de prix restait sur la plage de la paire précédente (63 000–71 000) et les bougies XRP sortaient du cadre. Au changement de paire ou de TF, les lignes d'ordres, stops, objectifs et PRU de l'ancienne paire sont retirées avant de charger les bougies, et l'échelle repart en automatique. Les niveaux tracés sont filtrés sur la paire affichée, l'échelle est recalculée quand ils changent, et « Recentrer » remet aussi l'échelle de prix en automatique. Test `tests/site/chart-pair-scale.test.js`. Aucun changement de moteur, d'état ni de décisions.
+
 ## [Unreleased] — UX v0.3.6 (feature, non fusionnée)
 - Correctif du sélecteur 5m/15m/30m/1h/4h/1j : suppression du fond animé calculé sur six colonnes égales, sélection fixée au bouton actif avec focus clavier et débordement mobile maîtrisé. Aucun changement des intervalles ou des bougies.
 
