@@ -70,7 +70,7 @@
         const stop = o.stop_loss != null ? fmtPrice(o.stop_loss) : "—";
         const tiers = Array.isArray(o.take_profits) && o.take_profits.length ? o.take_profits.map((t,i) => "TP" + (i + 1) + " " + fmtPrice(t.price)).join(" · ") : o.take_profit != null ? "TP " + fmtPrice(o.take_profit) : "";
         const desc = "Limite " + limit + " · Stop " + stop + (tiers ? " · " + tiers : "");
-        return '<li><button type="button" data-focus-order="' + escape(o.id) + '"><span><b>' + escape(o.id) + " · " + (o.side === "buy" ? "Achat" : "Vente") + "</b><small>" + escape(desc) + '</small></span><span aria-hidden="true">↗</span></button></li>';
+        return '<li><button type="button" data-focus-order="' + escape(o.id) + '" title="' + escape(desc) + '" aria-label="' + escape(o.id + " · " + (o.side === "buy" ? "Achat" : "Vente") + ". " + desc + ". Voir les détails") + '"><span class="focus-order-copy"><b>' + escape(o.id) + " · " + (o.side === "buy" ? "Achat" : "Vente") + "</b><small>" + escape(desc) + '</small></span><span class="focus-order-arrow" aria-hidden="true">↗</span></button></li>';
       }).join("");
       setHtml("focus-orders", '<ul class="focus-order-list">' + items + "</ul>");
     }
