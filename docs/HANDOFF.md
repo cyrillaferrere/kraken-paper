@@ -1,3 +1,8 @@
+## Feature v0.3.6 — stabilité du panneau Marchés (18/11/2026)
+- Dans `site/spa-v036.css`, les tuiles d'ordres du Focus sont normalisées à 94 px (96 px mobile), titre une ligne et description deux lignes. Les détails complets restent accessibles par l'attribut `title` et `aria-label` dans `site/focus-ux.js`, avec ouverture du détail d'ordre au clic.
+- `site/index.html` expose `book-spread-pct` sous `book-spread`, et `site/market-v035.js` renseigne séparément les deux valeurs, y compris leur indisponibilité. Les trois tuiles du carnet gardent 100 px, le statut réserve deux lignes et les dix rangs de profondeur 287 px, y compris en cas de chargement/échec. Aucun chiffre/trade inventé ni données tronquées côté logique.
+- Test `tests/site/market-layout-stability.test.js`. Recette visuelle desktop/mobile et changement rapide de paire à vérifier ; ne pas modifier `state/`, `decisions/`, `main` ni version 0.3.6.
+
 ## Feature v0.3.6 — Terminal et heartbeat Grok (18/11/2026)
 - **Version toujours 0.3.6**. Branche `feature/v0.3.6`, PR #66 en brouillon vers `preprod` ; elle inclut aussi les ajouts de la v0.3.5 encore en feature. Ne fusionner aucune PR sans GO de Cyril.
 - `site/index.html` + `site/spa-router.js` + `site/spa-v036.css` : seulement deux vues, `#/terminal` (cockpit, marchés, positions, ordres, performance, calendrier, scanner en fin) et `#/activite`. Liens historiques redirigés, barre rapide adhésive, quatre raccourcis internes mobiles plus Activité.
