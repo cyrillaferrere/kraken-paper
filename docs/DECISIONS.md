@@ -1,3 +1,8 @@
+## ADR-35 : moteur PAPER 0.2.0, exécutions 5 min et conditions de remplissage (18/11/2026)
+- Contexte : moteur 0.1 trop optimiste pour les limites et trop lent pour les stops.
+- Décision : implémentation documentée dans [ADR-35-ENGINE-EXECUTION.md](ADR-35-ENGINE-EXECUTION.md), toujours PAPER et sans réécrire les données anciennes.
+- Conséquences : nouvelles règles d'exécution uniquement sur les cycles à venir, Grok Bot doit réviser ses sessions avant GO production.
+
 # Décisions techniques (ADR)
 
 Chaque entrée : contexte, décision, conséquences. Ajouter une entrée pour tout nouveau choix structurant ;
