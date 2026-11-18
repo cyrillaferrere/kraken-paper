@@ -80,16 +80,18 @@ class PreciseFillTests(unittest.TestCase):
         self.assertEqual(b["ts"], T0)
         self.assertEqual(a["ts"], T0)
 
-    def test_fallback_api_error_dates_at_hour_open(self):
+    def test_api_error_does_not_fallback_and_does_not_advance(self):
         c1 = {"XBTUSDC": [(T0, 66000, 66500, 64900, 65500)]}
-        self.place_and_replay(
-            [{"type": "place_limit", "pair": "XBTUSDC", "side": "buy", "qty": 0.01, "price": 65000}],
-            c1, fail5=True, at=T0 + H + 60,
-        )
-        tr = self.s["closed_trades"][0]
-        self.assertEqual(tr["ts"], T0)
-        self.assertEqual(tr["time_source"], "hour_open")
-        self.assertEqual(tr["price"], 65000)
+        d = decision("d1", {"type": "place_limit", "pair": "XBTUSDC",
+                             "side": "buy", "qty": .01, "price": 65000})
+        run.run_cycle(self.s, [d], FakeMarket(), T0 - 10)
+        before = dict(self.s["last_candle"])
+        events, _, errors = run.run_cycle(self.s, [d],
+            FakeMarket(candles=c1, fail5=True), T0 + H + 60)
+        self.assertEqual(self.s["closed_trades"], [])
+        self.assertEqual(self.s["last_candle"], before)
+        self.assertFalse(any(e["type"] == "execution_fallback" for e in events))
+        self.assertTrue(any("reprise au prochain cycle" in e for e in errors))
 
     def test_fallback_incomplete_5m_dates_at_hour_open(self):
         c1 = {"XBTUSDC": [(T0, 66000, 66500, 64900, 65500)]}
