@@ -1,3 +1,9 @@
+## [Unreleased] — v0.3.6.2 (contrôle de publication)
+- Le workflow de publication contrôlée accepte `X.Y.Z` et `X.Y.Z.W` (notamment `0.3.6.2`) ; ses validations SHA, VERSION et tests restent en place.
+- Le build Git Netlify de la production est systématiquement ignoré ; les préproductions/previews restent automatisées et le déploiement CLI contrôlé demeure la voie de publication.
+- Tests du filtre Netlify ; ADR-34 et procédures de livraison mises à jour. Aucun changement du moteur PAPER, des décisions, de l'état ou de l'UX existante.
+- Feature uniquement : aucune promotion préprod/prod sans GO de Cyril.
+
 ## [Unreleased] — correctif v0.3.6.1 (fix/v0.3.6.1-chart-pair-scale)
 - Graphique Terminal : en passant d'une paire à l'autre (ex. BTC → XRP), l'échelle de prix restait sur la plage de la paire précédente (63 000–71 000) et les bougies XRP sortaient du cadre. Au changement de paire ou de TF, les lignes d'ordres, stops, objectifs et PRU de l'ancienne paire sont retirées avant de charger les bougies, et l'échelle repart en automatique. Les niveaux tracés sont filtrés sur la paire affichée, l'échelle est recalculée quand ils changent, et « Recentrer » remet aussi l'échelle de prix en automatique. Test `tests/site/chart-pair-scale.test.js`. Aucun changement de moteur, d'état ni de décisions.
 
