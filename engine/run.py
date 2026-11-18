@@ -232,13 +232,13 @@ def fee_rates(state, ts):
 
 def stop_execution(stop, opening, high, low, qty, volume, decimals):
     """Estimation PAPER : 0.10% min + volatilite + participation au volume 5min.
-    Amplitude : 5% du range relatif au-dela de 0.5%.
+    Amplitude : 5% du range relatif au-dela de 1%.
     Impact volume : 0.10% * min(1, qty/(1% du volume 5min)).
     Le carnet d'ordres historique n'est pas connu; plafond 2%.
     """
     amplitude = max(0., high - low) / max(opening or stop, 1e-12)
     impact = .001 * min(1., qty / max(volume * .01, 1e-12)) if volume else 0.
-    slip = min(.02, .001 + .05 * max(0., amplitude - .005) + impact)
+    slip = min(.02, .001 + .05 * max(0., amplitude - .01) + impact)
     return round(min(stop, opening if opening is not None else stop) * (1 - slip),
                  decimals), slip
 
