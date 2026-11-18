@@ -1,8 +1,9 @@
-## [Unreleased] — UX v0.3.6 (feature)
-- Navigation SPA statique en cinq espaces distincts : Vue d'ensemble, Marchés, Portefeuille, Performance, Activité & Bot. Hash URLs partageables et compatibilité avec les anciennes ancres.
-- Menu latéral réduit/déployé, navigation mobile (quatre raccourcis + menu Plus), état actif accessible, titres et transitions discrètes. Aucune duplication de la page ni rechargement de WebSocket.
-- Accès direct entre ordres/positions, chandelier et décisions ; redimensionnement du graphique à la réapparition, SVG performance redessiné si nécessaire, valeurs/observateurs préservés.
-- Tests de routage/deep links et ADR-31. Aucun changement moteur, stratégie, état PAPER ou production.
+## [Unreleased] — UX v0.3.6 (feature, non fusionnée)
+- Navigation ramenée à **deux vues** : Terminal unifié (synthèse, marchés, positions, ordres, performance, scanner) et Activité & Bot. Barre rapide interne, raccourcis mobiles, liens historiques préservés. ADR-33 remplace la disposition initiale à cinq vues de l'ADR-31.
+- Grok : support des heartbeats `type=heartbeat` /`actions=[]` /`note` /`timestamp` avec décalage. Le moteur les ignore avant toute modification des décisions ou de l'état PAPER ; aucune logique d'exécution financière modifiée. ADR-32.
+- Le prochain passage Grok est estimé à **+5 h depuis le dernier fichier valide**, heartbeat compris, avec relecture conditionnelle toutes les cinq minutes même sans décision et sans faux retard affiché.
+- Historique des heartbeats regroupé discrètement dans Activité, tests Python/Node de l'absence d'ordre et du calcul horaire, documentation mise à jour.
+- Toujours sur `feature/v0.3.6` / PR #66, sans fusion en préprod ni prod ; fichiers `state/`, `decisions/` et `main` inchangés.
 
 ## [Unreleased] — UX v0.3.5 (feature)
 - Carnet spot Kraken public : instantanés bid/ask (10 niveaux), spread absolu et relatif, timestamp et repli honnête si données absentes ; aucun ordre passé.
