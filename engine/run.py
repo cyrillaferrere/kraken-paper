@@ -827,8 +827,10 @@ def replay_candles(state, market, now):
             fives = {c[0]: c for c in market.ohlc(pair, last_hour + HOUR - MIN5, interval=5)
                      if c[0] + MIN5 <= now}
         except APIError as exc:
-            errors.append(f"OHLC 5m {pair} : {exc}")
-            fives = {}
+            # Indisponibilite API != donnees effacees : ne rien traiter,
+            # ne pas avancer last_m5 ou last_candle pour cette paire.
+            errors.append(f"OHLC 5m {pair} : {exc} ; reprise au prochain cycle")
+            continue
         for hour in range(last_hour + HOUR, end, HOUR):
             closed = hour + HOUR <= now
             count = 12 if closed else max(0, min(12, (end - hour) // MIN5))
@@ -836,6 +838,19 @@ def replay_candles(state, market, now):
             if not expected:
                 continue
             if closed and not all(t in fives for t in expected):
+                # Un manque recent peut etre temporaire : attendre. Kraken garde
+                # environ 720 bougies 5m = 60h. Le fallback ne concerne que
+                # les heures STRICTEMENT plus anciennes que cette retention.
+                # Une heure deja partiellement traitee en 5m n'est jamais
+                # rejouee avec une bougie 1h agregée.
+                partially_processed = hour <= m5_cursors.get(pair, -1) < hour + HOUR
+                expired = hour + HOUR < now - 60 * HOUR
+                if not expired or partially_processed:
+                    errors.append(f"OHLC 5m incomplet {pair} {iso(hour)} ; "
+                                  "attente sans repli" if not partially_processed else
+                                  f"OHLC 5m partiellement traite {pair} {iso(hour)} ; "
+                                  "repli 1h interdit")
+                    break
                 candle = hourly.get(hour)
                 if candle is None or candle[0] + HOUR > now:
                     errors.append(f"repli 1h impossible {pair} {iso(hour)} : donnees manquantes")
