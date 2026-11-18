@@ -1,3 +1,11 @@
+## Publication contrôlée v0.3.6.2 — recette et exploitation
+1. Les versions `X.Y.Z` et `X.Y.Z.W` sont acceptées par `.github/workflows/deploy-production-controlled.yml` ; `VERSION` doit correspondre exactement à la demande approuvée.
+2. Dans `netlify.toml`, `[build].ignore` appelle `scripts/netlify-ignore-build.sh`. En contexte Git `production` ou branche `main`, ce script retourne **0** (Netlify saute le build). En contexte `deploy-preview`, il retourne **1** (build permis). Les autres branches construisent si le contenu pertinent diffère, ou si les SHA de comparaison sont absents.
+3. La CLI `scripts/deploy.sh prod` publie directement `site/` et les fonctions avec `--prod` ; elle n'exécute pas le filtre de build Git. Ne l'utiliser que via `deploy-production-controlled` après GO explicite de Cyril.
+4. Avant une future production : vérifier la branche/SHA approuvés, les tests Python/Node, le statut CI, les droits de l'environnement GitHub et le numéro `version.json` après publication. Vérifier la page Netlify > Build & deploy : aucune voie non approuvée (deploy hooks, UI, autres tokens/workflows) ne doit pouvoir publier.
+5. Tester localement `node --test tests/site/netlify-build-gate.test.js`, `sh -n scripts/netlify-ignore-build.sh`, puis les suites habituelles. Ne jamais déclencher un vrai déploiement production pour valider un simple test.
+6. En cas de publication Git inattendue : bloquer immédiatement la source de déploiement, vérifier l'historique Netlify et les SHA, puis documenter l'incident avant la prochaine release. Un build skipped n'est **pas** une garantie contre un déploiement Netlify manuel.
+
 ## Recette v0.3.6 — correctif sélection des timeframes
 - Faire défiler les six TF (5 min, 15 min, 30 min, 1 h, 4 h, 1 j) : le fond jade reste strictement sur le bouton actif, et il n'y a ni superposition ni texte rogné.
 - Vérifier navigations au clavier par flèches et `aria-selected`; refaire le test avec le bouton Focus et à largeur mobile (scroll horizontal si nécessaire).

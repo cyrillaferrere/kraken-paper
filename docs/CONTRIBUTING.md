@@ -10,7 +10,7 @@
 | `fix/<nom>` | Correction, même circuit qu'une feature. |
 
 Circuit : `feature/<nom>` → PR vers `preprod` (relue par Grok Bot) → `scripts/deploy.sh preprod` → Cyril teste →
-**accord de Cyril** → `scripts/release.sh X.Y.Z` (preprod → `main`, tag) → `CONFIRM_PROD=oui scripts/deploy.sh prod`. Pas de push direct sur `main`, sauf les commits
+**accord de Cyril** → publication contrôlée par `deploy-production-controlled` (`X.Y.Z` ou `X.Y.Z.W`, SHA approuvé), après intégration de la release sur `main`. Le build Git de Netlify sur `main` est ignoré (ADR-34). Pas de push direct sur `main`, sauf les commits
 automatiques du moteur (`chore: cycle ...`) et les décisions de Grok Bot (`decision: <id>`).
 
 Avant de créer une branche ou de fusionner : `git pull --rebase` (le moteur commite sur `main` toutes les heures).
@@ -28,12 +28,12 @@ de `main` tels quels, sans jamais les modifier.
 
 ## Versions (SemVer)
 
-- `VERSION` contient la version courante (ex. `0.1.0`), affichée dans l'en-tête du dash.
+- `VERSION` contient la version courante (ex. `0.3.6.2`), affichée dans l'en-tête du dash. Le workflow contrôlé accepte trois ou quatre segments.
 - Tant qu'on est en `0.y.z` : `y` monte pour une fonction nouvelle, `z` pour une correction.
 - Une évolution des **règles du moteur** (frais, exécution, format de décision) est toujours une version mineure
   et doit être validée par Cyril, car elle change les résultats.
 - Chaque PR met à jour `CHANGELOG.md` (section `[Unreleased]`). À la mise en prod, la section devient `[X.Y.Z] - date`
-  et on pose le tag `vX.Y.Z` sur `main`.
+  et on pose le tag correspondant sur `main`.
 
 ## Messages de commit
 
