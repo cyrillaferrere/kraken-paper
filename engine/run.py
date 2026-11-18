@@ -802,14 +802,16 @@ def apply_decisions(state, decisions, market, now):
 # Cycle
 # --------------------------------------------------------------------------
 def replay_candles(state, market, now):
-    """Traite les bougies 5 min cloturees en ordre; repli horaire explicitement journalise.
+    """Rejeu des bougies cloturees : ordre chronologique GLOBAL (toutes paires).
 
-    Une heure close utilise 5 min seulement si les douze barres existent, sinon
-    un repli 1 h. L'heure en cours utilise les 5 min consecutives disponibles.
+    5 min si toutes les barres attendues sont disponibles; repli 1 h
+    signale explicitement si l'heure est cloturee et les 5 min manquent.
     """
     events, fills, errors = [], [], []
     pairs = {o["pair"] for o in state["open_orders"]} | set(state["positions"]) | {BENCH}
     m5_cursors = state.setdefault("last_m5", {})
+    timeline = []
+    end = (int(now) // MIN5) * MIN5
     for pair in sorted(pairs):
         starts = [hour_floor(o["active_from"]) - HOUR for o in state["open_orders"]
                   if o["pair"] == pair]
@@ -818,64 +820,60 @@ def replay_candles(state, market, now):
         last_hour = state["last_candle"].get(pair, default_last)
         try:
             hourly = {c[0]: c for c in market.ohlc(pair, last_hour, interval=60)}
-        except APIError as e:
-            errors.append(f"OHLC 1h {pair} : {e}")
+        except APIError as exc:
+            errors.append(f"OHLC 1h {pair} : {exc}")
             hourly = {}
         try:
             fives = {c[0]: c for c in market.ohlc(pair, last_hour + HOUR - MIN5, interval=5)
                      if c[0] + MIN5 <= now}
-        except APIError as e:
-            errors.append(f"OHLC 5m {pair} : {e}")
+        except APIError as exc:
+            errors.append(f"OHLC 5m {pair} : {exc}")
             fives = {}
-        start = last_hour + HOUR
-        end = (int(now) // MIN5) * MIN5
-        # Limiter a la retention reelle; eviter les grosses boucles en absence d'API.
-        for hour in range(start, end, HOUR):
+        for hour in range(last_hour + HOUR, end, HOUR):
             closed = hour + HOUR <= now
-            expected = [hour + i * MIN5 for i in range(12 if closed else
-                        max(0, min(12, (end - hour) // MIN5)))]
+            count = 12 if closed else max(0, min(12, (end - hour) // MIN5))
+            expected = [hour + i * MIN5 for i in range(count)]
             if not expected:
                 continue
-            complete = all(t in fives for t in expected)
-            if closed and not complete:
+            if closed and not all(t in fives for t in expected):
                 candle = hourly.get(hour)
                 if candle is None or candle[0] + HOUR > now:
                     errors.append(f"repli 1h impossible {pair} {iso(hour)} : donnees manquantes")
                     break
-                events.append({"type": "execution_fallback", "pair": pair,
-                               "source": "hour", "reason": "m5_missing",
-                               "candle_ts": hour})
-                if pair == BENCH and pair not in state["pairs"]:
-                    state["last_prices"][pair] = candle[4]
-                    state["last_candle"][pair] = hour
-                    continue
-                rej = []
-                fl = process_candle(state, pair, candle, rej, market=None)
-                events.extend(rej)
-                for tr in fl:
-                    events.append({"type": "fill", "trade": tr})
-                fills.extend(fl)
+                timeline.append((hour, pair, candle, "hour", hour))
                 continue
-            if not complete:
-                # Ne jamais passer une lacune intra-heure sans preuve de prix.
+            if not all(t in fives for t in expected):
                 errors.append(f"m5 incomplet {pair} {iso(hour)} ; attente ou repli apres cloture")
                 break
-            if pair == BENCH and pair not in state["pairs"]:
-                state["last_prices"][pair] = fives[expected[-1]][4]
-                m5_cursors[pair] = expected[-1]
+            for t in expected:
+                if t <= m5_cursors.get(pair, last_hour + HOUR - MIN5):
+                    continue
+                completed_hour = hour if closed and t == expected[-1] else None
+                timeline.append((t, pair, fives[t], "m5", completed_hour))
+        # Un cycle ne doit jamais aller rechercher un segment deja confirme.
+    for t, pair, candle, source, completed_hour in sorted(timeline, key=lambda x: (x[0], x[1])):
+        if source == "m5" and t <= m5_cursors.get(pair, -1):
+            continue
+        if source == "hour":
+            events.append({"type": "execution_fallback", "pair": pair,
+                           "source": "hour", "reason": "m5_missing",
+                           "candle_ts": t})
+        if pair == BENCH and pair not in state["pairs"]:
+            state["last_prices"][pair] = candle[4]
+            if source == "m5":
+                m5_cursors[pair] = t
             else:
-                for ts in expected:
-                    if ts <= m5_cursors.get(pair, last_hour + HOUR - MIN5):
-                        continue
-                    bar = fives[ts]
-                    rej = []
-                    fl = process_candle(state, pair, bar, rej, m5_override=[bar])
-                    events.extend(rej)
-                    for tr in fl:
-                        events.append({"type": "fill", "trade": tr})
-                    fills.extend(fl)
-            if closed:
-                state["last_candle"][pair] = hour
+                state["last_candle"][pair] = t
+        else:
+            rej = []
+            fl = process_candle(state, pair, candle, rej,
+                                market=None, m5_override=[candle] if source == "m5" else None)
+            events.extend(rej)
+            for tr in fl:
+                events.append({"type": "fill", "trade": tr})
+            fills.extend(fl)
+        if completed_hour is not None:
+            state["last_candle"][pair] = completed_hour
     return events, fills, errors
 
 
