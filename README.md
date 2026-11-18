@@ -63,6 +63,22 @@ Si l'API Kraken ne répond pas, l'étape est sautée sans abîmer l'état ; une 
 
 **Référence « BTC conservé »** : le même capital de départ, investi entièrement en BTC au premier cycle (frais maker 0,40 % déduits), puis gardé.
 
+## Heartbeat Grok (passage sans décision — à activer uniquement après release)
+
+Après mise en production de ce contrat, Grok peut publier **un fichier par session sans modification** dans `decisions/`. Le moteur charge tous les `*.json` de ce dossier. Convention exacte recommandée (date et heure de Paris) : **`decisions/YYYY-MM-DD-HHMM-heartbeat.json`** ; par exemple `decisions/2026-11-18-0309-heartbeat.json`.
+
+```json
+{
+  "id": "heartbeat-20261118-0309",
+  "type": "heartbeat",
+  "timestamp": "2026-11-18T03:09:00+01:00",
+  "note": "Session terminée : aucun changement nécessaire.",
+  "actions": []
+}
+```
+
+L'ID doit être unique par passage. Le timestamp comporte le **décalage UTC applicable** (`+01:00` l'hiver en France, `+02:00` l'été). Le moteur ignore l'entrée sans créer d'ordre, refus ou mutation de `state/`. Le dashboard prend le **dernier fichier valide** (décision ou heartbeat) + **5 heures**, sans conclure à un retard réel lorsqu'il manque des fichiers. Il regroupe les heartbeats en gris replié dans Activité & Bot. **Ne pas commencer à écrire les heartbeats avant la publication en production autorisée.** Contrat et tests : [ADR-32](docs/ADR-32-GROK-HEARTBEAT.md).
+
 ## Format des décisions
 
 Un fichier par session dans `decisions/`, par exemple `decisions/2026-11-14-matin.json` :
