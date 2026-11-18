@@ -802,32 +802,79 @@ def apply_decisions(state, decisions, market, now):
 # Cycle
 # --------------------------------------------------------------------------
 def replay_candles(state, market, now):
+    """Traite les bougies 5 min cloturees en ordre; repli horaire explicitement journalise.
+
+    Une heure close utilise 5 min seulement si les douze barres existent, sinon
+    un repli 1 h. L'heure en cours utilise les 5 min consecutives disponibles.
+    """
     events, fills, errors = [], [], []
     pairs = {o["pair"] for o in state["open_orders"]} | set(state["positions"]) | {BENCH}
+    m5_cursors = state.setdefault("last_m5", {})
     for pair in sorted(pairs):
-        starts = [o["active_from"] - HOUR for o in state["open_orders"] if o["pair"] == pair]
+        starts = [hour_floor(o["active_from"]) - HOUR for o in state["open_orders"]
+                  if o["pair"] == pair]
         default_last = min([hour_floor(now) - 2 * HOUR] + starts)
-        last = state["last_candle"].get(pair, default_last)
+        last_hour = state["last_candle"].get(pair, default_last)
         try:
-            candles = market.ohlc(pair, last)
+            hourly = {c[0]: c for c in market.ohlc(pair, last_hour, interval=60)}
         except APIError as e:
-            errors.append(f"OHLC {pair} : {e}")
-            continue
-        for c in sorted(candles):
-            if c[0] <= last or c[0] + HOUR > now:
-                continue   # deja traitee ou pas encore cloturee
-            if pair not in state["pairs"] and pair != BENCH:
+            errors.append(f"OHLC 1h {pair} : {e}")
+            hourly = {}
+        try:
+            fives = {c[0]: c for c in market.ohlc(pair, last_hour + HOUR - MIN5, interval=5)
+                     if c[0] + MIN5 <= now}
+        except APIError as e:
+            errors.append(f"OHLC 5m {pair} : {e}")
+            fives = {}
+        start = last_hour + HOUR
+        end = (int(now) // MIN5) * MIN5
+        # Limiter a la retention reelle; eviter les grosses boucles en absence d'API.
+        for hour in range(start, end, HOUR):
+            closed = hour + HOUR <= now
+            expected = [hour + i * MIN5 for i in range(12 if closed else
+                        max(0, min(12, (end - hour) // MIN5)))]
+            if not expected:
                 continue
+            complete = all(t in fives for t in expected)
+            if closed and not complete:
+                candle = hourly.get(hour)
+                if candle is None or candle[0] + HOUR > now:
+                    errors.append(f"repli 1h impossible {pair} {iso(hour)} : donnees manquantes")
+                    break
+                events.append({"type": "execution_fallback", "pair": pair,
+                               "source": "hour", "reason": "m5_missing",
+                               "candle_ts": hour})
+                if pair == BENCH and pair not in state["pairs"]:
+                    state["last_prices"][pair] = candle[4]
+                    state["last_candle"][pair] = hour
+                    continue
+                rej = []
+                fl = process_candle(state, pair, candle, rej, market=None)
+                events.extend(rej)
+                for tr in fl:
+                    events.append({"type": "fill", "trade": tr})
+                fills.extend(fl)
+                continue
+            if not complete:
+                # Ne jamais passer une lacune intra-heure sans preuve de prix.
+                errors.append(f"m5 incomplet {pair} {iso(hour)} ; attente ou repli apres cloture")
+                break
             if pair == BENCH and pair not in state["pairs"]:
-                state["last_prices"][pair] = c[4]
-                state["last_candle"][pair] = c[0]
-                continue
-            rej = []
-            fl = process_candle(state, pair, c, rej, market)
-            events += rej
-            for tr in fl:
-                events.append({"type": "fill", "trade": tr})
-            fills += fl
+                state["last_prices"][pair] = fives[expected[-1]][4]
+                m5_cursors[pair] = expected[-1]
+            else:
+                for ts in expected:
+                    if ts <= m5_cursors.get(pair, last_hour + HOUR - MIN5):
+                        continue
+                    bar = fives[ts]
+                    rej = []
+                    fl = process_candle(state, pair, bar, rej, m5_override=[bar])
+                    events.extend(rej)
+                    for tr in fl:
+                        events.append({"type": "fill", "trade": tr})
+                    fills.extend(fl)
+            if closed:
+                state["last_candle"][pair] = hour
     return events, fills, errors
 
 
@@ -859,7 +906,8 @@ def snapshot(state, market, now):
         pos_value += pos["qty"] * px
     equity = state["cash"] + pos_value
     hold = bench["btc_qty"] * btc if btc and bench.get("btc_qty") else None
-    row = {"time": iso(now), "equity": round(equity, 2), "cash": round(state["cash"], 2),
+    row = {"time": iso(now), "engine_version": ENGINE_VERSION,
+           "equity": round(equity, 2), "cash": round(state["cash"], 2),
            "positions": round(pos_value, 2), "btc_price": btc,
            "btc_hold": round(hold, 2) if hold else None}
     return row, errors
@@ -900,12 +948,15 @@ def run_cycle(state, decisions, market, now, notifier=None):
     events += e; fills += f; errors += err
     row, err = snapshot(state, market, now)
     errors += err
+    state["engine_version"] = ENGINE_VERSION
     state["last_cycle"] = iso(now)
     state["last_cycle_ts"] = int(now)
     state["last_cycle_errors"] = errors
     if notifier:
         for tr in fills:
             notifier.send(fill_message(tr))
+    for ev in events:
+        ev["engine_version"] = ENGINE_VERSION
     return events, row, errors
 
 
@@ -936,21 +987,36 @@ def main():
     with open(JOURNAL, "a", encoding="utf-8") as f:
         if first:
             f.write(json.dumps({"time": state["start_time"], "type": "start",
+                                 "engine_version": ENGINE_VERSION,
                                 "capital": state["start_capital"], "quote": QUOTE},
                                ensure_ascii=False) + "\n")
         for ev in events:
-            ev = {"time": iso(now), **ev}
+            ev = {"time": iso(now), "engine_version": ENGINE_VERSION, **ev}
             f.write(json.dumps(ev, ensure_ascii=False) + "\n")
         for err in errors:
-            f.write(json.dumps({"time": iso(now), "type": "warning", "text": err},
+            f.write(json.dumps({"time": iso(now), "engine_version": ENGINE_VERSION,
+                                "type": "warning", "text": err},
                                ensure_ascii=False) + "\n")
     if row:
+        # Migration du seul en-tete par le moteur. Les anciennes lignes restent
+        # identiques et leur version manquante signifie 0.1.0.
+        if os.path.exists(EQUITY):
+            with open(EQUITY, "r", encoding="utf-8") as f:
+                header = f.readline()
+                historic = f.read() if "engine_version" not in header else None
+            if historic is not None:
+                tmp = EQUITY + ".tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    f.write(EQUITY_HEADER)
+                    f.write(historic)
+                os.replace(tmp, EQUITY)
         new_file = not os.path.exists(EQUITY)
         with open(EQUITY, "a", encoding="utf-8") as f:
             if new_file:
                 f.write(EQUITY_HEADER)
             f.write(",".join("" if row[k] is None else str(row[k]) for k in
-                             ("time", "equity", "cash", "positions", "btc_price", "btc_hold")) + "\n")
+                             ("time", "equity", "cash", "positions", "btc_price", "btc_hold",
+                              "engine_version")) + "\n")
     print(f"cycle {iso(now)} : {len(events)} evenements, equity={row and row['equity']}, "
           f"erreurs={errors}")
 
