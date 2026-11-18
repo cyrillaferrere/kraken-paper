@@ -1,3 +1,10 @@
+## Recette v0.3.6 — zone sous le graphique
+1. Marché > choisir BTC puis ETH : les six indicateurs de la paire sont bien sous le chandelier ; colonne de droite libérée sans double affichage.
+2. Réglette : vérifier cours observé, PRU uniquement si position, limite et stops/TP uniquement s'ils existent, étiquette « si achat exécuté » sur protections d'un achat en attente. Vérifier les distances depuis le prix réel courant et les valeurs manquantes affichées comme telles.
+3. Activité récente : maximum quatre événements de la paire explicitement trouvés dans le journal public, jamais des décisions supposées à partir de leur horaire. Clic Journal ouvre la vue Activité & Bot.
+4. Vérifier la stabilité au refresh, la largeur 390/768/1440 px et le mode Focus, la navigation clavier et la lisibilité des données. Tests `node --test tests/site/*.test.js` et CI, contrôle du SHA Netlify.
+5. Branche `feature/v0.3.6` seulement, PR #66 en brouillon. Aucun passage préprod ou production sans GO explicite.
+
 ## Recette v0.3.6 — stabilité des hauteurs du carnet (18/11/2026)
 - Dans Marché, tester prix changeant, rafraîchissement manuel, erreur de l'API et changement de paire : aucun des trois blocs meilleur achat/spread/meilleure vente ne doit changer de hauteur et le tableau réserve toujours 10 niveaux.
 - Dans Ordres & protections, titres sur une ligne et descriptions sur deux lignes maximum ; les cartes restent de hauteur uniforme même avec plusieurs TP. Vérifier lecture du texte intégral au survol / par technologie d'assistance, et accès aux détails au clic.
