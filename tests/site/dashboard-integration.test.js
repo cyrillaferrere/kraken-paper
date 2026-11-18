@@ -71,3 +71,17 @@ test("compact OHLC remains tied to the existing live candle feed", () => {
   assert.match(compact, /#market-card > #pair-chips/);
   assert.match(compact, /@media\(max-width:760px\)/);
 });
+
+
+test("sélecteur des six intervalles : état actif attaché au bouton, sans thumb mobile", () => {
+  const markets = fs.readFileSync(path.join(root, "markets.js"), "utf8");
+  const compact = fs.readFileSync(path.join(root, "spa-v036.css"), "utf8");
+  const tf = html.slice(html.indexOf('id="tf-tabs"'), html.indexOf('id="ord-toggle"'));
+  assert.equal((tf.match(/role="tab"/g) || []).length, 6);
+  assert.equal((tf.match(/aria-selected="true"/g) || []).length, 1);
+  assert.doesNotMatch(tf, /seg-thumb/);
+  assert.match(markets, /b\.setAttribute\("aria-selected", on\)/);
+  assert.doesNotMatch(markets, /setProperty\("--idx"/);
+  assert.match(compact, /#tf-tabs button\[aria-selected="true"\]/);
+  assert.match(compact, /#tf-tabs button:focus-visible/);
+});
