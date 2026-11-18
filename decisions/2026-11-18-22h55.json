@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-18-22h55",
+ "timestamp": "2026-11-18T22:55:00+01:00",
+ "rationale": "Ce que je vois : la position BTC de 0,03056001 (PRU 63 863) est couverte par deux groupes de sorties aux mêmes niveaux, O0029 (0,01942246, issu de la mise à jour d'O0024) et O0030 (0,01113755, issu de l'achat O0028 à 62 600). Pas de double vente, mais deux points morts différents après TP1 (64 479 et 63 863) et un glissement de stop calculé sur deux petites quantités au lieu de la quantité réelle. BTC 62 300, à 3,2 % au-dessus du stop. Ce que je fais : poche moyen terme BTC, j'annule O0029 et O0030 et je remets un seul groupe sur toute la position : stop 60 400, moitié à 70 000, reste à 75 000, stop au prix d'achat après TP1, donc au vrai PRU 63 863. ETH O0022, SOL O0027 et XRP O0031 inchangés. Réserve intacte. Pourquoi : règle du 17/11, une même position a une seule logique de stop ; un seul point mort au PRU réel comme sur Kraken ; glissement estimé sur la quantité réellement vendue. Niveaux inchangés, aucun resserrement.",
+ "actions": [
+  {"type": "cancel", "order_id": "O0029"},
+  {"type": "cancel", "order_id": "O0030"},
+  {"type": "update_exits", "pair": "XBTUSDC", "stop_loss": 60400, "take_profits": [{"price": 70000, "fraction": 0.5}, {"price": 75000, "fraction": 0.5}], "breakeven_after_tp1": true},
+  {"type": "note", "text": "22h55 : poche moyen terme BTC, fusion des deux groupes de sorties O0029 et O0030 en un seul sur 0,03056001 BTC (stop 60 400, TP 70 000 / 75 000, point mort au PRU 63 863 après TP1). Niveaux inchangés."}
+ ]
+}
