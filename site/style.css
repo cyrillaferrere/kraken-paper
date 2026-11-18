@@ -601,3 +601,12 @@ html { scroll-behavior: smooth; }
   .kpi-updated { animation:none !important; }
   .cockpit-panel,.cockpit-panel * { scroll-behavior:auto; }
 }
+
+/* Versions moteur / Dash permanentes sur toutes les routes, y compris mobile. */
+#b-versions { display: inline-flex; align-items: baseline; gap: .35rem; white-space: nowrap; }
+#b-engine, #b-version { display: inline; }
+@media (max-width: 600px) {
+  .build { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px; overflow-wrap: anywhere; }
+  #b-versions { order: -2; width: 100%; flex-wrap: nowrap; font-size: 12px; }
+  #b-fee-tier { order: -1; width: 100%; font-size: 11px; }
+}
