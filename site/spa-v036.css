@@ -629,3 +629,17 @@ body.market-focus #market-card .v036-market-analysis {margin-top:18px;}
 @media(prefers-reduced-motion:reduce){
   #market-card .v036-level-table .v036-level-order {animation:none!important;transition:none!important;}
 }
+
+/* Priorité explicite au modèle tableau, les anciennes cartes utilisent aussi
+   .v036-level-row : ne jamais laisser display:grid sur une ligne <tr>. */
+#market-card .v036-level-table tbody tr.v036-level-row {
+  display:table-row;
+  min-height:0;
+  padding:0;
+  border-radius:0;
+}
+#market-card .v036-level-table tbody tr.v036-level-row th,
+#market-card .v036-level-table tbody tr.v036-level-row td {
+  display:table-cell;
+  min-width:0;
+}
