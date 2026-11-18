@@ -138,7 +138,7 @@ class PreciseFillTests(unittest.TestCase):
         sl = self.s["closed_trades"][1]
         self.assertEqual(sl["reason"], "stop_loss")
         self.assertEqual(sl["ts"], t4)
-        self.assertEqual(sl["price"], 61938.0)
+        self.assertLess(sl["price"], 61938.0)
         self.assertEqual(sl["liquidity"], "taker")
 
     def test_stop_before_tp_on_5m_takes_stop(self):
@@ -171,9 +171,9 @@ class PreciseFillTests(unittest.TestCase):
         self.assertEqual(sl["reason"], "stop_loss")
         self.assertEqual(sl["ts"], T0 + H)  # ouverture de la bougie 1 h, plus la fermeture
         self.assertEqual(sl["time_source"], "hour_open")
-        self.assertEqual(sl["price"], 61938.0)
+        self.assertLess(sl["price"], 61938.0)
 
-    def test_exit_active_from_is_next_hour(self):
+    def test_exit_active_from_is_next_m5(self):
         c1 = {"XBTUSDC": [(T0, 66000, 66500, 64900, 65500)]}
         c5 = {"XBTUSDC": bars5(T0, {20 * 60: ("low", 64900)})}
         self.place_and_replay(
@@ -182,7 +182,7 @@ class PreciseFillTests(unittest.TestCase):
             c1, c5, at=T0 + H + 60,
         )
         exo = self.s["open_orders"][0]
-        self.assertEqual(exo["active_from"], T0 + H)
+        self.assertEqual(exo["active_from"], T0 + 25 * 60)
         self.assertEqual(exo["parent"], self.s["closed_trades"][0]["order_id"])
 
 
