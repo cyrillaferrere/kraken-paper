@@ -162,3 +162,187 @@ body.market-focus #market-card .mchart {height:clamp(470px,68vh,870px);}
 @media(prefers-reduced-motion:reduce) {
   .terminal-quicknav a{transition:none!important;}
 }
+
+/* v0.3.6 — stabilité verticale du panneau Marchés : aucune tuile ne doit
+   grandir selon le cours, le spread ou la longueur d'un ordre. */
+#market-context { min-width:0; }
+#market-context .market-context-block { min-width:0; }
+#focus-orders .focus-order-list {
+  display:grid;
+  grid-auto-rows:94px;
+  gap:9px;
+  max-height:300px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-gutter:stable;
+}
+#focus-orders .focus-order-list li { min-width:0; height:94px; }
+#focus-orders .focus-order-list button {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 20px;
+  align-items:center;
+  column-gap:9px;
+  width:100%;
+  height:100%;
+  min-height:0;
+  padding:11px 12px;
+  overflow:hidden;
+}
+#focus-orders .focus-order-copy {
+  display:grid;
+  grid-template-rows:23px 40px;
+  min-width:0;
+  overflow:hidden;
+}
+#focus-orders .focus-order-copy b {
+  min-width:0;
+  display:block;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  line-height:23px;
+  font-size:14px;
+  font-variant-numeric:tabular-nums;
+}
+#focus-orders .focus-order-copy small {
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  max-height:40px;
+  min-height:40px;
+  overflow:hidden;
+  line-height:20px;
+  font-size:12px;
+  overflow-wrap:anywhere;
+}
+#focus-orders .focus-order-arrow {
+  flex:0 0 20px;
+  text-align:center;
+  font-size:17px;
+  align-self:center;
+}
+#market-context .v035-block-head { min-height:34px; }
+#market-context .v035-block-head h3 {
+  min-width:0;
+  margin:0;
+  font-size:11px;
+  line-height:16px;
+}
+#market-context .v035-ghost {flex:0 0 auto;}
+#book-status {
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  min-height:34px;
+  max-height:34px;
+  line-height:17px;
+  margin:0 0 12px;
+  overflow:hidden;
+  font-variant-numeric:tabular-nums;
+}
+#market-context .v035-book-spread {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  align-items:stretch;
+}
+#market-context .v035-book-spread > span {
+  display:grid;
+  grid-template-rows:28px 24px 18px;
+  align-content:center;
+  gap:2px;
+  min-width:0;
+  height:100px;
+  padding:9px 4px;
+  overflow:hidden;
+  line-height:14px;
+  font-size:10px;
+  text-wrap:balance;
+}
+#market-context .v035-book-spread strong {
+  display:block;
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:clip;
+  font-size:clamp(10px,1vw,13px);
+  line-height:24px;
+  font-weight:740;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.025em;
+  overflow-wrap:normal;
+}
+#market-context .v035-book-spread small {
+  display:block;
+  height:18px;
+  overflow:hidden;
+  white-space:nowrap;
+  line-height:18px;
+  color:var(--mu);
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+}
+#market-context .v035-book-depth {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+#market-context .v035-book-side { min-width:0; }
+#market-context .v035-depth-heading {
+  display:grid;
+  grid-template-columns:minmax(0,1.14fr) minmax(0,.86fr);
+  gap:5px;
+  min-height:35px;
+  align-items:start;
+  font-size:10px;
+}
+#market-context .v035-depth-heading span:last-child {text-align:right;}
+#market-context .v035-book-rows {
+  display:grid;
+  grid-auto-rows:26px;
+  gap:3px;
+  min-height:287px; /* 10 niveaux × 26px + 9 intervalles × 3px */
+}
+#market-context .v035-depth-row {
+  display:grid;
+  grid-template-columns:minmax(0,1.14fr) minmax(0,.86fr);
+  gap:5px;
+  height:26px;
+  min-height:26px;
+  padding:3px 2px;
+  min-width:0;
+  line-height:20px;
+  overflow:hidden;
+  font-size:11px;
+  font-variant-numeric:tabular-nums;
+}
+#market-context .v035-depth-row span {
+  display:block;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:clip;
+  white-space:nowrap;
+}
+#market-context .v035-depth-row span:last-child {
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+#market-context .v035-depth-row i {
+  z-index:-1;
+  pointer-events:none;
+}
+@media(max-width:760px) {
+  #focus-orders .focus-order-list {grid-auto-rows:96px;}
+  #focus-orders .focus-order-list li {height:96px;}
+  #market-context .v035-book-spread > span {height:96px;}
+  #market-context .v035-book-spread strong {font-size:clamp(10px,3vw,13px);}
+  #market-context .v035-book-depth {gap:7px;}
+  #market-context .v035-depth-row {font-size:10px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  #focus-orders .focus-order-list button,
+  #market-context .v035-book-spread > span {transition:none!important;}
+}
