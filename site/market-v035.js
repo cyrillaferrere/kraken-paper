@@ -164,10 +164,98 @@
     }
     html("chart-order-levels", nodes.length ? '<span class="v035-level-label">NIVEAUX SUR LE GRAPHIQUE</span>' + nodes.join("") : '<span class="hint">Aucun niveau PAPER actif pour cette paire.</span>');
   }
+  // Niveaux purement descriptifs issus des positions et ordres PAPER existants.
+  // Un stop ou TP associé à un achat en attente n'est pas une protection active.
+  function collectPriceLevels(pair, state, price) {
+    const rows = [];
+    const push = (label, raw, kind, conditional=false, orderId=null) => {
+      const value = Number(raw);
+      if (raw == null || !Number.isFinite(value) || value <= 0) return;
+      rows.push({ label, value, kind, conditional, orderId,
+        distance: Number.isFinite(price) && price > 0 ? (value / price - 1) * 100 : null });
+    };
+    if (Number.isFinite(price) && price > 0) push("Cours observé", price, "current");
+    const pos = state?.positions?.[pair];
+    if (pos) push("Prix de revient", pos.avg_cost, "pru");
+    const orders = Array.isArray(state?.open_orders) ? state.open_orders.filter(o=>o.pair===pair) : [];
+    for (const order of orders.slice(0,8)) {
+      const pendingBuy = order.side === "buy";
+      push(pendingBuy ? "Achat limite" : "Vente limite", order.price, pendingBuy ? "entry" : "target", false, order.id);
+      push("Stop", order.stop_loss, "stop", pendingBuy, order.id);
+      if (Array.isArray(order.take_profits) && order.take_profits.length) {
+        order.take_profits.slice(0,3).forEach((tp,i)=>push("TP"+(i+1),tp.price,"target",pendingBuy,order.id));
+      } else push("Objectif",order.take_profit,"target",pendingBuy,order.id);
+    }
+    return rows;
+  }
+  const distanceLabel = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "±") + money(Math.abs(v),2) + " %";
+  let lastMarketCtx=null, lastMarketPair=null, lastJournal=[], lastPriceSig="", lastPairEventsSig="";
+  function renderPriceScale(pair, ctx) {
+    const el = $("v036-price-scale");
+    if (!el || !ctx?.S) return;
+    const current = safe(ctx.price?.(pair)), price = current != null && current > 0 ? current : null;
+    const rows = collectPriceLevels(pair,ctx.S,price);
+    const sig = JSON.stringify([pair,rows]);
+    if (sig === lastPriceSig) return;
+    lastPriceSig=sig;
+    if (!rows.length) {
+      el.innerHTML='<p class="v036-empty">Aucun niveau connu pour cette paire.</p>';
+      el.setAttribute("aria-label","Aucun niveau PAPER disponible");
+      return;
+    }
+    const values=rows.map(r=>r.value);
+    let min=Math.min(...values), max=Math.max(...values);
+    if(min===max){min*=.995;max*=1.005;}
+    const span=max-min;
+    const line='<div class="v036-ruler-track" aria-hidden="true">' + rows.map(r => {
+      const left=Math.max(2,Math.min(98,(r.value-min)/span*100));
+      return '<span class="v036-ruler-pin v036-ruler-'+esc(r.kind)+'" style="left:'+left.toFixed(2)+'%" title="'+esc(r.label+' · '+numberPx(r.value))+'"></span>';
+    }).join("")+'</div>';
+    const items=rows.map(r => {
+      const detail=esc(r.label+(r.conditional?" · si achat exécuté":"")+" · "+numberPx(r.value)+" USDC · "+distanceLabel(r.distance));
+      return '<li class="v036-level-row v036-kind-'+esc(r.kind)+'" title="'+detail+'"><span class="v036-level-name">'+esc(r.label)+'</span><span class="v036-level-value">'+esc(numberPx(r.value))+' <small>USDC</small></span><span class="v036-level-distance">'+esc(distanceLabel(r.distance))+'</span>'+(r.conditional?'<small class="v036-conditional">si achat exécuté</small>':'')+'</li>';
+    }).join("");
+    el.innerHTML=line+'<ul class="v036-level-list">'+items+'</ul>';
+    el.setAttribute("aria-label",rows.map(r=>r.label+": "+numberPx(r.value)+" USDC, "+distanceLabel(r.distance)+(r.conditional?", si achat exécuté":"")).join(". "));
+  }
+  const eventLabels = {
+    order_placed:"Ordre créé", fill:"Exécution", rejected:"Action refusée",
+    cancel:"Ordre annulé", exits_updated:"Protections modifiées",
+    exits_update_scheduled:"Protections programmées", market:"Ordre au marché"
+  };
+  function recentPairEvents(journal,pair) {
+    if (!Array.isArray(journal)||!pair) return [];
+    return journal.filter(e => {
+      if (!e || !Object.prototype.hasOwnProperty.call(eventLabels,e.type)) return false;
+      // Référence explicite seulement : aucune association inventée par proximité temporelle.
+      return (e.order?.pair || e.trade?.pair || e.pair) === pair;
+    }).slice(-4).reverse().map(e=>({
+      type:e.type, label:eventLabels[e.type], time:e.time || e.timestamp || e.trade?.ts || null,
+      orderId:e.order?.id || e.order_id || e.trade?.order_id || null,
+      decisionId:e.decision_id || null,
+      price:e.trade?.price ?? e.order?.price ?? e.price ?? null
+    }));
+  }
+  function renderPairEvents(pair,journal) {
+    const el=$("v036-pair-events");
+    if(!el)return;
+    const events=recentPairEvents(journal,pair),sig=JSON.stringify([pair,events]);
+    if(sig===lastPairEventsSig)return;
+    lastPairEventsSig=sig;
+    if(!events.length){
+      el.innerHTML='<li class="v036-empty">Aucun événement associé explicitement à cette paire dans le journal disponible.</li>';
+      return;
+    }
+    el.innerHTML=events.map(e=>'<li class="v036-event"><span class="v036-event-time">'+esc(datetime(e.time))+'</span><span class="v036-event-info"><strong>'+esc(e.label)+'</strong>'+(e.orderId?'<small>Ordre '+esc(e.orderId)+'</small>':'')+(e.price!=null?'<small>'+esc(numberPx(e.price))+' USDC</small>':'')+'</span><a href="#/activite#journal-panel" class="v036-event-link" aria-label="Consulter le journal d’audit pour '+esc(e.label)+'">Journal ↗</a></li>').join("");
+  }
   function onMarket(p, metric, ctx) {
+    lastMarketPair=p;
+    lastMarketCtx=ctx;
     switchPair(p);
     renderIndicators(metric);
     renderOrderLevels(p, ctx);
+    renderPriceScale(p,ctx);
+    renderPairEvents(p,lastJournal);
   }
 
   // Comparaison sans extrapolation : uniquement la même fenêtre et les mêmes cycles.
@@ -268,8 +356,10 @@
 
   function onPortfolio(data) {
     lastEquity = data.equity || [];
-    renderTimeline(data.journal || []);
+    lastJournal = Array.isArray(data.journal) ? data.journal : [];
+    renderTimeline(lastJournal);
+    if (lastMarketPair) renderPairEvents(lastMarketPair,lastJournal);
     refreshPerformance();
   }
-  window.KPV035 = { onMarket, onPortfolio, normalizeBook, summarizePerformance, buildTimeline };
+  window.KPV035 = { onMarket, onPortfolio, normalizeBook, summarizePerformance, buildTimeline, collectPriceLevels, recentPairEvents };
 })();
