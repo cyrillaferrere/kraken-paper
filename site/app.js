@@ -204,6 +204,8 @@ function flashLiveValue(el, value) {
   function render(liveOnly = false) {
     if (!S) return;
     // statut
+    const eng = $("b-engine");
+    if (eng) eng.textContent = "moteur v" + (S.engine_version || "0.1.0");
     const stp = $("st-prices");
     if (liveOk) { const partial = liveCoverage.found < liveCoverage.requested; stp.textContent = "Prix Kraken " + (partial ? "partiels " + liveCoverage.found + "/" + liveCoverage.requested : "en direct") + " · " + liveAt.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris" }); stp.className = "pill " + (partial ? "warn" : "ok"); }
     else { stp.textContent = "Prix Kraken indisponibles : dernier cycle moteur"; stp.className = "pill warn"; }
