@@ -50,6 +50,7 @@ TAKER = 0.0080
 SLIP = 0.001     # 0,1 % de glissement (stops et ordres au marche)
 HOUR = 3600
 MIN5 = 300          # datation des fills : première bougie 5 min qui touche le niveau
+RETENTION_5M = 60 * HOUR  # environ 720 bougies de 5 minutes
 EPS = 1e-9
 
 
@@ -844,7 +845,7 @@ def replay_candles(state, market, now):
                 # Une heure deja partiellement traitee en 5m n'est jamais
                 # rejouee avec une bougie 1h agregée.
                 partially_processed = hour <= m5_cursors.get(pair, -1) < hour + HOUR
-                expired = hour + HOUR < now - 60 * HOUR
+                expired = hour + HOUR < now - RETENTION_5M
                 if not expired or partially_processed:
                     errors.append(f"OHLC 5m incomplet {pair} {iso(hour)} ; "
                                   "attente sans repli" if not partially_processed else
