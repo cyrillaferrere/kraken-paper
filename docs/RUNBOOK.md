@@ -1,3 +1,10 @@
+## Publication v0.3.6.2 — release ciblée (18/11/2026)
+- La branche release/v0.3.6.2-controlled part de main : elle livre uniquement les correctifs du verrou production, sans fusion globale de preprod (qui embarquerait des changements non inclus dans ce correctif).
+- Le workflow deploy-production-controlled sur deploy/prod-request doit accepter X.Y.Z.W. La demande JSON mentionne la version 0.3.6.2 et le SHA exact de main après la fusion de la release.
+- Le build Git Netlify de main est ignoré par scripts/netlify-ignore-build.sh (0 = ignorer). Seul le workflow contrôlé doit appeler scripts/deploy.sh prod avec --prod.
+- Contrôler les suites GitHub quality-gates et guard-state, la publication effective Netlify, puis version.json (version, env=prod, branch=main, commit).
+- Le verrou Git ne bloque pas une action manuelle dans Netlify ; auditer les deploy hooks et les droits du site séparément.
+
 ## Recette v0.3.6 — correctif sélection des timeframes
 - Faire défiler les six TF (5 min, 15 min, 30 min, 1 h, 4 h, 1 j) : le fond jade reste strictement sur le bouton actif, et il n'y a ni superposition ni texte rogné.
 - Vérifier navigations au clavier par flèches et `aria-selected`; refaire le test avec le bouton Focus et à largeur mobile (scroll horizontal si nécessaire).
