@@ -1,3 +1,9 @@
+## Fix v0.3.6.1 — échelle du graphique au changement de paire (18/11/2026)
+- Capture de Cyril (prod v0.3.6, 12h18) : XRP/USDC 1 h affiché sur une échelle 63 000–71 000, étiquettes 0,987 et 0,966 collées en bas.
+- Cause (`site/markets.js`, `loadChartInner` / `overlays`) : (1) si l'échelle de prix n'était plus en autoscale (glisser ou zoom vertical sur BTC), le changement de paire gardait la plage BTC ; (2) `setData` des bougies XRP partait avec les niveaux BTC encore dans `levelPrices`, et Lightweight Charts ne recalcule pas l'échelle quand on retire ou crée une priceLine.
+- Correctif : synchroniseur de niveaux `createLevelSync` (exposé `window.KPChartLevelSync`) ; `levels.clear()` + autoscale avant `setData` à chaque changement de paire/TF ; niveaux filtrés par paire ; autoscale relancé quand les niveaux changent ; « Recentrer » remet l'autoscale.
+- Recette : BTC → glisser l'axe des prix → XRP : l'axe doit se caler sur ~0,9–1,1 avec la ligne O0025 à 0,966. Refaire avec ETH et SOL, en 1 h et 1 j, sur ordinateur et mobile. VERSION 0.3.6.1, PR vers `preprod`, aucune prod sans GO.
+
 ## Feature v0.3.6 — correction des onglets bougies (18/11/2026)
 - Capture utilisateur : fond actif 1 h décalé et texte des intervalles comprimé après compactage de l'en-tête.
 - `site/index.html` : retirer le seul `.seg-thumb` du `tf-tabs` ; `site/markets.js` : ne plus positionner `--idx`, conserver `aria-selected` et le focus clavier ; `site/spa-v036.css` : états actifs sur les boutons, tailles intrinsèques et défilement horizontal mobile.
