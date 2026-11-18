@@ -1,4 +1,6 @@
 ## [Unreleased] — UX v0.3.6 (feature, non fusionnée)
+- Analyse du marché compactée : six indicateurs resserrés, réglette visuelle maintenue, tableau de niveaux PAPER à quatre colonnes avec accès à chaque ordre, suppression de la liste de niveaux redondante, trois événements de paire par défaut. Données et conditions de protection conservées, hauteurs limitées pendant les mises à jour.
+
 - Marché : indicateurs déplacés sous le chandelier, réglette des niveaux PAPER avec distances au cours et protections conditionnelles, quatre événements récents par paire strictement issus du journal. Espace autrefois vide valorisé, colonne de droite allégée, aucune interprétation stratégique ni mutation du moteur.
 
 - Stabilisation du panneau Focus : cartes d'ordres de hauteur uniforme, descriptions sur deux lignes (texte intégral accessible), spread absolu et % sur lignes réservées, carnet à dix lignes de hauteur fixe, état de chargement sur deux lignes maximum. Réduction des sauts de mise en page pendant les rafraîchissements, sans modifier les prix ni l'exécution PAPER.
