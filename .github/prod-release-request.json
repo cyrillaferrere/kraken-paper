@@ -1,8 +1,8 @@
 {
   "environment": "production",
   "approved_by": "Cyril",
-  "version": "0.3.6.1",
-  "approved_commit": "f6ac17f55c065d1c3dbfb7b1db04675d1d247587",
-  "reason": "GO production explicite de Cyril le 18/11 a 12h51 pour v0.3.6.1 (correctif echelle du graphique au changement de paire, PR #68 preprod 066f9b1). Candidat selectif PR #69 fusionne sur main; aucune difference state/, decisions/, docs/LESSONS.md, engine/; CI Python/Node et guard-state vertes. Publication uniquement via GitHub Actions ADR-28, pas de deploiement Netlify direct.",
-  "request_sequence": 5
+  "version": "0.3.6.2",
+  "approved_commit": "c0717042cdc16fc70c47741b79b775c6ac314238",
+  "reason": "GO production explicite de Cyril le 18/11/2026 pour v0.3.6.2. Release ciblee PR #72, commit c0717042 : controle de version X.Y.Z.W et filtre Netlify main. Quality-gates, guard-state et preview verts; aucune modification engine/, state/, decisions/, docs/LESSONS.md. Publication exclusivement via workflow controle ADR-28 / ADR-34.",
+  "request_sequence": 6
 }
