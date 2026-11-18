@@ -1,4 +1,6 @@
 ## [Unreleased] — UX v0.3.6 (feature, non fusionnée)
+- Marché : indicateurs déplacés sous le chandelier, réglette des niveaux PAPER avec distances au cours et protections conditionnelles, quatre événements récents par paire strictement issus du journal. Espace autrefois vide valorisé, colonne de droite allégée, aucune interprétation stratégique ni mutation du moteur.
+
 - Stabilisation du panneau Focus : cartes d'ordres de hauteur uniforme, descriptions sur deux lignes (texte intégral accessible), spread absolu et % sur lignes réservées, carnet à dix lignes de hauteur fixe, état de chargement sur deux lignes maximum. Réduction des sauts de mise en page pendant les rafraîchissements, sans modifier les prix ni l'exécution PAPER.
 
 - Navigation ramenée à **deux vues** : Terminal unifié (synthèse, marchés, positions, ordres, performance, scanner) et Activité & Bot. Barre rapide interne, raccourcis mobiles, liens historiques préservés. ADR-33 remplace la disposition initiale à cinq vues de l'ADR-31.
