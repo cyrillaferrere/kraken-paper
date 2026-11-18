@@ -1,3 +1,9 @@
+## Feature v0.3.6 — compactage de l'analyse (18/11/2026)
+- `site/index.html` : suppression du seul bloc redondant `chart-order-levels`; le chandelier et ses tracés/annotations sont inchangés.
+- `site/market-v035.js` : `renderPriceScale()` affiche réglette + tableau quatre colonnes (niveau, prix, distance, ordre). Chaque ordre reste identifiable et cliquable via `data-v035-order`. La limite de `recentPairEvents()` passe de quatre à trois. `collectPriceLevels()` conserve sans fusion tous les niveaux partageant le même prix et les conditions de protections d'achat en attente.
+- `site/spa-v036.css` : grille indicateurs rapprochée, tableau à en-tête fixe et lignes de hauteur stable, activité compacte ; version inchangée 0.3.6.
+- Tests `tests/site/market-v035.test.js` actualisés pour le nouveau DOM et les prix partagés. Contrôler le comportement à 320/390/768/1440 px et à 200 % de zoom avant fusion ; aucune modification moteur/state/decisions/main.
+
 ## Feature v0.3.6 — analyse sous chandelier (18/11/2026)
 - `site/index.html` : les six indicateurs existants sont déplacés de la colonne contexte vers une bande sous le chandelier ; ajout `v036-price-scale` et `v036-pair-events` dans la colonne graphique. Les IDs antérieurs `focus-indicators`, `chart-order-levels` sont uniques et préservés.
 - `site/market-v035.js` : `collectPriceLevels()` construit exclusivement prix live connu, PRU, limites/stops/TP de la paire ; distance au cours en %. Une protection d'achat en attente est signalée conditionnelle. `recentPairEvents()` limite à quatre événements explicitement associés à la paire, à partir du journal, et dirige vers Activité, sans relier artificiellement les décisions.
