@@ -1,3 +1,14 @@
+## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
+- Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
+  Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,
+  le repli 1 h n'est possible que si aucune barre de l'heure n'a deja ete traitee.
+- Versions visibles partout : Dash v0.3.7 · Moteur v0.2.0 lorsque le nouvel
+  etat existe. Tant que le moteur prod 0.1 produit les fichiers vivants,
+  l'aperçu affiche correctement Moteur v0.1.0.
+- Palier des frais affiche par volume PAPER glissant 30 jours sans nouveau fill.
+- Tests : `tests/test_engine_v02.py`, `tests/test_precise_fills.py`,
+  `tests/site/version-header.test.js`; PR brouillon jusqu'a confirmation CI.
+
 ## Feature moteur 0.2.0 / site v0.3.7 — 18/11/2026
 - Branche : `feature/engine-v0.2.0`, base `preprod`; PR à relire par Grok Bot avant validation.
 - Moteur : `engine/run.py` garde les ordres existants; ajoute `engine_version=0.2.0`, curseur `last_m5`, limites avec pénétration, slippage dynamique, frais selon volume 30 j.
