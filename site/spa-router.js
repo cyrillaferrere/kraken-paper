@@ -1,160 +1,146 @@
-/* Kraken Paper v0.3.6 — routeur d'interface statique, sans nouvel appel réseau.
-   Toutes les données et instances des graphiques restent dans le même document. */
+/* Kraken Paper v0.3.6 — 2 vues sans rechargement ni clonage du DOM.
+   Terminal = cockpit + marchés + portefeuille + performance.
+   Activité = décisions, trades, journal et leçons. */
 (() => {
   "use strict";
   const main = document.getElementById("overview");
   if (!main) return;
   const views = [
-    { id:"accueil", name:"Vue d'ensemble", kicker:"01 · COCKPIT", subtitle:"Capital, exposition et risques en un coup d'œil.",
-      blocks:[".workspace-intro",".cockpit"] },
-    { id:"marches", name:"Marchés", kicker:"02 · TERMINAL", subtitle:"Chandelier, carnet d'ordres Kraken et scanner des cryptos.",
-      blocks:["#market-card","#markers-panel"] },
-    { id:"portefeuille", name:"Portefeuille", kicker:"03 · POSITIONS & ORDRES", subtitle:"Positions ouvertes, niveaux de protection et ordres PAPER.",
-      blocks:["#positions-panel","#orders-panel"] },
-    { id:"performance", name:"Performance", kicker:"04 · ANALYSE", subtitle:"Évolution du portefeuille, comparaison au BTC et résultats quotidiens.",
-      blocks:["#performance-panel","#calendar-panel"] },
-    { id:"activite", name:"Activité & Bot", kicker:"05 · AUDIT", subtitle:"Décisions de Grok Bot, exécutions, journal et enseignements.",
-      blocks:["#decisions-panel","#trades-panel","#journal-panel","#lessons-panel"] },
+    { id:"terminal", name:"Terminal", blocks:[".workspace-intro",".cockpit","#market-card","#markers-panel","#positions-panel","#orders-panel","#performance-panel","#calendar-panel"] },
+    { id:"activite", name:"Activité & Bot", blocks:["#decisions-panel","#trades-panel","#journal-panel","#lessons-panel"] }
   ];
+  const legacyRoutes = {
+    accueil:["terminal","cockpit"], marches:["terminal","market-card"],
+    portefeuille:["terminal","positions-panel"],performance:["terminal","performance-panel"]
+  };
   const idMap = new Map(), containers = new Map();
-  const routes = new Set(views.map(v=>v.id));
-  const legacyTargets = new Map([
-    ["overview","accueil"],["market-card","marches"],["markers-panel","marches"],["markers-h","marches"],
-    ["positions-panel","portefeuille"],["orders-panel","portefeuille"],["performance-panel","performance"],
-    ["calendar-panel","performance"],["cal-h","performance"],["decisions-panel","activite"],
-    ["dec-h","activite"],["trades-panel","activite"],["journal-panel","activite"],
-    ["lessons-panel","activite"],["les-h","activite"],
-  ]);
   const nav = document.getElementById("dash-nav");
   const toggle = document.getElementById("nav-toggle");
   const mobile = document.getElementById("mobile-primary-nav");
-  const moreButton = document.getElementById("mobile-more-toggle");
-  const moreMenu = document.getElementById("mobile-more-menu");
-
+  const navigationItems = [...document.querySelectorAll("[data-route]")];
   for (const view of views) {
     const section = document.createElement("section");
-    section.className = "app-view";
-    section.id = "view-" + view.id;
-    section.dataset.view = view.id;
-    section.setAttribute("aria-label", view.name);
-    section.hidden = true;
-    if (view.id !== "accueil") {
-      const head = document.createElement("header");
-      head.className = "app-page-head";
-      const eyebrow = document.createElement("span");
-      eyebrow.className = "app-page-kicker";
-      eyebrow.textContent = view.kicker;
-      const h = document.createElement("h2");
-      h.id = "view-title-" + view.id;
-      h.tabIndex = -1;
-      h.textContent = view.name;
-      const sub = document.createElement("p");
-      sub.textContent = view.subtitle;
-      head.append(eyebrow,h,sub);
-      section.append(head);
-      section.setAttribute("aria-labelledby",h.id);
+    section.className="app-view";
+    section.id="view-"+view.id;
+    section.dataset.view=view.id;
+    section.hidden=true;
+    section.setAttribute("aria-label",view.name);
+    const header=document.createElement("header");
+    header.className="app-page-head";
+    const kicker=document.createElement("span");
+    kicker.className="app-page-kicker";
+    kicker.textContent=view.id==="terminal"?"PILOTAGE · PAPER":"DÉCISIONS · HISTORIQUE · AUDIT";
+    const h=document.createElement("h2");
+    h.id="view-title-"+view.id;
+    h.tabIndex=-1;
+    h.textContent=view.name;
+    const desc=document.createElement("p");
+    desc.textContent=view.id==="terminal"
+      ? "Capital, marchés, ordres et performances dans un seul espace."
+      : "Décisions de Grok Bot, historique des trades et journal audité.";
+    header.append(kicker,h,desc);
+    section.append(header);
+    section.setAttribute("aria-labelledby",h.id);
+    if(view.id==="terminal") {
+      const toolbar=document.createElement("nav");
+      toolbar.className="terminal-quicknav";
+      toolbar.setAttribute("aria-label","Accès rapide dans le Terminal");
+      for(const [id,label] of [["cockpit","Synthèse"],["market-card","Marché"],["orders-panel","Ordres"],["performance-panel","Performance"]]) {
+        const a=document.createElement("a");
+        a.href="#/terminal#"+id;
+        a.textContent=label;
+        a.dataset.terminalJump=id;
+        toolbar.append(a);
+      }
+      section.append(toolbar);
     }
-    for (const selector of view.blocks) {
-      const node = main.querySelector(selector);
-      if (!node) throw new Error("Section Kraken Paper introuvable : " + selector);
-      section.append(node); // Déplacer le nœud, pas le cloner : conserver événements et données.
-      if (node.id) idMap.set(node.id, view.id);
+    for(const selector of view.blocks) {
+      const node=main.querySelector(selector);
+      if(!node) throw new Error("Section Kraken Paper absente : "+selector);
+      section.append(node);
+      if(node.id) idMap.set(node.id,view.id);
       node.querySelectorAll("[id]").forEach(el=>idMap.set(el.id,view.id));
     }
     containers.set(view.id,section);
     main.append(section);
   }
-  let active = null;
-
+  let active=null;
   function parseHash(hash) {
     let raw;
-    try { raw = decodeURIComponent(String(hash||"").replace(/^#/,"")); }
-    catch (_) { return {route:"accueil",target:null}; }
-    if (!raw) return {route:"accueil",target:null};
-    if (raw.startsWith("/")) {
-      const body = raw.slice(1), pos = body.indexOf("#");
-      const route = pos < 0 ? body : body.slice(0,pos);
-      const target = pos < 0 ? null : body.slice(pos+1);
-      return { route:routes.has(route)?route:"accueil", target };
+    try {raw=decodeURIComponent(String(hash||"").replace(/^#/,""));}
+    catch (_) {return {route:"terminal",target:null};}
+    if(!raw) return {route:"terminal",target:null};
+    if(raw.startsWith("/")) {
+      const path=raw.slice(1), i=path.indexOf("#");
+      const name=i<0?path:path.slice(0,i);
+      const target=i<0?null:path.slice(i+1);
+      if(legacyRoutes[name]) return {route:"terminal",target:target||legacyRoutes[name][1]};
+      return {route:name==="activite"?"activite":"terminal",target};
     }
-    const target = raw;
-    return {route:idMap.get(target) || legacyTargets.get(target) || "accueil",target};
+    return {route:idMap.get(raw)||"terminal",target:raw};
   }
-  const reduce = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   function closeMenus() {
     document.body.classList.remove("nav-open");
-    if (nav && window.KPNav?.sync) window.KPNav.sync();
-    if (moreMenu) moreMenu.hidden=true;
-    moreButton?.setAttribute("aria-expanded","false");
+    window.KPNav?.sync?.();
   }
-  function activate(route, target=null, {focus=false}={}) {
-    if (!routes.has(route)) route="accueil";
-    if (active!==route && document.body.classList.contains("market-focus")) window.KPFocus?.close();
-    const changed = active!==route;
+  function activate(route,target=null,{focus=false}={}) {
+    if(!containers.has(route)) route="terminal";
+    if(active!==route && document.body.classList.contains("market-focus")) window.KPFocus?.close();
+    const changed=active!==route;
     active=route;
-    for(const [id,section] of containers) section.hidden=(id!==route);
+    for(const [id,section] of containers) section.hidden=id!==route;
     document.body.dataset.route=route;
-    document.querySelectorAll("[data-route]").forEach(link=>{
-      const current=link.dataset.route===route;
-      if(current) link.setAttribute("aria-current","page");
-      else link.removeAttribute("aria-current");
-    });
-    const isActivity=route==="activite";
-    moreButton?.classList.toggle("is-current",isActivity);
+    for(const a of navigationItems) {
+      const yes=a.dataset.route===route;
+      if(yes) a.setAttribute("aria-current","page");
+      else a.removeAttribute("aria-current");
+    }
     closeMenus();
-    document.title=(views.find(v=>v.id===route)?.name || "Kraken Paper")+" · Kraken Paper";
+    document.title=(route==="terminal"?"Terminal":"Activité & Bot")+" · Kraken Paper";
     window.requestAnimationFrame(()=>{
-      if(route==="marches") window.KPMarkets?.resizeChart?.();
-      if(route==="performance") window.KPAppUX?.redrawPerformance?.();
-      const visibleTarget=target&&document.getElementById(target);
-      if(visibleTarget && containers.get(route)?.contains(visibleTarget)) {
-        visibleTarget.scrollIntoView({behavior:"auto",block:"start"});
-        if(focus && typeof visibleTarget.focus==="function" && visibleTarget.tabIndex>=0) visibleTarget.focus({preventScroll:true});
+      if(route==="terminal") {
+        window.KPMarkets?.resizeChart?.();
+        window.KPAppUX?.redrawPerformance?.();
+      }
+      const element=target?document.getElementById(target):null;
+      if(element && containers.get(route).contains(element)) {
+        element.scrollIntoView({behavior:"auto",block:"start"});
+        if(focus && element.tabIndex>=0) element.focus({preventScroll:true});
       } else if(changed) {
         window.scrollTo({top:0,behavior:"auto"});
-        const title=document.getElementById("view-title-"+route);
-        if(focus && title) title.focus({preventScroll:true});
+        if(focus) document.getElementById("view-title-"+route)?.focus({preventScroll:true});
       }
+      document.querySelectorAll("[data-terminal-jump]").forEach(a=>{
+        if(target && a.dataset.terminalJump===target) a.setAttribute("aria-current","location");
+        else a.removeAttribute("aria-current");
+      });
     });
-    document.dispatchEvent(new CustomEvent("kp:view", {detail:{route,changed}}));
+    document.dispatchEvent(new CustomEvent("kp:view",{detail:{route,changed}}));
   }
   function go(route,target=null,focus=false) {
-    if(!routes.has(route)) return;
-    const hash="#/"+route+(target?"#"+encodeURIComponent(target):"");
-    if(location.hash===hash) activate(route,target,{focus});
-    else {
-      location.hash=hash;
-      activate(route,target,{focus});
+    if(legacyRoutes[route]) {
+      target=target||legacyRoutes[route][1];
+      route="terminal";
     }
+    if(!containers.has(route)) return;
+    const hash="#/"+route+(target?"#"+encodeURIComponent(target):"");
+    if(location.hash!==hash) location.hash=hash;
+    activate(route,target,{focus});
   }
-  window.addEventListener("hashchange",()=>{const {route,target}=parseHash(location.hash);activate(route,target);});
+  window.addEventListener("hashchange",()=>{
+    const {route,target}=parseHash(location.hash);
+    activate(route,target);
+  });
   document.addEventListener("click",(event)=>{
     const a=event.target.closest?.('a[href^="#"]');
     if(!a || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    const href=a.getAttribute("href"), {route,target}=parseHash(href);
+    const href=a.getAttribute("href");
     if(!href || href==="#") return;
+    const {route,target}=parseHash(href);
     event.preventDefault();
     go(route,target,true);
   });
-  moreButton?.addEventListener("click",()=>{
-    moreMenu.hidden=!moreMenu.hidden;
-    moreButton.setAttribute("aria-expanded",String(!moreMenu.hidden));
-  });
-  document.addEventListener("keydown",(e)=>{
-    if(e.key==="Escape" && moreMenu && !moreMenu.hidden) {
-      moreMenu.hidden=true;
-      moreButton?.setAttribute("aria-expanded","false");
-      moreButton?.focus();
-    }
-  });
-  document.addEventListener("pointerdown",(e)=>{
-    if(moreMenu && !moreMenu.hidden && !mobile?.contains(e.target)) {
-      moreMenu.hidden=true;
-      moreButton?.setAttribute("aria-expanded","false");
-    }
-  });
-  window.KPRouter={navigate:go, active:()=>active, routeFor:(id)=>idMap.get(id)||legacyTargets.get(id)||null, parseHash};
-  const first=parseHash(location.hash);
-  activate(first.route,first.target);
+  window.KPRouter={navigate:go,active:()=>active,routeFor:id=>idMap.get(id)||null,parseHash};
+  const initial=parseHash(location.hash);
+  activate(initial.route,initial.target);
 })();
