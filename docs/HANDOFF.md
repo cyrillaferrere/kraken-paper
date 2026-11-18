@@ -1,3 +1,9 @@
+## Feature v0.3.6 — en-tête Marchés compact (18/11/2026)
+- `site/index.html` : déplacer l'unique bloc `.selected-live` dans `.card-h` (via `.market-header-live`), sans dupliquer les IDs ; titre conservé pour accessibilité. L'ordre des contrôles est prix/live, timeframes, Ordres/Focus, paires, toolbar bougies.
+- `site/markets.js` : modifier seulement le balisage de `legend()` pour deux lignes logiques, OHLC puis MA20/MA50/RSI, en conservant les calculs et le temps survolé.
+- `site/spa-v036.css` : nouvelles règles à la fin pour compacter entête, paires, outils et légende, avec retours ciblés à 1260 et 760 px. Le statut live conserve son élément DOM tandis que la fraîcheur des bougies reste visible dans `chart-updated`.
+- Test `tests/site/dashboard-integration.test.js` : unicité des IDs, ordre des éléments et présence du balisage dynamique OHLC ; exécuter CI complète. Version **0.3.6**, PR #66, sans fusion préprod/prod.
+
 ## Feature v0.3.6 — compactage de l'analyse (18/11/2026)
 - `site/index.html` : suppression du seul bloc redondant `chart-order-levels`; le chandelier et ses tracés/annotations sont inchangés.
 - `site/market-v035.js` : `renderPriceScale()` affiche réglette + tableau quatre colonnes (niveau, prix, distance, ordre). Chaque ordre reste identifiable et cliquable via `data-v035-order`. La limite de `recentPairEvents()` passe de quatre à trois. `collectPriceLevels()` conserve sans fusion tous les niveaux partageant le même prix et les conditions de protections d'achat en attente.
