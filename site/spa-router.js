@@ -91,7 +91,15 @@
     for(const [id,section] of containers) section.hidden=id!==route;
     document.body.dataset.route=route;
     for(const a of navigationItems) {
-      const yes=a.dataset.route===route;
+      let yes=a.dataset.route===route;
+      // Les quatre raccourcis mobiles pointent dans le meme Terminal :
+      // n'en surligner qu'un seul, celui de la zone effectivement demandee.
+      if(yes && a.closest?.("#mobile-primary-nav") && route==="terminal") {
+        const selected=target==="market-card"?"market-card"
+          :target==="orders-panel"?"orders-panel"
+          :target==="performance-panel"?"performance-panel":"cockpit";
+        yes=a.getAttribute("href")==="#/terminal#"+selected;
+      }
       if(yes) a.setAttribute("aria-current","page");
       else a.removeAttribute("aria-current");
     }
