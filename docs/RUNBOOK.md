@@ -1,9 +1,34 @@
-## Publication v0.3.6.2 — release ciblée (18/11/2026)
-- La branche release/v0.3.6.2-controlled part de main : elle livre uniquement les correctifs du verrou production, sans fusion globale de preprod (qui embarquerait des changements non inclus dans ce correctif).
-- Le workflow deploy-production-controlled sur deploy/prod-request doit accepter X.Y.Z.W. La demande JSON mentionne la version 0.3.6.2 et le SHA exact de main après la fusion de la release.
-- Le build Git Netlify de main est ignoré par scripts/netlify-ignore-build.sh (0 = ignorer). Seul le workflow contrôlé doit appeler scripts/deploy.sh prod avec --prod.
-- Contrôler les suites GitHub quality-gates et guard-state, la publication effective Netlify, puis version.json (version, env=prod, branch=main, commit).
-- Le verrou Git ne bloque pas une action manuelle dans Netlify ; auditer les deploy hooks et les droits du site séparément.
+## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
+1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
+   aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.
+2. Simuler un trou de donnees 5 min dans les 60 h : attendre sans avancer.
+   Simuler un trou definitif au-dela de la retention : repli journalise.
+3. Simuler une heure partiellement traitee en 5 min dont les donnees disparaissent :
+   aucun rejeu 1 h, meme apres 60 h.
+4. Verifier `Dash v0.3.7 · Moteur v0.2.0` sur routes Terminal et Activite,
+   en desktop et mobile 320/390 px. En preview avec etat live moteur 0.1.0,
+   le bandeau doit dire **Moteur v0.1.0** et ne jamais pretendre 0.2.0 actif.
+5. Palier des frais affiche a partir des fills PAPER sur les 30 derniers jours,
+   independamment du prochain fill (sous reserve du bareme conforme).
+
+## Recette moteur 0.2.0 / site v0.3.7 (18/11/2026)
+1. Exécuter `python -m unittest -v`, `node --test tests/site/*.test.js`, `node --test tests/functions/*.test.mjs`. CI `quality-gates` et `guard-state` verts.
+2. Rejeu isolé : copier l'état de production en répertoire temporaire **hors state/**, ne jamais lancer `python engine/run.py` directement dans le dépôt de travail. Utiliser `run_cycle(copy.deepcopy(state), ..., FakeMarket, ...)` pour comparer les sorties attendues, sans notifier.
+3. Vérifier les ordres ouverts O0017, O0024, O0022, O0025 et O0026 et les positions : ID, quantité, statut, niveaux inchangés à l'import; pas de recalcul des trades passés.
+4. Cas BTC 17/11 : stop 63 700, mèche 63 298, ouverture 63 700; modèle sans volume => 63 636 USDC (arrondi entier).
+5. Vérifier seuils 0,05 % (contact insuffisant), frais avant/après 2 500 USD de volume, heartbeat ignoré, deux limites et un stop sur la même position, TP partiels.
+6. Simuler une indisponibilité 5 min : un seul événement `execution_fallback` pour chaque repli 1 h; jamais de réécriture historique.
+7. Préprod/Deploy Preview : vérifier les deux versions site et moteur (moteur du portefeuille live reste 0.1 jusqu'à activation prod); vérifier la lecture du CSV à six colonnes historiques puis sept colonnes nouvelles.
+8. **Moteur non déployé en préprod** : seules des données fictives sont utilisées par les tests. Aucun workflow préprod ne doit écrire sur `main`.
+9. Demander la revue Grok Bot et GO explicite de Cyril avant toute modification de `main`; le build Git de production est déjà ignoré (ADR-34). Déployer via `deploy-production-controlled` seulement.
+
+## Publication contrôlée v0.3.6.2 — recette et exploitation
+1. Les versions `X.Y.Z` et `X.Y.Z.W` sont acceptées par `.github/workflows/deploy-production-controlled.yml` ; `VERSION` doit correspondre exactement à la demande approuvée.
+2. Dans `netlify.toml`, `[build].ignore` appelle `scripts/netlify-ignore-build.sh`. En contexte Git `production` ou branche `main`, ce script retourne **0** (Netlify saute le build). En contexte `deploy-preview`, il retourne **1** (build permis). Les autres branches construisent si le contenu pertinent diffère, ou si les SHA de comparaison sont absents.
+3. La CLI `scripts/deploy.sh prod` publie directement `site/` et les fonctions avec `--prod` ; elle n'exécute pas le filtre de build Git. Ne l'utiliser que via `deploy-production-controlled` après GO explicite de Cyril.
+4. Avant une future production : vérifier la branche/SHA approuvés, les tests Python/Node, le statut CI, les droits de l'environnement GitHub et le numéro `version.json` après publication. Vérifier la page Netlify > Build & deploy : aucune voie non approuvée (deploy hooks, UI, autres tokens/workflows) ne doit pouvoir publier.
+5. Tester localement `node --test tests/site/netlify-build-gate.test.js`, `sh -n scripts/netlify-ignore-build.sh`, puis les suites habituelles. Ne jamais déclencher un vrai déploiement production pour valider un simple test.
+6. En cas de publication Git inattendue : bloquer immédiatement la source de déploiement, vérifier l'historique Netlify et les SHA, puis documenter l'incident avant la prochaine release. Un build skipped n'est **pas** une garantie contre un déploiement Netlify manuel.
 
 ## Recette v0.3.6 — correctif sélection des timeframes
 - Faire défiler les six TF (5 min, 15 min, 30 min, 1 h, 4 h, 1 j) : le fond jade reste strictement sur le bouton actif, et il n'y a ni superposition ni texte rogné.
