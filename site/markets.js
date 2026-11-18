@@ -201,8 +201,35 @@
   });
 
   // ---------- graphique principal ----------
-  let levelPrices = [];
-  let chart = null, sCandle, sMa20, sMa50, sVol, sRsi, markersApi, priceLines = [], linesSig = "", markersSig = "";
+  // Niveaux tracés (ordres, stops, objectifs, PRU) : une seule paire à la fois.
+  // Lightweight Charts ne recalcule pas l'échelle quand on ajoute ou retire une priceLine :
+  // à chaque changement de niveaux, et à chaque changement de paire ou de TF, on vide les
+  // anciens niveaux puis on remet l'échelle de prix en autoscale (v0.3.6.1, bug XRP sur échelle BTC).
+  function createLevelSync(getSeries, getScale) {
+    let created = [], prices = [], sig = "";
+    const rescale = () => { const sc = getScale(); if (sc) sc.applyOptions({ autoScale: true }); };
+    const removeAll = () => { const s = getSeries(); if (s) created.forEach((l) => s.removePriceLine(l)); created = []; };
+    return {
+      prices: () => prices,
+      invalidate() { sig = ""; },
+      clear() { removeAll(); prices = []; sig = ""; rescale(); },
+      sync(pair, levels, visible) {
+        const vis = visible ? (levels || []).filter((l) => l.pair === pair && Number(l.price) > 0) : [];
+        const next = pair + visible + JSON.stringify(vis.map((l) => [l.price, l.color, l.lineStyle]));
+        if (next === sig) return vis;
+        removeAll();
+        prices = vis.map((l) => Number(l.price));
+        const s = getSeries();
+        if (s) created = vis.map((l) => s.createPriceLine({ price: l.price, color: l.color, lineStyle: l.lineStyle, lineWidth: 1, axisLabelVisible: true, title: "" }));
+        sig = next;
+        rescale();
+        return vis;
+      },
+    };
+  }
+  window.KPChartLevelSync = createLevelSync;
+  let chart = null, sCandle, sMa20, sMa50, sVol, sRsi, markersApi, markersSig = "";
+  const levels = createLevelSync(() => sCandle, () => (sCandle ? sCandle.priceScale() : null));
   let shown = { key: null, lastT: null, bars: [] };
   let viewBars = prefs.bars;
   function applyChartRange() {
@@ -244,8 +271,9 @@
     sCandle = chart.addSeries(L.CandlestickSeries, { upColor: C.up, downColor: C.dn, borderVisible: false, wickUpColor: C.up, wickDownColor: C.dn, priceLineColor: C.ac2,
       // L'échelle inclut les niveaux d'ordres, stops et objectifs pour qu'ils restent visibles.
       autoscaleInfoProvider: (orig) => {
-        const r = orig(); if (!r || !r.priceRange || !levelPrices.length) return r;
-        return Object.assign({}, r, { priceRange: { minValue: Math.min(r.priceRange.minValue, ...levelPrices), maxValue: Math.max(r.priceRange.maxValue, ...levelPrices) } });
+        const lp = levels.prices();
+        const r = orig(); if (!r || !r.priceRange || !lp.length) return r;
+        return Object.assign({}, r, { priceRange: { minValue: Math.min(r.priceRange.minValue, ...lp), maxValue: Math.max(r.priceRange.maxValue, ...lp) } });
       } }, 0);
     sMa20 = chart.addSeries(L.LineSeries, { color: C.ac2, lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false }, 0);
     sMa50 = chart.addSeries(L.LineSeries, { color: C.ma50, lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false }, 0);
@@ -320,10 +348,13 @@
       if (request !== chartRequest || selected.pair !== p || TF[selected.tf] !== iv) return; // réponse ancienne : ne jamais écraser la sélection courante
       const d = seriesData(bars);
       if (switching || !shown.lastT) {
+        // Changement de paire ou de TF : aucun niveau ni marqueur de l'ancienne paire ne doit
+        // peser sur l'échelle des nouvelles bougies, et l'échelle repart en autoscale.
+        levels.clear(); labels.set([]); markersApi.setMarkers([]);
         setPriceFormat(p);
         sCandle.setData(d.candles); sMa20.setData(d.ma20); sMa50.setData(d.ma50); sVol.setData(d.vol); sRsi.setData(d.rsi);
         chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - viewBars), to: bars.length + 3 });
-        linesSig = ""; markersSig = "";
+        levels.invalidate(); markersSig = "";
       } else {
         // Rafraîchissement : on ne pousse que la bougie en cours et les nouvelles, sans déplacer la vue.
         for (let i = 0; i < bars.length; i++) {
@@ -383,7 +414,7 @@
     if (!e.target.closest || !e.target.closest("#ord-toggle")) return;
     showOrders = !showOrders;
     try { localStorage.setItem(ORD_KEY, showOrders ? "1" : "0"); } catch { /* navigation privée */ }
-    syncOrdBtn(); linesSig = ""; overlays();
+    syncOrdBtn(); levels.invalidate(); overlays();
   });
   document.addEventListener("DOMContentLoaded", syncOrdBtn); syncOrdBtn();
 
@@ -392,11 +423,12 @@
     const lines = [];
     for (const o of orders || []) {
       if (o.pair !== pair) continue;
+      const push = (l) => lines.push(Object.assign({ pair }, l));
       if (o.side === "buy") {
-        if (o.price != null) lines.push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite`, pendingBuyId: o.id });
+        if (o.price != null) push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite`, pendingBuyId: o.id });
         if (previewId !== o.id) continue;
         const planned = (price, name) => {
-          if (price != null) lines.push({ price, color: "#9299a9", lineStyle: 3, label: `${o.id} ${name} si l'achat passe`, conditional: true });
+          if (price != null) push({ price, color: "#9299a9", lineStyle: 3, label: `${o.id} ${name} si l'achat passe`, conditional: true });
         };
         planned(o.stop_loss, "stop");
         planned(o.take_profit, "objectif");
@@ -404,15 +436,15 @@
       } else {
         if (Array.isArray(o.take_profits) && o.take_profits.length) {
           o.take_profits.forEach((tp, i) =>
-            lines.push({ price: tp.price, color: C.ac, lineStyle: 2, label: `${o.id} TP${(o.tp_filled || 0) + i + 1}` }));
+            push({ price: tp.price, color: C.ac, lineStyle: 2, label: `${o.id} TP${(o.tp_filled || 0) + i + 1}` }));
         } else if (o.price != null) {
-          lines.push({ price: o.price, color: C.ac, lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
+          push({ price: o.price, color: C.ac, lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
         }
         if (o.stop_loss) {
           const breakevenActive = o.breakeven_after_tp1 === true && Number(o.tp_filled) > 0 &&
             Number.isFinite(Number(o.entry_price)) && Number(o.stop_loss) >= Number(o.entry_price) - 1e-8;
           const stopLabel = breakevenActive ? "stop remonté au prix d’achat après TP1" : "stop";
-          lines.push({ price: o.stop_loss, color: C.dn, lineStyle: 2, label: `${o.id} ${stopLabel}` });
+          push({ price: o.stop_loss, color: C.dn, lineStyle: 2, label: `${o.id} ${stopLabel}` });
         }
       }
     }
@@ -461,20 +493,13 @@
       const live = ctx.price(p) ?? (shown.bars.length ? shown.bars[shown.bars.length - 1].c : null);
       const pru = (window.KPLib && window.KPLib.pruLabel) ? window.KPLib.pruLabel(pos, live) : { label: "PRU (prix de revient)", tone: "mu" };
       const col = C[pru.tone] || C.mu;
-      lines.push({ price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
+      lines.push({ pair: p, price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
     }
     lines.push(...buildOrderLines(S.open_orders, p, pendingPreviewId));
-    const vis = showOrders ? lines : [];
     // La signature des lignes de prix ignore le texte du P&L (il change toutes les 15 s) :
     // on recrée les traits seulement si un niveau change, et on rafraîchit toujours les étiquettes.
-    const lsig = p + showOrders + JSON.stringify(vis.map((l) => [l.price, l.color, l.lineStyle]));
-    if (lsig !== linesSig) {
-      priceLines.forEach((l) => sCandle.removePriceLine(l));
-      levelPrices = vis.map((l) => l.price).filter((x) => x > 0);
-      // Sur l'échelle : seulement la petite étiquette de prix, sans titre ; le texte va sur la ligne (primitive).
-      priceLines = vis.map((l) => sCandle.createPriceLine({ price: l.price, color: l.color, lineStyle: l.lineStyle, lineWidth: 1, axisLabelVisible: true, title: "" }));
-      linesSig = lsig;
-    }
+    // Seuls les niveaux de la paire affichée sont tracés et comptés dans l'échelle.
+    const vis = levels.sync(p, lines, showOrders);
     labels.set(vis);
     // exécutions : journal (événements "fill"), complété par closed_trades.
     // Les fills anciens (sans time_source, datés à la fermeture 1 h) sont recalés sur la
@@ -670,6 +695,8 @@
       applyChartRange();
     }));
     $("chart-reset").addEventListener("click", () => {
+      // Recentrer remet aussi l'échelle de prix en automatique (après un glisser ou un zoom vertical).
+      if (sCandle) sCandle.priceScale().applyOptions({ autoScale: true });
       applyChartRange();
       hoveredCandleTime = null;
       legend();
