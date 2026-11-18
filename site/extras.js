@@ -76,15 +76,9 @@
     const wasOpen = new Set([...box.querySelectorAll("details[open]")].map((d) => d.dataset.id));
     const sorted = list.slice().sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || "")) || String(b.id).localeCompare(String(a.id)));
     if (!sorted.length) { box.innerHTML = '<p class="muted">Pas encore de décision : la première arrive à la prochaine session.</p>'; return; }
-    box.innerHTML = sorted.map((d, i) => {
-      if (d.type === "heartbeat") {
-        // Une presence sans ordre n'est ni appliquee ni en attente du moteur.
-        return `<details class="dec dec-heartbeat" data-id="${esc(d.id)}">
-          <summary><span class="chev" aria-hidden="true">▸</span><span class="heartbeat-label">Session confirmée · aucun changement</span>
-          <span class="muted">${d.timestamp ? esc(dtl(d.timestamp)) : ""}</span></summary>
-          <div class="dec-body"><p class="muted">${esc(d.note || "Aucune modification proposée.")}</p></div>
-        </details>`;
-      }
+    const realDecisions = sorted.filter((d) => d.type !== "heartbeat");
+    const heartbeats = sorted.filter((d) => d.type === "heartbeat");
+    box.innerHTML = realDecisions.map((d, i) => {
       const done = processed.has(d.id);
       const acts = Array.isArray(d.actions) ? d.actions : null;
       const notes = acts ? acts.filter((a) => a.type === "note") : [];
@@ -104,7 +98,12 @@
           ${rows ? `<h4>Actions</h4><ul class="dec-acts">${rows}</ul>` : acts ? "" : '<p class="muted">Détail des actions indisponible (API GitHub limitée), seule la justification est affichée.</p>'}
           ${notes.length ? `<h4>Notes</h4><ul class="dec-notes">${notes.map((n) => `<li>📝 ${esc(n.text)}</li>`).join("")}</ul>` : ""}
         </div></details>`;
-    }).join("");
+    }).join("") + (heartbeats.length
+      ? `<details class="heartbeat-group"><summary>Passages Grok sans changement <span class="muted">(${heartbeats.length}) · repliés</span></summary>
+          <div class="heartbeat-list">${heartbeats.map((d) => `<div class="heartbeat-row">
+            <time>${d.timestamp ? esc(dtl(d.timestamp)) : "Heure inconnue"}</time>
+            <span>${esc(d.note || "Aucune modification")}</span></div>`).join("")}</div></details>`
+      : "");
   }
 
   // ---------- leçons ----------
