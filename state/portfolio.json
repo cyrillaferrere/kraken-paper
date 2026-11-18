@@ -90,62 +90,6 @@
       "tp_filled": 0
     },
     {
-      "id": "O0029",
-      "pair": "XBTUSDC",
-      "side": "sell",
-      "qty": 0.01942246,
-      "price": 70000.0,
-      "stop_loss": 60400.0,
-      "take_profit": null,
-      "created": "2026-11-18T16:15:00+01:00",
-      "active_from": 1795014900,
-      "parent": "2026-11-18-16h15",
-      "decision_id": null,
-      "take_profits": [
-        {
-          "price": 70000.0,
-          "fraction": 0.5,
-          "qty": 0.00971123
-        },
-        {
-          "price": 75000.0,
-          "fraction": 0.5,
-          "qty": 0.00971123
-        }
-      ],
-      "entry_price": 64478.95702558915,
-      "breakeven_after_tp1": true,
-      "tp_filled": 0
-    },
-    {
-      "id": "O0030",
-      "pair": "XBTUSDC",
-      "side": "sell",
-      "qty": 0.01113755,
-      "price": 70000.0,
-      "stop_loss": 60400.0,
-      "take_profit": null,
-      "created": "2026-11-18T17:15:00+01:00",
-      "active_from": 1795018800,
-      "parent": "O0028",
-      "decision_id": null,
-      "take_profits": [
-        {
-          "price": 70000.0,
-          "fraction": 0.5,
-          "qty": 0.00556877
-        },
-        {
-          "price": 75000.0,
-          "fraction": 0.5,
-          "qty": 0.00556878
-        }
-      ],
-      "entry_price": 63862.61737712862,
-      "breakeven_after_tp1": true,
-      "tp_filled": 0
-    },
-    {
       "id": "O0031",
       "pair": "XRPUSDC",
       "side": "sell",
@@ -170,6 +114,34 @@
         }
       ],
       "entry_price": 0.9688979997005526,
+      "breakeven_after_tp1": true,
+      "tp_filled": 0
+    },
+    {
+      "id": "O0032",
+      "pair": "XBTUSDC",
+      "side": "sell",
+      "qty": 0.03056001,
+      "price": 70000.0,
+      "stop_loss": 60400.0,
+      "take_profit": null,
+      "created": "2026-11-18T22:51:35+01:00",
+      "active_from": 1795038900,
+      "parent": "2026-11-18-22h55",
+      "decision_id": null,
+      "take_profits": [
+        {
+          "price": 70000.0,
+          "fraction": 0.5,
+          "qty": 0.01528
+        },
+        {
+          "price": 75000.0,
+          "fraction": 0.5,
+          "qty": 0.01528001
+        }
+      ],
+      "entry_price": 63862.61737712862,
       "breakeven_after_tp1": true,
       "tp_filled": 0
     }
@@ -459,13 +431,14 @@
     "2026-11-17-22h10",
     "2026-11-18-08h10",
     "2026-11-18-16h15",
-    "2026-11-18-18h12"
+    "2026-11-18-18h12",
+    "2026-11-18-22h55"
   ],
   "last_decision": {
-    "id": "2026-11-18-18h12",
-    "timestamp": "2026-11-18T18:12:00+01:00",
-    "rationale": "Ce que je vois : cycle 18h09 sain (moteur 0.2.0). Deux exécutions dans la baisse de 17h : palier moyen terme BTC O0028 à 62 600 (17h15) et court terme XRP O0025 à 0,966 (17h20). BTC 62 700, mèche à 62 226 avec pic de volume, juste au-dessus du plancher 3 mois de 62 000, sous ses MA20 1h (64 180) et 4h (64 520), RSI 1h 29 : survendu mais sans confirmation de rebond. ETH 1 752 plus faible que BTC sur 24 h. SOL (+1,1 % sur 24 h, +2,4 % sur 72 h) et XRP (+1,7 % / +2,6 %) restent plus forts que BTC (−1,5 % / −2,7 %). Revue globale par crypto : BTC 0,0306 (PRU 63 863) avec deux groupes de sorties O0029 et O0030 aux mêmes niveaux (stop 60 400, TP 70 000 / 75 000 par moitiés, stop au prix d'achat après TP1), plus aucun achat en attente : cohérent, ratio net ~2,1. ETH O0022 (stop 1 680, TP 2 000 / 2 150) ratio net ~2,1. SOL O0027 (stop 69,6, TP 80 / 87) ratio net ~1,7. XRP O0031 (stop 0,928 sous le plancher 0,942, TP 1,03 / 1,08) ratio net ~1,7. Aucun stop au-dessus d'un achat, aucun ordre qui vend puis rachète. Ce que je fais : rien de nouveau. Pourquoi : la poche court terme a ses deux positions (maximum), la poche moyen terme est à ~36 % (BTC 1 917 + ETH 390) pour 40 % visés, et le risque total corrélé atteint ~197 USDC (3,1 %) ; ajouter un palier dans un marché qui baisse sans confirmation contredit la leçon du 14/11. Je ne resserre aucun stop pendant la baisse. Réserve 3 306 USDC (52 %) intacte. Ce que j'apprends : les achats limites en repli se remplissent tous ensemble quand tout le marché baisse ; c'est un seul pari corrélé, donc pas de nouvel ordre avant que BTC reprenne sa MA20 horaire avec volume.",
-    "applied": "2026-11-18T18:10:36+01:00"
+    "id": "2026-11-18-22h55",
+    "timestamp": "2026-11-18T22:55:00+01:00",
+    "rationale": "Ce que je vois : la position BTC de 0,03056001 (PRU 63 863) est couverte par deux groupes de sorties aux mêmes niveaux, O0029 (0,01942246, issu de la mise à jour d'O0024) et O0030 (0,01113755, issu de l'achat O0028 à 62 600). Pas de double vente, mais deux points morts différents après TP1 (64 479 et 63 863) et un glissement de stop calculé sur deux petites quantités au lieu de la quantité réelle. BTC 62 300, à 3,2 % au-dessus du stop. Ce que je fais : poche moyen terme BTC, j'annule O0029 et O0030 et je remets un seul groupe sur toute la position : stop 60 400, moitié à 70 000, reste à 75 000, stop au prix d'achat après TP1, donc au vrai PRU 63 863. ETH O0022, SOL O0027 et XRP O0031 inchangés. Réserve intacte. Pourquoi : règle du 17/11, une même position a une seule logique de stop ; un seul point mort au PRU réel comme sur Kraken ; glissement estimé sur la quantité réellement vendue. Niveaux inchangés, aucun resserrement.",
+    "applied": "2026-11-18T22:51:35+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -516,10 +489,10 @@
     "XRPUSDC": 1795032000
   },
   "last_prices": {
-    "XBTUSDC": 62365.64,
-    "ETHUSDC": 1764.07,
-    "SOLUSDC": 73.02,
-    "XRPUSDC": 0.96877
+    "XBTUSDC": 62296.37,
+    "ETHUSDC": 1762.44,
+    "SOLUSDC": 72.95,
+    "XRPUSDC": 0.96797
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -530,11 +503,11 @@
   "fees_total": 42.342639,
   "realized_pnl": -149.334944,
   "seq": {
-    "order": 31,
+    "order": 32,
     "trade": 16
   },
-  "last_cycle": "2026-11-18T22:48:33+01:00",
-  "last_cycle_ts": 1795038513,
+  "last_cycle": "2026-11-18T22:51:35+01:00",
+  "last_cycle_ts": 1795038695,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.003,
@@ -542,10 +515,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795038000,
-    "SOLUSDC": 1795038000,
-    "XBTUSDC": 1795038000,
-    "XRPUSDC": 1795038000
+    "ETHUSDC": 1795038300,
+    "SOLUSDC": 1795038300,
+    "XBTUSDC": 1795038300,
+    "XRPUSDC": 1795038300
   },
   "engine_version": "0.2.0"
 }
