@@ -5,8 +5,7 @@ import os
 import unittest
 from unittest import mock
 
-from engine import run
-from tests.test_engine import FakeMarket, T0, H, decision
+from tests.test_engine import run, FakeMarket, T0, H, decision
 
 
 class EngineV02Tests(unittest.TestCase):
