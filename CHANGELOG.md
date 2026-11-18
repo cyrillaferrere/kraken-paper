@@ -1,7 +1,24 @@
-## [0.3.6.2] — 2026-11-18 — publication contrôlée
-- Validation des versions X.Y.Z et X.Y.Z.W dans le workflow de publication.
-- Blocage des builds Git automatiques Netlify sur main ; previews et préproduction conservées.
-- Tests de sécurité et ADR-34. Aucune modification du moteur PAPER, des ordres, de l'état ou des décisions.
+### Revue Grok Bot — correctifs PR #73 (18/11/2026)
+- Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
+- Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour
+  une heure deja partiellement traitee en 5 min.
+- Bandeau Dash/Moteur permanent en navigation/mobile; palier frais PAPER
+  actualise depuis les trades du portefeuille meme sans execution recente.
+- Ajout de tests API, curseurs, intervalle incomplet, versions et mobile.
+
+## [0.3.7] — préparation préprod (18/11/2026)
+- Moteur PAPER 0.2.0 versionné séparément; affichage du moteur dans le dashboard.
+- Exécution en bougies 5 min clôturées; activation à la 5 min suivante; repli horaire journalisé.
+- Limites avec dépassement de 0,05 %, stops à glissement dynamique selon volatilité et volume.
+- Paliers de frais Kraken Pro selon volume glissant 30 jours du portefeuille.
+- Compatibilité de l'historique sans recalcul, migration de l'en-tête equity.csv par moteur seulement.
+- Tests de non-régression historiques et nouveaux cas, documentation ADR-35.
+
+## [Unreleased] — v0.3.6.2 (contrôle de publication)
+- Le workflow de publication contrôlée accepte `X.Y.Z` et `X.Y.Z.W` (notamment `0.3.6.2`) ; ses validations SHA, VERSION et tests restent en place.
+- Le build Git Netlify de la production est systématiquement ignoré ; les préproductions/previews restent automatisées et le déploiement CLI contrôlé demeure la voie de publication.
+- Tests du filtre Netlify ; ADR-34 et procédures de livraison mises à jour. Aucun changement du moteur PAPER, des décisions, de l'état ou de l'UX existante.
+- Feature uniquement : aucune promotion préprod/prod sans GO de Cyril.
 
 ## [Unreleased] — correctif v0.3.6.1 (fix/v0.3.6.1-chart-pair-scale)
 - Graphique Terminal : en passant d'une paire à l'autre (ex. BTC → XRP), l'échelle de prix restait sur la plage de la paire précédente (63 000–71 000) et les bougies XRP sortaient du cadre. Au changement de paire ou de TF, les lignes d'ordres, stops, objectifs et PRU de l'ancienne paire sont retirées avant de charger les bougies, et l'échelle repart en automatique. Les niveaux tracés sont filtrés sur la paire affichée, l'échelle est recalculée quand ils changent, et « Recentrer » remet aussi l'échelle de prix en automatique. Test `tests/site/chart-pair-scale.test.js`. Aucun changement de moteur, d'état ni de décisions.
