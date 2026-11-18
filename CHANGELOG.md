@@ -1,11 +1,57 @@
-## [0.3.3] — candidat main : liaison webhook Grok Bot
-- Intégration sélective depuis `preprod` : notification des fills après commit/push réussi du moteur, groupée par cycle ; authentification Cursor via secrets GitHub et journalisation sans données sensibles.
-- Workflow GitHub Actions manuel `Test liaison webhook Grok Bot` : POST `{"type":"test_connection"}` et code HTTP uniquement. Déclenchement réservé à Cyril après publication.
-- Tests unitaires hors réseau. Aucun changement de stratégie, de moteur de simulation, de fichiers `state/`, `decisions/` ou d'interface (fichiers site déjà identiques sur les deux branches). VERSION déjà à 0.3.3 sur `main`.
+## [Unreleased] — UX v0.3.6 (feature, non fusionnée)
+- Correctif du sélecteur 5m/15m/30m/1h/4h/1j : suppression du fond animé calculé sur six colonnes égales, sélection fixée au bouton actif avec focus clavier et débordement mobile maîtrisé. Aucun changement des intervalles ou des bougies.
 
-## [0.3.3] - 2026-11-15 (candidat production validé par Cyril)
+- Barre supérieure Marchés densifiée : paire/cours live, unités de temps et actions sur une même zone, paires en ruban horizontal, outils bougies regroupés, OHLC et MA20/MA50/RSI sur deux lignes lisibles. Maintien des identifiants de streaming et des interactions ; responsive et tests d'intégration ajoutés.
+
+- Analyse du marché compactée : six indicateurs resserrés, réglette visuelle maintenue, tableau de niveaux PAPER à quatre colonnes avec accès à chaque ordre, suppression de la liste de niveaux redondante, trois événements de paire par défaut. Données et conditions de protection conservées, hauteurs limitées pendant les mises à jour.
+
+- Marché : indicateurs déplacés sous le chandelier, réglette des niveaux PAPER avec distances au cours et protections conditionnelles, quatre événements récents par paire strictement issus du journal. Espace autrefois vide valorisé, colonne de droite allégée, aucune interprétation stratégique ni mutation du moteur.
+
+- Stabilisation du panneau Focus : cartes d'ordres de hauteur uniforme, descriptions sur deux lignes (texte intégral accessible), spread absolu et % sur lignes réservées, carnet à dix lignes de hauteur fixe, état de chargement sur deux lignes maximum. Réduction des sauts de mise en page pendant les rafraîchissements, sans modifier les prix ni l'exécution PAPER.
+
+- Navigation ramenée à **deux vues** : Terminal unifié (synthèse, marchés, positions, ordres, performance, scanner) et Activité & Bot. Barre rapide interne, raccourcis mobiles, liens historiques préservés. ADR-33 remplace la disposition initiale à cinq vues de l'ADR-31.
+- Grok : support des heartbeats `type=heartbeat` /`actions=[]` /`note` /`timestamp` avec décalage. Le moteur les ignore avant toute modification des décisions ou de l'état PAPER ; aucune logique d'exécution financière modifiée. ADR-32.
+- Le prochain passage Grok est estimé à **+5 h depuis le dernier fichier valide**, heartbeat compris, avec relecture conditionnelle toutes les cinq minutes même sans décision et sans faux retard affiché.
+- Historique des heartbeats regroupé discrètement dans Activité, tests Python/Node de l'absence d'ordre et du calcul horaire, documentation mise à jour.
+- Toujours sur `feature/v0.3.6` / PR #66, sans fusion en préprod ni prod ; fichiers `state/`, `decisions/` et `main` inchangés.
+
+## [Unreleased] — UX v0.3.5 (feature)
+- Carnet spot Kraken public : instantanés bid/ask (10 niveaux), spread absolu et relatif, timestamp et repli honnête si données absentes ; aucun ordre passé.
+- Focus enrichi : tendances 4 h et 1 j, RSI 14, ATR, variation 24 h et force vs BTC issus du scanner existant, niveaux PAPER cliquables avec étiquettes conditionnelles pour achats en attente.
+- Performance : bornes réelles de la période, P&L brut observé et écart de rendement vs BTC lorsque les deux références sont disponibles.
+- Audit : chronologie repliable des décisions, ordres et exécutions réellement présentes, liens vers détails quand disponibles, sans inférence d'identifiants.
+- Finitions desktop/mobile, contraste, états indisponibles, mouvement réduit, tests Node et ADR-30. Aucun changement moteur/stratégie/state/decisions. Aucune fusion ni déploiement production.
+
+- Feature UX v0.3.4 enrichie : mode Focus marché plein écran avec panneau contextuel alimenté par l'état réel, lecture OHLC au survol préservée lors du streaming, sélection directe des paires depuis positions et ordres, micrographe d'equity 24 h / 7 j sans interpolation des trous, navigation inférieure mobile et focus clavier. Tests Node ciblés ; aucune modification PAPER/moteur/state/decisions.
+- Refonte visuelle de la feature v0.3.4 : nouvelle hiérarchie éditoriale, cockpit capital/risque, présentation du marché, graphique et outils, tableaux densifiés, sidebar cohérente et ergonomie mobile ; CSS additif et repères de sections HTML sans changer les IDs ni les calculs.
+- Contrôles à réponse immédiate, mouvement sobre et réductible selon les préférences ; aucun prix, chandelier, ordre ou alerte animé artificiellement. Preview feature uniquement.
+## [Unreleased] — UX v0.3.4
+- Design System léger : couche CSS additive, métriques tabulaires, navigation et contrôles plus cohérents, focus clavier, cibles mobiles et prise en charge renforcée du mouvement réduit. Voir ADR-29. Aucun moteur ni donnée modifiés.
+
+## [Unreleased] — test manuel webhook Cursor (PR #62)
+- Workflow GitHub Actions manuel isolé : POST `{"type":"test_connection"}` avec authentification Bearer, journalisation du seul code HTTP, aucun moteur ni changement de données. En attente de validation CI et d'intégration préprod ; aucun test envoyé ni déploiement main.
+
+## [Unreleased] — PR #60 intégrée en préproduction
+- Revue Grok Bot appliquée : notification après commit/push réussi sur `main`, statuts sans secret et tests dédiés.
+- PR #60 fusionnée dans `preprod` (commit `da19b2631a4a5db92dd56bb2011d44fff90eed2f`) ; CI verte, 55 tests Python.
+- Build Netlify préprod annulé automatiquement pour absence de changement de contenu statique ; aucun déploiement de production.
+
+## [Unreleased] — webhook Grok Bot après commit/push
+- La notification Grok Bot est déplacée après l'étape « Commit de l'etat » : le webhook ne réveille Grok Bot qu'une fois le push de l'état réussi (ou si aucun changement d'état n'était à pousser).
+- Le script affiche un statut sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ». Une erreur de notification ne bloque pas le cycle.
+- Tests dédiés couvrant les trois statuts, l'envoi groupé et l'absence de requête quand aucun fill n'est présent. Aucun changement moteur, trading, `state/` ou `decisions/`.
+
+## [Unreleased] — webhook Grok Bot après cycle
+- Le workflow `engine.yml` mémorise l'offset du journal avant le cycle puis lance `scripts/notify_grokbot.py` après le moteur.
+- Si de nouveaux événements `fill` ont été ajoutés, un seul POST JSON regroupe les trades du cycle (`id`, `order`, `pair`, `side`, `price`, `reason`) et l'heure du cycle.
+- Authentification par les secrets GitHub `GROKBOT_WEBHOOK_URL` et `GROKBOT_WEBHOOK_KEY` ; aucune valeur sensible n'est journalisée. Aucun envoi sans exécution ; toute erreur réseau est absorbée.
+- Test dédié : `tests/test_grokbot_webhook.py`. Aucun changement de logique de trading, de `state/` ou de `decisions/`.
+
+## [0.3.3] — préproduction uniquement
 - Refonte cockpit consolidée : grille responsive pilotée par la largeur réelle de la zone, typographie financière agrandie, benchmark/allocation/risque réorganisés ; textes de diagnostic masqués proprement avec une classe accessible `sr-only`.
 - Feedback live local rétabli sur les seules valeurs effectivement modifiées (cours, positions, allocation, risque), durée 720 ms, sans flash de carte ni animation des prix.
+- Cockpit v3 : sous-titres explicatifs masqués sans perte des informations accessibles, benchmark/frais séparés pour éviter les chevauchements, risque condensé, activité compacte ; flash des seules valeurs modifiées porté à 600 ms.
+- Vue générale : seconde composition du cockpit, suppression des doublons allocation/risque, panneaux à hauteur naturelle, correction des débordements et densité homogène ; compteur de trades limité aux sorties réellement clôturées.
 - Vue générale : cockpit financier haute densité, P&L réalisé/latent, performances 24 h/7 j, drawdown, frais relatifs, allocation en USDC et %, risques actifs/conditionnels en USDC et % ; aucun changement des règles PAPER.
 - Flux Kraken WebSocket v2 : ticker de la paire sélectionnée et bougie OHLC en formation, mises à jour sans réinitialiser le graphique ; repli REST conservé. Moteur PAPER inchangé.
 - Marchés : le cours de la paire sélectionnée est actualisé lors de chaque mise à jour d'état/prix.
@@ -31,7 +77,9 @@
 - Tests de compatibilité des ordres historiques, du stop et des TP ; 51 tests Python, 84 tests site et 6 tests functions sur le candidat isolé.
 - ADR-26 et ADR-27 ; recette utilisateur de préproduction validée. **Publié après validation de Cyril.** Publication contrôlée par GitHub (ADR-27).
 
-## [Unreleased] — Retour au dashboard de production en préproduction
+## [Unreleased]
+- Correctif du flash global : pseudo-élément ancré sur chaque valeur (`position: relative; isolation: isolate`) et feedback appliqué seulement aux chiffres réellement modifiés, sans réinitialiser les classes d'animation des panneaux.
+- Rafraîchissement live isolé : les ticks Kraken mettent à jour uniquement les valeurs financières, les cellules de prix et les zones dépendantes ; les tableaux complets, commandes de navigation, décisions et journal ne sont plus reconstruits à chaque tick. Feedback visuel adouci à 360 ms, sans interpolation des cours. — Retour au dashboard de production en préproduction
 - Restaurer `site/index.html`, `site/style.css`, `site/markets.js`, `site/navigation.js`, `site/chart-preferences.js` et `site/data-validators.js` depuis `main` ; retirer `site/workspace-tabs.js` absent de la production.
 - Préparation sur `fix/restore-prod-ui-preprod` uniquement ; pas de modification de `state/`, `decisions/`, du moteur ou de `main`.
 - Validation des tests et recette visuelle requises avant fusion dans `preprod` ; ADR-25.

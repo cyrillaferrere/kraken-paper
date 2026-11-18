@@ -48,3 +48,11 @@ test("order_placed conserve le TP unique historique", () => {
   assert.match(text, / · TP 69000/);
   assert.doesNotMatch(text, /TP1/);
 });
+
+test("le graphique distingue le stop réellement remonté après TP1", () => {
+  const market = fs.readFileSync(path.join(__dirname, "../../site/markets.js"), "utf8");
+  assert.match(market, /o\.breakeven_after_tp1 === true && Number\(o\.tp_filled\) > 0/);
+  assert.match(market, /Number\(o\.stop_loss\) >= Number\(o\.entry_price\)/);
+  assert.match(market, /stop remonté au prix d’achat après TP1/);
+  assert.match(market, /stopLabel = breakevenActive \?/);
+});

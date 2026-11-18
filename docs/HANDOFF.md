@@ -1,13 +1,108 @@
-## Release v0.3.3 — candidat sélectif pour main
-- Branche `release/v0.3.3-main-candidate` créée depuis `main`, sans fusion globale de `preprod` : intégration de `.github/workflows/engine.yml`, `scripts/notify_grokbot.py`, `.github/workflows/test-grokbot-webhook.yml` et `tests/test_grokbot_webhook.py`.
-- PR #60 et #62 déjà fusionnées dans `preprod`, revue Grok Bot favorable. `VERSION` est déjà `0.3.3` sur `main` et `preprod` ; aucun changement site requis, leurs fichiers d'affichage étant identiques.
-- Après CI et fusion, demande ADR-28 sur `deploy/prod-request` avec `request_sequence: 3`, `approved_commit` = SHA de fusion `main`. Ne jamais copier `state/` ni `decisions/` ; vérifier `version.json` en production. Test Cursor manuel par Cyril uniquement après publication.
+## Feature v0.3.6 — correction des onglets bougies (18/11/2026)
+- Capture utilisateur : fond actif 1 h décalé et texte des intervalles comprimé après compactage de l'en-tête.
+- `site/index.html` : retirer le seul `.seg-thumb` du `tf-tabs` ; `site/markets.js` : ne plus positionner `--idx`, conserver `aria-selected` et le focus clavier ; `site/spa-v036.css` : états actifs sur les boutons, tailles intrinsèques et défilement horizontal mobile.
+- Test `tests/site/dashboard-integration.test.js` : six TF, un seul sélectionné, suppression du thumb et état ARIA. Vérifier chaque TF visuellement à 320/390/768/1440 px, Focus, retour du navigateur, et la récupération des bougies.
+- Version 0.3.6 et PR #66 inchangées, `state/`, `decisions/`, `main` et préprod intacts.
 
-## Release v0.3.3 — GO production 15/11/2026
-- Cyril a validé la préproduction puis donné le GO production. Livraison strictement UI via branche `release/v0.3.3-ui` issue de `main`, pour éviter d'intégrer les différences moteur non comprises dans ce GO.
-- Fichiers livrés : `site/app.js`, `site/style.css`, `site/index.html`, `site/markets.js`, `site/extras.js` et trois tests UI ; `VERSION=0.3.3`, changelog, handoff.
-- Cockpit responsive basé sur la largeur réelle de la zone, huit indicateurs lisibles, notes secondaires masquées, feedback local 720 ms ; WebSocket prix/bougies et lignes d'ordres conditionnelles.
-- Aucun changement dans `engine/`, `state/`, `decisions/`, `netlify.toml` ou les workflows. Production uniquement via la procédure ADR-28 après CI et vérification du SHA de `main`.
+## Feature v0.3.6 — en-tête Marchés compact (18/11/2026)
+- `site/index.html` : déplacer l'unique bloc `.selected-live` dans `.card-h` (via `.market-header-live`), sans dupliquer les IDs ; titre conservé pour accessibilité. L'ordre des contrôles est prix/live, timeframes, Ordres/Focus, paires, toolbar bougies.
+- `site/markets.js` : modifier seulement le balisage de `legend()` pour deux lignes logiques, OHLC puis MA20/MA50/RSI, en conservant les calculs et le temps survolé.
+- `site/spa-v036.css` : nouvelles règles à la fin pour compacter entête, paires, outils et légende, avec retours ciblés à 1260 et 760 px. Le statut live conserve son élément DOM tandis que la fraîcheur des bougies reste visible dans `chart-updated`.
+- Test `tests/site/dashboard-integration.test.js` : unicité des IDs, ordre des éléments et présence du balisage dynamique OHLC ; exécuter CI complète. Version **0.3.6**, PR #66, sans fusion préprod/prod.
+
+## Feature v0.3.6 — compactage de l'analyse (18/11/2026)
+- `site/index.html` : suppression du seul bloc redondant `chart-order-levels`; le chandelier et ses tracés/annotations sont inchangés.
+- `site/market-v035.js` : `renderPriceScale()` affiche réglette + tableau quatre colonnes (niveau, prix, distance, ordre). Chaque ordre reste identifiable et cliquable via `data-v035-order`. La limite de `recentPairEvents()` passe de quatre à trois. `collectPriceLevels()` conserve sans fusion tous les niveaux partageant le même prix et les conditions de protections d'achat en attente.
+- `site/spa-v036.css` : grille indicateurs rapprochée, tableau à en-tête fixe et lignes de hauteur stable, activité compacte ; version inchangée 0.3.6.
+- Tests `tests/site/market-v035.test.js` actualisés pour le nouveau DOM et les prix partagés. Contrôler le comportement à 320/390/768/1440 px et à 200 % de zoom avant fusion ; aucune modification moteur/state/decisions/main.
+
+## Feature v0.3.6 — analyse sous chandelier (18/11/2026)
+- `site/index.html` : les six indicateurs existants sont déplacés de la colonne contexte vers une bande sous le chandelier ; ajout `v036-price-scale` et `v036-pair-events` dans la colonne graphique. Les IDs antérieurs `focus-indicators`, `chart-order-levels` sont uniques et préservés.
+- `site/market-v035.js` : `collectPriceLevels()` construit exclusivement prix live connu, PRU, limites/stops/TP de la paire ; distance au cours en %. Une protection d'achat en attente est signalée conditionnelle. `recentPairEvents()` limite à quatre événements explicitement associés à la paire, à partir du journal, et dirige vers Activité, sans relier artificiellement les décisions.
+- `site/spa-v036.css` : grille indicateurs et réglette, hauteur contrôlée des modules, responsive. Test `tests/site/market-v035.test.js` étendu. Aucun nouveau flux, aucun changement d'ordre ni de simulation, version maintenue à 0.3.6.
+
+## Feature v0.3.6 — stabilité du panneau Marchés (18/11/2026)
+- Dans `site/spa-v036.css`, les tuiles d'ordres du Focus sont normalisées à 94 px (96 px mobile), titre une ligne et description deux lignes. Les détails complets restent accessibles par l'attribut `title` et `aria-label` dans `site/focus-ux.js`, avec ouverture du détail d'ordre au clic.
+- `site/index.html` expose `book-spread-pct` sous `book-spread`, et `site/market-v035.js` renseigne séparément les deux valeurs, y compris leur indisponibilité. Les trois tuiles du carnet gardent 100 px, le statut réserve deux lignes et les dix rangs de profondeur 287 px, y compris en cas de chargement/échec. Aucun chiffre/trade inventé ni données tronquées côté logique.
+- Test `tests/site/market-layout-stability.test.js`. Recette visuelle desktop/mobile et changement rapide de paire à vérifier ; ne pas modifier `state/`, `decisions/`, `main` ni version 0.3.6.
+
+## Feature v0.3.6 — Terminal et heartbeat Grok (18/11/2026)
+- **Version toujours 0.3.6**. Branche `feature/v0.3.6`, PR #66 en brouillon vers `preprod` ; elle inclut aussi les ajouts de la v0.3.5 encore en feature. Ne fusionner aucune PR sans GO de Cyril.
+- `site/index.html` + `site/spa-router.js` + `site/spa-v036.css` : seulement deux vues, `#/terminal` (cockpit, marchés, positions, ordres, performance, calendrier, scanner en fin) et `#/activite`. Liens historiques redirigés, barre rapide adhésive, quatre raccourcis internes mobiles plus Activité.
+- `engine/run.py` accepte `type=heartbeat` + `actions=[]` + `note` + timestamp ISO 8601 décalé, puis saute le heartbeat avant toute mutation de `state`, journal, refus ou ordre. Contrat : `docs/ADR-32-GROK-HEARTBEAT.md`. Aucune création/modification de `state/` et `decisions/`.
+- `site/lib.js` contient `latestSession` ; `site/extras.js` lit `decisions/*.json` sur main, choisit le passage le plus récent, plus 5 h, évite « retard » sans preuve et groupe les heartbeats repliés. Le dépôt est interrogé par ETag toutes les cinq minutes même sans cycle d'état.
+- Convention Grok **après mise en prod uniquement** : `decisions/YYYY-MM-DD-HHMM-heartbeat.json`, ID `heartbeat-YYYYMMDD-HHMM`, note, timestamp local Paris avec offset. README + ADR-32.
+- Tests : `python -m unittest discover -s tests`, `node --test tests/site/*.test.js` et CI ; test runtime 03:09 +5 h = 08:09 ; heartbeat ne modifie pas `processed_decisions` ni `last_decision`.
+- ADR-33 remplace la disposition 5 vues initiale de l'ADR-31 sans nouvelle version. Les règles de trading, préprod et prod restent inchangées.
+
+## Feature v0.3.5 — marché, performance et audit (17/11/2026)
+- Départ : `preprod` après intégration #64 (v0.3.4), nouvelle branche `feature/v0.3.5` ; `main`, `state/` et `decisions/` inchangés.
+- Front HTML/CSS : `site/index.html`, `site/v035.css`; nouveau module `site/market-v035.js`. Chargé après `site/focus-ux.js` ; pas de dépendance ni de build additionnels.
+- Marchés : `site/markets.js` transmet la paire, les indicateurs calculés et le contexte PAPER au nouveau module, via `KPV035.onMarket`. Le module charge exclusivement la profondeur via l'API REST publique Kraken et affiche spreads/volumes par niveau. Échecs, changement de paire et arrière-plan gérés sans mélanger les livres.
+- Performance/chronologie : `site/app.js` passe equity et journal à `KPV035.onPortfolio`. Comparaison des bornes observées, aucune interpolation. Corrélation des événements uniquement sur des IDs effectivement présents.
+- Tests : `node --test tests/site/market-v035.test.js` puis `node --test tests/site/*.test.js` ; CI, contrôle mobile, panne API, raccourcis ordres et accessibilité avant intégration.
+- ADR-30 : portée, limites de REST, conventions d'audit et garde-fous. La PR vers preprod reste en brouillon en attendant un GO d'intégration. Aucun ordre n'est créé par le front.
+
+## Feature v0.3.4 — Focus marché et parcours UX (17/11/2026)
+- `site/index.html` : bouton Focus marché, scène graphique + panneau contextuel par paire, micrographe d'equity 24 h / 7 j, navigation inférieure mobile à 4 destinations.
+- `site/focus-ux.js` : commandes plein écran (Escape, Tab cyclique, bouton de sortie et aria-modal), position/ordres de la paire sélectionnée calculés depuis le contexte public existant, navigation vers le détail d'ordre, micrographe SVG fondé uniquement sur cycles disponibles avec coupures si intervalle > 2 h 30.
+- `site/markets.js` : sélection de paire exposée pour les tableaux, conservation du temps OHLC sur streaming jusqu'à sortie réelle du pointeur ; lignes de stop/TP et marqueurs d'exécutions existants conservés.
+- `site/app.js` : boutons « Graphique » dans positions et ordres, notification de nouveaux cycles au micrographe, aucune écriture backend.
+- `site/design-system.css` : focus isolé, panneau contextuel, tracés financiers sobres, barre mobile et reduced-motion.
+- Tests : `node --test tests/site/focus-ux.test.js`, puis suite complète `node --test tests/site/*.test.js`, `python -m unittest -v`, contrôles CI et navigation desktop/mobile sur Deploy Preview. Vérifier le commit SHA exact dans Netlify (PR #64).
+- Aucune modification du moteur, `state/`, `decisions/` ou `main`; ne pas fusionner ni publier en production sans GO explicite.
+
+## UX v0.3.4 — refonte visible du dashboard (17/11/2026)
+- `site/index.html` : accueil éditorial et raccourcis Marchés/Ordres ; titres à deux niveaux pour les principales sections ; IDs existants inchangés.
+- `site/design-system.css` : palette graphite/jade, rythme et typographie, capital et P&L mis en avant, cockpit rééquilibré dès 940 px de largeur utile, marché et chandelier privilégiés, tableaux plus clairs, navigation active, mobile et mode réduction de mouvement.
+- `VERSION=0.3.4` sur la feature uniquement ; `main` non modifiée ; le site continue de lire l'état PAPER sur `main`.
+- Recette à terminer : échelle 390/768/1280/1600 px, composants générés, hover chandelier durant polling Kraken, menu ouvert/rétracté, filtres et accès clavier ; vérifier le SHA dans `version.json` sur l'aperçu Netlify.
+- Pas de changement de moteur, ordres, stratégie, `state/` ou `decisions/`. Pas de fusion preprod/prod dans cette passe.
+
+## Feature v0.3.4 — Design System (17/11/2026)
+- Branche `feature/v0.3.4` depuis `preprod` ; ajout de `site/design-system.css` et chargement après `style.css`.
+- Hiérarchie financière stable, contrôle tactile immédiat, indicateurs de focus cohérents, cibles mobiles, suppression des mouvements non essentiels en mode réduit.
+- ADR-29 : principes d'interface native adaptés à un terminal PAPER sans lisser ou inventer de prix.
+- À vérifier : CI Python/Node, affichage sur mobile et desktop, menu rétractable, chandeliers 1 h, survol et pollings sans clignotement ; revue Grok Bot avant fusion.
+- `main`, `state/`, `decisions/`, moteur et stratégie inchangés. Aucun déploiement en production.
+
+## PR #62 — test de liaison Cursor/Grok Bot
+- Workflow manuel `test-grokbot-webhook.yml` proposé vers `preprod` : envoi `{"type":"test_connection"}`, sortie limitée au code HTTP, secrets GitHub non journalisés. Aucun appel exécuté lors de la PR, aucun accès moteur, `state/` ou `decisions/`.
+- PR #60 déjà fusionnée dans `preprod` : notification moteur après commit/push ; reste inchangée. Publication main seulement après GO explicite de Cyril.
+
+## PR #60 — correction revue Grok Bot
+- Revue Grok Bot : OK sur le fond ; correction demandée appliquée sur `feature/grokbot-cycle-webhook`.
+- Dans `.github/workflows/engine.yml`, la notification est maintenant placée après « Commit de l'etat ». L'étape de notification ne démarre que si l'étape de commit/push s'est terminée avec succès ; si le push échoue après les tentatives, le job s'arrête avant le webhook.
+- `scripts/notify_grokbot.py` affiche exactement un statut sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ». L'échec reste non bloquant.
+- Tests mis à jour dans `tests/test_grokbot_webhook.py` pour les statuts, l'envoi groupé et l'absence de fill.
+- Après CI verte, fusionner la PR #60 dans `preprod` uniquement. Ne pas modifier `main`, `state/` ou `decisions/`. Le déploiement Netlify préprod automatique est à vérifier après fusion ; aucune production sans GO explicite de Cyril.
+
+## Feature webhook Grok Bot après cycle — intégrée dans preprod (PR #60)
+- PR #60 fusionnée dans `preprod` ; commit d'intégration : `da19b2631a4a5db92dd56bb2011d44fff90eed2f`.
+- Séquence corrigée après revue Grok Bot : le workflow mesure la taille de `state/journal.jsonl` avant `engine/run.py`, exécute le moteur, commit/pousse l'état sur `main`, puis seulement appelle `scripts/notify_grokbot.py`.
+- Si le commit/push échoue, l'étape de notification n'est pas exécutée. Si aucun état n'a changé, le commit step réussit sans push et la notification peut continuer.
+- Le script envoie un seul POST JSON pour les événements `fill` ajoutés depuis l'offset ; statut loggé sans secret : « webhook envoyé », « aucune exécution » ou « échec d'envoi ».
+- Secrets GitHub Actions attendus : `GROKBOT_WEBHOOK_URL` et `GROKBOT_WEBHOOK_KEY`. Une panne ou l'absence de secrets ne bloque pas le cycle.
+- CI de la PR : `guard-state` et `quality-gates` vertes ; 55 tests Python exécutés, dont les 4 tests webhook.
+- Netlify a annulé le build de branche preprod car aucun contenu statique n'avait changé ; cela ne remet pas en cause l'intégration du workflow et des scripts. Aucun déploiement de production.
+- Aucun changement de `engine/run.py`, `state/`, `decisions/` ou logique de trading. Le nouveau workflow ne sera actif dans l'environnement moteur qu'après une promotion ultérieure sur `main`, avec le processus de release et le GO de Cyril.
+
+## Feature v0.3.3 — cockpit haute densité (en cours)
+- Passe UX consolidée : retrait des règles CSS cockpit concurrentes, container queries sur la largeur réelle de `#overview` (2 colonnes uniquement à partir de 1120 px), une colonne en espace contraint, grille KPI 4/2 colonnes. Classe `.sr-only` standard et complète pour masquer les notes de diagnostic sans casser l'accessibilité.
+- Feedback live local à 720 ms sur les valeurs réellement changées : cours sélectionné, marqueurs, cellules positions/ordres, allocation et risque. Aucun flash de panneau, aucune interpolation.
+- Passe visuelle v3 : `benchmark-box` composé en deux lignes indépendantes (plus de collision), explications masquées visuellement mais conservées pour lecteurs d'écran lorsque pertinent, allocation sans note comptable redondante, risque compact, compteurs moteur/Grok sur une ligne ; feedback local de 600 ms.
+- Recette visuelle desktop/mobile et cohérence des métriques toujours requises avant fusion.
+- Correctif du flash global : `.kpi-updated` est désormais un contenant positionné et isolé ; les mises à jour de métriques `put()` déclenchent le feedback uniquement si leur texte change. Recette visuelle requise sur Deploy Preview.
+- Rafraîchissement live corrigé : `renderLive()` met à jour les métriques et les seules cellules dépendantes des prix ; les tableaux complets, les onglets Marchés, le journal, les décisions et le calendrier ne sont reconstruits que sur nouveau snapshot d'état. `KPMarkets.onPrice` et `KPExtras.onPrice` isolent les zones live.
+- Feedback de changement de valeur adouci à 360 ms ; aucun lissage/interpolation des cours, aucune animation d'entrée rejouée sur polling.
+- Recomposition v2 après recette visuelle : allocation unique via `extras.js` (montants + %), risque unique via `exp-risk`, suppression des rendus en double ; cartes à hauteur naturelle et risque responsive sans débordement.
+- Compteur de trades clôturés calculé uniquement sur `closed_trades[].realized_pnl != null` (les fills d'achat ne sont pas comptés comme des trades clôturés).
+- Branche `feature/v0.3.3-pending-order-lines`, PR #57 vers `preprod`, aucun déploiement production.
+- `site/index.html`, `site/style.css`, `site/app.js` : synthèse portefeuille compacte et dense ; capital + P&L regroupés, écart BTC/frais secondaires, P&L réalisé/latent, performances 24 h/7 j depuis le dernier snapshot disponible, drawdown actuel/maximal, ratio de frais, trades gagnants/perdants, allocation en USDC et % du portefeuille, positions/ordres, risques stops actifs et conditionnels, échéances moteur/Grok.
+- Chaque montant monétaire porte explicitement `USDC` ; chaque pourcentage précise sa base de référence. Données indisponibles ou incomplètes affichées comme indisponibles, pas extrapolées.
+- `extras.js` conserve son rendu de l'allocation et des comptes à rebours via des éléments de compatibilité masqués accessibles ; aucun calcul métier/moteur, `state/` ou `decisions/` modifié.
+- Skill `kraken-motion-ux` : animations non rejouées au polling, pas d'animation de données financières, respect `prefers-reduced-motion`.
+- À valider : tests Node, CI, Deploy Preview, lecture visuelle desktop/mobile et exactitude des métriques sur les snapshots disponibles.
 
 ## PR finition v0.3.1 — préparation publication
 - Branche `fix/v0.3.1-release-polish` issue de `preprod`, après fusion PR #46 (`d2942a0`).

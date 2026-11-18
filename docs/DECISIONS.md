@@ -146,6 +146,21 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 ## ADR-27 : publication production avec approbation GitHub obligatoire (14/11/2026)
 - **Contexte** : le workflow de publication initial se fiait au champ JSON `approved_by: Cyril`, librement modifiable, sans preuve d'approbation. Le numéro ADR-21 est déjà utilisé pour Nocturne Signal.
 - **Décision** : le job de publication doit cibler `environment: production`, configuré dans GitHub avec Cyril comme relecteur obligatoire et une restriction de branche à `deploy/prod-request`. Le champ JSON reste un identifiant de demande et une trace d'audit, **jamais** une autorisation suffisante. `NETLIFY_AUTH_TOKEN` est un secret de l'environnement `production`, et doit être supprimé des secrets du dépôt après migration. Le job vérifie le SHA, la version, les changements autorisés et le résultat publié.
-- **Condition bloquante** : si le dépôt privé ou l'abonnement GitHub ne permet pas les relecteurs obligatoires d'environnement, **aucune mise en production via ce workflow** ; il faut un autre mécanisme d'approbation indépendant vérifié. La présence de `environment: production` sans protection active n'est pas suffisante.
+- **Condition bloquante** : si la visibilité du dépôt ou l'abonnement GitHub ne permet pas les relecteurs obligatoires d'environnement, **aucune mise en production via ce workflow** ; il faut un autre mécanisme d'approbation indépendant vérifié. La présence de `environment: production` sans protection active n'est pas suffisante.
 - **Conséquences** : pas de déclenchement de déploiement sans validation GitHub effective. La configuration de l'environnement et la migration du secret sont réalisées par Cyril dans l'interface GitHub, sans partager de jeton dans le chat.
 - **Référence historique** : cette décision remplace l'ancienne entrée « ADR-21 : publication production pilotée par demande explicite » ; **ADR-21** reste réservé à `docs/ADR-21-NOCTURNE-SIGNAL.md`.
+
+## ADR-28 : publication avec un seul GO (15/11/2026) — remplace l'approbation humaine ADR-27
+- **Décision** : accord explicite de Cyril pour une version et un SHA ; suppression de `Required reviewers` dans l'environnement `production`, sans supprimer le secret ni les contrôles automatisés.
+- **Limite** : le champ JSON `approved_by` ne constitue pas une preuve d'autorisation. Voir [ADR-28](ADR-28-SINGLE-GO-PRODUCTION.md).
+
+
+## ADR-32 : Heartbeat Grok à effet nul sur PAPER (18/11/2026)
+- **Contexte :** une session Grok sans changement n'écrit aucune décision, créant un faux retard dans le compteur.
+- **Décision :** fichiers `decisions/YYYY-MM-DD-HHMM-heartbeat.json` avec `type=heartbeat`, `actions=[]`, note et timestamp avec fuseau. Le moteur les ignore entièrement ; l'UX calcule le prochain passage estimé à **+5 h** depuis le dernier fichier (heartbeat compris).
+- **Conséquences :** pas d'ordre, refus ou mutation de l'état dus au heartbeat, présence non prouvée sans fichier. Détails : [ADR-32](ADR-32-GROK-HEARTBEAT.md).
+
+## ADR-33 : Terminal unifié et page Activité en v0.3.6 (18/11/2026)
+- **Contexte :** la séparation en cinq vues est trop fragmentée pour piloter portefeuille, marché et performance.
+- **Décision :** réunir les quatre vues financières sous `#/terminal`, conserver `#/activite`, et utiliser des raccourcis internes. Remplace l'implantation cinq vues de l'ADR-31.
+- **Conséquences :** navigation claire et même document/flux/données. Détails : [ADR-33](ADR-33-TERMINAL-UNIFIE.md).
