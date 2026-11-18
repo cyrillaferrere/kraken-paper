@@ -1,3 +1,16 @@
+## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
+1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
+   aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.
+2. Simuler un trou de donnees 5 min dans les 60 h : attendre sans avancer.
+   Simuler un trou definitif au-dela de la retention : repli journalise.
+3. Simuler une heure partiellement traitee en 5 min dont les donnees disparaissent :
+   aucun rejeu 1 h, meme apres 60 h.
+4. Verifier `Dash v0.3.7 · Moteur v0.2.0` sur routes Terminal et Activite,
+   en desktop et mobile 320/390 px. En preview avec etat live moteur 0.1.0,
+   le bandeau doit dire **Moteur v0.1.0** et ne jamais pretendre 0.2.0 actif.
+5. Palier des frais affiche a partir des fills PAPER sur les 30 derniers jours,
+   independamment du prochain fill (sous reserve du bareme conforme).
+
 ## Recette moteur 0.2.0 / site v0.3.7 (18/11/2026)
 1. Exécuter `python -m unittest -v`, `node --test tests/site/*.test.js`, `node --test tests/functions/*.test.mjs`. CI `quality-gates` et `guard-state` verts.
 2. Rejeu isolé : copier l'état de production en répertoire temporaire **hors state/**, ne jamais lancer `python engine/run.py` directement dans le dépôt de travail. Utiliser `run_cycle(copy.deepcopy(state), ..., FakeMarket, ...)` pour comparer les sorties attendues, sans notifier.
