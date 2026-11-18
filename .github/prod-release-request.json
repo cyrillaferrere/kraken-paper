@@ -1,8 +1,8 @@
 {
   "environment": "production",
   "approved_by": "Cyril",
-  "version": "0.3.6.2",
-  "approved_commit": "c0717042cdc16fc70c47741b79b775c6ac314238",
-  "reason": "GO production explicite de Cyril le 18/11/2026 pour v0.3.6.2. Release ciblee PR #72, commit c0717042 : controle de version X.Y.Z.W et filtre Netlify main. Quality-gates, guard-state et preview verts; aucune modification engine/, state/, decisions/, docs/LESSONS.md. Publication exclusivement via workflow controle ADR-28 / ADR-34.",
-  "request_sequence": 6
+  "version": "0.3.7",
+  "approved_commit": "133e173d729f02231e21f084b832f75c5a542cc4",
+  "reason": "GO production explicite de Cyril le 18/11/2026 pour Dash v0.3.7 et moteur PAPER v0.2.0. PR #73 revue Grok Bot, corrections API m5 et affichage des versions testees. PR release ciblee #74 fusionnee dans main au commit 133e173. CI quality-gates et guard-state vertes. Aucun changement manuel sous state/ ou decisions/. Deploiement via workflow controle uniquement.",
+  "request_sequence": 7
 }
