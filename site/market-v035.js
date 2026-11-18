@@ -38,6 +38,7 @@
   const marketVisible = () => !window.KPRouter || window.KPRouter.active() === "terminal";
   function clearBook(label) {
     for (const id of ["book-bid", "book-ask", "book-spread"]) show(id, "—");
+    show("book-spread-pct", "— %");
     for (const id of ["book-bids","book-asks"]) html(id, '<p class="v035-quiet">Aucune profondeur disponible.</p>');
     show("book-status", label);
   }
@@ -51,7 +52,8 @@
   function renderBook(book, at) {
     show("book-bid", numberPx(book.bestBid));
     show("book-ask", numberPx(book.bestAsk));
-    show("book-spread", money(book.spread, 6) + " (" + money(book.spreadPct,3) + " %)");
+    show("book-spread", money(book.spread, 6));
+    show("book-spread-pct", money(book.spreadPct, 3) + " %");
     const maxQuote = Math.max(...book.bids.concat(book.asks).map(([p,q])=>p*q), 1);
     drawSide("book-bids", book.bids, maxQuote, "bid");
     drawSide("book-asks", book.asks, maxQuote, "ask");
