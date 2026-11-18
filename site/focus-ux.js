@@ -27,35 +27,19 @@
     focused = Boolean(value);
     document.body.classList.toggle("market-focus", focused);
     trigger.setAttribute("aria-pressed", String(focused));
-    trigger.setAttribute("aria-label", focused ? "Fermer le mode Focus marché" : "Ouvrir le mode Focus marché");
+    trigger.setAttribute("aria-label", focused ? "Quitter le mode Focus marché" : "Ouvrir le mode Focus marché");
     setText("market-focus-label", focused ? "Quitter le Focus" : "Mode Focus");
-    if (focused) {
-      market.setAttribute("role", "dialog");
-      market.setAttribute("aria-modal", "true");
-      market.scrollTop = 0;
-    } else {
-      market.removeAttribute("role");
-      market.removeAttribute("aria-modal");
-    }
-    trigger.focus({ preventScroll: true });
+    // Le mode Focus est une vue agrandie, non une boîte de dialogue modale.
+    market.removeAttribute("role");
+    market.removeAttribute("aria-modal");
+    trigger.focus({ preventScroll:true });
     window.requestAnimationFrame(() => window.KPMarkets?.resizeChart?.());
   }
   trigger?.addEventListener("click", () => setFocus(!focused));
   document.addEventListener("keydown", (event) => {
-    if (!focused) return;
-    if (event.key === "Escape") {
+    if (focused && event.key === "Escape") {
       event.preventDefault();
       setFocus(false);
-    } else if (event.key === "Tab") {
-      const items = [...market.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),[tabindex="0"]')]
-        .filter((el) => el.getClientRects().length && !el.closest("[hidden]"));
-      if (!items.length) return;
-      const first = items[0], last = items[items.length - 1];
-      if (event.shiftKey && (document.activeElement === first || !market.contains(document.activeElement))) {
-        event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || !market.contains(document.activeElement))) {
-        event.preventDefault(); first.focus();
-      }
     }
   });
 
@@ -86,7 +70,7 @@
         const stop = o.stop_loss != null ? fmtPrice(o.stop_loss) : "—";
         const tiers = Array.isArray(o.take_profits) && o.take_profits.length ? o.take_profits.map((t,i) => "TP" + (i + 1) + " " + fmtPrice(t.price)).join(" · ") : o.take_profit != null ? "TP " + fmtPrice(o.take_profit) : "";
         const desc = "Limite " + limit + " · Stop " + stop + (tiers ? " · " + tiers : "");
-        return '<li><button type="button" data-focus-order="' + escape(o.id) + '"><span><b>' + escape(o.id) + " · " + (o.side === "buy" ? "Achat" : "Vente") + "</b><small>" + escape(desc) + '</small></span><span aria-hidden="true">↗</span></button></li>';
+        return '<li><button type="button" data-focus-order="' + escape(o.id) + '" title="' + escape(desc) + '" aria-label="' + escape(o.id + " · " + (o.side === "buy" ? "Achat" : "Vente") + ". " + desc + ". Voir les détails") + '"><span class="focus-order-copy"><b>' + escape(o.id) + " · " + (o.side === "buy" ? "Achat" : "Vente") + "</b><small>" + escape(desc) + '</small></span><span class="focus-order-arrow" aria-hidden="true">↗</span></button></li>';
       }).join("");
       setHtml("focus-orders", '<ul class="focus-order-list">' + items + "</ul>");
     }
@@ -94,7 +78,8 @@
   function visitPair(pair) {
     if (!pair || !window.KPMarkets?.selectPair) return;
     window.KPMarkets.selectPair(pair);
-    market.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
+    if (window.KPRouter) window.KPRouter.navigate("marches", "market-card");
+    else market.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth", block: "start" });
   }
   document.addEventListener("click", (event) => {
     const p = event.target.closest("[data-market-pair]");
@@ -103,6 +88,7 @@
     if (order) {
       const id = order.dataset.focusOrder;
       if (focused) setFocus(false);
+      window.KPRouter?.navigate("portefeuille", "orders-panel");
       const b = [...document.querySelectorAll("#orders .o-toggle")].find((el) => el.dataset.oid === id);
       if (b) {
         if (b.getAttribute("aria-expanded") !== "true") b.click();
@@ -163,20 +149,6 @@
     onPortfolio({ equity: lastEquity });
   }));
 
-  function syncMobileNav() {
-    const hash = location.hash || "#overview";
-    document.querySelectorAll("#mobile-primary-nav a").forEach((a) => {
-      if (a.getAttribute("href") === hash) a.setAttribute("aria-current", "location");
-      else a.removeAttribute("aria-current");
-    });
-  }
-  window.addEventListener("hashchange", syncMobileNav);
-  document.querySelectorAll("#mobile-primary-nav a").forEach((a) => a.addEventListener("click", () => {
-    if (focused) setFocus(false);
-    const href = a.getAttribute("href");
-    history.replaceState(null, "", href);
-    syncMobileNav();
-  }));
-  syncMobileNav();
+  // Le routeur SPA v0.3.6 gère désormais intégralement la navigation mobile.
   window.KPFocus = { updateMarket, onPortfolio, close: () => setFocus(false) };
 })();

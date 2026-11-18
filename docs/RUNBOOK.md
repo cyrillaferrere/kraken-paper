@@ -1,3 +1,53 @@
+## Recette v0.3.6 — correctif sélection des timeframes
+- Faire défiler les six TF (5 min, 15 min, 30 min, 1 h, 4 h, 1 j) : le fond jade reste strictement sur le bouton actif, et il n'y a ni superposition ni texte rogné.
+- Vérifier navigations au clavier par flèches et `aria-selected`; refaire le test avec le bouton Focus et à largeur mobile (scroll horizontal si nécessaire).
+- Confirmer que l'OHLC et le chandelier changent selon la période sélectionnée et que l'état reste stable lors des updates Kraken. `node --test tests/site/*.test.js`, CI guard-state / quality-gates et SHA Netlify à vérifier avant toute intégration.
+
+## Recette v0.3.6 — haut de tuile Marchés
+1. Vérifier cours BTC/USDC et statut de disponibilité après rafraîchissement, changement BTC/ETH, puis changement TF 5m/1h/1j ; le prix live conserve les mises à jour.
+2. En desktop large : cours, six TF et boutons Ordres/Focus sur une barre compacte ; deuxième ligne de paires scrollable sans retour ; troisième ligne toolbar 60/120/240, Actualiser/Recentrer, nb de bougies et date de lecture.
+3. Sous la toolbar : vérifier la ligne OHLC avec le survol stable malgré le flux et la ligne MA20/MA50/RSI ; les chiffres doivent correspondre à ceux du chandelier, pas à des valeurs calculées ailleurs.
+4. À 320/390/768/1280/1440 px et zoom 125/200 %, vérifier absence de chevauchement et retour adapté des contrôles, actions accessibles au clavier, et réduction des animations.
+5. `node --test tests/site/*.test.js`, CI guard-state/quality-gates, commit Netlify exact. Aucun passage préprod/prod sans GO.
+
+## Recette v0.3.6 — analyse de la paire compactée
+1. Vérifier six indicateurs toujours visibles, lisibles en grille 3×2 sur desktop et 2×3 sur mobile.
+2. Sous la réglette, une seule liste détaillée subsiste : tableau Niveau / Prix USDC / Distance / Ordre, sans double rangée de puces. Le graphique conserve ses propres marqueurs.
+3. Vérifier deux ordres différents ayant la même valeur de stop : les deux restent séparés, les boutons mènent au bon détail, une protection d'achat non exécuté indique « si achat exécuté ».
+4. La liste des événements de la paire présente au plus trois lignes, reliées à Activité & Bot ; erreurs API, changement de crypto, zoom mobile et actualisations ne doivent pas provoquer de sauts imprévisibles.
+5. Exécuter `node --test tests/site/*.test.js`, puis vérifier quality-gates, guard-state, dernier SHA Netlify ; PR #66 **draft** et `preprod`/production intacts en attente de GO.
+
+## Recette v0.3.6 — zone sous le graphique
+1. Marché > choisir BTC puis ETH : les six indicateurs de la paire sont bien sous le chandelier ; colonne de droite libérée sans double affichage.
+2. Réglette : vérifier cours observé, PRU uniquement si position, limite et stops/TP uniquement s'ils existent, étiquette « si achat exécuté » sur protections d'un achat en attente. Vérifier les distances depuis le prix réel courant et les valeurs manquantes affichées comme telles.
+3. Activité récente : maximum quatre événements de la paire explicitement trouvés dans le journal public, jamais des décisions supposées à partir de leur horaire. Clic Journal ouvre la vue Activité & Bot.
+4. Vérifier la stabilité au refresh, la largeur 390/768/1440 px et le mode Focus, la navigation clavier et la lisibilité des données. Tests `node --test tests/site/*.test.js` et CI, contrôle du SHA Netlify.
+5. Branche `feature/v0.3.6` seulement, PR #66 en brouillon. Aucun passage préprod ou production sans GO explicite.
+
+## Recette v0.3.6 — stabilité des hauteurs du carnet (18/11/2026)
+- Dans Marché, tester prix changeant, rafraîchissement manuel, erreur de l'API et changement de paire : aucun des trois blocs meilleur achat/spread/meilleure vente ne doit changer de hauteur et le tableau réserve toujours 10 niveaux.
+- Dans Ordres & protections, titres sur une ligne et descriptions sur deux lignes maximum ; les cartes restent de hauteur uniforme même avec plusieurs TP. Vérifier lecture du texte intégral au survol / par technologie d'assistance, et accès aux détails au clic.
+- Mesurer en particulier à 320, 390, 768 et 1440 px ainsi qu'avec zoom navigateur à 125 % et 200 %. Si les prix sont illisibles ou coupés, ajuster la taille des colonnes sans fausser les données.
+- Exécuter `node --test tests/site/*.test.js`, conserver `VERSION=0.3.6`, PR #66 en feature sans fusion ni production.
+
+## Recette v0.3.6 — Terminal unifié + heartbeat (feature uniquement)
+1. Confirmer `VERSION=0.3.6`, PR #66 brouillon, Netlify avec SHA identique au dernier commit feature. `preprod` reste sur v0.3.4 et `main` inchangée.
+2. Naviguer entre `#/terminal` et `#/activite` à 390, 768 et 1440 px. Dans Terminal, barre interne Synthèse / Marché / Ordres / Performance, et mobile cinq raccourcis dont Activité. Vérifier `#/marches`, `#/portefeuille`, `#market-card` et `#orders-panel` comme liens anciens.
+3. Sur Terminal, vérifier cockpit compact, chandelier et carnet au premier plan, positions et ordres, graphe performance, scanner en bas. Tous les IDs d'origine existent une seule fois, les sélections et flux Kraken ne sont pas réinitialisés.
+4. Simuler un fichier heartbeat dans les tests (ne PAS l'ajouter à `decisions/` du dépôt) : `type=heartbeat`, `actions=[]`, note non vide, timestamp ISO avec fuseau, ID unique. Le moteur ne crée aucun ordre, aucun événement rejeté et ne touche pas à `last_decision` ou `processed_decisions`.
+5. Compteur : dernière décision 17/11 22:09, heartbeat 18/11 03:09, heure locale 07:54 => prochain passage **08:09, dans 15 min**, jamais un faux retard. Sans fichier récent, « estimation dépassée », non un retard certain.
+6. Les passages sans modification sont repliés en gris dans Activité. Tester une nouvelle lecture du dossier GitHub sans changement de `state/`, avec ETag et limites d'API.
+7. Exécuter `python -m unittest discover -s tests` et `node --test tests/site/*.test.js`. Vérifier `quality-gates` et `guard-state`, puis contrôle manuel du rendu/du clavier/du mobile.
+8. **Grok ne doit activer la production de heartbeats qu'après un GO distinct de Cyril et la release production confirmée**. Aucune fusion automatique.
+
+## Recette UX v0.3.5 — branche feature uniquement (17/11/2026)
+1. Vérifier l'aperçu Netlify de la PR et son SHA exact ; contrôler le badge FEATURE et `VERSION=0.3.5`.
+2. Marchés : sélectionner BTC, ETH puis SOL ; carnet Kraken récupéré séparément pour chaque paire, 10 niveaux max, bid inférieur ou égal à ask, spread en prix et %, heure d'instantané. Tester coupure réseau/onglet masqué et changement rapide de paire : aucun ancien carnet ne doit rester présenté comme frais.
+3. Mode Focus : indicateurs du scanner 4 h/1 j, RSI et ATR cohérents ; lorsqu'une paire n'est pas calculée afficher l'indisponibilité. Ruban de niveaux PAPER : un stop/TP associé à un achat non exécuté indique « si achat exécuté ». Cliquer pour afficher le détail de l'ordre, aucune simulation modifiée.
+4. Performance : période 24 h, 7 j, tout ; bornes et écart vs BTC calculés seulement si données présentes. Vérifier les valeurs indisponibles et l'absence d'extrapolation.
+5. Décisions : ouvrir la chronologie et vérifier les liens de décision seulement quand `decision_id` est présent. Vérifier le clavier, Escape mode Focus et responsive à 390/768/1440 px, plus `prefers-reduced-motion`.
+6. Tests Node `node --test tests/site/*.test.js` et contrôles CI. Ne rien modifier dans moteur, `state/`, `decisions/`, `main` ; GO indépendant requis pour preprod puis production.
+
 ## Recette feature v0.3.4 — Focus marché et micrographe
 - Depuis `feature/v0.3.4` en Deploy Preview, vérifier le SHA exact de Netlify puis ouvrir Marchés et activer « Mode Focus ». Contrôler Esc, Tab, focus rendu au déclencheur, absence de scroll arrière-plan, largeur desktop et petit écran.
 - Cliquer sur « Graphique ↗ » depuis une position et un ordre : la paire choisie doit être affichée, ainsi que son cours et ses niveaux; cliquer un ordre du panneau pour ouvrir son détail.

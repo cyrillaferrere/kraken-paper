@@ -1,3 +1,48 @@
+## Feature v0.3.6 — correction des onglets bougies (18/11/2026)
+- Capture utilisateur : fond actif 1 h décalé et texte des intervalles comprimé après compactage de l'en-tête.
+- `site/index.html` : retirer le seul `.seg-thumb` du `tf-tabs` ; `site/markets.js` : ne plus positionner `--idx`, conserver `aria-selected` et le focus clavier ; `site/spa-v036.css` : états actifs sur les boutons, tailles intrinsèques et défilement horizontal mobile.
+- Test `tests/site/dashboard-integration.test.js` : six TF, un seul sélectionné, suppression du thumb et état ARIA. Vérifier chaque TF visuellement à 320/390/768/1440 px, Focus, retour du navigateur, et la récupération des bougies.
+- Version 0.3.6 et PR #66 inchangées, `state/`, `decisions/`, `main` et préprod intacts.
+
+## Feature v0.3.6 — en-tête Marchés compact (18/11/2026)
+- `site/index.html` : déplacer l'unique bloc `.selected-live` dans `.card-h` (via `.market-header-live`), sans dupliquer les IDs ; titre conservé pour accessibilité. L'ordre des contrôles est prix/live, timeframes, Ordres/Focus, paires, toolbar bougies.
+- `site/markets.js` : modifier seulement le balisage de `legend()` pour deux lignes logiques, OHLC puis MA20/MA50/RSI, en conservant les calculs et le temps survolé.
+- `site/spa-v036.css` : nouvelles règles à la fin pour compacter entête, paires, outils et légende, avec retours ciblés à 1260 et 760 px. Le statut live conserve son élément DOM tandis que la fraîcheur des bougies reste visible dans `chart-updated`.
+- Test `tests/site/dashboard-integration.test.js` : unicité des IDs, ordre des éléments et présence du balisage dynamique OHLC ; exécuter CI complète. Version **0.3.6**, PR #66, sans fusion préprod/prod.
+
+## Feature v0.3.6 — compactage de l'analyse (18/11/2026)
+- `site/index.html` : suppression du seul bloc redondant `chart-order-levels`; le chandelier et ses tracés/annotations sont inchangés.
+- `site/market-v035.js` : `renderPriceScale()` affiche réglette + tableau quatre colonnes (niveau, prix, distance, ordre). Chaque ordre reste identifiable et cliquable via `data-v035-order`. La limite de `recentPairEvents()` passe de quatre à trois. `collectPriceLevels()` conserve sans fusion tous les niveaux partageant le même prix et les conditions de protections d'achat en attente.
+- `site/spa-v036.css` : grille indicateurs rapprochée, tableau à en-tête fixe et lignes de hauteur stable, activité compacte ; version inchangée 0.3.6.
+- Tests `tests/site/market-v035.test.js` actualisés pour le nouveau DOM et les prix partagés. Contrôler le comportement à 320/390/768/1440 px et à 200 % de zoom avant fusion ; aucune modification moteur/state/decisions/main.
+
+## Feature v0.3.6 — analyse sous chandelier (18/11/2026)
+- `site/index.html` : les six indicateurs existants sont déplacés de la colonne contexte vers une bande sous le chandelier ; ajout `v036-price-scale` et `v036-pair-events` dans la colonne graphique. Les IDs antérieurs `focus-indicators`, `chart-order-levels` sont uniques et préservés.
+- `site/market-v035.js` : `collectPriceLevels()` construit exclusivement prix live connu, PRU, limites/stops/TP de la paire ; distance au cours en %. Une protection d'achat en attente est signalée conditionnelle. `recentPairEvents()` limite à quatre événements explicitement associés à la paire, à partir du journal, et dirige vers Activité, sans relier artificiellement les décisions.
+- `site/spa-v036.css` : grille indicateurs et réglette, hauteur contrôlée des modules, responsive. Test `tests/site/market-v035.test.js` étendu. Aucun nouveau flux, aucun changement d'ordre ni de simulation, version maintenue à 0.3.6.
+
+## Feature v0.3.6 — stabilité du panneau Marchés (18/11/2026)
+- Dans `site/spa-v036.css`, les tuiles d'ordres du Focus sont normalisées à 94 px (96 px mobile), titre une ligne et description deux lignes. Les détails complets restent accessibles par l'attribut `title` et `aria-label` dans `site/focus-ux.js`, avec ouverture du détail d'ordre au clic.
+- `site/index.html` expose `book-spread-pct` sous `book-spread`, et `site/market-v035.js` renseigne séparément les deux valeurs, y compris leur indisponibilité. Les trois tuiles du carnet gardent 100 px, le statut réserve deux lignes et les dix rangs de profondeur 287 px, y compris en cas de chargement/échec. Aucun chiffre/trade inventé ni données tronquées côté logique.
+- Test `tests/site/market-layout-stability.test.js`. Recette visuelle desktop/mobile et changement rapide de paire à vérifier ; ne pas modifier `state/`, `decisions/`, `main` ni version 0.3.6.
+
+## Feature v0.3.6 — Terminal et heartbeat Grok (18/11/2026)
+- **Version toujours 0.3.6**. Branche `feature/v0.3.6`, PR #66 en brouillon vers `preprod` ; elle inclut aussi les ajouts de la v0.3.5 encore en feature. Ne fusionner aucune PR sans GO de Cyril.
+- `site/index.html` + `site/spa-router.js` + `site/spa-v036.css` : seulement deux vues, `#/terminal` (cockpit, marchés, positions, ordres, performance, calendrier, scanner en fin) et `#/activite`. Liens historiques redirigés, barre rapide adhésive, quatre raccourcis internes mobiles plus Activité.
+- `engine/run.py` accepte `type=heartbeat` + `actions=[]` + `note` + timestamp ISO 8601 décalé, puis saute le heartbeat avant toute mutation de `state`, journal, refus ou ordre. Contrat : `docs/ADR-32-GROK-HEARTBEAT.md`. Aucune création/modification de `state/` et `decisions/`.
+- `site/lib.js` contient `latestSession` ; `site/extras.js` lit `decisions/*.json` sur main, choisit le passage le plus récent, plus 5 h, évite « retard » sans preuve et groupe les heartbeats repliés. Le dépôt est interrogé par ETag toutes les cinq minutes même sans cycle d'état.
+- Convention Grok **après mise en prod uniquement** : `decisions/YYYY-MM-DD-HHMM-heartbeat.json`, ID `heartbeat-YYYYMMDD-HHMM`, note, timestamp local Paris avec offset. README + ADR-32.
+- Tests : `python -m unittest discover -s tests`, `node --test tests/site/*.test.js` et CI ; test runtime 03:09 +5 h = 08:09 ; heartbeat ne modifie pas `processed_decisions` ni `last_decision`.
+- ADR-33 remplace la disposition 5 vues initiale de l'ADR-31 sans nouvelle version. Les règles de trading, préprod et prod restent inchangées.
+
+## Feature v0.3.5 — marché, performance et audit (17/11/2026)
+- Départ : `preprod` après intégration #64 (v0.3.4), nouvelle branche `feature/v0.3.5` ; `main`, `state/` et `decisions/` inchangés.
+- Front HTML/CSS : `site/index.html`, `site/v035.css`; nouveau module `site/market-v035.js`. Chargé après `site/focus-ux.js` ; pas de dépendance ni de build additionnels.
+- Marchés : `site/markets.js` transmet la paire, les indicateurs calculés et le contexte PAPER au nouveau module, via `KPV035.onMarket`. Le module charge exclusivement la profondeur via l'API REST publique Kraken et affiche spreads/volumes par niveau. Échecs, changement de paire et arrière-plan gérés sans mélanger les livres.
+- Performance/chronologie : `site/app.js` passe equity et journal à `KPV035.onPortfolio`. Comparaison des bornes observées, aucune interpolation. Corrélation des événements uniquement sur des IDs effectivement présents.
+- Tests : `node --test tests/site/market-v035.test.js` puis `node --test tests/site/*.test.js` ; CI, contrôle mobile, panne API, raccourcis ordres et accessibilité avant intégration.
+- ADR-30 : portée, limites de REST, conventions d'audit et garde-fous. La PR vers preprod reste en brouillon en attendant un GO d'intégration. Aucun ordre n'est créé par le front.
+
 ## Feature v0.3.4 — Focus marché et parcours UX (17/11/2026)
 - `site/index.html` : bouton Focus marché, scène graphique + panneau contextuel par paire, micrographe d'equity 24 h / 7 j, navigation inférieure mobile à 4 destinations.
 - `site/focus-ux.js` : commandes plein écran (Escape, Tab cyclique, bouton de sortie et aria-modal), position/ordres de la paire sélectionnée calculés depuis le contexte public existant, navigation vers le détail d'ordre, micrographe SVG fondé uniquement sur cycles disponibles avec coupures si intervalle > 2 h 30.

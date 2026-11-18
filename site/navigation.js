@@ -56,4 +56,5 @@
   const initial = links.find((a) => a.getAttribute("href") === location.hash) || links[0];
   if (initial) initial.setAttribute("aria-current", "location");
   sync();
+  window.KPNav = { sync };
 })();

@@ -153,3 +153,14 @@ ne pas réécrire une ancienne entrée, la marquer « remplacée par ADR-n ».
 ## ADR-28 : publication avec un seul GO (15/11/2026) — remplace l'approbation humaine ADR-27
 - **Décision** : accord explicite de Cyril pour une version et un SHA ; suppression de `Required reviewers` dans l'environnement `production`, sans supprimer le secret ni les contrôles automatisés.
 - **Limite** : le champ JSON `approved_by` ne constitue pas une preuve d'autorisation. Voir [ADR-28](ADR-28-SINGLE-GO-PRODUCTION.md).
+
+
+## ADR-32 : Heartbeat Grok à effet nul sur PAPER (18/11/2026)
+- **Contexte :** une session Grok sans changement n'écrit aucune décision, créant un faux retard dans le compteur.
+- **Décision :** fichiers `decisions/YYYY-MM-DD-HHMM-heartbeat.json` avec `type=heartbeat`, `actions=[]`, note et timestamp avec fuseau. Le moteur les ignore entièrement ; l'UX calcule le prochain passage estimé à **+5 h** depuis le dernier fichier (heartbeat compris).
+- **Conséquences :** pas d'ordre, refus ou mutation de l'état dus au heartbeat, présence non prouvée sans fichier. Détails : [ADR-32](ADR-32-GROK-HEARTBEAT.md).
+
+## ADR-33 : Terminal unifié et page Activité en v0.3.6 (18/11/2026)
+- **Contexte :** la séparation en cinq vues est trop fragmentée pour piloter portefeuille, marché et performance.
+- **Décision :** réunir les quatre vues financières sous `#/terminal`, conserver `#/activite`, et utiliser des raccourcis internes. Remplace l'implantation cinq vues de l'ADR-31.
+- **Conséquences :** navigation claire et même document/flux/données. Détails : [ADR-33](ADR-33-TERMINAL-UNIFIE.md).

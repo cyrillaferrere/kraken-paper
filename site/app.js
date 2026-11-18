@@ -288,6 +288,7 @@ function flashLiveValue(el, value) {
 
 
     if (window.KPFocus) window.KPFocus.onPortfolio({ equity });
+    if (window.KPV035) window.KPV035.onPortfolio({ equity, journal });
     if (liveOnly) {
       updateLiveTables();
       if (window.KPMarkets) window.KPMarkets.onPrice({ S, journal, price, orderMath, liveOk, liveAt, livePairs: live });
@@ -530,6 +531,7 @@ function flashLiveValue(el, value) {
     journalLimit = event.target.value === "all" ? Infinity : Number(event.target.value);
     renderJournal();
   });
+  window.KPAppUX = { redrawPerformance: () => renderChart() };
   function renderChart() {
     const el = $("chart");
     const end = equity.length ? equity[equity.length - 1].t : 0;

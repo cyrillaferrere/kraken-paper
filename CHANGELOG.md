@@ -1,3 +1,27 @@
+## [Unreleased] — UX v0.3.6 (feature, non fusionnée)
+- Correctif du sélecteur 5m/15m/30m/1h/4h/1j : suppression du fond animé calculé sur six colonnes égales, sélection fixée au bouton actif avec focus clavier et débordement mobile maîtrisé. Aucun changement des intervalles ou des bougies.
+
+- Barre supérieure Marchés densifiée : paire/cours live, unités de temps et actions sur une même zone, paires en ruban horizontal, outils bougies regroupés, OHLC et MA20/MA50/RSI sur deux lignes lisibles. Maintien des identifiants de streaming et des interactions ; responsive et tests d'intégration ajoutés.
+
+- Analyse du marché compactée : six indicateurs resserrés, réglette visuelle maintenue, tableau de niveaux PAPER à quatre colonnes avec accès à chaque ordre, suppression de la liste de niveaux redondante, trois événements de paire par défaut. Données et conditions de protection conservées, hauteurs limitées pendant les mises à jour.
+
+- Marché : indicateurs déplacés sous le chandelier, réglette des niveaux PAPER avec distances au cours et protections conditionnelles, quatre événements récents par paire strictement issus du journal. Espace autrefois vide valorisé, colonne de droite allégée, aucune interprétation stratégique ni mutation du moteur.
+
+- Stabilisation du panneau Focus : cartes d'ordres de hauteur uniforme, descriptions sur deux lignes (texte intégral accessible), spread absolu et % sur lignes réservées, carnet à dix lignes de hauteur fixe, état de chargement sur deux lignes maximum. Réduction des sauts de mise en page pendant les rafraîchissements, sans modifier les prix ni l'exécution PAPER.
+
+- Navigation ramenée à **deux vues** : Terminal unifié (synthèse, marchés, positions, ordres, performance, scanner) et Activité & Bot. Barre rapide interne, raccourcis mobiles, liens historiques préservés. ADR-33 remplace la disposition initiale à cinq vues de l'ADR-31.
+- Grok : support des heartbeats `type=heartbeat` /`actions=[]` /`note` /`timestamp` avec décalage. Le moteur les ignore avant toute modification des décisions ou de l'état PAPER ; aucune logique d'exécution financière modifiée. ADR-32.
+- Le prochain passage Grok est estimé à **+5 h depuis le dernier fichier valide**, heartbeat compris, avec relecture conditionnelle toutes les cinq minutes même sans décision et sans faux retard affiché.
+- Historique des heartbeats regroupé discrètement dans Activité, tests Python/Node de l'absence d'ordre et du calcul horaire, documentation mise à jour.
+- Toujours sur `feature/v0.3.6` / PR #66, sans fusion en préprod ni prod ; fichiers `state/`, `decisions/` et `main` inchangés.
+
+## [Unreleased] — UX v0.3.5 (feature)
+- Carnet spot Kraken public : instantanés bid/ask (10 niveaux), spread absolu et relatif, timestamp et repli honnête si données absentes ; aucun ordre passé.
+- Focus enrichi : tendances 4 h et 1 j, RSI 14, ATR, variation 24 h et force vs BTC issus du scanner existant, niveaux PAPER cliquables avec étiquettes conditionnelles pour achats en attente.
+- Performance : bornes réelles de la période, P&L brut observé et écart de rendement vs BTC lorsque les deux références sont disponibles.
+- Audit : chronologie repliable des décisions, ordres et exécutions réellement présentes, liens vers détails quand disponibles, sans inférence d'identifiants.
+- Finitions desktop/mobile, contraste, états indisponibles, mouvement réduit, tests Node et ADR-30. Aucun changement moteur/stratégie/state/decisions. Aucune fusion ni déploiement production.
+
 - Feature UX v0.3.4 enrichie : mode Focus marché plein écran avec panneau contextuel alimenté par l'état réel, lecture OHLC au survol préservée lors du streaming, sélection directe des paires depuis positions et ordres, micrographe d'equity 24 h / 7 j sans interpolation des trous, navigation inférieure mobile et focus clavier. Tests Node ciblés ; aucune modification PAPER/moteur/state/decisions.
 - Refonte visuelle de la feature v0.3.4 : nouvelle hiérarchie éditoriale, cockpit capital/risque, présentation du marché, graphique et outils, tableaux densifiés, sidebar cohérente et ergonomie mobile ; CSS additif et repères de sections HTML sans changer les IDs ni les calculs.
 - Contrôles à réponse immédiate, mouvement sobre et réductible selon les préférences ; aucun prix, chandelier, ordre ou alerte animé artificiellement. Preview feature uniquement.
