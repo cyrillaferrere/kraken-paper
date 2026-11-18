@@ -1,3 +1,8 @@
+## Addendum release v0.3.6.2 (18/11/2026)
+- Publication : versions X.Y.Z ou X.Y.Z.W acceptées par deploy-production-controlled ; pas de déploiement Git automatique depuis main (ADR-34).
+- Si preprod présente des différences historiques avec main, préparer une branche de release ciblée depuis main plutôt que fusionner des modifications non autorisées.
+- GO explicite de Cyril obligatoire ; ne jamais inclure state/, decisions/ ou une modification du moteur PAPER dans une release UX/sécurité.
+
 # Contribuer à Kraken Paper
 
 ## Branches
