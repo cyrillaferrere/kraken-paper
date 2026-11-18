@@ -493,6 +493,16 @@ def load_decisions(directory=DECISIONS_DIR):
             for it in items:
                 if not isinstance(it, dict) or not it.get("id") or not isinstance(it.get("actions"), list):
                     raise ValueError("il faut un objet avec 'id' et 'actions' (liste)")
+                # Heartbeat de presence : aucune instruction de trading.
+                if it.get("type") == "heartbeat":
+                    if it["actions"] or not isinstance(it.get("note"), str) or not it["note"].strip():
+                        raise ValueError("heartbeat : actions doit etre [] et note non vide")
+                    try:
+                        parsed = datetime.fromisoformat(it["timestamp"])
+                        if parsed.tzinfo is None or parsed.utcoffset() is None:
+                            raise ValueError("fuseau manquant")
+                    except (KeyError, TypeError, ValueError) as exc:
+                        raise ValueError("heartbeat : timestamp ISO 8601 avec fuseau requis") from exc
                 it["_file"] = os.path.basename(path)
                 out.append(it)
         except (ValueError, OSError) as e:
@@ -689,6 +699,10 @@ def apply_decisions(state, decisions, market, now):
     events, fills, errors = [], [], []
     ctx = Ctx(market)
     for d in sorted(decisions, key=lambda x: (str(x.get("timestamp", "")), str(x["id"]))):
+        # Un heartbeat n'est jamais traite comme une decision. Ne modifie ni
+        # orders, ni processed_decisions, ni last_decision, ni le journal.
+        if d.get("type") == "heartbeat":
+            continue
         if d["id"] in state["processed_decisions"]:
             continue
         work = copy.deepcopy(state)

@@ -91,6 +91,22 @@
     const age = lastCycleMs ? now - lastCycleMs : null;
     return { next, inMs: next - now, late: age != null && age > 75 * 60e3, ageMs: age };
   }
+  // Dernière session réellement documentée dans les fichiers de Grok.
+  // L'absence de heartbeat ne prouve pas l'absence de passage du bot.
+  function latestSession(files, fallback) {
+    const valid = (x) => {
+      if (!x || typeof x !== "object" || typeof x.timestamp !== "string") return null;
+      if (x.type === "heartbeat" && (!Array.isArray(x.actions) || x.actions.length || !x.note?.trim())) return null;
+      const t = Date.parse(x.timestamp);
+      if (!Number.isFinite(t)) return null;
+      return { id: x.id || null, timestamp: x.timestamp, ms: t,
+        kind: x.type === "heartbeat" ? "heartbeat" : "decision" };
+    };
+    const seen = (Array.isArray(files) ? files : []).map(valid).filter(Boolean);
+    const fallbackSession = valid(fallback);
+    if (fallbackSession) seen.push(fallbackSession);
+    return seen.reduce((latest, item) => !latest || item.ms > latest.ms ? item : latest, null);
+  }
   function nextSession(lastDecisionMs, now, everyMs = 5 * HOUR) {
     if (!lastDecisionMs) return null;
     const at = lastDecisionMs + everyMs;
@@ -190,7 +206,7 @@
     return Math.floor((hit ? hit.t : hourStart) / iv) * iv;
   }
 
-  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, duration, exposure, cashBreakdown, proximity, unrealizedPnl, pruLabel, fillMarkerTs, fillTouches };
+  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, latestSession, duration, exposure, cashBreakdown, proximity, unrealizedPnl, pruLabel, fillMarkerTs, fillTouches };
 
   if (typeof window !== "undefined") window.KPLib = api;
   if (typeof module !== "undefined") module.exports = api;
