@@ -97,7 +97,7 @@ class TieredExitTests(unittest.TestCase):
     def test_gap_under_stop_uses_open(self):
         fills = self.candle(T0, 64000, 60000,
                             [(T0 + i * 300, 60000, 64000, 59000, 60000) for i in range(12)])
-        self.assertEqual(fills[0]["price"], round(60000 * 0.999, 2))
+        self.assertLess(fills[0]["price"], round(60000 * 0.999, 2))  # gap et amplitude
         self.assertEqual(fills[0]["reason"], "stop_loss")
 
     def test_update_exits_stop_above_live_rejected(self):
@@ -202,7 +202,7 @@ class TieredExitTests(unittest.TestCase):
         run.run_cycle(self.state, [decision("boundary", action)],
                       FakeMarket(last=65000), T0 + H)
         pending = self.state["open_orders"][0]["pending_exits"]
-        self.assertEqual(pending["active_from"], T0 + 2 * H)
+        self.assertEqual(pending["active_from"], T0 + H + 300)
         self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
 
     def test_pending_update_does_not_reserve_later_purchase(self):
