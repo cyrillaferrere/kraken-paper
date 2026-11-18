@@ -1,3 +1,10 @@
+## Recette v0.3.6 — analyse de la paire compactée
+1. Vérifier six indicateurs toujours visibles, lisibles en grille 3×2 sur desktop et 2×3 sur mobile.
+2. Sous la réglette, une seule liste détaillée subsiste : tableau Niveau / Prix USDC / Distance / Ordre, sans double rangée de puces. Le graphique conserve ses propres marqueurs.
+3. Vérifier deux ordres différents ayant la même valeur de stop : les deux restent séparés, les boutons mènent au bon détail, une protection d'achat non exécuté indique « si achat exécuté ».
+4. La liste des événements de la paire présente au plus trois lignes, reliées à Activité & Bot ; erreurs API, changement de crypto, zoom mobile et actualisations ne doivent pas provoquer de sauts imprévisibles.
+5. Exécuter `node --test tests/site/*.test.js`, puis vérifier quality-gates, guard-state, dernier SHA Netlify ; PR #66 **draft** et `preprod`/production intacts en attente de GO.
+
 ## Recette v0.3.6 — zone sous le graphique
 1. Marché > choisir BTC puis ETH : les six indicateurs de la paire sont bien sous le chandelier ; colonne de droite libérée sans double affichage.
 2. Réglette : vérifier cours observé, PRU uniquement si position, limite et stops/TP uniquement s'ils existent, étiquette « si achat exécuté » sur protections d'un achat en attente. Vérifier les distances depuis le prix réel courant et les valeurs manquantes affichées comme telles.
