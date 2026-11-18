@@ -1,3 +1,14 @@
+## Recette moteur 0.2.0 / site v0.3.7 (18/11/2026)
+1. Exécuter `python -m unittest -v`, `node --test tests/site/*.test.js`, `node --test tests/functions/*.test.mjs`. CI `quality-gates` et `guard-state` verts.
+2. Rejeu isolé : copier l'état de production en répertoire temporaire **hors state/**, ne jamais lancer `python engine/run.py` directement dans le dépôt de travail. Utiliser `run_cycle(copy.deepcopy(state), ..., FakeMarket, ...)` pour comparer les sorties attendues, sans notifier.
+3. Vérifier les ordres ouverts O0017, O0024, O0022, O0025 et O0026 et les positions : ID, quantité, statut, niveaux inchangés à l'import; pas de recalcul des trades passés.
+4. Cas BTC 17/11 : stop 63 700, mèche 63 298, ouverture 63 700; modèle sans volume => 63 636 USDC (arrondi entier).
+5. Vérifier seuils 0,05 % (contact insuffisant), frais avant/après 2 500 USD de volume, heartbeat ignoré, deux limites et un stop sur la même position, TP partiels.
+6. Simuler une indisponibilité 5 min : un seul événement `execution_fallback` pour chaque repli 1 h; jamais de réécriture historique.
+7. Préprod/Deploy Preview : vérifier les deux versions site et moteur (moteur du portefeuille live reste 0.1 jusqu'à activation prod); vérifier la lecture du CSV à six colonnes historiques puis sept colonnes nouvelles.
+8. **Moteur non déployé en préprod** : seules des données fictives sont utilisées par les tests. Aucun workflow préprod ne doit écrire sur `main`.
+9. Demander la revue Grok Bot et GO explicite de Cyril avant toute modification de `main`; le build Git de production est déjà ignoré (ADR-34). Déployer via `deploy-production-controlled` seulement.
+
 ## Publication contrôlée v0.3.6.2 — recette et exploitation
 1. Les versions `X.Y.Z` et `X.Y.Z.W` sont acceptées par `.github/workflows/deploy-production-controlled.yml` ; `VERSION` doit correspondre exactement à la demande approuvée.
 2. Dans `netlify.toml`, `[build].ignore` appelle `scripts/netlify-ignore-build.sh`. En contexte Git `production` ou branche `main`, ce script retourne **0** (Netlify saute le build). En contexte `deploy-preview`, il retourne **1** (build permis). Les autres branches construisent si le contenu pertinent diffère, ou si les SHA de comparaison sont absents.
