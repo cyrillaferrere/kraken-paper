@@ -1,3 +1,19 @@
+### Revue Grok Bot — correctifs PR #73 (18/11/2026)
+- Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
+- Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour
+  une heure deja partiellement traitee en 5 min.
+- Bandeau Dash/Moteur permanent en navigation/mobile; palier frais PAPER
+  actualise depuis les trades du portefeuille meme sans execution recente.
+- Ajout de tests API, curseurs, intervalle incomplet, versions et mobile.
+
+## [0.3.7] — préparation préprod (18/11/2026)
+- Moteur PAPER 0.2.0 versionné séparément; affichage du moteur dans le dashboard.
+- Exécution en bougies 5 min clôturées; activation à la 5 min suivante; repli horaire journalisé.
+- Limites avec dépassement de 0,05 %, stops à glissement dynamique selon volatilité et volume.
+- Paliers de frais Kraken Pro selon volume glissant 30 jours du portefeuille.
+- Compatibilité de l'historique sans recalcul, migration de l'en-tête equity.csv par moteur seulement.
+- Tests de non-régression historiques et nouveaux cas, documentation ADR-35.
+
 ## [Unreleased] — v0.3.6.2 (contrôle de publication)
 - Le workflow de publication contrôlée accepte `X.Y.Z` et `X.Y.Z.W` (notamment `0.3.6.2`) ; ses validations SHA, VERSION et tests restent en place.
 - Le build Git Netlify de la production est systématiquement ignoré ; les préproductions/previews restent automatisées et le déploiement CLI contrôlé demeure la voie de publication.

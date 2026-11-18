@@ -31,17 +31,26 @@ DECISIONS_DIR = os.path.join(ROOT, "decisions")
 PORTFOLIO = os.path.join(STATE_DIR, "portfolio.json")
 JOURNAL = os.path.join(STATE_DIR, "journal.jsonl")
 EQUITY = os.path.join(STATE_DIR, "equity.csv")
-EQUITY_HEADER = "time,equity_usdc,cash_usdc,positions_usdc,btc_price,btc_hold_usdc\n"
+EQUITY_HEADER = "time,equity_usdc,cash_usdc,positions_usdc,btc_price,btc_hold_usdc,engine_version\n"
 
 API = "https://api.kraken.com/0/public/"
 QUOTE = "USDC"
 BENCH = "XBTUSDC"
 START_CAPITAL = 6606.42
+ENGINE_VERSION = "0.2.0"
+LIMIT_PENETRATION = 0.0005  # hypothese PAPER, pas une regle Kraken
+FEE_TIERS = ((0,.004,.008),(2500,.003,.006),(10000,.0022,.0038),(25000,.002,.0035),
+             (50000,.0015,.003),(100000,.0012,.0025),(250000,.001,.0022),
+             (500000,.0008,.002),(1000000,.0006,.0018),(2500000,.0004,.0015),
+             (5000000,.0002,.0012),(10000000,0,.001),(50000000,0,.0009),
+             (100000000,0,.0008),(250000000,0,.0007),(400000000,0,.0006),
+             (500000000,0,.0005))
 MAKER = 0.0040   # Kraken Pro palier 1
 TAKER = 0.0080
 SLIP = 0.001     # 0,1 % de glissement (stops et ordres au marche)
 HOUR = 3600
 MIN5 = 300          # datation des fills : première bougie 5 min qui touche le niveau
+RETENTION_5M = 60 * HOUR  # environ 720 bougies de 5 minutes
 EPS = 1e-9
 
 
@@ -87,6 +96,10 @@ def hour_ceil(ts):
     return -(-int(ts) // HOUR) * HOUR
 
 
+def next_5m(ts):
+    return (int(ts) // MIN5 + 1) * MIN5
+
+
 def next_hour(ts):
     """Début de la bougie 1 h strictement suivante (même si ts tombe pile sur une heure)."""
     return hour_floor(ts) + HOUR
@@ -120,7 +133,8 @@ class Market:
     def ohlc(self, pair, since, interval=60):
         res = self._get("OHLC", pair=pair, interval=int(interval), since=int(since))
         rows = next(v for k, v in res.items() if k != "last")
-        return [(int(c[0]), float(c[1]), float(c[2]), float(c[3]), float(c[4])) for c in rows]
+        return [tuple([int(c[0]), float(c[1]), float(c[2]), float(c[3]), float(c[4])] +
+                      ([float(c[6])] if int(interval) == 5 and len(c) > 6 else [])) for c in rows]
 
     def ticker(self, pairs):
         res = self._get("Ticker", pair=",".join(pairs))
@@ -160,6 +174,8 @@ def pair_meta_from_assetpairs(ap, name):
 def new_state(now):
     return {
         "version": 1,
+        "engine_version": ENGINE_VERSION,
+        "last_m5": {},
         "mode": "PAPER",
         "quote": QUOTE,
         "start_capital": START_CAPITAL,
@@ -203,12 +219,38 @@ def next_id(state, kind):
     return ("O" if kind == "order" else "T") + f"{state['seq'][kind]:04d}"
 
 
+def fee_rates(state, ts):
+    """Palier spot PAPER suivant le volume des fills des 30 jours precedents."""
+    volume = sum(float(tr["qty"]) * float(tr["price"])
+                 for tr in state.get("closed_trades", [])
+                 if 0 <= ts - float(tr.get("ts", -1e20)) < 30 * 86400)
+    tier = FEE_TIERS[0]
+    for item in FEE_TIERS:
+        if volume >= item[0]:
+            tier = item
+    return tier[1], tier[2], volume
+
+
+def stop_execution(stop, opening, high, low, qty, volume, decimals):
+    """Estimation PAPER : 0.10% min + volatilite + participation au volume 5min.
+    Amplitude : 5% du range relatif au-dela de 1%.
+    Impact volume : 0.10% * min(1, qty/(1% du volume 5min)).
+    Le carnet d'ordres historique n'est pas connu; plafond 2%.
+    """
+    amplitude = max(0., high - low) / max(opening or stop, 1e-12)
+    impact = .001 * min(1., qty / max(volume * .01, 1e-12)) if volume else 0.
+    slip = min(.02, .001 + .05 * max(0., amplitude - .01) + impact)
+    return round(min(stop, opening if opening is not None else stop) * (1 - slip),
+                 decimals), slip
+
+
 # --------------------------------------------------------------------------
 # Execution
 # --------------------------------------------------------------------------
 def execute_fill(state, pair, side, qty, price, liquidity, reason, ts, order_id=None):
     meta = state["pairs"][pair]
-    rate = MAKER if liquidity == "maker" else TAKER
+    maker_rate, taker_rate, volume_30d = fee_rates(state, ts)
+    rate = maker_rate if liquidity == "maker" else taker_rate
     gross = qty * price
     fee = money(gross * rate)
     pos = state["positions"].setdefault(pair, {"base": meta["base"], "qty": 0.0,
@@ -237,10 +279,13 @@ def execute_fill(state, pair, side, qty, price, liquidity, reason, ts, order_id=
     trade = {
         "id": next_id(state, "trade"), "order_id": order_id, "pair": pair,
         "base": meta["base"], "side": side, "qty": qty, "price": price,
-        "fee": fee, "liquidity": liquidity, "reason": reason,
+        "fee": fee, "fee_rate": rate, "volume_30d_usd": round(volume_30d, 2),
+        "engine_version": ENGINE_VERSION, "liquidity": liquidity, "reason": reason,
         "time": iso(ts), "ts": int(ts), "realized_pnl": pnl,
     }
     state["closed_trades"].append(trade)
+    mk, tk, _ = fee_rates(state, ts)
+    state["fees"] = {"maker": mk, "taker": tk, "slippage": SLIP}
     return trade
 
 
@@ -290,7 +335,7 @@ def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
     o = {"id": next_id(state, "order"), "pair": pair, "side": "sell", "qty": qty,
          "price": levels[0]["price"] if levels else None,
          "stop_loss": stop_loss, "take_profit": None,
-         "created": iso(ts), "active_from": next_hour(ts), "parent": parent,
+         "created": iso(ts), "active_from": next_5m(ts), "parent": parent,
          "decision_id": None}
     if levels:
         o["take_profits"] = levels
@@ -323,7 +368,8 @@ def first_touch_ts(bars5, level, which):
     """Ouverture de la première bougie 5 min qui touche le niveau ('below' : low <=, 'above' : high >=)."""
     if level is None or not bars5:
         return None
-    for t, _o, high, low, _c in bars5:
+    for bar in bars5:
+        t, _o, high, low, _c = bar[:5]
         if which == "below" and low <= level + EPS:
             return t
         if which == "above" and high >= level - EPS:
@@ -331,11 +377,11 @@ def first_touch_ts(bars5, level, which):
     return None
 
 
-def process_candle(state, pair, candle, rejects=None, market=None):
-    """Rejoue une bougie 1 h CLOTUREE. Retourne la liste des trades."""
-    t, o_, high, low, close = candle
+def process_candle(state, pair, candle, rejects=None, market=None, m5_override=None):
+    """Rejoue une bougie 5 min ou le repli 1 h cloture."""
+    t, o_, high, low, close = candle[:5]
     fills = []
-    m5 = _m5_bars(market, pair, t)
+    m5 = m5_override if m5_override is not None else _m5_bars(market, pair, t)
     # Conserver les anciennes sorties jusqu'au créneau d'activation.
     for old in list(state["open_orders"]):
         pending = old.get("pending_exits")
@@ -377,7 +423,10 @@ def process_candle(state, pair, candle, rejects=None, market=None):
                 rejects.append({"type": "cancel", "order_id": order["id"], "pair": pair,
                                 "reason": f"annule par le moteur : {e}"})
     state["last_prices"][pair] = close
-    state["last_candle"][pair] = t
+    if m5_override is not None:
+        state.setdefault("last_m5", {})[pair] = t
+    else:
+        state["last_candle"][pair] = t
     return fills
 
 
@@ -392,8 +441,8 @@ def _date_fill(m5, level, which, hour_start):
 
 def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=None):
     if order["side"] == "buy":
-        if low <= order["price"]:
-            ts, source = _date_fill(m5, order["price"], "below", t)
+        if low < order["price"] * (1 - LIMIT_PENETRATION):
+            ts, source = _date_fill(m5, order["price"] * (1 - LIMIT_PENETRATION), "below", t)
             tr = execute_fill(state, pair, "buy", order["qty"], order["price"],
                               "maker", "limit", ts, order["id"])
             tr["time_source"] = source
@@ -413,7 +462,7 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
     stop = order.get("stop_loss")
     limit = order.get("price")
     stop_1h = bool(stop and low <= stop)
-    limit_1h = bool(limit and high >= limit)
+    limit_1h = bool(limit and high > limit * (1 + LIMIT_PENETRATION))
     if not stop_1h and not limit_1h:
         return
 
@@ -423,24 +472,32 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
     reason, level, which, px, liq = None, None, None, None, None
     if m5 is not None:
         stop_ts = first_touch_ts(m5, stop, "below") if stop_1h else None
-        limit_ts = first_touch_ts(m5, limit, "above") if limit_1h else None
+        limit_ts = first_touch_ts(m5, limit * (1 + LIMIT_PENETRATION), "above") if limit_1h else None
         if stop_ts is not None and (limit_ts is None or stop_ts <= limit_ts):
             reason, level, which, liq = "stop_loss", stop, "below", "taker"
             opening = next((bar[1] for bar in m5 if bar[0] == stop_ts), hour_open)
-            px = round(min(stop, opening if opening is not None else stop) * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
+            bar = next((bar for bar in m5 if bar[0] == stop_ts), None)
+            px, slip = stop_execution(stop, opening, bar[2] if bar else high,
+                                      bar[3] if bar else low, order["qty"],
+                                      bar[5] if bar and len(bar) > 5 else 0,
+                                      state["pairs"][pair]["pair_decimals"])
         elif limit_ts is not None:
             reason = "take_profit" if order.get("parent") or stop else "limit"
             level, which, px, liq = limit, "above", limit, "maker"
     if reason is None:
         if stop_1h:
             reason, level, which, liq = "stop_loss", stop, "below", "taker"
-            px = round(min(stop, hour_open if hour_open is not None else stop) * (1 - SLIP), state["pairs"][pair]["pair_decimals"])
+            px, slip = stop_execution(stop, hour_open, high, low, order["qty"], 0,
+                                      state["pairs"][pair]["pair_decimals"])
         else:
             reason = "take_profit" if order.get("parent") or stop else "limit"
             level, which, px, liq = limit, "above", limit, "maker"
 
-    ts, source = _date_fill(m5, level, which, t)
+    ts, source = _date_fill(m5, level * (1 + LIMIT_PENETRATION) if which == "above" else level,
+                            which, t)
     tr = execute_fill(state, pair, "sell", order["qty"], px, liq, reason, ts, order["id"])
+    if reason == "stop_loss":
+        tr["slippage_rate"] = slip
     tr["time_source"] = source
     state["open_orders"].remove(order)
     fills.append(tr)
@@ -450,18 +507,21 @@ def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hou
     """Exécute les niveaux dans l'ordre des 5 min ; stop prioritaire à égalité."""
     meta = state["pairs"][pair]
     bars = m5 if m5 is not None else [(hour_start, hour_open, high, low, None)]
-    for ts, _opening, bar_high, bar_low, _closing in bars:
+    for bar in bars:
+        ts, _opening, bar_high, bar_low, _closing = bar[:5]
         stop = order.get("stop_loss")
         if stop is not None and bar_low <= stop + EPS:
-            px = round(min(stop, _opening if _opening is not None else stop) * (1 - SLIP), meta["pair_decimals"])
+            px, slip = stop_execution(stop, _opening, bar_high, bar_low, order["qty"],
+                                       bar[5] if len(bar) > 5 else 0, meta["pair_decimals"])
             tr = execute_fill(state, pair, "sell", order["qty"], px, "taker",
                               "stop_loss", ts, order["id"])
             tr["time_source"] = "m5" if m5 is not None else "hour_open"
+            tr["slippage_rate"] = slip
             fills.append(tr)
             state["open_orders"].remove(order)
             return
         # Dans une meme bougie, plusieurs TP peuvent etre touches.
-        while order["take_profits"] and bar_high >= order["take_profits"][0]["price"] - EPS:
+        while order["take_profits"] and bar_high > order["take_profits"][0]["price"] * (1 + LIMIT_PENETRATION):
             tier = order["take_profits"].pop(0)
             qty = min(tier["qty"], order["qty"])
             tr = execute_fill(state, pair, "sell", qty, tier["price"], "maker",
@@ -600,7 +660,7 @@ def apply_action(state, a, ctx, now, decision_id):
             if old.get("pending_exits"):
                 raise Rejected("une mise a jour des sorties est deja en attente")
             old["pending_exits"] = {
-                "active_from": next_hour(now),
+                "active_from": next_5m(now),
                 "action": {"take_profits": [
                     {"price": level["price"], "fraction": level["fraction"]}
                     for level in levels]},
@@ -664,7 +724,7 @@ def apply_action(state, a, ctx, now, decision_id):
         levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
         o = {"id": next_id(state, "order"), "pair": pair, "side": side, "qty": qty,
              "price": price, "stop_loss": sl, "take_profit": tp if side == "buy" else None,
-             "created": iso(now), "active_from": hour_ceil(now), "parent": None,
+             "created": iso(now), "active_from": next_5m(now), "parent": None,
              "decision_id": decision_id}
         if levels:
             o["take_profits"] = levels
@@ -743,32 +803,93 @@ def apply_decisions(state, decisions, market, now):
 # Cycle
 # --------------------------------------------------------------------------
 def replay_candles(state, market, now):
+    """Rejeu des bougies cloturees : ordre chronologique GLOBAL (toutes paires).
+
+    5 min si toutes les barres attendues sont disponibles; repli 1 h
+    signale explicitement si l'heure est cloturee et les 5 min manquent.
+    """
     events, fills, errors = [], [], []
     pairs = {o["pair"] for o in state["open_orders"]} | set(state["positions"]) | {BENCH}
+    m5_cursors = state.setdefault("last_m5", {})
+    timeline = []
+    end = (int(now) // MIN5) * MIN5
     for pair in sorted(pairs):
-        starts = [o["active_from"] - HOUR for o in state["open_orders"] if o["pair"] == pair]
-        default_last = min([hour_floor(now) - 2 * HOUR] + starts)
-        last = state["last_candle"].get(pair, default_last)
+        starts = [hour_floor(o["active_from"]) - HOUR for o in state["open_orders"]
+                  if o["pair"] == pair]
+        default_last = (min(starts) if starts else
+                        hour_floor(state.get("last_cycle_ts") or now) - HOUR)
+        last_hour = state["last_candle"].get(pair, default_last)
         try:
-            candles = market.ohlc(pair, last)
-        except APIError as e:
-            errors.append(f"OHLC {pair} : {e}")
+            hourly = {c[0]: c for c in market.ohlc(pair, last_hour, interval=60)}
+        except APIError as exc:
+            errors.append(f"OHLC 1h {pair} : {exc}")
+            hourly = {}
+        try:
+            fives = {c[0]: c for c in market.ohlc(pair, last_hour + HOUR - MIN5, interval=5)
+                     if c[0] + MIN5 <= now}
+        except APIError as exc:
+            # Indisponibilite API != donnees effacees : ne rien traiter,
+            # ne pas avancer last_m5 ou last_candle pour cette paire.
+            errors.append(f"OHLC 5m {pair} : {exc} ; reprise au prochain cycle")
             continue
-        for c in sorted(candles):
-            if c[0] <= last or c[0] + HOUR > now:
-                continue   # deja traitee ou pas encore cloturee
-            if pair not in state["pairs"] and pair != BENCH:
+        for hour in range(last_hour + HOUR, end, HOUR):
+            closed = hour + HOUR <= now
+            count = 12 if closed else max(0, min(12, (end - hour) // MIN5))
+            expected = [hour + i * MIN5 for i in range(count)]
+            if not expected:
                 continue
-            if pair == BENCH and pair not in state["pairs"]:
-                state["last_prices"][pair] = c[4]
-                state["last_candle"][pair] = c[0]
+            if closed and not all(t in fives for t in expected):
+                # Un manque recent peut etre temporaire : attendre. Kraken garde
+                # environ 720 bougies 5m = 60h. Le fallback ne concerne que
+                # les heures STRICTEMENT plus anciennes que cette retention.
+                # Une heure deja partiellement traitee en 5m n'est jamais
+                # rejouee avec une bougie 1h agregée.
+                partially_processed = hour <= m5_cursors.get(pair, -1) < hour + HOUR
+                expired = hour + HOUR < now - RETENTION_5M
+                if not expired or partially_processed:
+                    errors.append(f"OHLC 5m incomplet {pair} {iso(hour)} ; "
+                                  "attente sans repli" if not partially_processed else
+                                  f"OHLC 5m partiellement traite {pair} {iso(hour)} ; "
+                                  "repli 1h interdit")
+                    break
+                candle = hourly.get(hour)
+                if candle is None or candle[0] + HOUR > now:
+                    errors.append(f"repli 1h impossible {pair} {iso(hour)} : donnees manquantes")
+                    break
+                timeline.append((hour, pair, candle, "hour", hour))
                 continue
+            if not all(t in fives for t in expected):
+                errors.append(f"m5 incomplet {pair} {iso(hour)} ; attente ou repli apres cloture")
+                break
+            for t in expected:
+                if t <= m5_cursors.get(pair, last_hour + HOUR - MIN5):
+                    continue
+                completed_hour = hour if closed and t == expected[-1] else None
+                timeline.append((t, pair, fives[t], "m5", completed_hour))
+        # Un cycle ne doit jamais aller rechercher un segment deja confirme.
+    for t, pair, candle, source, completed_hour in sorted(timeline, key=lambda x: (x[0], x[1])):
+        if source == "m5" and t <= m5_cursors.get(pair, -1):
+            continue
+        if source == "hour":
+            events.append({"type": "execution_fallback", "pair": pair,
+                           "source": "hour", "reason": "m5_missing",
+                           "candle_ts": t})
+        if pair == BENCH and pair not in state["pairs"]:
+            state["last_prices"][pair] = candle[4]
+            if source == "m5":
+                m5_cursors[pair] = t
+            else:
+                state["last_candle"][pair] = t
+        else:
             rej = []
-            fl = process_candle(state, pair, c, rej, market)
-            events += rej
+            fl = process_candle(state, pair, candle, rej,
+                                market=None, m5_override=[candle] if source == "m5" else None)
+            events.extend(rej)
             for tr in fl:
                 events.append({"type": "fill", "trade": tr})
-            fills += fl
+            fills.extend(fl)
+        if completed_hour is not None:
+            state["last_candle"][pair] = completed_hour
     return events, fills, errors
 
 
@@ -800,7 +921,8 @@ def snapshot(state, market, now):
         pos_value += pos["qty"] * px
     equity = state["cash"] + pos_value
     hold = bench["btc_qty"] * btc if btc and bench.get("btc_qty") else None
-    row = {"time": iso(now), "equity": round(equity, 2), "cash": round(state["cash"], 2),
+    row = {"time": iso(now), "engine_version": ENGINE_VERSION,
+           "equity": round(equity, 2), "cash": round(state["cash"], 2),
            "positions": round(pos_value, 2), "btc_price": btc,
            "btc_hold": round(hold, 2) if hold else None}
     return row, errors
@@ -841,12 +963,15 @@ def run_cycle(state, decisions, market, now, notifier=None):
     events += e; fills += f; errors += err
     row, err = snapshot(state, market, now)
     errors += err
+    state["engine_version"] = ENGINE_VERSION
     state["last_cycle"] = iso(now)
     state["last_cycle_ts"] = int(now)
     state["last_cycle_errors"] = errors
     if notifier:
         for tr in fills:
             notifier.send(fill_message(tr))
+    for ev in events:
+        ev["engine_version"] = ENGINE_VERSION
     return events, row, errors
 
 
@@ -877,21 +1002,36 @@ def main():
     with open(JOURNAL, "a", encoding="utf-8") as f:
         if first:
             f.write(json.dumps({"time": state["start_time"], "type": "start",
+                                 "engine_version": ENGINE_VERSION,
                                 "capital": state["start_capital"], "quote": QUOTE},
                                ensure_ascii=False) + "\n")
         for ev in events:
-            ev = {"time": iso(now), **ev}
+            ev = {"time": iso(now), "engine_version": ENGINE_VERSION, **ev}
             f.write(json.dumps(ev, ensure_ascii=False) + "\n")
         for err in errors:
-            f.write(json.dumps({"time": iso(now), "type": "warning", "text": err},
+            f.write(json.dumps({"time": iso(now), "engine_version": ENGINE_VERSION,
+                                "type": "warning", "text": err},
                                ensure_ascii=False) + "\n")
     if row:
+        # Migration du seul en-tete par le moteur. Les anciennes lignes restent
+        # identiques et leur version manquante signifie 0.1.0.
+        if os.path.exists(EQUITY):
+            with open(EQUITY, "r", encoding="utf-8") as f:
+                header = f.readline()
+                historic = f.read() if "engine_version" not in header else None
+            if historic is not None:
+                tmp = EQUITY + ".tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    f.write(EQUITY_HEADER)
+                    f.write(historic)
+                os.replace(tmp, EQUITY)
         new_file = not os.path.exists(EQUITY)
         with open(EQUITY, "a", encoding="utf-8") as f:
             if new_file:
                 f.write(EQUITY_HEADER)
             f.write(",".join("" if row[k] is None else str(row[k]) for k in
-                             ("time", "equity", "cash", "positions", "btc_price", "btc_hold")) + "\n")
+                             ("time", "equity", "cash", "positions", "btc_price", "btc_hold",
+                              "engine_version")) + "\n")
     print(f"cycle {iso(now)} : {len(events)} evenements, equity={row and row['equity']}, "
           f"erreurs={errors}")
 
