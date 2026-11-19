@@ -1,0 +1,7 @@
+{
+ "id": "heartbeat-20261119-0407",
+ "type": "heartbeat",
+ "timestamp": "2026-11-19T04:07:00+01:00",
+ "note": "Session vérifiée, aucune modification : BTC a retesté le plancher de 62 000 sans confirmation, deux trades court terme ouverts (SOL, XRP), stops cohérents sous les planchers. Portefeuille 6 408 USDC contre 6 035 pour le BTC gardé.",
+ "actions": []
+}
