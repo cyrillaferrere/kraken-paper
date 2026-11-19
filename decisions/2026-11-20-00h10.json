@@ -1,0 +1,8 @@
+{
+ "id": "2026-11-20-00h10",
+ "timestamp": "2026-11-20T00:10:00+01:00",
+ "rationale": "Ce que je vois : moteur sain (cycles 22h09, 22h23 cron, 23h09), aucune exécution depuis le 18/11. BTC a cassé le plancher de 3 mois 62 000 : plus bas 61 337 à 22h, rebond à 62 054, mais toujours sous ses MA20 1h (63 100) et 4h (63 880) ; RSI journalier 21, survente forte, sans creux plus haut ni clôture au-dessus de la MA20. ETH 1 755 suit BTC (−3,5 % sur 72 h). SOL 73,1 (+2,2 % sur 72 h) et XRP 0,961 (+0,6 %) restent plus forts que BTC. Revue globale par crypto : un seul groupe de sorties par position (BTC O0032 stop 60 400 sous le plus bas de février 60 500, ETH O0022 stop 1 680 sous le plus bas de 3 mois 1 711, SOL O0027 stop 69,6, XRP O0031 stop 0,928), aucun achat en attente, aucune contradiction. Ce que je fais : rien, note seulement. Pourquoi : marché qui chute sans confirmation (leçon du 14/11), poche court terme pleine (SOL, XRP), on ne resserre pas un stop en pleine baisse et le stop BTC reste sous le vrai plancher de février, à 2,7 % du prix. Un palier moyen terme ou réserve ne sera envisagé que sur rebond confirmé (creux plus haut au-dessus de 61 300 puis clôture 1h au-dessus de la MA20 avec volume). Ce que j'apprends : le plancher de 3 mois 62 000 n'a pas tenu ; le vrai support est désormais la zone 60 400–60 500.",
+ "actions": [
+  {"type": "note", "text": "00h10 : aucune décision. BTC a cassé 62 000 (plus bas 61 337), aucun signal de rebond confirmé. Portefeuille ~6 383 USDC contre BTC gardé ~5 973 (+6,9 %) ; baisse sur 7 jours glissants −3,8 % depuis le sommet (garde-fou −8 % non atteint). Stops inchangés : BTC 60 400, ETH 1 680, SOL 69,6, XRP 0,928. Réserve 3 306 USDC intacte."}
+ ]
+}
