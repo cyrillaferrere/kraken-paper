@@ -432,13 +432,14 @@
     "2026-11-18-08h10",
     "2026-11-18-16h15",
     "2026-11-18-18h12",
-    "2026-11-18-22h55"
+    "2026-11-18-22h55",
+    "2026-11-19-19h10"
   ],
   "last_decision": {
-    "id": "2026-11-18-22h55",
-    "timestamp": "2026-11-18T22:55:00+01:00",
-    "rationale": "Ce que je vois : la position BTC de 0,03056001 (PRU 63 863) est couverte par deux groupes de sorties aux mêmes niveaux, O0029 (0,01942246, issu de la mise à jour d'O0024) et O0030 (0,01113755, issu de l'achat O0028 à 62 600). Pas de double vente, mais deux points morts différents après TP1 (64 479 et 63 863) et un glissement de stop calculé sur deux petites quantités au lieu de la quantité réelle. BTC 62 300, à 3,2 % au-dessus du stop. Ce que je fais : poche moyen terme BTC, j'annule O0029 et O0030 et je remets un seul groupe sur toute la position : stop 60 400, moitié à 70 000, reste à 75 000, stop au prix d'achat après TP1, donc au vrai PRU 63 863. ETH O0022, SOL O0027 et XRP O0031 inchangés. Réserve intacte. Pourquoi : règle du 17/11, une même position a une seule logique de stop ; un seul point mort au PRU réel comme sur Kraken ; glissement estimé sur la quantité réellement vendue. Niveaux inchangés, aucun resserrement.",
-    "applied": "2026-11-18T22:51:35+01:00"
+    "id": "2026-11-19-19h10",
+    "timestamp": "2026-11-19T19:10:00+01:00",
+    "rationale": "Ce que je vois : moteur sain (cycle 18h09), aucune exécution depuis le 18/11. BTC est retombé de 64 000 à 62 193 (plus bas 18h) avec une longue mèche basse et un volume un peu au-dessus de la moyenne (1,25 fois), clôture 62 690, mais il reste sous ses MA20 1h (63 314) et 4h (64 011) ; le plancher de 3 mois (62 000) tient. ETH 1 768 sous ses MA20, SOL 73,75 et XRP 0,969 autour de leur prix d'achat. Revue globale par crypto : un seul groupe de sorties par position (BTC O0032 stop 60 400, ETH O0022 stop 1 680, SOL O0027 stop 69,6, XRP O0031 stop 0,928), aucun achat en attente, donc aucune contradiction. Ce que je fais : rien, note de bilan seulement. Pourquoi : poche court terme pleine (SOL, XRP), poche moyen terme investie à environ 36 % sans signal confirmé pour un nouveau palier (une mèche, pas de clôture au-dessus de la MA20), réserve intacte, et on ne resserre pas un stop en pleine baisse. Ce que j'apprends : en séance de repli, les altcoins tenus en court terme ont mieux résisté que BTC sur 72 h.",
+    "applied": "2026-11-19T19:09:05+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -483,16 +484,16 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795104000,
-    "ETHUSDC": 1795104000,
-    "SOLUSDC": 1795104000,
-    "XRPUSDC": 1795104000
+    "XBTUSDC": 1795107600,
+    "ETHUSDC": 1795107600,
+    "SOLUSDC": 1795107600,
+    "XRPUSDC": 1795107600
   },
   "last_prices": {
-    "XBTUSDC": 62457.01,
-    "ETHUSDC": 1754.69,
-    "SOLUSDC": 72.8,
-    "XRPUSDC": 0.96267
+    "XBTUSDC": 62622.14,
+    "ETHUSDC": 1768.43,
+    "SOLUSDC": 73.75,
+    "XRPUSDC": 0.96895
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -506,8 +507,8 @@
     "order": 32,
     "trade": 16
   },
-  "last_cycle": "2026-11-19T18:09:15+01:00",
-  "last_cycle_ts": 1795108155,
+  "last_cycle": "2026-11-19T19:09:05+01:00",
+  "last_cycle_ts": 1795111745,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.003,
@@ -515,10 +516,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795107600,
-    "SOLUSDC": 1795107600,
-    "XBTUSDC": 1795107600,
-    "XRPUSDC": 1795107600
+    "ETHUSDC": 1795111200,
+    "SOLUSDC": 1795111200,
+    "XBTUSDC": 1795111200,
+    "XRPUSDC": 1795111200
   },
   "engine_version": "0.2.0"
 }
