@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-20-20h05",
+ "timestamp": "2026-11-20T20:05:00+01:00",
+ "rationale": "Ce que je vois : cycle 19h09 sain, aucun palier exécuté. BTC 58 185 a touché 58 000,01 (il faut 57 971 pour remplir O0033), ETH 1 610 juste au-dessus du palier 1 600, SOL 68,7, XRP 0,905 ; la baisse continue sans creux plus haut ni clôture au-dessus d'une MA20. Revue globale par crypto : uniquement des achats limites en paliers avec un stop commun sous le plus bas palier (BTC 50 000, ETH 1 350, SOL 53, XRP 0,72), aucune position ouverte, aucune incohérence. Ce que je fais : rien, note de bilan seulement. Pourquoi : le plan posé à 17h25 et 18h45 avec Cyril achète justement la baisse par paliers, le modifier une heure après sans fait nouveau serait du bruit. Bilan du jour : quatre stops touchés à 16h10-16h15, −195,7 USDC réalisés (moyen terme BTC −119,1 et ETH −28,9 ; court terme SOL −27,8 et XRP −19,9), 17,8 USDC de frais aujourd'hui, 60,2 depuis le début, résultat réalisé cumulé −345,0. Portefeuille 6 261,41 USDC (−5,2 % depuis le 13/11) contre 5 600,7 pour le BTC gardé (−14,9 %), soit +11,8 %. Ce qui a marché : les stops ont limité la casse face à une chute de 61 900 à 58 000 ; ce qui n'a pas marché : stops de toutes les cryptos sur le même mouvement, un seul pari corrélé. Repli 7 jours −5,2 %, garde-fou −8 % non atteint, mais un remplissage complet des paliers puis les stops le dépasserait (pire cas ~480 USDC accepté par Cyril).",
+ "actions": [
+  {
+   "type": "note",
+   "text": "20h05 : aucun palier exécuté (BTC plus bas 58 000,01, ETH 1 608). Bilan du jour : −195,7 USDC réalisés sur quatre stops, 17,8 de frais. Portefeuille 6 261,41 USDC contre 5 600,7 pour le BTC gardé (+11,8 %). Paliers BTC, ETH, SOL, XRP inchangés, revue globale cohérente."
+  }
+ ]
+}
