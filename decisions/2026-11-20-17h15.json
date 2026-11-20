@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-20-17h15",
+ "timestamp": "2026-11-20T17:15:00+01:00",
+ "rationale": "Ce que je vois : cycle 17h09 sain, quatre stops touchés entre 16h10 et 16h15 dans une chute brutale (BTC de 61 900 à 58 722 en deux heures) : XRP O0031 vendu 0,92614 (−19,9 USDC), ETH O0022 1 677,31 (−28,9), SOL O0027 69,48 (−27,8), BTC O0032 60 328,76 (−119,1), soit −195,7 USDC réalisés, glissement ~0,2 %. Le portefeuille est 100 % USDC (6 261,41) sans aucun ordre ouvert, donc aucune incohérence possible entre poches. Marché : BTC 59 270 a cassé le plus bas de février 60 500, RSI 1h 26, 4h 22, 1j 18, sous toutes ses moyennes ; plancher 6 mois 57 772. ETH 1 643 sous son plancher 3 mois (6 mois 1 507), SOL 68,9 (6 mois 60,2), XRP 0,915 proche de son plus bas annuel 0,893 avec un volume faible. Aucune crypto n'est plus forte que BTC aujourd'hui. Ce que je fais : rien, note seulement. Pourquoi : capitulation sans aucun marqueur de retournement (pas de creux plus haut, pas de clôture au-dessus d'une MA20, pas de volume acheteur), on n'attrape pas un couteau qui tombe (leçon du 14/11). Repli 7 jours −5,3 % depuis le sommet, garde-fou −8 % non atteint. Prochaine entrée moyen terme seulement sur rebond confirmé : creux plus haut au-dessus de 58 700 puis clôture 4h au-dessus de la MA20 avec volume, ou test tenu de la zone 57 800 (plancher 6 mois). Ce que j'apprends : quatre cryptos corrélées ont sauté dans la même bougie de 5 minutes, c'était bien un seul risque ; le risque total de la poche réelle (~3 % du capital) a été respecté, mais avoir quatre positions ouvertes à la fois dans un marché baissier revient à un seul gros pari.",
+ "actions": [
+  {
+   "type": "note",
+   "text": "17h15 : quatre stops touchés (XRP 0,926, ETH 1 677, SOL 69,48, BTC 60 329), −195,7 USDC réalisés. 100 % USDC, aucun ordre ouvert. Aucun nouvel achat : chute sans confirmation. Portefeuille 6 261,41 USDC contre 5 713,16 pour le BTC gardé (+9,6 %). Repli 7 jours −5,3 %, garde-fou −8 % non atteint."
+  }
+ ]
+}
