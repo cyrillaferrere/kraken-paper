@@ -1,0 +1,68 @@
+{
+ "id": "2026-11-20-18h45",
+ "timestamp": "2026-11-20T18:45:00+01:00",
+ "rationale": "Ce que je vois : XRP autour de 0,905, juste au-dessus de son plus bas des 6 mois à 0,893, touché le 14/11 et frôlé aujourd'hui vers 0,898. En dessous, aucun plancher clair. Les paliers BTC, ETH et SOL sont déjà actifs, aucun rempli. Cyril a validé un rachat moyen terme par paliers sur XRP, malgré le risque cumulé proche de la limite de 8 %. Ce que je fais : poche moyen terme, 3 achats limites de 100 USDC sur XRP à 0,86, 0,82 et 0,78, stop commun 0,72, sorties moitié à 0,95 et reste à 1,02. Le stop remonte au prix d'achat (PRU réel) après le premier objectif. Chaque palier posera son propre groupe de sorties, à fusionner dès qu'un palier se remplit sur une position déjà ouverte. Pas de trade court terme tant que la tendance baisse. Réserve d'environ 2 168 USDC conservée. Pourquoi : pas de plancher sous 0,893, donc des paliers plus espacés et plus petits que sur ETH et SOL. Si tous les paliers se remplissent, le prix moyen serait d'environ 0,82. Au stop, perte d'environ 40 USDC, frais compris. Aux objectifs, gain d'environ 60 USDC, soit un ratio d'environ 1,5. Avec les paliers BTC, ETH et SOL déjà posés, le pire cas passe d'environ 440 à 480 USDC, soit 7,7 % du capital, proche de la limite de 8 %, accepté par Cyril.",
+ "actions": [
+  {
+   "type": "place_limit",
+   "pair": "XRPUSDC",
+   "side": "buy",
+   "quote_amount": 100,
+   "price": 0.86,
+   "stop_loss": 0.72,
+   "take_profits": [
+    {
+     "price": 0.95,
+     "fraction": 0.5
+    },
+    {
+     "price": 1.02,
+     "fraction": 0.5
+    }
+   ],
+   "breakeven_after_tp1": true
+  },
+  {
+   "type": "place_limit",
+   "pair": "XRPUSDC",
+   "side": "buy",
+   "quote_amount": 100,
+   "price": 0.82,
+   "stop_loss": 0.72,
+   "take_profits": [
+    {
+     "price": 0.95,
+     "fraction": 0.5
+    },
+    {
+     "price": 1.02,
+     "fraction": 0.5
+    }
+   ],
+   "breakeven_after_tp1": true
+  },
+  {
+   "type": "place_limit",
+   "pair": "XRPUSDC",
+   "side": "buy",
+   "quote_amount": 100,
+   "price": 0.78,
+   "stop_loss": 0.72,
+   "take_profits": [
+    {
+     "price": 0.95,
+     "fraction": 0.5
+    },
+    {
+     "price": 1.02,
+     "fraction": 0.5
+    }
+   ],
+   "breakeven_after_tp1": true
+  },
+  {
+   "type": "note",
+   "text": "18h45 : poche moyen terme, paliers XRP 100 USDC à 0,86 / 0,82 / 0,78 stop 0,72 sorties 0,95 / 1,02 ; stop au PRU après TP1. Pas de court terme. Réserve ~2 168 USDC. Perte max si tout se remplit et touche les stops, avec BTC ETH SOL, ~480 USDC (7,7 %)."
+  }
+ ]
+}
