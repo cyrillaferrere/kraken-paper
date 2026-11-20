@@ -376,13 +376,14 @@
     "2026-11-18-18h12",
     "2026-11-18-22h55",
     "2026-11-19-19h10",
-    "2026-11-20-00h10"
+    "2026-11-20-00h10",
+    "2026-11-20-17h15"
   ],
   "last_decision": {
-    "id": "2026-11-20-00h10",
-    "timestamp": "2026-11-20T00:10:00+01:00",
-    "rationale": "Ce que je vois : moteur sain (cycles 22h09, 22h23 cron, 23h09), aucune exécution depuis le 18/11. BTC a cassé le plancher de 3 mois 62 000 : plus bas 61 337 à 22h, rebond à 62 054, mais toujours sous ses MA20 1h (63 100) et 4h (63 880) ; RSI journalier 21, survente forte, sans creux plus haut ni clôture au-dessus de la MA20. ETH 1 755 suit BTC (−3,5 % sur 72 h). SOL 73,1 (+2,2 % sur 72 h) et XRP 0,961 (+0,6 %) restent plus forts que BTC. Revue globale par crypto : un seul groupe de sorties par position (BTC O0032 stop 60 400 sous le plus bas de février 60 500, ETH O0022 stop 1 680 sous le plus bas de 3 mois 1 711, SOL O0027 stop 69,6, XRP O0031 stop 0,928), aucun achat en attente, aucune contradiction. Ce que je fais : rien, note seulement. Pourquoi : marché qui chute sans confirmation (leçon du 14/11), poche court terme pleine (SOL, XRP), on ne resserre pas un stop en pleine baisse et le stop BTC reste sous le vrai plancher de février, à 2,7 % du prix. Un palier moyen terme ou réserve ne sera envisagé que sur rebond confirmé (creux plus haut au-dessus de 61 300 puis clôture 1h au-dessus de la MA20 avec volume). Ce que j'apprends : le plancher de 3 mois 62 000 n'a pas tenu ; le vrai support est désormais la zone 60 400–60 500.",
-    "applied": "2026-11-20T00:07:38+01:00"
+    "id": "2026-11-20-17h15",
+    "timestamp": "2026-11-20T17:15:00+01:00",
+    "rationale": "Ce que je vois : cycle 17h09 sain, quatre stops touchés entre 16h10 et 16h15 dans une chute brutale (BTC de 61 900 à 58 722 en deux heures) : XRP O0031 vendu 0,92614 (−19,9 USDC), ETH O0022 1 677,31 (−28,9), SOL O0027 69,48 (−27,8), BTC O0032 60 328,76 (−119,1), soit −195,7 USDC réalisés, glissement ~0,2 %. Le portefeuille est 100 % USDC (6 261,41) sans aucun ordre ouvert, donc aucune incohérence possible entre poches. Marché : BTC 59 270 a cassé le plus bas de février 60 500, RSI 1h 26, 4h 22, 1j 18, sous toutes ses moyennes ; plancher 6 mois 57 772. ETH 1 643 sous son plancher 3 mois (6 mois 1 507), SOL 68,9 (6 mois 60,2), XRP 0,915 proche de son plus bas annuel 0,893 avec un volume faible. Aucune crypto n'est plus forte que BTC aujourd'hui. Ce que je fais : rien, note seulement. Pourquoi : capitulation sans aucun marqueur de retournement (pas de creux plus haut, pas de clôture au-dessus d'une MA20, pas de volume acheteur), on n'attrape pas un couteau qui tombe (leçon du 14/11). Repli 7 jours −5,3 % depuis le sommet, garde-fou −8 % non atteint. Prochaine entrée moyen terme seulement sur rebond confirmé : creux plus haut au-dessus de 58 700 puis clôture 4h au-dessus de la MA20 avec volume, ou test tenu de la zone 57 800 (plancher 6 mois). Ce que j'apprends : quatre cryptos corrélées ont sauté dans la même bougie de 5 minutes, c'était bien un seul risque ; le risque total de la poche réelle (~3 % du capital) a été respecté, mais avoir quatre positions ouvertes à la fois dans un marché baissier revient à un seul gros pari.",
+    "applied": "2026-11-20T17:10:40+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -433,7 +434,7 @@
     "XRPUSDC": 1795186800
   },
   "last_prices": {
-    "XBTUSDC": 59352.83,
+    "XBTUSDC": 59361.14,
     "ETHUSDC": 1640.39,
     "SOLUSDC": 68.18,
     "XRPUSDC": 0.90509
@@ -450,8 +451,8 @@
     "order": 32,
     "trade": 20
   },
-  "last_cycle": "2026-11-20T17:09:14+01:00",
-  "last_cycle_ts": 1795190954,
+  "last_cycle": "2026-11-20T17:10:40+01:00",
+  "last_cycle_ts": 1795191040,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -461,7 +462,7 @@
   "last_m5": {
     "ETHUSDC": 1795190400,
     "SOLUSDC": 1795190400,
-    "XBTUSDC": 1795190400,
+    "XBTUSDC": 1795190700,
     "XRPUSDC": 1795190400
   },
   "engine_version": "0.2.0"
