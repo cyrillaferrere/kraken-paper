@@ -5,35 +5,22 @@
   "start_capital": 6606.42,
   "start_time": "2026-11-13T22:56:24+01:00",
   "start_ts": 1794606984,
-  "cash": 6261.411908,
-  "positions": {},
-  "open_orders": [
-    {
-      "id": "O0033",
-      "pair": "XBTUSDC",
-      "side": "buy",
-      "qty": 0.01116224,
-      "price": 58000.0,
-      "stop_loss": 50000.0,
-      "take_profit": null,
-      "created": "2026-11-20T17:26:59+01:00",
-      "active_from": 1795192200,
-      "parent": null,
-      "decision_id": "2026-11-20-17h25",
-      "take_profits": [
-        {
-          "price": 63000.0,
-          "fraction": 0.5,
-          "qty": 0.00558112
-        },
-        {
-          "price": 68000.0,
-          "fraction": 0.5,
-          "qty": 0.00558112
-        }
-      ],
-      "breakeven_after_tp1": true
+  "cash": 5462.846617,
+  "positions": {
+    "ETHUSDC": {
+      "base": "ETH",
+      "qty": 0.09337649,
+      "avg_cost": 1603.5199973783551,
+      "fees_paid": 0.328685
     },
+    "XBTUSDC": {
+      "base": "BTC",
+      "qty": 0.01116224,
+      "avg_cost": 58127.60001576745,
+      "fees_paid": 1.424302
+    }
+  },
+  "open_orders": [
     {
       "id": "O0034",
       "pair": "XBTUSDC",
@@ -108,32 +95,6 @@
           "price": 68000.0,
           "fraction": 0.5,
           "qty": 0.00605056
-        }
-      ],
-      "breakeven_after_tp1": true
-    },
-    {
-      "id": "O0037",
-      "pair": "ETHUSDC",
-      "side": "buy",
-      "qty": 0.09337649,
-      "price": 1600.0,
-      "stop_loss": 1350.0,
-      "take_profit": null,
-      "created": "2026-11-20T17:26:59+01:00",
-      "active_from": 1795192200,
-      "parent": null,
-      "decision_id": "2026-11-20-17h25",
-      "take_profits": [
-        {
-          "price": 1800.0,
-          "fraction": 0.5,
-          "qty": 0.04668824
-        },
-        {
-          "price": 1950.0,
-          "fraction": 0.5,
-          "qty": 0.04668825
         }
       ],
       "breakeven_after_tp1": true
@@ -397,6 +358,62 @@
         }
       ],
       "breakeven_after_tp1": true
+    },
+    {
+      "id": "O0048",
+      "pair": "ETHUSDC",
+      "side": "sell",
+      "qty": 0.09337649,
+      "price": 1800.0,
+      "stop_loss": 1350.0,
+      "take_profit": null,
+      "created": "2026-11-20T20:10:00+01:00",
+      "active_from": 1795202100,
+      "parent": "O0037",
+      "decision_id": null,
+      "take_profits": [
+        {
+          "price": 1800.0,
+          "fraction": 0.5,
+          "qty": 0.04668824
+        },
+        {
+          "price": 1950.0,
+          "fraction": 0.5,
+          "qty": 0.04668825
+        }
+      ],
+      "entry_price": 1603.5199973783551,
+      "breakeven_after_tp1": true,
+      "tp_filled": 0
+    },
+    {
+      "id": "O0049",
+      "pair": "XBTUSDC",
+      "side": "sell",
+      "qty": 0.01116224,
+      "price": 63000.0,
+      "stop_loss": 50000.0,
+      "take_profit": null,
+      "created": "2026-11-20T20:10:00+01:00",
+      "active_from": 1795202100,
+      "parent": "O0033",
+      "decision_id": null,
+      "take_profits": [
+        {
+          "price": 63000.0,
+          "fraction": 0.5,
+          "qty": 0.00558112
+        },
+        {
+          "price": 68000.0,
+          "fraction": 0.5,
+          "qty": 0.00558112
+        }
+      ],
+      "entry_price": 58127.60001576745,
+      "breakeven_after_tp1": true,
+      "tp_filled": 0
     }
   ],
   "closed_trades": [
@@ -743,6 +760,44 @@
       "realized_pnl": -119.056602,
       "time_source": "m5",
       "slippage_rate": 0.0011793939392828992
+    },
+    {
+      "id": "T0021",
+      "order_id": "O0037",
+      "pair": "ETHUSDC",
+      "base": "ETH",
+      "side": "buy",
+      "qty": 0.09337649,
+      "price": 1600.0,
+      "fee": 0.328685,
+      "fee_rate": 0.0022,
+      "volume_30d_usd": 11468.16,
+      "engine_version": "0.2.0",
+      "liquidity": "maker",
+      "reason": "limit",
+      "time": "2026-11-20T20:10:00+01:00",
+      "ts": 1795201800,
+      "realized_pnl": null,
+      "time_source": "m5"
+    },
+    {
+      "id": "T0022",
+      "order_id": "O0033",
+      "pair": "XBTUSDC",
+      "base": "BTC",
+      "side": "buy",
+      "qty": 0.01116224,
+      "price": 58000.0,
+      "fee": 1.424302,
+      "fee_rate": 0.0022,
+      "volume_30d_usd": 11617.56,
+      "engine_version": "0.2.0",
+      "liquidity": "maker",
+      "reason": "limit",
+      "time": "2026-11-20T20:10:00+01:00",
+      "ts": 1795201800,
+      "realized_pnl": null,
+      "time_source": "m5"
     }
   ],
   "processed_decisions": [
@@ -828,10 +883,10 @@
     "XRPUSDC": 1795197600
   },
   "last_prices": {
-    "XBTUSDC": 58199.01,
-    "ETHUSDC": 1609.83,
-    "SOLUSDC": 68.72,
-    "XRPUSDC": 0.9021
+    "XBTUSDC": 58524.5,
+    "ETHUSDC": 1607.04,
+    "SOLUSDC": 68.22,
+    "XRPUSDC": 0.897
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -839,14 +894,14 @@
     "start_price": 68358.17,
     "start_time": "2026-11-13T22:56:49+01:00"
   },
-  "fees_total": 60.180701,
+  "fees_total": 61.933688,
   "realized_pnl": -345.008091,
   "seq": {
-    "order": 47,
-    "trade": 20
+    "order": 49,
+    "trade": 22
   },
-  "last_cycle": "2026-11-20T20:09:13+01:00",
-  "last_cycle_ts": 1795201753,
+  "last_cycle": "2026-11-20T20:58:59+01:00",
+  "last_cycle_ts": 1795204739,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -854,10 +909,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795201200,
-    "SOLUSDC": 1795201200,
-    "XBTUSDC": 1795201200,
-    "XRPUSDC": 1795201200
+    "ETHUSDC": 1795204200,
+    "SOLUSDC": 1795204200,
+    "XBTUSDC": 1795204200,
+    "XRPUSDC": 1795204200
   },
   "engine_version": "0.2.0"
 }
