@@ -319,6 +319,84 @@
         }
       ],
       "breakeven_after_tp1": true
+    },
+    {
+      "id": "O0045",
+      "pair": "XRPUSDC",
+      "side": "buy",
+      "qty": 115.81580654,
+      "price": 0.86,
+      "stop_loss": 0.72,
+      "take_profit": null,
+      "created": "2026-11-20T18:47:22+01:00",
+      "active_from": 1795197000,
+      "parent": null,
+      "decision_id": "2026-11-20-18h45",
+      "take_profits": [
+        {
+          "price": 0.95,
+          "fraction": 0.5,
+          "qty": 57.90790327
+        },
+        {
+          "price": 1.02,
+          "fraction": 0.5,
+          "qty": 57.90790327
+        }
+      ],
+      "breakeven_after_tp1": true
+    },
+    {
+      "id": "O0046",
+      "pair": "XRPUSDC",
+      "side": "buy",
+      "qty": 121.46535807,
+      "price": 0.82,
+      "stop_loss": 0.72,
+      "take_profit": null,
+      "created": "2026-11-20T18:47:22+01:00",
+      "active_from": 1795197000,
+      "parent": null,
+      "decision_id": "2026-11-20-18h45",
+      "take_profits": [
+        {
+          "price": 0.95,
+          "fraction": 0.5,
+          "qty": 60.73267903
+        },
+        {
+          "price": 1.02,
+          "fraction": 0.5,
+          "qty": 60.73267904
+        }
+      ],
+      "breakeven_after_tp1": true
+    },
+    {
+      "id": "O0047",
+      "pair": "XRPUSDC",
+      "side": "buy",
+      "qty": 127.6943508,
+      "price": 0.78,
+      "stop_loss": 0.72,
+      "take_profit": null,
+      "created": "2026-11-20T18:47:22+01:00",
+      "active_from": 1795197000,
+      "parent": null,
+      "decision_id": "2026-11-20-18h45",
+      "take_profits": [
+        {
+          "price": 0.95,
+          "fraction": 0.5,
+          "qty": 63.8471754
+        },
+        {
+          "price": 1.02,
+          "fraction": 0.5,
+          "qty": 63.8471754
+        }
+      ],
+      "breakeven_after_tp1": true
     }
   ],
   "closed_trades": [
@@ -691,13 +769,14 @@
     "2026-11-19-19h10",
     "2026-11-20-00h10",
     "2026-11-20-17h15",
-    "2026-11-20-17h25"
+    "2026-11-20-17h25",
+    "2026-11-20-18h45"
   ],
   "last_decision": {
-    "id": "2026-11-20-17h25",
-    "timestamp": "2026-11-20T17:25:00+01:00",
-    "rationale": "Ce que je vois : portefeuille 100 % USDC (6 261,41), aucun ordre ouvert après les quatre stops de 16h15 (−195,7 USDC). BTC autour de 59 225, plus bas du jour 58 722, sous le plus bas de février (60 500) et encore au-dessus du plancher 6 mois vers 57 800. ETH autour de 1 637, SOL autour de 68,7, tous les deux dans la même baisse. Cyril a validé un rachat moyen terme par paliers sur BTC, puis l'ajout d'ETH et de SOL, avec un stop commun par crypto. Ce que je fais : poche moyen terme, 4 achats limites de 650 USDC sur BTC à 58 000, 56 500, 55 000 et 53 500, stop commun 50 000, sorties moitié à 63 000 et reste à 68 000 ; 4 achats de 150 USDC sur ETH à 1 600, 1 550, 1 500 et 1 430, stop commun 1 350, sorties 1 800 / 1 950 ; 4 achats de 150 USDC sur SOL à 66, 63, 60 et 57, stop commun 53, sorties 72 / 78. Sur chaque crypto, le stop remonte au prix d'achat (PRU réel) après le premier objectif. Chaque palier posera son propre groupe de sorties, à fusionner dès qu'un palier se remplit sur une position déjà ouverte. Pas de trade court terme tant que la tendance baisse. Réserve d'environ 2 461 USDC conservée. Pourquoi : étaler les entrées autour des planchers évite de tout miser sur un seul prix. Si tous les paliers se remplissent et que les stops partent, la perte maximale est d'environ 440 USDC (7 % du capital), frais et glissement compris. Je n'achète pas au marché dans la panique.",
-    "applied": "2026-11-20T17:26:59+01:00"
+    "id": "2026-11-20-18h45",
+    "timestamp": "2026-11-20T18:45:00+01:00",
+    "rationale": "Ce que je vois : XRP autour de 0,905, juste au-dessus de son plus bas des 6 mois à 0,893, touché le 14/11 et frôlé aujourd'hui vers 0,898. En dessous, aucun plancher clair. Les paliers BTC, ETH et SOL sont déjà actifs, aucun rempli. Cyril a validé un rachat moyen terme par paliers sur XRP, malgré le risque cumulé proche de la limite de 8 %. Ce que je fais : poche moyen terme, 3 achats limites de 100 USDC sur XRP à 0,86, 0,82 et 0,78, stop commun 0,72, sorties moitié à 0,95 et reste à 1,02. Le stop remonte au prix d'achat (PRU réel) après le premier objectif. Chaque palier posera son propre groupe de sorties, à fusionner dès qu'un palier se remplit sur une position déjà ouverte. Pas de trade court terme tant que la tendance baisse. Réserve d'environ 2 168 USDC conservée. Pourquoi : pas de plancher sous 0,893, donc des paliers plus espacés et plus petits que sur ETH et SOL. Si tous les paliers se remplissent, le prix moyen serait d'environ 0,82. Au stop, perte d'environ 40 USDC, frais compris. Aux objectifs, gain d'environ 60 USDC, soit un ratio d'environ 1,5. Avec les paliers BTC, ETH et SOL déjà posés, le pire cas passe d'environ 440 à 480 USDC, soit 7,7 % du capital, proche de la limite de 8 %, accepté par Cyril.",
+    "applied": "2026-11-20T18:47:22+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -745,13 +824,13 @@
     "XBTUSDC": 1795190400,
     "ETHUSDC": 1795190400,
     "SOLUSDC": 1795190400,
-    "XRPUSDC": 1795186800
+    "XRPUSDC": 1795190400
   },
   "last_prices": {
-    "XBTUSDC": 59394.83,
-    "ETHUSDC": 1635.75,
-    "SOLUSDC": 69.21,
-    "XRPUSDC": 0.90509
+    "XBTUSDC": 58928.94,
+    "ETHUSDC": 1626.15,
+    "SOLUSDC": 69.0,
+    "XRPUSDC": 0.90507
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -762,11 +841,11 @@
   "fees_total": 60.180701,
   "realized_pnl": -345.008091,
   "seq": {
-    "order": 44,
+    "order": 47,
     "trade": 20
   },
-  "last_cycle": "2026-11-20T18:09:13+01:00",
-  "last_cycle_ts": 1795194553,
+  "last_cycle": "2026-11-20T18:47:22+01:00",
+  "last_cycle_ts": 1795196842,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -774,10 +853,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795194000,
-    "SOLUSDC": 1795194000,
-    "XBTUSDC": 1795194000,
-    "XRPUSDC": 1795190400
+    "ETHUSDC": 1795196400,
+    "SOLUSDC": 1795196400,
+    "XBTUSDC": 1795196400,
+    "XRPUSDC": 1795196400
   },
   "engine_version": "0.2.0"
 }
