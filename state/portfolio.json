@@ -770,13 +770,14 @@
     "2026-11-20-00h10",
     "2026-11-20-17h15",
     "2026-11-20-17h25",
-    "2026-11-20-18h45"
+    "2026-11-20-18h45",
+    "2026-11-20-20h05"
   ],
   "last_decision": {
-    "id": "2026-11-20-18h45",
-    "timestamp": "2026-11-20T18:45:00+01:00",
-    "rationale": "Ce que je vois : XRP autour de 0,905, juste au-dessus de son plus bas des 6 mois à 0,893, touché le 14/11 et frôlé aujourd'hui vers 0,898. En dessous, aucun plancher clair. Les paliers BTC, ETH et SOL sont déjà actifs, aucun rempli. Cyril a validé un rachat moyen terme par paliers sur XRP, malgré le risque cumulé proche de la limite de 8 %. Ce que je fais : poche moyen terme, 3 achats limites de 100 USDC sur XRP à 0,86, 0,82 et 0,78, stop commun 0,72, sorties moitié à 0,95 et reste à 1,02. Le stop remonte au prix d'achat (PRU réel) après le premier objectif. Chaque palier posera son propre groupe de sorties, à fusionner dès qu'un palier se remplit sur une position déjà ouverte. Pas de trade court terme tant que la tendance baisse. Réserve d'environ 2 168 USDC conservée. Pourquoi : pas de plancher sous 0,893, donc des paliers plus espacés et plus petits que sur ETH et SOL. Si tous les paliers se remplissent, le prix moyen serait d'environ 0,82. Au stop, perte d'environ 40 USDC, frais compris. Aux objectifs, gain d'environ 60 USDC, soit un ratio d'environ 1,5. Avec les paliers BTC, ETH et SOL déjà posés, le pire cas passe d'environ 440 à 480 USDC, soit 7,7 % du capital, proche de la limite de 8 %, accepté par Cyril.",
-    "applied": "2026-11-20T18:47:22+01:00"
+    "id": "2026-11-20-20h05",
+    "timestamp": "2026-11-20T20:05:00+01:00",
+    "rationale": "Ce que je vois : cycle 19h09 sain, aucun palier exécuté. BTC 58 185 a touché 58 000,01 (il faut 57 971 pour remplir O0033), ETH 1 610 juste au-dessus du palier 1 600, SOL 68,7, XRP 0,905 ; la baisse continue sans creux plus haut ni clôture au-dessus d'une MA20. Revue globale par crypto : uniquement des achats limites en paliers avec un stop commun sous le plus bas palier (BTC 50 000, ETH 1 350, SOL 53, XRP 0,72), aucune position ouverte, aucune incohérence. Ce que je fais : rien, note de bilan seulement. Pourquoi : le plan posé à 17h25 et 18h45 avec Cyril achète justement la baisse par paliers, le modifier une heure après sans fait nouveau serait du bruit. Bilan du jour : quatre stops touchés à 16h10-16h15, −195,7 USDC réalisés (moyen terme BTC −119,1 et ETH −28,9 ; court terme SOL −27,8 et XRP −19,9), 17,8 USDC de frais aujourd'hui, 60,2 depuis le début, résultat réalisé cumulé −345,0. Portefeuille 6 261,41 USDC (−5,2 % depuis le 13/11) contre 5 600,7 pour le BTC gardé (−14,9 %), soit +11,8 %. Ce qui a marché : les stops ont limité la casse face à une chute de 61 900 à 58 000 ; ce qui n'a pas marché : stops de toutes les cryptos sur le même mouvement, un seul pari corrélé. Repli 7 jours −5,2 %, garde-fou −8 % non atteint, mais un remplissage complet des paliers puis les stops le dépasserait (pire cas ~480 USDC accepté par Cyril).",
+    "applied": "2026-11-20T20:03:58+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -821,16 +822,16 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795194000,
-    "ETHUSDC": 1795194000,
-    "SOLUSDC": 1795194000,
-    "XRPUSDC": 1795194000
+    "XBTUSDC": 1795197600,
+    "ETHUSDC": 1795197600,
+    "SOLUSDC": 1795197600,
+    "XRPUSDC": 1795197600
   },
   "last_prices": {
-    "XBTUSDC": 58894.48,
-    "ETHUSDC": 1628.63,
-    "SOLUSDC": 69.18,
-    "XRPUSDC": 0.90743
+    "XBTUSDC": 58193.35,
+    "ETHUSDC": 1606.92,
+    "SOLUSDC": 68.66,
+    "XRPUSDC": 0.90242
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -844,8 +845,8 @@
     "order": 47,
     "trade": 20
   },
-  "last_cycle": "2026-11-20T19:09:20+01:00",
-  "last_cycle_ts": 1795198160,
+  "last_cycle": "2026-11-20T20:03:58+01:00",
+  "last_cycle_ts": 1795201438,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -853,10 +854,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795197600,
-    "SOLUSDC": 1795197600,
-    "XBTUSDC": 1795197600,
-    "XRPUSDC": 1795197600
+    "ETHUSDC": 1795200900,
+    "SOLUSDC": 1795200900,
+    "XBTUSDC": 1795200900,
+    "XRPUSDC": 1795200900
   },
   "engine_version": "0.2.0"
 }
