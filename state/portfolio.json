@@ -5,13 +5,13 @@
   "start_capital": 6606.42,
   "start_time": "2026-11-13T22:56:24+01:00",
   "start_ts": 1794606984,
-  "cash": 4664.280904,
+  "cash": 4514.549843,
   "positions": {
     "ETHUSDC": {
       "base": "ETH",
-      "qty": 0.09337649,
-      "avg_cost": 1603.5199973783551,
-      "fees_paid": 0.328685
+      "qty": 0.18976512,
+      "avg_cost": 1578.067299722942,
+      "fees_paid": 0.65737
     },
     "XBTUSDC": {
       "base": "BTC",
@@ -75,32 +75,6 @@
           "price": 68000.0,
           "fraction": 0.5,
           "qty": 0.00605056
-        }
-      ],
-      "breakeven_after_tp1": true
-    },
-    {
-      "id": "O0038",
-      "pair": "ETHUSDC",
-      "side": "buy",
-      "qty": 0.09638863,
-      "price": 1550.0,
-      "stop_loss": 1350.0,
-      "take_profit": null,
-      "created": "2026-11-20T17:26:59+01:00",
-      "active_from": 1795192200,
-      "parent": null,
-      "decision_id": "2026-11-20-17h25",
-      "take_profits": [
-        {
-          "price": 1800.0,
-          "fraction": 0.5,
-          "qty": 0.04819431
-        },
-        {
-          "price": 1950.0,
-          "fraction": 0.5,
-          "qty": 0.04819432
         }
       ],
       "breakeven_after_tp1": true
@@ -342,34 +316,6 @@
       "tp_filled": 0
     },
     {
-      "id": "O0049",
-      "pair": "XBTUSDC",
-      "side": "sell",
-      "qty": 0.01116224,
-      "price": 63000.0,
-      "stop_loss": 50000.0,
-      "take_profit": null,
-      "created": "2026-11-20T20:10:00+01:00",
-      "active_from": 1795202100,
-      "parent": "O0033",
-      "decision_id": null,
-      "take_profits": [
-        {
-          "price": 63000.0,
-          "fraction": 0.5,
-          "qty": 0.00558112
-        },
-        {
-          "price": 68000.0,
-          "fraction": 0.5,
-          "qty": 0.00558112
-        }
-      ],
-      "entry_price": 58127.60001576745,
-      "breakeven_after_tp1": true,
-      "tp_filled": 0
-    },
-    {
       "id": "O0050",
       "pair": "SOLUSDC",
       "side": "sell",
@@ -398,30 +344,58 @@
       "tp_filled": 0
     },
     {
-      "id": "O0051",
+      "id": "O0052",
       "pair": "XBTUSDC",
       "side": "sell",
-      "qty": 0.01145859,
+      "qty": 0.02262083,
       "price": 63000.0,
       "stop_loss": 50000.0,
       "take_profit": null,
-      "created": "2026-11-21T04:55:00+01:00",
-      "active_from": 1795233600,
-      "parent": "O0034",
+      "created": "2026-11-21T05:10:30+01:00",
+      "active_from": 1795234500,
+      "parent": "2026-11-21-05h15",
       "decision_id": null,
       "take_profits": [
         {
           "price": 63000.0,
           "fraction": 0.5,
-          "qty": 0.00572929
+          "qty": 0.01131041
         },
         {
           "price": 68000.0,
           "fraction": 0.5,
-          "qty": 0.0057293
+          "qty": 0.01131042
         }
       ],
       "entry_price": 57366.1028353071,
+      "breakeven_after_tp1": true,
+      "tp_filled": 0
+    },
+    {
+      "id": "O0053",
+      "pair": "ETHUSDC",
+      "side": "sell",
+      "qty": 0.09638863,
+      "price": 1800.0,
+      "stop_loss": 1350.0,
+      "take_profit": null,
+      "created": "2026-11-21T05:05:00+01:00",
+      "active_from": 1795234200,
+      "parent": "O0038",
+      "decision_id": null,
+      "take_profits": [
+        {
+          "price": 1800.0,
+          "fraction": 0.5,
+          "qty": 0.04819431
+        },
+        {
+          "price": 1950.0,
+          "fraction": 0.5,
+          "qty": 0.04819432
+        }
+      ],
+      "entry_price": 1578.067299722942,
       "breakeven_after_tp1": true,
       "tp_filled": 0
     }
@@ -846,6 +820,25 @@
       "ts": 1795233300,
       "realized_pnl": null,
       "time_source": "m5"
+    },
+    {
+      "id": "T0025",
+      "order_id": "O0038",
+      "pair": "ETHUSDC",
+      "base": "ETH",
+      "side": "buy",
+      "qty": 0.09638863,
+      "price": 1550.0,
+      "fee": 0.328685,
+      "fee_rate": 0.0022,
+      "volume_30d_usd": 13061.78,
+      "engine_version": "0.2.0",
+      "liquidity": "maker",
+      "reason": "limit",
+      "time": "2026-11-21T05:05:00+01:00",
+      "ts": 1795233900,
+      "realized_pnl": null,
+      "time_source": "m5"
     }
   ],
   "processed_decisions": [
@@ -874,13 +867,14 @@
     "2026-11-20-17h15",
     "2026-11-20-17h25",
     "2026-11-20-18h45",
-    "2026-11-20-20h05"
+    "2026-11-20-20h05",
+    "2026-11-21-05h15"
   ],
   "last_decision": {
-    "id": "2026-11-20-20h05",
-    "timestamp": "2026-11-20T20:05:00+01:00",
-    "rationale": "Ce que je vois : cycle 19h09 sain, aucun palier exécuté. BTC 58 185 a touché 58 000,01 (il faut 57 971 pour remplir O0033), ETH 1 610 juste au-dessus du palier 1 600, SOL 68,7, XRP 0,905 ; la baisse continue sans creux plus haut ni clôture au-dessus d'une MA20. Revue globale par crypto : uniquement des achats limites en paliers avec un stop commun sous le plus bas palier (BTC 50 000, ETH 1 350, SOL 53, XRP 0,72), aucune position ouverte, aucune incohérence. Ce que je fais : rien, note de bilan seulement. Pourquoi : le plan posé à 17h25 et 18h45 avec Cyril achète justement la baisse par paliers, le modifier une heure après sans fait nouveau serait du bruit. Bilan du jour : quatre stops touchés à 16h10-16h15, −195,7 USDC réalisés (moyen terme BTC −119,1 et ETH −28,9 ; court terme SOL −27,8 et XRP −19,9), 17,8 USDC de frais aujourd'hui, 60,2 depuis le début, résultat réalisé cumulé −345,0. Portefeuille 6 261,41 USDC (−5,2 % depuis le 13/11) contre 5 600,7 pour le BTC gardé (−14,9 %), soit +11,8 %. Ce qui a marché : les stops ont limité la casse face à une chute de 61 900 à 58 000 ; ce qui n'a pas marché : stops de toutes les cryptos sur le même mouvement, un seul pari corrélé. Repli 7 jours −5,2 %, garde-fou −8 % non atteint, mais un remplissage complet des paliers puis les stops le dépasserait (pire cas ~480 USDC accepté par Cyril).",
-    "applied": "2026-11-20T20:03:58+01:00"
+    "id": "2026-11-21-05h15",
+    "timestamp": "2026-11-21T05:15:00+01:00",
+    "rationale": "Ce que je vois : nouvelle jambe de baisse entre 04h et 05h, BTC de 58 500 à 55 500 (55 720 maintenant), ETH 1 543, SOL 65,4, XRP 0,871, RSI 1h/4h/1j entre 15 et 26 sur toutes les paires, tout sous les MA20, aucun creux plus haut ni confirmation. Les paliers moyen terme SOL O0041 (66) et BTC O0034 (56 500) se sont remplis à 04h30 et 04h55. La position BTC de 0,02262083 (PRU 57 366) est couverte par deux groupes de sorties aux mêmes niveaux, O0049 (issu d'O0033, point mort 58 000) et O0051 (issu d'O0034, point mort 56 500). Revue globale par crypto : stops communs BTC 50 000, ETH 1 350, SOL 53, XRP 0,72, tous sous les paliers en attente, aucune incohérence d'achat/vente. Ce que je fais : poche moyen terme BTC, j'annule O0049 et O0051 et je remets un seul groupe sur toute la position, stop 50 000, moitié à 63 000, reste à 68 000, stop au PRU réel après TP1. Rien d'autre : pas de nouvel achat, pas de court terme, aucun stop resserré, paliers BTC 55 000 / 53 500, ETH 1 550 / 1 500 / 1 430, SOL 63 / 60 / 57 et XRP 0,86 / 0,82 / 0,78 inchangés. Pourquoi : règle du 17/11, une seule logique de stop par position et un seul point mort au vrai PRU comme sur Kraken ; le plan d'achat par paliers validé avec Cyril fait exactement son travail dans cette baisse. Ce que j'apprends : repli 7 jours −6,0 %, il reste ~2 points avant le garde-fou −8 % ; si d'autres paliers se remplissent puis touchent les stops, le garde-fou sera dépassé (pire cas ~480 USDC accepté par Cyril), donc aucun ordre nouveau tant que le marché ne confirme pas un rebond.",
+    "applied": "2026-11-21T05:10:30+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -931,10 +925,10 @@
     "XRPUSDC": 1795230000
   },
   "last_prices": {
-    "XBTUSDC": 55707.41,
-    "ETHUSDC": 1540.82,
-    "SOLUSDC": 65.18,
-    "XRPUSDC": 0.86845
+    "XBTUSDC": 55859.28,
+    "ETHUSDC": 1548.6,
+    "SOLUSDC": 65.65,
+    "XRPUSDC": 0.87204
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -942,14 +936,14 @@
     "start_price": 68358.17,
     "start_time": "2026-11-13T22:56:49+01:00"
   },
-  "fees_total": 63.686676,
+  "fees_total": 64.015361,
   "realized_pnl": -345.008091,
   "seq": {
-    "order": 51,
-    "trade": 24
+    "order": 53,
+    "trade": 25
   },
-  "last_cycle": "2026-11-21T05:09:15+01:00",
-  "last_cycle_ts": 1795234155,
+  "last_cycle": "2026-11-21T05:10:30+01:00",
+  "last_cycle_ts": 1795234230,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -957,10 +951,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795233600,
-    "SOLUSDC": 1795233600,
-    "XBTUSDC": 1795233600,
-    "XRPUSDC": 1795233600
+    "ETHUSDC": 1795233900,
+    "SOLUSDC": 1795233900,
+    "XBTUSDC": 1795233900,
+    "XRPUSDC": 1795233900
   },
   "engine_version": "0.2.0"
 }
