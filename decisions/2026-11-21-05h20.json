@@ -1,0 +1,35 @@
+{
+ "id": "2026-11-21-05h20",
+ "timestamp": "2026-11-21T05:20:00+01:00",
+ "rationale": "Ce que je vois : le cycle de 05h10 a appliqué la fusion BTC (groupe unique O0052) et rempli le palier ETH O0038 à 1 550 (bougie de 05h05). La position ETH de 0,18976512 (PRU 1 578) est maintenant couverte par deux groupes aux mêmes niveaux, O0048 (point mort 1 600) et O0053 (point mort 1 550). Ce que je fais : poche moyen terme ETH, j'annule O0048 et O0053 et je remets un seul groupe sur toute la position, stop 1 350 (sous les paliers 1 500 et 1 430 encore en attente), moitié à 1 800, reste à 1 950, stop au PRU réel après TP1. Rien d'autre ne change. Pourquoi : même règle que pour BTC, une seule logique de stop par position et un point mort au vrai PRU. Niveaux inchangés, aucun resserrement, aucun nouvel ordre.",
+ "actions": [
+  {
+   "type": "cancel",
+   "order_id": "O0048"
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0053"
+  },
+  {
+   "type": "update_exits",
+   "pair": "ETHUSDC",
+   "stop_loss": 1350,
+   "take_profits": [
+    {
+     "price": 1800,
+     "fraction": 0.5
+    },
+    {
+     "price": 1950,
+     "fraction": 0.5
+    }
+   ],
+   "breakeven_after_tp1": true
+  },
+  {
+   "type": "note",
+   "text": "05h20 : palier ETH O0038 exécuté à 1 550. Poche moyen terme ETH, fusion des sorties O0048 et O0053 en un seul groupe sur 0,18976512 ETH (stop 1 350, TP 1 800 / 1 950, point mort au PRU 1 578 après TP1). Aucun nouvel ordre."
+  }
+ ]
+}
