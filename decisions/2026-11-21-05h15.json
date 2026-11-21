@@ -1,0 +1,35 @@
+{
+ "id": "2026-11-21-05h15",
+ "timestamp": "2026-11-21T05:15:00+01:00",
+ "rationale": "Ce que je vois : nouvelle jambe de baisse entre 04h et 05h, BTC de 58 500 à 55 500 (55 720 maintenant), ETH 1 543, SOL 65,4, XRP 0,871, RSI 1h/4h/1j entre 15 et 26 sur toutes les paires, tout sous les MA20, aucun creux plus haut ni confirmation. Les paliers moyen terme SOL O0041 (66) et BTC O0034 (56 500) se sont remplis à 04h30 et 04h55. La position BTC de 0,02262083 (PRU 57 366) est couverte par deux groupes de sorties aux mêmes niveaux, O0049 (issu d'O0033, point mort 58 000) et O0051 (issu d'O0034, point mort 56 500). Revue globale par crypto : stops communs BTC 50 000, ETH 1 350, SOL 53, XRP 0,72, tous sous les paliers en attente, aucune incohérence d'achat/vente. Ce que je fais : poche moyen terme BTC, j'annule O0049 et O0051 et je remets un seul groupe sur toute la position, stop 50 000, moitié à 63 000, reste à 68 000, stop au PRU réel après TP1. Rien d'autre : pas de nouvel achat, pas de court terme, aucun stop resserré, paliers BTC 55 000 / 53 500, ETH 1 550 / 1 500 / 1 430, SOL 63 / 60 / 57 et XRP 0,86 / 0,82 / 0,78 inchangés. Pourquoi : règle du 17/11, une seule logique de stop par position et un seul point mort au vrai PRU comme sur Kraken ; le plan d'achat par paliers validé avec Cyril fait exactement son travail dans cette baisse. Ce que j'apprends : repli 7 jours −6,0 %, il reste ~2 points avant le garde-fou −8 % ; si d'autres paliers se remplissent puis touchent les stops, le garde-fou sera dépassé (pire cas ~480 USDC accepté par Cyril), donc aucun ordre nouveau tant que le marché ne confirme pas un rebond.",
+ "actions": [
+  {
+   "type": "cancel",
+   "order_id": "O0049"
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0051"
+  },
+  {
+   "type": "update_exits",
+   "pair": "XBTUSDC",
+   "stop_loss": 50000,
+   "take_profits": [
+    {
+     "price": 63000,
+     "fraction": 0.5
+    },
+    {
+     "price": 68000,
+     "fraction": 0.5
+    }
+   ],
+   "breakeven_after_tp1": true
+  },
+  {
+   "type": "note",
+   "text": "05h15 : paliers SOL O0041 à 66 et BTC O0034 à 56 500 exécutés. Poche moyen terme BTC, fusion des sorties O0049 et O0051 en un seul groupe sur 0,02262083 BTC (stop 50 000, TP 63 000 / 68 000, point mort au PRU 57 366 après TP1). Aucun nouvel ordre, repli 7 jours −6,0 %."
+  }
+ ]
+}
