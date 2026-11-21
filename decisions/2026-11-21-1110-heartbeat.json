@@ -1,0 +1,7 @@
+{
+  "id": "heartbeat-20261121-1110",
+  "type": "heartbeat",
+  "timestamp": "2026-11-21T11:10:00+01:00",
+  "note": "Session 11h10 vérifiée : ordres cohérents par crypto (un seul groupe de sorties par position, stops sous tous les paliers en attente), pas de signal court terme confirmé (BTC, ETH, SOL, XRP sous la MA20 4h après le creux BTC 55 116), aucune modification ; portefeuille 6 292,48 USDC vs BTC gardé 5 575,83.",
+  "actions": []
+}
