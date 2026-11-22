@@ -1,0 +1,11 @@
+{
+  "id": "2026-11-22-22h10",
+  "timestamp": "2026-11-22T22:10:00+01:00",
+  "rationale": "Ce que je vois : moteur sain (cycle 21h09), aucun palier exécuté depuis XRP O0045 hier à 07h15. BTC 60 945 (+1,0 % sur 24 h, −6,7 % sur 7 j), juste au-dessus de la MA20 1h mais RSI 1h à 72 et volume du dimanche très faible (0,3x la moyenne). ETH 1 720 (+2,1 % sur 24 h) est le plus fort, SOL et XRP stagnent sous BTC sur 72 h. Ce que je fais : rien, revue globale par crypto cohérente (BTC stop 50 000 sous les paliers 55 000/53 500, ETH stop 1 350 sous 1 500/1 430, SOL stop 53 sous ses paliers, XRP stop 0,72). Pourquoi : rebond sans pic de volume ni confirmation, pas de signal court terme valable (ETH en surchauffe 1h). Poches : moyen terme seul investi, court terme vide, réserve intacte. Ce que j'apprends : les rebonds du week-end à faible volume ne suffisent pas comme confirmation.",
+  "actions": [
+    {
+      "type": "note",
+      "text": "22h10 : aucun palier exécuté, revue globale cohérente, aucun nouvel ordre. Bilan du jour : réalisé 0, frais 0 aujourd'hui (64,23 cumulés depuis le départ), latent +124,7 sur le moyen terme (BTC +81, ETH +27, SOL +9, XRP +7,5), court terme vide. Portefeuille 6 377,32 USDC (−3,5 % depuis le départ) contre 5 836,46 pour le BTC gardé (+9,3 % d'avance). Ce qui marche : les paliers sous le marché posés dans la chute ; ce qui manque : un signal court terme confirmé."
+    }
+  ]
+}
