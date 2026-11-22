@@ -869,13 +869,14 @@
     "2026-11-20-20h05",
     "2026-11-21-05h15",
     "2026-11-21-05h20",
-    "2026-11-21-21h10"
+    "2026-11-21-21h10",
+    "2026-11-22-22h10"
   ],
   "last_decision": {
-    "id": "2026-11-21-21h10",
-    "timestamp": "2026-11-21T21:10:00+01:00",
-    "rationale": "Ce que je vois : moteur sain (cycle 21h09), aucun palier exécuté depuis XRP O0045 à 0,86 ce matin à 07h15. Le rebond depuis le plus bas de 55 116 se poursuit (BTC 60 295, +3,4 % sur 24 h ; ETH 1 684 +5,3 % ; SOL 70,45 +4,5 % ; XRP 0,935 +5,9 %), mais les quatre restent sous leur MA20 4h (BTC 60 954, ETH 1 713, SOL 71,3, XRP 0,941), le RSI 1h est en surchauffe (70 à 78) et le volume des 6 dernières heures est faible (week-end, 0,1 à 0,5 fois la moyenne). Sur 7 jours, XRP (+2,3 %) et SOL (+0,3 %) sont plus forts que BTC (−6,0 %) et ETH (−4,8 %). Revue globale par crypto : BTC position 0,02262 (PRU 57 366) avec un seul groupe de sorties O0052 (stop 50 000 sous les paliers O0035 55 000 et O0036 53 500, TP 63 000 / 68 000) ; ETH 0,18977 (PRU 1 578) groupe O0054 stop 1 350 sous O0039 1 500 et O0040 1 430 ; SOL 2,2637 (PRU 66,15) groupe O0050 stop 53 sous O0042 à O0044 ; XRP 115,8 (PRU 0,862) groupe O0055 stop 0,72 sous O0046 0,82 et O0047 0,78. Aucun stop au-dessus d'un achat en attente, aucune contradiction. Ce que je fais : rien, note de bilan seulement. Pourquoi : pas de confirmation (aucune clôture 4h au-dessus de la MA20 avec volume), acheter en court terme maintenant serait acheter en haut d'un rebond rapide en plein week-end ; XRP et SOL restent les premiers candidats court terme si une clôture 4h au-dessus de la MA20 arrive avec du volume. Bilan du jour : aucune vente, résultat réalisé 0, 2,30 USDC de frais sur les remplissages de paliers (64,23 depuis le début, réalisé cumulé −345,0). Latent +104,8 USDC, entièrement sur la poche moyen terme (BTC +66,3, ETH +20,2, SOL +9,8, XRP +8,5) ; poche court terme vide ; réserve en USDC 4 414,73. Portefeuille 6 366,16 USDC (+1,6 % sur 24 h, −3,6 % depuis le 13/11) contre 5 804,13 pour le BTC gardé (−12,1 %), soit +9,7 %. Ce qui a marché : acheter la chute par paliers avec un stop commun sous le plancher a donné des PRU bas (BTC 57 366) juste avant le rebond. Ce qui n'a pas marché : poche court terme inactive depuis les stops du 20/11, faute de signal confirmé. Ce que j'apprends : après un rebond de près de 10 % en 36 h, attendre la clôture 4h au-dessus de la MA20 plutôt que courir derrière. Repli 7 jours glissants −2,7 %, garde-fou −8 % loin.",
-    "applied": "2026-11-21T21:11:21+01:00"
+    "id": "2026-11-22-22h10",
+    "timestamp": "2026-11-22T22:10:00+01:00",
+    "rationale": "Ce que je vois : moteur sain (cycle 21h09), aucun palier exécuté depuis XRP O0045 hier à 07h15. BTC 60 945 (+1,0 % sur 24 h, −6,7 % sur 7 j), juste au-dessus de la MA20 1h mais RSI 1h à 72 et volume du dimanche très faible (0,3x la moyenne). ETH 1 720 (+2,1 % sur 24 h) est le plus fort, SOL et XRP stagnent sous BTC sur 72 h. Ce que je fais : rien, revue globale par crypto cohérente (BTC stop 50 000 sous les paliers 55 000/53 500, ETH stop 1 350 sous 1 500/1 430, SOL stop 53 sous ses paliers, XRP stop 0,72). Pourquoi : rebond sans pic de volume ni confirmation, pas de signal court terme valable (ETH en surchauffe 1h). Poches : moyen terme seul investi, court terme vide, réserve intacte. Ce que j'apprends : les rebonds du week-end à faible volume ne suffisent pas comme confirmation.",
+    "applied": "2026-11-22T22:08:39+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -920,16 +921,16 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795374000,
-    "ETHUSDC": 1795374000,
-    "SOLUSDC": 1795374000,
-    "XRPUSDC": 1795374000
+    "XBTUSDC": 1795377600,
+    "ETHUSDC": 1795377600,
+    "SOLUSDC": 1795377600,
+    "XRPUSDC": 1795377600
   },
   "last_prices": {
-    "XBTUSDC": 60633.7,
-    "ETHUSDC": 1712.79,
-    "SOLUSDC": 70.04,
-    "XRPUSDC": 0.92763
+    "XBTUSDC": 60901.32,
+    "ETHUSDC": 1720.34,
+    "SOLUSDC": 70.2,
+    "XRPUSDC": 0.92707
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -943,8 +944,8 @@
     "order": 55,
     "trade": 26
   },
-  "last_cycle": "2026-11-22T21:09:14+01:00",
-  "last_cycle_ts": 1795378154,
+  "last_cycle": "2026-11-22T22:08:39+01:00",
+  "last_cycle_ts": 1795381719,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -952,10 +953,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795377600,
-    "SOLUSDC": 1795377600,
-    "XBTUSDC": 1795377600,
-    "XRPUSDC": 1795377600
+    "ETHUSDC": 1795381200,
+    "SOLUSDC": 1795381200,
+    "XBTUSDC": 1795381200,
+    "XRPUSDC": 1795381200
   },
   "engine_version": "0.2.0"
 }
