@@ -1,0 +1,47 @@
+{
+ "id": "2026-11-23-15h15",
+ "timestamp": "2026-11-23T15:15:00+01:00",
+ "rationale": "Ce que je vois : à 14h55, trois TP1 exécutés dans le même rebond : ETH O0054 à 1 800 (0,0949 ETH, +20,68 USDC), BTC O0052 à 63 000 (0,01131 BTC, +62,15 USDC) et XRP O0055 à 0,95 (57,9 XRP, +4,98 USDC). Le moteur a remonté le stop de chaque reliquat au point mort (BTC 57 366, ETH 1 578, XRP 0,8619), mais des paliers moyen terme restent en attente dessous : BTC 55 000 / 53 500, ETH 1 500 / 1 430, XRP 0,82 / 0,78. C'est l'incohérence interdite le 17/11, déjà corrigée ce matin sur SOL. Marché : BTC 62 845, ETH 1 787, SOL 75,4, XRP 0,979, tous nettement au-dessus de leur MA20 4h ; sur 7 jours BTC -3,1 %, ETH -1,8 %, SOL +5,4 %, XRP +2,6 % ; planchers 3 mois BTC 55 116, ETH 1 537, XRP 0,859. Ce que je fais : poche moyen terme, je remets le stop de chaque reliquat au stop commun du plan (BTC 50 000, ETH 1 350, XRP 0,72), sous tous les paliers en attente et sous les planchers, et je garde la sortie entière de chaque reliquat au TP2 (BTC 68 000, ETH 1 950, XRP 1,02) ; paliers inchangés ; SOL déjà cohérent (stop 53, sortie 78). Pas de court terme : rebond déjà avancé, entrer maintenant n'offre pas un gain/risque net de 1,5 avec un stop sous un vrai plancher. Pourquoi : une seule exposition par crypto, le plan d'accumulation par paliers validé par Cyril prime ; risque ajouté sous le PRU d'environ 83 USDC BTC, 21 USDC ETH, 8 USDC XRP, couvert par les 88 USDC réalisés aux TP1. Ce que j'apprends : le point mort automatique après TP1 se déclenche en série dans un rebond corrélé ; il faudrait à terme que le moteur ne l'applique pas quand des paliers d'achat sont ouverts sur la même crypto.",
+ "actions": [
+  {
+   "type": "update_exits",
+   "pair": "XBTUSDC",
+   "stop_loss": 50000,
+   "take_profits": [
+    {
+     "price": 68000,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false
+  },
+  {
+   "type": "update_exits",
+   "pair": "ETHUSDC",
+   "stop_loss": 1350,
+   "take_profits": [
+    {
+     "price": 1950,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false
+  },
+  {
+   "type": "update_exits",
+   "pair": "XRPUSDC",
+   "stop_loss": 0.72,
+   "take_profits": [
+    {
+     "price": 1.02,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false
+  },
+  {
+   "type": "note",
+   "text": "15h15 : TP1 ETH O0054 à 1 800 (+20,68), BTC O0052 à 63 000 (+62,15) et XRP O0055 à 0,95 (+4,98) exécutés. Poche moyen terme, stops des reliquats ramenés du point mort au stop commun (BTC 50 000, ETH 1 350, XRP 0,72) sous les paliers encore en attente, sortie entière au TP2 (68 000, 1 950, 1,02). SOL inchangé, aucun nouvel ordre."
+  }
+ ]
+}
