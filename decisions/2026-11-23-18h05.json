@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-23-18h05",
+ "timestamp": "2026-11-23T18:05:00+01:00",
+ "rationale": "Ce que je vois : SOL (78) et XRP (1,02) sortis entièrement au TP2 à 15h25, il reste en poche moyen terme 0,01131 BTC (PRU 57 366, stop 50 000, sortie 68 000) et 0,0949 ETH (PRU 1 578, stop 1 350, sortie 1 950), plus les paliers BTC 55 000/53 500, ETH 1 500/1 430, SOL 63/60/57, XRP 0,82/0,78. Marché : BTC 62 020 après un sommet à 64 570, ETH 1 765, SOL 74,3, XRP 0,970 ; RSI 4h entre 71 et 79 (surachat), cours au-dessus de la MA20 4h mais sous la MA20 journalière (BTC 68 580), tendance 30 jours encore baissière (-23 à -27 %). Sur 7 jours BTC -4,4 %, ETH -3,0 %, SOL +3,9 %, XRP +1,6 %. Revue par crypto : tous les stops sont sous les paliers en attente, aucune incohérence. Ce que je fais : rien de nouveau. Pourquoi : pas de vrai signal d'achat (rebond déjà fait, surachat, pas de plancher proche) ; un court terme SOL ou XRP sur repli (70,3 ou 0,915) n'atteint pas 1,5 net de frais et de glissement avec un stop sous le vrai plancher, et ce stop serait au-dessus des paliers moyen terme SOL 63 et XRP 0,82, ce qu'interdit la règle du 17/11 ; un palier BTC proche du cours avec le stop commun 50 000 donne moins de 1,5 vers 68 000-75 000. Ce que j'apprends : la poche investie est faible (environ 14 % contre 40 % visés), le portefeuille sous-performe BTC gardé à la hausse mais le garde-fou gain/risque prime.",
+ "actions": [
+  {
+   "type": "note",
+   "text": "18h05 : aucun nouvel ordre, ordres cohérents par crypto. Bilan du jour (depuis le 22/11 18h) : portefeuille environ 6 448 USDC (+1,0 %) contre BTC gardé +1,9 % ; depuis le départ -2,4 % contre -9,6 % pour BTC gardé, soit environ +478 USDC d'avance. Six sorties à objectif aujourd'hui, toutes en poche moyen terme (TP1 SOL, ETH, BTC, XRP puis TP2 SOL et XRP), +116,51 USDC réalisés pour 2,57 USDC de frais (66,80 cumulés). Court terme : aucun trade. Réserve intacte. A marché : l'échelle d'achats sous les planchers puis la revente en rebond. N'a pas marché : trop peu investi pour suivre la hausse de BTC."
+  }
+ ]
+}
