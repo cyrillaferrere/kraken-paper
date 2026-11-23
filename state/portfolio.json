@@ -960,8 +960,8 @@
     "order": 56,
     "trade": 27
   },
-  "last_cycle": "2026-11-23T13:09:15+01:00",
-  "last_cycle_ts": 1795435755,
+  "last_cycle": "2026-11-23T13:09:37+01:00",
+  "last_cycle_ts": 1795435777,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
