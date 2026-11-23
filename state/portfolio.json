@@ -927,9 +927,9 @@
     "XRPUSDC": 1795395600
   },
   "last_prices": {
-    "XBTUSDC": 60742.0,
-    "ETHUSDC": 1706.29,
-    "SOLUSDC": 70.27,
+    "XBTUSDC": 60647.11,
+    "ETHUSDC": 1703.43,
+    "SOLUSDC": 70.19,
     "XRPUSDC": 0.91731
   },
   "benchmark": {
@@ -944,8 +944,8 @@
     "order": 55,
     "trade": 26
   },
-  "last_cycle": "2026-11-23T03:07:21+01:00",
-  "last_cycle_ts": 1795399641,
+  "last_cycle": "2026-11-23T03:09:21+01:00",
+  "last_cycle_ts": 1795399761,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
