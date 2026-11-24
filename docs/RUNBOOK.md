@@ -1,3 +1,12 @@
+## Recette PR 02 — fusion des sorties (24/11/2026)
+1. Exécuter python -m unittest -v ; node --test tests/site/*.test.js ; node --test tests/functions/*.test.mjs. Vérifier quality-gates et guard-state.
+2. En état factice : deux achats de même paire donnent un bracket ; vérifier stop inchangé, PRU pondéré et somme des TP = qty du groupe.
+3. Après TP1 puis achat : le palier exécuté n'est pas recréé, tp_filled n'est pas remis à zéro, le stop reste actif sur le reliquat.
+4. Pendant pending_exits, acheter une quantité supplémentaire : l'ancien stop doit rester actif jusqu'à l'activation différée, le prochain bracket couvre la position réservée sans double compte.
+5. Tester un achat limite exécuté et une mise à jour update_exits sans nouvel achat ; aucune sortie réactivée prématurément.
+6. Inspecter les historiques anormaux avec plusieurs brackets ou ventes indépendantes avant toute activation prod ; revue Grok Bot obligatoire.
+7. Ne jamais exécuter engine/run.py directement sur l'état vivant pour la recette ; ne toucher ni state/, ni decisions/, ni main. Préprod seulement après contrôles.
+ 
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
    aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.

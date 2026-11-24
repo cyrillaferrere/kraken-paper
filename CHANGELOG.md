@@ -1,3 +1,9 @@
+## [Unreleased] — PR 02, moteur 0.2.1 (24/11/2026)
+- Fusion automatique d'un achat supplémentaire avec le groupe de sorties existant de la même paire.
+- Conservation du stop, des TP restants et du compteur des objectifs déjà exécutés ; PRU pondéré et quantités ajustés.
+- Tests unitaires pour achats successifs, après TP1, limite, achat sans nouvelles protections et update_exits différé.
+- ADR-42 ; aucune modification de state/, decisions/, ou main.
+
 ### Revue Grok Bot — correctifs PR #73 (18/11/2026)
 - Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
 - Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour

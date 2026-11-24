@@ -1,3 +1,11 @@
+## PR 02 — Fusion des groupes de sorties (24/11/2026)
+- Branche fix/engine-021-merge-exit-groups depuis preprod, PR en brouillon vers preprod.
+- Le point d'insertion est le fill d'achat limite dans _check_order et le market_buy dans apply_action. La fonction attach_exit conserve sa sémantique pour update_exits.
+- merge_purchase_exits conserve un seul groupe lorsque l'état est cohérent ; stop, TP non exécutés, tp_filled et pending_exits restent en place. Les quantités de TP restants sont redimensionnées et entry_price suit le PRU pondéré réel.
+- Cas non couverts avant une éventuelle activation : plusieurs groupes historiques / réservation extérieure incohérente, à relire explicitement par Grok Bot.
+- Tests : tests/test_merge_exit_groups.py puis suites Python/Node et CI. Pas de lancement du moteur sur state/ et aucune fusion/deploiement autorisés sans recette.
+- PR #75 (point mort conditionnel) et PR #76 (Node 24) demeurent indépendantes.
+ 
 ## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
 - Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
   Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,

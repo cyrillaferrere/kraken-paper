@@ -1,5 +1,12 @@
 # Historique du moteur PAPER (independant du site)
 
+## 0.2.1 — candidat en préproduction (24/11/2026)
+- Fusion des protections après achat supplémentaire, en conservant stop, objectifs restants et TP déjà exécutés.
+- Le prix de revient pondéré du portefeuille sert de référence au bracket.
+- Réservation unique et maintien des mises à jour différées.
+- Aucune migration rétroactive des transactions ni de l'état vivant.
+
+
 ## 0.2.0 — en developpement (site 0.3.7)
 - Traitement des bougies 5 minutes cloturees a chaque passage, sans attendre la fin d'heure.
 - Repli explicite sur 1 h lorsque les 5 minutes manquent pour une heure cloturee : evenement execution_fallback.

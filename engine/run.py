@@ -345,6 +345,80 @@ def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
     state["open_orders"].append(o)
     return o
 
+def audit_buy_protection(state, pair, trade):
+    held = state["positions"].get(pair, {}).get("qty", 0)
+    covered = sum(o["qty"] for o in state["open_orders"]
+                  if o["pair"] == pair and o["side"] == "sell" and o.get("stop_loss"))
+    if covered + EPS < held:
+        trade["unprotected_qty"] = {"held": held, "covered": covered,
+                                    "qty": held - covered}
+
+
+def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
+                         take_profit=None, take_profits=None,
+                         breakeven_after_tp1=False, trade=None):
+    """Integre un achat a l'unique bracket existant, sans doubler la reservation.
+
+    Les niveaux existants font autorite. Une sortie sans niveaux preexistants
+    n'est creee que si le nouvel achat demande une protection. Les ventes
+    independantes restent hors du groupe.
+    """
+    meta = state["pairs"][pair]
+    exits = [o for o in state["open_orders"]
+             if o["pair"] == pair and o["side"] == "sell" and o.get("parent")]
+    if not exits:
+        # Aucun groupe ne preexistait : une nouvelle protection ne reserve
+        # que la nouvelle acquisition, meme si d'anciens avoirs sont nus.
+        return attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
+                           take_profits=take_profits,
+                           breakeven_after_tp1=breakeven_after_tp1,
+                           entry_price=state["positions"][pair]["avg_cost"])
+    def fallback(reason):
+        if trade is not None:
+            trade["exit_merge_skipped"] = {"reason": reason, "qty": qty}
+        free = max(0.0, available_qty(state, pair))
+        safe_qty = floor_dec(min(qty, free), meta["lot_decimals"])
+        stops = [o["stop_loss"] for o in exits if o.get("stop_loss")]
+        stop = stop_loss or (min(stops) if stops else None)
+        if safe_qty <= EPS or safe_qty + EPS < meta["ordermin"] or not stop:
+            return None
+        # Une protection stop seule évite un palier invalide et ne double pas les réservations.
+        return attach_exit(state, pair, safe_qty, stop, None, ts, parent)
+
+    if len(exits) != 1:
+        return fallback("multiple_groups")
+    old = exits[0]
+    free = max(0.0, available_qty(state, pair))
+    if free + EPS < qty:
+        return fallback("reservation_conflict")
+    addition = round(qty, meta["lot_decimals"])
+    total = round(old["qty"] + addition, meta["lot_decimals"])
+    # Aucune nouvelle protection n'est inventee si le groupe a deja un stop
+    # ou des TP; la structure existante conserve sa priorite.
+    if "take_profits" in old:
+        remaining = old["take_profits"]
+        target = round(total, meta["lot_decimals"])
+        if remaining:
+            previous = sum(tier["qty"] for tier in remaining)
+            if previous <= EPS:
+                return fallback("tier_below_min")
+            revised = [dict(tier) for tier in remaining]
+            for tier in revised[:-1]:
+                tier["qty"] = floor_dec(target * tier["qty"] / previous, meta["lot_decimals"])
+            revised[-1]["qty"] = round(target - sum(t["qty"] for t in revised[:-1]),
+                                        meta["lot_decimals"])
+            for tier in revised:
+                if (tier["qty"] + EPS < meta["ordermin"]
+                        or tier["qty"] * tier["price"] + EPS < meta["costmin"]):
+                    return fallback("tier_below_min")
+            old["take_profits"] = revised
+        # Stop et niveaux, TP deja touches et pending_exits restent intacts.
+        old["entry_price"] = state["positions"][pair]["avg_cost"]
+    if old.get("pending_exits"):
+        old["pending_exits"]["entry_price"] = state["positions"][pair]["avg_cost"]
+    old["qty"] = total
+    return old
+
 
 def _m5_bars(market, pair, hour_start):
     """Bougies 5 min de l'heure [hour_start, hour_start+HOUR), ou None si indisponibles / incomplètes.
@@ -448,11 +522,23 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
             tr["time_source"] = source
             state["open_orders"].remove(order)
             fills.append(tr)
-            attach_exit(state, pair, order["qty"], order.get("stop_loss"),
-                        order.get("take_profit"), ts, order["id"],
-                        take_profits=order.get("take_profits"),
-                        breakeven_after_tp1=order.get("breakeven_after_tp1", False),
-                        entry_price=state["positions"][pair]["avg_cost"])
+            previous = [o for o in state["open_orders"] if o["pair"] == pair
+                        and o["side"] == "sell" and o.get("parent")]
+            old_id = previous[0]["id"] if len(previous) == 1 else None
+            previous_qty = previous[0]["qty"] if old_id else None
+            merged = merge_purchase_exits(state, pair, order["qty"], ts, order["id"],
+                                          stop_loss=order.get("stop_loss"),
+                                          take_profit=order.get("take_profit"),
+                                          take_profits=order.get("take_profits"),
+                                          breakeven_after_tp1=order.get("breakeven_after_tp1", False), trade=tr)
+            if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
+                tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
+                                    "new_qty": merged["qty"], "added_qty": order["qty"],
+                                    "stop_loss": merged.get("stop_loss"),
+                                    "ignored_stop_loss": order.get("stop_loss"),
+                                    "ignored_take_profits": order.get("take_profits") or order.get("take_profit"),
+                                    "new_entry_price": state["positions"][pair]["avg_cost"]}
+            audit_buy_protection(state, pair, tr)
         return
 
     if "take_profits" in order:
@@ -747,10 +833,21 @@ def apply_action(state, a, ctx, now, decision_id):
     levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
     tr = execute_fill(state, pair, side, qty, price, "taker", "market", now)
     if side == "buy":
-        attach_exit(state, pair, qty, sl, tp, now, tr["id"],
-                    take_profits=levels if levels else None,
-                    breakeven_after_tp1=a.get("breakeven_after_tp1", False),
-                    entry_price=state["positions"][pair]["avg_cost"])
+        previous = [o for o in state["open_orders"] if o["pair"] == pair
+                    and o["side"] == "sell" and o.get("parent")]
+        old_id = previous[0]["id"] if len(previous) == 1 else None
+        previous_qty = previous[0]["qty"] if old_id else None
+        merged = merge_purchase_exits(state, pair, qty, now, tr["id"],
+                                      stop_loss=sl, take_profit=tp,
+                                      take_profits=levels if levels else None,
+                                      breakeven_after_tp1=a.get("breakeven_after_tp1", False), trade=tr)
+        if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
+            tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
+                                "new_qty": merged["qty"], "added_qty": qty,
+                                "stop_loss": merged.get("stop_loss"),
+                                "ignored_stop_loss": sl, "ignored_take_profits": a.get("take_profits") or tp,
+                                "new_entry_price": state["positions"][pair]["avg_cost"]}
+        audit_buy_protection(state, pair, tr)
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 
@@ -970,6 +1067,22 @@ def run_cycle(state, decisions, market, now, notifier=None):
     if notifier:
         for tr in fills:
             notifier.send(fill_message(tr))
+    # Audit explicite des fusions réussies. Ne journaliser aucun groupe
+    # supposé fusionné si un ancien état incohérent a bloqué la fusion.
+    merged_events = []
+    for ev in events:
+        trade = ev.get("trade") if ev.get("type") == "fill" else None
+        if trade and trade.get("unprotected_qty"):
+            merged_events.append({"type": "unprotected_qty", "pair": trade["pair"],
+                                  "trade_id": trade["id"], **trade["unprotected_qty"]})
+        if trade and trade.get("exit_merge_skipped"):
+            merged_events.append({"type": "exit_merge_skipped", "pair": trade["pair"],
+                                  "trade_id": trade["id"], **trade["exit_merge_skipped"]})
+        if trade and trade.get("exit_merge"):
+            merged_events.append({"type": "exit_groups_merged",
+                                  "pair": trade["pair"], "trade_id": trade["id"],
+                                  **trade["exit_merge"]})
+    events.extend(merged_events)
     for ev in events:
         ev["engine_version"] = ENGINE_VERSION
     return events, row, errors

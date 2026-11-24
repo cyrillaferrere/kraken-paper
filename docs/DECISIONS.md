@@ -1,3 +1,8 @@
+## ADR-42 : regroupement des sorties des achats successifs (24/11/2026)
+- Décision : fusionner à l'exécution de l'achat, jamais au moment de update_exits ; conserver stop, TP restants et réservations.
+- Détails, limites et tests : [ADR-42-EXIT-GROUP-MERGE.md](ADR-42-EXIT-GROUP-MERGE.md).
+- Préproduction uniquement, revue Grok Bot et CI nécessaires.
+
 ## ADR-35 : moteur PAPER 0.2.0, exécutions 5 min et conditions de remplissage (18/11/2026)
 - Contexte : moteur 0.1 trop optimiste pour les limites et trop lent pour les stops.
 - Décision : implémentation documentée dans [ADR-35-ENGINE-EXECUTION.md](ADR-35-ENGINE-EXECUTION.md), toujours PAPER et sans réécrire les données anciennes.
