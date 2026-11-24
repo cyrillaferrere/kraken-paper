@@ -624,3 +624,16 @@ html { scroll-behavior: smooth; }
 .crypto-legend-conditional { color:#9299a9; }
 .crypto-level-legend .crypto-legend-conditional::before { border-top-style:dashed; }
 @media (max-width:420px) { .crypto-level-legend { gap:6px 10px; font-size:11px; } }
+
+/* Deux jauges compactes, sans interpolation de valeurs financieres. */
+.risk-gauges { display:grid; gap:11px; min-width:0; padding:10px 0; }
+.risk-gauge { display:grid; gap:5px; min-width:0; }
+.risk-gauge>div:first-child { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.risk-gauge strong { font-size:12px; font-weight:650; }
+.risk-gauge span,.risk-gauge small { font-size:12px; color:var(--mu); line-height:1.45; }
+.gauge-track { height:7px; border-radius:99px; overflow:hidden; background:var(--line); }
+.gauge-track>span { display:block; height:100%; width:0; background:#22d3ee; border-radius:inherit; }
+.gauge-track>span.gauge-exceeded { background:#f87171; }
+
+.gauge-track>span.gauge-warning { background:#f59e0b; }
+.gauge-warning-text { color:#f59e0b; font-size:12px; margin:0; }
