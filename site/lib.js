@@ -139,6 +139,37 @@
       riskPos, riskPending, risk: riskPos + riskPending, riskPct: total ? (riskPos + riskPending) / total : 0, unprotected, buysNoStop, missing };
   }
 
+  // Les compartiments ne sont calculables que si chaque position et chaque
+  // ordre d'achat possèdent une classification explicite.
+  function allocationTargets(st, price, orderMath) {
+    const targets = { medium: .40, short: .25, reserve: .35 };
+    const totals = { medium: 0, short: 0, reserve: 0 };
+    let unknown = 0, missing = false;
+    for (const [pair, pos] of Object.entries(st.positions || {})) {
+      const px = price(pair);
+      if (!Number.isFinite(px) || px <= 0) { missing = true; continue; }
+      if (pos.compartment === "medium" || pos.compartment === "short") {
+        totals[pos.compartment] += pos.qty * px;
+      } else unknown += pos.qty * px;
+    }
+    const pending = (st.open_orders || []).filter(o => o.side === "buy");
+    const reserved = pending.reduce((sum, order) => {
+      const amount = orderMath(order, st, price(order.pair)).engaged;
+      return sum + (Number.isFinite(amount) ? amount : 0);
+    }, 0);
+    for (const order of pending) {
+      const amount = orderMath(order, st, price(order.pair)).engaged;
+      if (!Number.isFinite(amount)) { missing = true; continue; }
+      if (order.compartment === "medium" || order.compartment === "short")
+        totals[order.compartment] += amount;
+      else unknown += amount;
+    }
+    totals.reserve = Math.max(0, (st.cash || 0) - reserved);
+    const total = Object.values(totals).reduce((a,b)=>a+b,0) + unknown;
+    return { targets, totals, total, unknown, missing,
+             complete: !missing && unknown < 1e-8 && total > 0 };
+  }
+
   // ---------- cash réservé comme sur Kraken : achats en attente, frais maker compris ----------
   function cashBreakdown(st, orderMath) {
     let reserved = 0;
@@ -206,7 +237,7 @@
     return Math.floor((hit ? hit.t : hourStart) / iv) * iv;
   }
 
-  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, latestSession, duration, exposure, cashBreakdown, proximity, unrealizedPnl, pruLabel, fillMarkerTs, fillTouches };
+  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, latestSession, duration, exposure, allocationTargets, cashBreakdown, proximity, unrealizedPnl, pruLabel, fillMarkerTs, fillTouches };
 
   if (typeof window !== "undefined") window.KPLib = api;
   if (typeof module !== "undefined") module.exports = api;
