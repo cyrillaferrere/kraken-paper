@@ -1,3 +1,7 @@
+## ADR-43 : réveil Grok Bot sur variations (24/11/2026)
+- 5 % BTC/ETH, 7 % autres, délai de six heures et référence persistante ; sortie via webhook après push.
+- Voir [ADR-43-PRICE-MOVE-WAKEUP.md](ADR-43-PRICE-MOVE-WAKEUP.md). Revue Grok Bot avant fusion.
+
 ## ADR-35 : moteur PAPER 0.2.0, exécutions 5 min et conditions de remplissage (18/11/2026)
 - Contexte : moteur 0.1 trop optimiste pour les limites et trop lent pour les stops.
 - Décision : implémentation documentée dans [ADR-35-ENGINE-EXECUTION.md](ADR-35-ENGINE-EXECUTION.md), toujours PAPER et sans réécrire les données anciennes.
