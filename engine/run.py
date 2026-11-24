@@ -506,11 +506,19 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
             tr["time_source"] = source
             state["open_orders"].remove(order)
             fills.append(tr)
-            merge_purchase_exits(state, pair, order["qty"], ts, order["id"],
-                                 stop_loss=order.get("stop_loss"),
-                                 take_profit=order.get("take_profit"),
-                                 take_profits=order.get("take_profits"),
-                                 breakeven_after_tp1=order.get("breakeven_after_tp1", False))
+            previous = [o for o in state["open_orders"] if o["pair"] == pair
+                        and o["side"] == "sell" and o.get("parent")]
+            old_id = previous[0]["id"] if len(previous) == 1 else None
+            previous_qty = previous[0]["qty"] if old_id else None
+            merged = merge_purchase_exits(state, pair, order["qty"], ts, order["id"],
+                                          stop_loss=order.get("stop_loss"),
+                                          take_profit=order.get("take_profit"),
+                                          take_profits=order.get("take_profits"),
+                                          breakeven_after_tp1=order.get("breakeven_after_tp1", False))
+            if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
+                tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
+                                    "new_qty": merged["qty"], "added_qty": order["qty"],
+                                    "stop_loss": merged.get("stop_loss")}
         return
 
     if "take_profits" in order:
@@ -805,10 +813,18 @@ def apply_action(state, a, ctx, now, decision_id):
     levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
     tr = execute_fill(state, pair, side, qty, price, "taker", "market", now)
     if side == "buy":
-        merge_purchase_exits(state, pair, qty, now, tr["id"],
-                             stop_loss=sl, take_profit=tp,
-                             take_profits=levels if levels else None,
-                             breakeven_after_tp1=a.get("breakeven_after_tp1", False))
+        previous = [o for o in state["open_orders"] if o["pair"] == pair
+                    and o["side"] == "sell" and o.get("parent")]
+        old_id = previous[0]["id"] if len(previous) == 1 else None
+        previous_qty = previous[0]["qty"] if old_id else None
+        merged = merge_purchase_exits(state, pair, qty, now, tr["id"],
+                                      stop_loss=sl, take_profit=tp,
+                                      take_profits=levels if levels else None,
+                                      breakeven_after_tp1=a.get("breakeven_after_tp1", False))
+        if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
+            tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
+                                "new_qty": merged["qty"], "added_qty": qty,
+                                "stop_loss": merged.get("stop_loss")}
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 
@@ -1028,6 +1044,16 @@ def run_cycle(state, decisions, market, now, notifier=None):
     if notifier:
         for tr in fills:
             notifier.send(fill_message(tr))
+    # Audit explicite des fusions réussies. Ne journaliser aucun groupe
+    # supposé fusionné si un ancien état incohérent a bloqué la fusion.
+    merged_events = []
+    for ev in events:
+        trade = ev.get("trade") if ev.get("type") == "fill" else None
+        if trade and trade.get("exit_merge"):
+            merged_events.append({"type": "exit_groups_merged",
+                                  "pair": trade["pair"], "trade_id": trade["id"],
+                                  **trade["exit_merge"]})
+    events.extend(merged_events)
     for ev in events:
         ev["engine_version"] = ENGINE_VERSION
     return events, row, errors
