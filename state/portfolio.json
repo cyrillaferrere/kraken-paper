@@ -915,13 +915,14 @@
     "2026-11-22-22h10",
     "2026-11-23-07h15",
     "2026-11-23-15h15",
-    "2026-11-23-18h05"
+    "2026-11-23-18h05",
+    "2026-11-24-19h10"
   ],
   "last_decision": {
-    "id": "2026-11-23-18h05",
-    "timestamp": "2026-11-23T18:05:00+01:00",
-    "rationale": "Ce que je vois : SOL (78) et XRP (1,02) sortis entièrement au TP2 à 15h25, il reste en poche moyen terme 0,01131 BTC (PRU 57 366, stop 50 000, sortie 68 000) et 0,0949 ETH (PRU 1 578, stop 1 350, sortie 1 950), plus les paliers BTC 55 000/53 500, ETH 1 500/1 430, SOL 63/60/57, XRP 0,82/0,78. Marché : BTC 62 020 après un sommet à 64 570, ETH 1 765, SOL 74,3, XRP 0,970 ; RSI 4h entre 71 et 79 (surachat), cours au-dessus de la MA20 4h mais sous la MA20 journalière (BTC 68 580), tendance 30 jours encore baissière (-23 à -27 %). Sur 7 jours BTC -4,4 %, ETH -3,0 %, SOL +3,9 %, XRP +1,6 %. Revue par crypto : tous les stops sont sous les paliers en attente, aucune incohérence. Ce que je fais : rien de nouveau. Pourquoi : pas de vrai signal d'achat (rebond déjà fait, surachat, pas de plancher proche) ; un court terme SOL ou XRP sur repli (70,3 ou 0,915) n'atteint pas 1,5 net de frais et de glissement avec un stop sous le vrai plancher, et ce stop serait au-dessus des paliers moyen terme SOL 63 et XRP 0,82, ce qu'interdit la règle du 17/11 ; un palier BTC proche du cours avec le stop commun 50 000 donne moins de 1,5 vers 68 000-75 000. Ce que j'apprends : la poche investie est faible (environ 14 % contre 40 % visés), le portefeuille sous-performe BTC gardé à la hausse mais le garde-fou gain/risque prime.",
-    "applied": "2026-11-23T18:03:50+01:00"
+    "id": "2026-11-24-19h10",
+    "timestamp": "2026-11-24T19:10:00+01:00",
+    "rationale": "Ce que je vois : aucune exécution depuis hier 18h05. Le rebond du 23/11 s'est effacé : BTC 60 080 (7 jours -7,4 %, 30 jours -24,9 %), ETH 1 684 (-7,6 %), SOL 69,6 (-7,4 %), XRP 0,926 (-5,8 %, le moins faible) ; RSI 4h autour de 45, RSI journalier 25 à 30, cours sous la MA20 4h et loin sous la MA20 journalière (BTC 67 520). Planchers 3 et 6 mois : BTC 55 120, ETH 1 537 puis 1 507, SOL 64,8 puis 60,2, XRP 0,859. Revue par crypto : BTC 0,01131 (PRU 57 366, stop 50 000, sortie 68 000) avec paliers 55 000 et 53 500, stop commun 50 000 sous tous les paliers ; ETH 0,0949 (PRU 1 578, stop 1 350, sortie 1 950) avec paliers 1 500 et 1 430, stop sous les paliers ; SOL 63/60/57 stop 53 ; XRP 0,82/0,78 stop 0,72. Aucune incohérence. Ce que je fais : rien, poche moyen terme inchangée, pas de court terme, réserve intacte. Pourquoi : marché qui rechute sans aucun marqueur de rebond ni confirmation ; un court terme près du cours avec un stop sous le vrai plancher n'atteint pas 1,5 net et chevaucherait les paliers moyen terme. Ce que j'apprends : avoir vendu dans le rebond d'hier a protégé le portefeuille de cette rechute.",
+    "applied": "2026-11-24T19:10:05+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -972,9 +973,9 @@
     "XRPUSDC": 1795539600
   },
   "last_prices": {
-    "XBTUSDC": 60079.93,
+    "XBTUSDC": 60086.35,
     "ETHUSDC": 1684.23,
-    "SOLUSDC": 69.55,
+    "SOLUSDC": 69.54,
     "XRPUSDC": 0.92597
   },
   "benchmark": {
@@ -989,8 +990,8 @@
     "order": 59,
     "trade": 32
   },
-  "last_cycle": "2026-11-24T19:09:14+01:00",
-  "last_cycle_ts": 1795543754,
+  "last_cycle": "2026-11-24T19:10:05+01:00",
+  "last_cycle_ts": 1795543805,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -998,10 +999,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795543200,
-    "SOLUSDC": 1795543200,
-    "XBTUSDC": 1795543200,
-    "XRPUSDC": 1795543200
+    "ETHUSDC": 1795543500,
+    "SOLUSDC": 1795543500,
+    "XBTUSDC": 1795543500,
+    "XRPUSDC": 1795543500
   },
   "engine_version": "0.2.0"
 }
