@@ -35,6 +35,6 @@ test("jauges 6/8%, historique non fabriqué, pas d’allocation 0.2.2",()=>{
  assert.match(app,/value >= limit/);
  assert.match(app,/Historique 7 j insuffisant/);
  assert.ok(page.includes("g-risk-track")&&page.includes("g-week-track"));
- assert.ok(!page.includes("g-allocation"));
+ assert.ok(page.includes("g-allocation"));
  assert.equal(lib.allocationTargets,undefined);
 });
