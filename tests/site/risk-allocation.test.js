@@ -30,7 +30,7 @@ test("allocation complète : réserve hors fonds réservés", () => {
 });
 test("gauge risque et perte hebdomadaire sans reference fabriquee", () => {
   for(const id of ["g-risk-track", "g-week-track", "g-allocation"]) assert.ok(page.includes(id));
-  assert.match(app, /!ex\.unprotected\.length && !ex\.buysNoStop/);
+  assert.match(app, /!ex\.unprotected\.length && !ex\.buysNoStop && !missingStop/);
   assert.match(app, /Historique 7 j insuffisant/);
   assert.match(app, /allocation\.complete/);
   assert.match(app, /aria-valuetext/);
