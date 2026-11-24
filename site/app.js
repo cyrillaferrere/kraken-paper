@@ -310,15 +310,21 @@ function flashLiveValue(el, value) {
       }
       if (fill) fill.classList.toggle("gauge-exceeded", valid && value >= limit);
     };
-    if (ex && !ex.missing && !ex.unprotected.length && !ex.buysNoStop) {
+    const missingStop = (S.open_orders || []).some(o => {
+      if (o.side === "buy") return o.stop_loss == null;
+      if (o.side !== "sell") return false;
+      return o.stop_loss == null && o.parent;
+    });
+    if (ex && !ex.missing && !ex.unprotected.length && !ex.buysNoStop && !missingStop) {
       setGauge("g-risk", ex.riskPct * 100, 8,
                usdc(ex.risk) + " · " + pct(ex.riskPct) + " / 8 %");
       put("g-risk-note", "Frais et glissement estimés, achats en attente compris.");
     } else {
       setGauge("g-risk", null, 8, "Risque global non chiffrable");
-      put("g-risk-note", ex?.unprotected.length || ex?.buysNoStop ?
+      put("g-risk-note", ex?.unprotected.length || ex?.buysNoStop || missingStop ?
         "Protections manquantes : " + [...(ex?.unprotected || [])].join(", ") +
-          (ex?.buysNoStop ? " · " + ex.buysNoStop + " achat(s) sans stop" : "") :
+          (ex?.buysNoStop ? " · " + ex.buysNoStop + " achat(s) sans stop" : "") +
+          (missingStop ? " · sorties ou achats sans stop actif" : "") :
         "Cours ou exposition indisponibles.");
     }
     const week = perfWindow(168);
