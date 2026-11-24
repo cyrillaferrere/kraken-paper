@@ -425,7 +425,7 @@
       if (o.pair !== pair) continue;
       const push = (l) => lines.push(Object.assign({ pair }, l));
       if (o.side === "buy") {
-        if (o.price != null) push({ price: o.price, color: C.up, lineStyle: 2, label: `${o.id} achat limite`, pendingBuyId: o.id });
+        if (o.price != null) push({ price: o.price, color: "#22d3ee", lineStyle: 2, label: `${o.id} achat limite`, pendingBuyId: o.id });
         if (previewId !== o.id) continue;
         const planned = (price, name) => {
           if (price != null) push({ price, color: "#9299a9", lineStyle: 3, label: `${o.id} ${name} si l'achat passe`, conditional: true });
@@ -436,9 +436,14 @@
       } else {
         if (Array.isArray(o.take_profits) && o.take_profits.length) {
           o.take_profits.forEach((tp, i) =>
-            push({ price: tp.price, color: C.ac, lineStyle: 2, label: `${o.id} TP${(o.tp_filled || 0) + i + 1}` }));
+            push({ price: tp.price, color: "#34d399", lineStyle: 2, label: `${o.id} TP${(o.tp_filled || 0) + i + 1}` }));
         } else if (o.price != null) {
-          push({ price: o.price, color: C.ac, lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
+          push({ price: o.price, color: "#34d399", lineStyle: 2, label: `${o.id} ${o.parent ? "objectif" : "vente limite"}` });
+        }
+        if (o.pending_exits) {
+          // Une mise a jour differée est un projet, pas un stop actif.
+          const pending = o.pending_exits;
+          if (pending.stop_loss != null) push({ price: pending.stop_loss, color: "#9299a9", lineStyle: 3, label: `${o.id} futur stop (inactif)`, conditional: true });
         }
         if (o.stop_loss) {
           const breakevenActive = o.breakeven_after_tp1 === true && Number(o.tp_filled) > 0 &&
@@ -492,7 +497,7 @@
     if (pos) {
       const live = ctx.price(p) ?? (shown.bars.length ? shown.bars[shown.bars.length - 1].c : null);
       const pru = (window.KPLib && window.KPLib.pruLabel) ? window.KPLib.pruLabel(pos, live) : { label: "PRU (prix de revient)", tone: "mu" };
-      const col = C[pru.tone] || C.mu;
+      const col = "#60a5fa";
       lines.push({ pair: p, price: pos.avg_cost, color: col, lineStyle: 1, label: pru.label, text: col });
     }
     lines.push(...buildOrderLines(S.open_orders, p, pendingPreviewId));
