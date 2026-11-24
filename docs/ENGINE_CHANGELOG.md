@@ -1,5 +1,9 @@
 # Historique du moteur PAPER (independant du site)
 
+## 0.2.1 — candidat : alertes price_move
+- Détection d'une variation du cours des actifs suivis depuis une référence persistante ; pas de nouvel ordre PAPER.
+- Transmission des alertes après sauvegarde/push via webhook existant.
+
 ## 0.2.0 — en developpement (site 0.3.7)
 - Traitement des bougies 5 minutes cloturees a chaque passage, sans attendre la fin d'heure.
 - Repli explicite sur 1 h lorsque les 5 minutes manquent pour une heure cloturee : evenement execution_fallback.
