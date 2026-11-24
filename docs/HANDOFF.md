@@ -1,3 +1,10 @@
+## PR 05 — jauges risque et allocation (24/11/2026)
+- Branche feature/dashboard-040-risk-allocation depuis preprod.
+- site/app.js : remplissage et libellés ARIA des jauges ; site/lib.js : allocationTargets, catégorie explicite obligatoire.
+- site/index.html et style.css : trois indicateurs compacts ; aucun changement moteur/state/decisions.
+- Tests tests/site/risk-allocation.test.js ; revue de la cohérence des frais/risques, CI et recette mobile avant fusion.
+- Risque si stop absent : non chiffrable ; catégorie moyen/court terme absente : inconnue, pas de classement imaginé.
+
 ## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
 - Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
   Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,
