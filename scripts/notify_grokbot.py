@@ -35,6 +35,7 @@ def cycle_trades(journal_path, offset):
             "side": trade.get("side"),
             "price": trade.get("price"),
             "reason": trade.get("reason"),
+            "compartment": trade.get("compartment", "medium"),
             **{k: trade[k] for k in ("exit_merge", "breakeven_skipped") if k in trade},
         })
     return cycle_time, trades
@@ -46,6 +47,7 @@ def notify_cycle(journal_path, offset, url, key):
     alerts = []
     warnings = []
     cycle_time = None
+    seen_conflicts = set()
     try:
         with open(journal_path, "rb") as journal:
             journal.seek(max(0, int(offset)))
@@ -56,8 +58,14 @@ def notify_cycle(journal_path, offset, url, key):
                     continue
                 if cycle_time is None:
                     cycle_time = item.get("time")
-                if item.get("type") in ("exit_merge_skipped", "unprotected_qty", "breakeven_rearmed"):
+                if item.get("type") in ("exit_merge_skipped", "unprotected_qty", "breakeven_rearmed",
+                                        "compartment_resync"):
                     warnings.append(item)
+                if item.get("type") == "cross_compartment_conflict":
+                    conflict_key = (item.get("pair"), item.get("stop_order"), item.get("buy_order"))
+                    if conflict_key not in seen_conflicts:
+                        seen_conflicts.add(conflict_key)
+                        warnings.append(item)
                 if item.get("type") == "price_move":
                     alerts.append({k: item[k] for k in
                                    ("type", "crypto", "pair", "change_pct", "price")
