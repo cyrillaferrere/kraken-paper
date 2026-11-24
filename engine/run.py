@@ -358,13 +358,12 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
     exits = [o for o in state["open_orders"]
              if o["pair"] == pair and o["side"] == "sell" and o.get("parent")]
     if not exits:
-        # Pas de groupe : un achat neuf peut proteger tout le reliquat libre,
-        # y compris d'anciens achats nus; mais jamais les ventes independantes.
-        free = max(0.0, available_qty(state, pair))
-        return attach_exit(state, pair, free, stop_loss, take_profit, ts, parent,
+        # Aucun groupe ne preexistait : une nouvelle protection ne reserve
+        # que la nouvelle acquisition, meme si d'anciens avoirs sont nus.
+        return attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
                            take_profits=take_profits,
                            breakeven_after_tp1=breakeven_after_tp1,
-                           entry_price=state["positions"][pair]["avg_cost"]) if free > EPS else None
+                           entry_price=state["positions"][pair]["avg_cost"])
     if len(exits) != 1:
         raise Rejected("plusieurs groupes de sorties existants : fusion manuelle requise")
     old = exits[0]
@@ -380,14 +379,18 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
         target = round(total, meta["lot_decimals"])
         if remaining:
             previous = sum(tier["qty"] for tier in remaining)
-            for tier in remaining[:-1]:
+            if previous <= EPS:
+                raise Rejected("fusion : fractions de sorties invalides")
+            revised = [dict(tier) for tier in remaining]
+            for tier in revised[:-1]:
                 tier["qty"] = floor_dec(target * tier["qty"] / previous, meta["lot_decimals"])
-            remaining[-1]["qty"] = round(target - sum(t["qty"] for t in remaining[:-1]),
-                                           meta["lot_decimals"])
-            for tier in remaining:
+            revised[-1]["qty"] = round(target - sum(t["qty"] for t in revised[:-1]),
+                                        meta["lot_decimals"])
+            for tier in revised:
                 if (tier["qty"] + EPS < meta["ordermin"]
                         or tier["qty"] * tier["price"] + EPS < meta["costmin"]):
                     raise Rejected("fusion : palier de sortie sous le minimum Kraken")
+            old["take_profits"] = revised
         # Stop et niveaux, TP deja touches et pending_exits restent intacts.
         old["entry_price"] = state["positions"][pair]["avg_cost"]
     old["qty"] = total
