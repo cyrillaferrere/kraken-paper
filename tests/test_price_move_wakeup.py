@@ -47,6 +47,21 @@ class PriceMoveWakeupTests(unittest.TestCase):
         self.assertEqual(run.price_move_alerts(self.state, T0 + 300), [])
         self.assertEqual(self.state["price_move_watch"][PAIR]["reference_price"], 68250)
 
+    def test_heartbeat_session_rebases_price_without_mutating_decisions(self):
+        self.state["price_move_watch"] = {"XBTUSDC": {
+            "reference_price": 65000, "reference_ts": T0 - 600,
+            "last_session_id": "previous-session"}}
+        self.state["last_prices"][PAIR] = 68250
+        heartbeat = {"id": "hb-new", "type": "heartbeat", "actions": [],
+                     "note": "Analyse realisee",
+                     "timestamp": run.iso(T0)}
+        session = run.latest_grok_session_id([heartbeat], self.state, T0 + 300)
+        self.assertEqual(session, "hb-new")
+        self.assertEqual(run.price_move_alerts(self.state, T0 + 300,
+                                               session_id=session), [])
+        self.assertEqual(self.state["price_move_watch"][PAIR]["reference_price"], 68250)
+        self.assertEqual(self.state["processed_decisions"], [])
+
     def test_other_coin_uses_seven_percent(self):
         pair = "SOLUSDC"
         self.state["positions"][pair] = {"base": "SOL", "qty": 1, "avg_cost": 100}
