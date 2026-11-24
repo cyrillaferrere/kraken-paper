@@ -1,3 +1,8 @@
+## [Unreleased] — dashboard 0.4.0 (24/11/2026)
+- #79 : niveaux PAPER, stops et TP hérités, prévisualisation des achats, point mort suspendu.
+- #80 limitée à stopRisk, risque global et perte sur 7 jours ; vigilance 6 %, alerte 8 %, avertissements sur les stops et le point mort.
+- Compartiments et allocation 40/25/35 reportés à 0.2.2 ; aucun changement moteur propre au dashboard.
+
 ## [Unreleased] — moteur 0.2.1 (24/11/2026)
 - #76 : actions GitHub compatibles Node 24, recette sur branches integration/**.
 - #75 : point mort net différé si achat sous PRU, réarmement lorsque les conditions sont réunies.
