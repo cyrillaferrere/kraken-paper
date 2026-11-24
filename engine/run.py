@@ -190,6 +190,7 @@ def new_state(now):
         "pairs": {},
         "last_candle": {},
         "last_prices": {},
+        "price_move_watch": {},
         "benchmark": {"pair": BENCH, "btc_qty": None, "start_price": None},
         "fees_total": 0.0,
         "realized_pnl": 0.0,
@@ -893,6 +894,51 @@ def replay_candles(state, market, now):
     return events, fills, errors
 
 
+def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR):
+    """Prepare des reveils a partir des derniers cours connus, sans reseau.
+
+    L'etat est sauvegarde avant l'envoi du webhook par le workflow. Un
+    heartbeat de Grok ou une decision constitue une nouvelle session.
+    """
+    thresholds = thresholds or {"BTC": 0.05, "ETH": 0.05, "other": 0.07}
+    watch = state.setdefault("price_move_watch", {})
+    followed = set(state["positions"]) | {o["pair"] for o in state["open_orders"]
+                                          if o.get("side") == "buy"}
+    session_id = (state.get("last_decision") or {}).get("id")
+    notifications = []
+    for pair in sorted(followed):
+        price = state.get("last_prices", {}).get(pair)
+        if not isinstance(price, (int, float)) or not math.isfinite(price) or price <= 0:
+            continue
+        meta = state.get("pairs", {}).get(pair, {})
+        base = meta.get("base", pair.removesuffix("USDC"))
+        threshold = thresholds.get(base, thresholds["other"])
+        if not isinstance(threshold, (int, float)) or not 0 < threshold < 1:
+            continue
+        entry = watch.setdefault(pair, {"reference_price": price, "reference_ts": int(now),
+                                         "last_session_id": session_id})
+        # Nouvelle session Grok : rebaser la reference, meme en l'absence de
+        # trade. Un heartbeat sera aussi traite par le workflow.
+        if session_id and entry.get("last_session_id") != session_id:
+            entry.update(reference_price=price, reference_ts=int(now),
+                         last_session_id=session_id)
+            continue
+        ref = entry.get("reference_price")
+        if not isinstance(ref, (int, float)) or not math.isfinite(ref) or ref <= 0:
+            entry.update(reference_price=price, reference_ts=int(now))
+            continue
+        change = (price / ref - 1)
+        if abs(change) + EPS < threshold:
+            continue
+        if int(now) - int(entry.get("last_wakeup_ts", -10**12)) < cooldown:
+            continue
+        entry.update(reference_price=price, reference_ts=int(now),
+                     last_wakeup_ts=int(now))
+        notifications.append({"type": "price_move", "crypto": base, "pair": pair,
+                              "change_pct": round(change * 100, 4), "price": price})
+    return notifications
+
+
 def snapshot(state, market, now):
     errors = []
     pairs = sorted(set(state["positions"]) | {BENCH} | {o["pair"] for o in state["open_orders"]})
@@ -967,6 +1013,8 @@ def run_cycle(state, decisions, market, now, notifier=None):
     state["last_cycle"] = iso(now)
     state["last_cycle_ts"] = int(now)
     state["last_cycle_errors"] = errors
+    for alert in price_move_alerts(state, now):
+        events.append(alert)
     if notifier:
         for tr in fills:
             notifier.send(fill_message(tr))
