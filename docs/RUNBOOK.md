@@ -1,14 +1,10 @@
-## Recette dashboard 0.4.0
-- Vérifier jauges 6/8 %, gain hebdomadaire sans perte affichée, historique insuffisant, alertes stop supérieur à un achat et point mort suspendu.
-- Contrôler niveaux hérités, changement de paire, zoom, survol, streaming, mobile 320/390 px ; aucune allocation 40/25/35.
-- Vérifier versions réelles, CI, revue Grok ; déploiement préprod uniquement, production sous GO explicite.
-
-## Recette moteur 0.2.1 — 24/11/2026
-1. Exécuter les tests Python/Node offline sur integration/engine-0.2.1 et vérifier guard-state et quality-gates.
-2. Contrôler le point mort différé/réarmé, la fusion et les avertissements de couverture, la conservation des stops/TP existants.
-3. Simuler une nouvelle session heartbeat via decisions/ (fixture uniquement), un réveil immédiat après réinitialisation, et le contournement du délai au double seuil. Webhook mocké, jamais de notification réelle pendant les tests.
-4. Aucun cycle moteur sur main pour la recette. Le dashboard préprod lit l'état live ; la version moteur affichée doit rester celle de l'état réellement produit.
-5. Revue Grok et GO explicite avant production. Les compartiments relèvent de 0.2.2, hors recette 0.2.1.
+## Recette PR 05 — risque et allocation (24/11/2026)
+1. Contrôler risque brut/net avec stop, TP et ordres d'achat, frais et glissement ; éviter les doubles réservations.
+2. Stop ou prix absent : afficher une indisponibilité, pas une fausse certitude de risque faible.
+3. Comparer 7 jours aux points historiques réels ; sans point de référence, afficher historique insuffisant.
+4. Vérifier cibles 40/25/35 et écart uniquement quand compartment explicite sur tous les postes concernés.
+5. Desktop/mobile (320/390/768/1440), focus ARIA, actualisation live et valeurs non animées artificiellement.
+6. Tests Python et Node, CI, revue Grok Bot, aucune modification de state/, decisions/ ou main.
 
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,

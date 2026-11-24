@@ -1,16 +1,9 @@
-## Dashboard 0.4.0 — revue Grok du 24/11
-- Branche integration/dashboard-0.4.0 basée sur intégration moteur 0.2.1 ; #79 puis jauges #80 sans code moteur spécifique.
-- VERSION=0.4.0 ; affichage du moteur selon état live, pas selon la branche.
-- stopRisk : perte potentielle depuis le cours courant, frais et glissement ; couverture manquante signalée, seuils 6/8 %, historique réel 7 j.
-- Compartiments reportés à 0.2.2, pas d'allocation automatique. Recette et revue avant promotion.
-
-## Intégration moteur 0.2.1 — revue Grok Bot du 24/11/2026
-- Branche `integration/engine-0.2.1` depuis preprod : #76, #75, #77, #78. `ENGINE_VERSION=0.2.1`.
-- Tests offline : point mort, fusion, réveil par prix, webhook ; CI et revue avant promotion.
-- Heartbeat via decisions/, session réinitialisant le délai, double seuil contournant le délai.
-- Dashboard 0.4.0 séparé ; #80 ne livre aucun code moteur ni compartiment. #81 ancienne recette mixte non applicable.
-- 0.2.2 : un groupe par paire et compartiment, jamais de fusion short/medium, stops et TP propres. Aucun classement implicite.
-- Aucun état vivant modifié, pas de production sans GO explicite.
+## PR 05 — jauges risque et allocation (24/11/2026)
+- Branche feature/dashboard-040-risk-allocation depuis preprod.
+- site/app.js : remplissage et libellés ARIA des jauges ; site/lib.js : allocationTargets, catégorie explicite obligatoire.
+- site/index.html et style.css : trois indicateurs compacts ; aucun changement moteur/state/decisions.
+- Tests tests/site/risk-allocation.test.js ; revue de la cohérence des frais/risques, CI et recette mobile avant fusion.
+- Risque si stop absent : non chiffrable ; catégorie moyen/court terme absente : inconnue, pas de classement imaginé.
 
 ## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
 - Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
