@@ -61,9 +61,9 @@ def notify_cycle(journal_path, offset, url, key):
                 if item.get("type") in ("exit_merge_skipped", "unprotected_qty", "breakeven_rearmed"):
                     warnings.append(item)
                 if item.get("type") == "cross_compartment_conflict":
-                    key = (item.get("pair"), item.get("stop_order"), item.get("buy_order"))
-                    if key not in seen_conflicts:
-                        seen_conflicts.add(key)
+                    conflict_key = (item.get("pair"), item.get("stop_order"), item.get("buy_order"))
+                    if conflict_key not in seen_conflicts:
+                        seen_conflicts.add(conflict_key)
                         warnings.append(item)
                 if item.get("type") == "price_move":
                     alerts.append({k: item[k] for k in

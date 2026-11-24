@@ -227,9 +227,11 @@ def ensure_by_compartment(pos):
 
 def migrate_state(state):
     """Migration additive 0.2.2. Idempotente. Un moteur 0.2.1 ignore by_compartment.
-    Si l'agrégat et by_compartment divergent, l'agrégat fait foi : l'écart va en medium
-    et un warning compartment_resync est émis."""
-    warnings = state.setdefault("_migration_warnings", [])
+    Si l'agrégat et by_compartment divergent, l'agrégat fait foi.
+    Écart positif : ajouté en medium, PRU medium recalculé depuis l'agrégat.
+    Écart négatif : retiré d'abord de medium, puis de short.
+    Les warnings sont retournés pour être émis comme événements de cycle."""
+    warnings = []
     for pair, pos in list(state.get("positions", {}).items()):
         if not isinstance(pos, dict):
             continue
@@ -238,12 +240,31 @@ def migrate_state(state):
         total = sum(float(c.get("qty", 0)) for c in bc.values())
         agg = float(pos.get("qty", 0))
         if abs(total - agg) > EPS:
-            # Agrégat fait foi. L'écart va en medium.
-            medium = bc.setdefault("medium", {"qty": 0.0, "avg_cost": pos.get("avg_cost", 0.0), "fees_paid": 0.0})
             delta = agg - total
-            medium["qty"] = round(medium.get("qty", 0) + delta, 8)
-            if medium["qty"] <= EPS:
-                bc.pop("medium", None)
+            if delta > 0:
+                medium = bc.setdefault("medium", {"qty": 0.0, "avg_cost": 0.0, "fees_paid": 0.0})
+                old_qty = medium.get("qty", 0.0)
+                medium["qty"] = round(old_qty + delta, 8)
+                # Recalcule le PRU medium pour que le coût total reste cohérent avec l'agrégat
+                if medium["qty"] > EPS:
+                    remaining_cost = agg * pos.get("avg_cost", 0.0) - sum(
+                        c.get("qty", 0) * c.get("avg_cost", 0)
+                        for name, c in bc.items() if name != "medium" and c.get("qty", 0) > EPS)
+                    medium["avg_cost"] = remaining_cost / medium["qty"] if medium["qty"] > EPS else 0.0
+            else:
+                # Écart négatif : retire d'abord de medium, puis de short
+                to_remove = -delta
+                for cname in ("medium", "short"):
+                    if to_remove <= EPS:
+                        break
+                    c = bc.get(cname)
+                    if not c or c.get("qty", 0) <= EPS:
+                        continue
+                    take = min(c["qty"], to_remove)
+                    c["qty"] = round(c["qty"] - take, 8)
+                    to_remove -= take
+                    if c["qty"] <= EPS:
+                        bc.pop(cname, None)
             warnings.append({"type": "compartment_resync", "pair": pair,
                              "aggregate": agg, "sum_compartments": total, "delta": delta})
         # Nettoie les compartiments vides
@@ -256,7 +277,7 @@ def migrate_state(state):
     for tr in state.get("closed_trades", []):
         if "compartment" not in tr:
             tr["compartment"] = "medium"
-    return state
+    return warnings
 
 
 def available_cash(state):
@@ -321,15 +342,15 @@ def execute_fill(state, pair, side, qty, price, liquidity, reason, ts, order_id=
     gross = qty * price
     fee = money(gross * rate)
     is_new = pair not in state["positions"]
+    if is_new and side == "sell":
+        raise Rejected(f"aucune position {pair} à vendre")
     pos = state["positions"].setdefault(pair, {"base": meta["base"], "qty": 0.0,
                                                 "avg_cost": 0.0, "fees_paid": 0.0})
     if is_new:
-        # Premier achat : crée uniquement le compartiment concerné, pas de medium fantôme.
         pos["by_compartment"] = {}
     else:
         ensure_by_compartment(pos)
     bc = pos["by_compartment"]
-    # Contrôle de qty avant de créer un compartiment vide pour une vente
     if side == "sell":
         existing = bc.get(compartment, {}).get("qty", 0.0)
         if qty > existing + EPS:
@@ -1341,8 +1362,10 @@ def cross_compartment_warnings(state):
 
 
 def run_cycle(state, decisions, market, now, notifier=None):
-    migrate_state(state)
+    migration_warnings = migrate_state(state)
     events, fills, errors = [], [], []
+    for w in migration_warnings:
+        events.append(w)
     e, f, err = apply_decisions(state, decisions, market, now)
     events += e; fills += f; errors += err
     e, f, err = replay_candles(state, market, now)
@@ -1356,8 +1379,15 @@ def run_cycle(state, decisions, market, now, notifier=None):
     session = latest_grok_session_id(decisions, state, now)
     for alert in price_move_alerts(state, now, session_id=session):
         events.append(alert)
+    # Dédoublonnage des conflits entre cycles
+    previous = set(tuple(x) for x in state.get("signaled_conflicts", []))
+    current = []
     for w in cross_compartment_warnings(state):
-        events.append(w)
+        key = (w["pair"], w["stop_order"], w["buy_order"])
+        current.append(key)
+        if key not in previous:
+            events.append(w)
+    state["signaled_conflicts"] = current
     if notifier:
         for tr in fills:
             notifier.send(fill_message(tr))
@@ -1396,7 +1426,7 @@ def main():
     if os.path.exists(PORTFOLIO):
         with open(PORTFOLIO, encoding="utf-8") as f:
             state = json.load(f)
-        migrate_state(state)
+        migration_warnings = migrate_state(state)
         first = False
     else:
         state = new_state(now)

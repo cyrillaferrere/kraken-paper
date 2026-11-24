@@ -1,8 +1,8 @@
 ## Moteur 0.2.2 — compartiments (24/11/2026)
 - Branche `feature/engine-022-compartments` depuis preprod. `ENGINE_VERSION=0.2.2`.
-- Positions : agrégat par paire conservé ; `by_compartment` pour PRU et frais medium/short. Migration additive idempotente. Un moteur 0.2.1 ignore le champ.
-- Groupe de sorties par paire et par compartiment. Jamais de fusion short dans medium. Vente limitée à la qty du compartiment.
-- TP bloqués dans la bougie 5 min de l'achat ; stop actif. Warning `cross_compartment_conflict` non bloquant.
+- Positions : agrégat par paire conservé ; `by_compartment` pour PRU et frais medium/short. Migration : agrégat fait foi, écart négatif retiré de medium puis short, resync en événement.
+- Groupe de sorties par paire et par compartiment. Jamais de fusion short dans medium. Vente limitée à la qty du compartiment. Point mort sur PRU du compartiment.
+- TP bloqués dans la bougie 5 min de l'achat ; stop actif. Conflits dédoublonnés entre cycles. Webhook porte compartment sans écraser la clé.
 - Tests : `tests/test_engine_v022_compartments.py`. Pas de prod sans GO de Cyril.
 
 ## Dashboard 0.4.0 — revue Grok du 24/11

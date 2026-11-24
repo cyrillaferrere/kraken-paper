@@ -110,11 +110,10 @@ class CompartmentTests(unittest.TestCase):
             "type": "place_limit", "pair": PAIR, "side": "buy", "qty": .01,
             "price": 60000, "compartment": "medium",
         })], FakeMarket(last=65000), T0 - 10)
-        run.run_cycle(self.state, [decision("sh", {
+        events, _, _ = run.run_cycle(self.state, [decision("sh", {
             "type": "market_buy", "pair": PAIR, "qty": .005,
             "stop_loss": 62000, "take_profit": 70000, "compartment": "short",
         })], FakeMarket(last=65000), T0)
-        events, _, _ = run.run_cycle(self.state, [], FakeMarket(), T0 + 60)
         warnings = [e for e in events if e.get("type") == "cross_compartment_conflict"]
         self.assertTrue(warnings)
         self.assertEqual(warnings[0]["pair"], PAIR)
@@ -208,9 +207,51 @@ class CompartmentTests(unittest.TestCase):
             "stop_loss": 64000, "take_profit": 70000, "compartment": "short",
         })], FakeMarket(last=65000), T0 - 10)
         self.assertEqual(self.state["closed_trades"][0]["compartment"], "short")
-        run.run_cycle(self.state, [decision("medbuy", {
+        events, _, _ = run.run_cycle(self.state, [decision("medbuy", {
             "type": "place_limit", "pair": PAIR, "side": "buy", "qty": .01,
             "price": 60000, "compartment": "medium",
         })], FakeMarket(last=65000), T0)
-        events, _, _ = run.run_cycle(self.state, [], FakeMarket(), T0 + 60)
         self.assertTrue(any(e.get("type") == "cross_compartment_conflict" for e in events))
+
+    def test_negative_delta_removes_from_medium_then_short(self):
+        # medium 0.005, short 0.02, vente 0.2.1 de 0.01 → agrégat 0.015
+        self.state["positions"][PAIR] = {
+            "base": "XBT", "qty": 0.015, "avg_cost": 65000, "fees_paid": 0,
+            "by_compartment": {
+                "medium": {"qty": 0.005, "avg_cost": 64000, "fees_paid": 0},
+                "short": {"qty": 0.020, "avg_cost": 66000, "fees_paid": 0},
+            }
+        }
+        run.migrate_state(self.state)
+        pos = self.state["positions"][PAIR]
+        self.assertAlmostEqual(pos["qty"], 0.015)
+        self.assertNotIn("medium", pos["by_compartment"])
+        self.assertAlmostEqual(pos["by_compartment"]["short"]["qty"], 0.015)
+
+    def test_notify_cycle_preserves_webhook_key(self):
+        import tempfile, os, json
+        from scripts.notify_grokbot import notify_cycle
+        with tempfile.TemporaryDirectory() as d:
+            journal = os.path.join(d, "j.jsonl")
+            with open(journal, "w") as f:
+                f.write(json.dumps({"type": "cross_compartment_conflict",
+                                    "pair": PAIR, "stop_order": "O1", "buy_order": "O2"}) + "\n")
+            class FakeResp:
+                def __enter__(self): return self
+                def __exit__(self, *a): pass
+            captured = {}
+            def fake_urlopen(req, timeout=None):
+                captured["auth"] = req.headers.get("Authorization")
+                captured["data"] = req.data
+                return FakeResp()
+            import urllib.request
+            original = urllib.request.urlopen
+            urllib.request.urlopen = fake_urlopen
+            try:
+                status = notify_cycle(journal, 0, "http://example.com", "secret-key")
+            finally:
+                urllib.request.urlopen = original
+            self.assertEqual(status, "webhook envoyé")
+            self.assertEqual(captured["auth"], "Bearer secret-key")
+            body = json.loads(captured["data"])
+            self.assertEqual(len(body["warnings"]), 1)
