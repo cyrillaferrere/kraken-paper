@@ -37,7 +37,7 @@ API = "https://api.kraken.com/0/public/"
 QUOTE = "USDC"
 BENCH = "XBTUSDC"
 START_CAPITAL = 6606.42
-ENGINE_VERSION = "0.2.0"
+ENGINE_VERSION = "0.2.1"
 LIMIT_PENETRATION = 0.0005  # hypothese PAPER, pas une regle Kraken
 FEE_TIERS = ((0,.004,.008),(2500,.003,.006),(10000,.0022,.0038),(25000,.002,.0035),
              (50000,.0015,.003),(100000,.0012,.0025),(250000,.001,.0022),
@@ -190,6 +190,7 @@ def new_state(now):
         "pairs": {},
         "last_candle": {},
         "last_prices": {},
+        "price_move_watch": {},
         "benchmark": {"pair": BENCH, "btc_qty": None, "start_price": None},
         "fees_total": 0.0,
         "realized_pnl": 0.0,
@@ -345,6 +346,80 @@ def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
     state["open_orders"].append(o)
     return o
 
+def audit_buy_protection(state, pair, trade):
+    held = state["positions"].get(pair, {}).get("qty", 0)
+    covered = sum(o["qty"] for o in state["open_orders"]
+                  if o["pair"] == pair and o["side"] == "sell" and o.get("stop_loss"))
+    if covered + EPS < held:
+        trade["unprotected_qty"] = {"held": held, "covered": covered,
+                                    "qty": held - covered}
+
+
+def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
+                         take_profit=None, take_profits=None,
+                         breakeven_after_tp1=False, trade=None):
+    """Integre un achat a l'unique bracket existant, sans doubler la reservation.
+
+    Les niveaux existants font autorite. Une sortie sans niveaux preexistants
+    n'est creee que si le nouvel achat demande une protection. Les ventes
+    independantes restent hors du groupe.
+    """
+    meta = state["pairs"][pair]
+    exits = [o for o in state["open_orders"]
+             if o["pair"] == pair and o["side"] == "sell" and o.get("parent")]
+    if not exits:
+        # Aucun groupe ne preexistait : une nouvelle protection ne reserve
+        # que la nouvelle acquisition, meme si d'anciens avoirs sont nus.
+        return attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
+                           take_profits=take_profits,
+                           breakeven_after_tp1=breakeven_after_tp1,
+                           entry_price=state["positions"][pair]["avg_cost"])
+    def fallback(reason):
+        if trade is not None:
+            trade["exit_merge_skipped"] = {"reason": reason, "qty": qty}
+        free = max(0.0, available_qty(state, pair))
+        safe_qty = floor_dec(min(qty, free), meta["lot_decimals"])
+        stops = [o["stop_loss"] for o in exits if o.get("stop_loss")]
+        stop = stop_loss or (min(stops) if stops else None)
+        if safe_qty <= EPS or safe_qty + EPS < meta["ordermin"] or not stop:
+            return None
+        # Une protection stop seule évite un palier invalide et ne double pas les réservations.
+        return attach_exit(state, pair, safe_qty, stop, None, ts, parent)
+
+    if len(exits) != 1:
+        return fallback("multiple_groups")
+    old = exits[0]
+    free = max(0.0, available_qty(state, pair))
+    if free + EPS < qty:
+        return fallback("reservation_conflict")
+    addition = round(qty, meta["lot_decimals"])
+    total = round(old["qty"] + addition, meta["lot_decimals"])
+    # Aucune nouvelle protection n'est inventee si le groupe a deja un stop
+    # ou des TP; la structure existante conserve sa priorite.
+    if "take_profits" in old:
+        remaining = old["take_profits"]
+        target = round(total, meta["lot_decimals"])
+        if remaining:
+            previous = sum(tier["qty"] for tier in remaining)
+            if previous <= EPS:
+                return fallback("tier_below_min")
+            revised = [dict(tier) for tier in remaining]
+            for tier in revised[:-1]:
+                tier["qty"] = floor_dec(target * tier["qty"] / previous, meta["lot_decimals"])
+            revised[-1]["qty"] = round(target - sum(t["qty"] for t in revised[:-1]),
+                                        meta["lot_decimals"])
+            for tier in revised:
+                if (tier["qty"] + EPS < meta["ordermin"]
+                        or tier["qty"] * tier["price"] + EPS < meta["costmin"]):
+                    return fallback("tier_below_min")
+            old["take_profits"] = revised
+        # Stop et niveaux, TP deja touches et pending_exits restent intacts.
+        old["entry_price"] = state["positions"][pair]["avg_cost"]
+    if old.get("pending_exits"):
+        old["pending_exits"]["entry_price"] = state["positions"][pair]["avg_cost"]
+    old["qty"] = total
+    return old
+
 
 def _m5_bars(market, pair, hour_start):
     """Bougies 5 min de l'heure [hour_start, hour_start+HOUR), ou None si indisponibles / incomplètes.
@@ -422,6 +497,9 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
             if rejects is not None:
                 rejects.append({"type": "cancel", "order_id": order["id"], "pair": pair,
                                 "reason": f"annule par le moteur : {e}"})
+    rearmed = rearm_deferred_breakeven(state, pair, close)
+    if rejects is not None:
+        rejects.extend(rearmed)
     state["last_prices"][pair] = close
     if m5_override is not None:
         state.setdefault("last_m5", {})[pair] = t
@@ -448,11 +526,23 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
             tr["time_source"] = source
             state["open_orders"].remove(order)
             fills.append(tr)
-            attach_exit(state, pair, order["qty"], order.get("stop_loss"),
-                        order.get("take_profit"), ts, order["id"],
-                        take_profits=order.get("take_profits"),
-                        breakeven_after_tp1=order.get("breakeven_after_tp1", False),
-                        entry_price=state["positions"][pair]["avg_cost"])
+            previous = [o for o in state["open_orders"] if o["pair"] == pair
+                        and o["side"] == "sell" and o.get("parent")]
+            old_id = previous[0]["id"] if len(previous) == 1 else None
+            previous_qty = previous[0]["qty"] if old_id else None
+            merged = merge_purchase_exits(state, pair, order["qty"], ts, order["id"],
+                                          stop_loss=order.get("stop_loss"),
+                                          take_profit=order.get("take_profit"),
+                                          take_profits=order.get("take_profits"),
+                                          breakeven_after_tp1=order.get("breakeven_after_tp1", False), trade=tr)
+            if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
+                tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
+                                    "new_qty": merged["qty"], "added_qty": order["qty"],
+                                    "stop_loss": merged.get("stop_loss"),
+                                    "ignored_stop_loss": order.get("stop_loss"),
+                                    "ignored_take_profits": order.get("take_profits") or order.get("take_profit"),
+                                    "new_entry_price": state["positions"][pair]["avg_cost"]}
+            audit_buy_protection(state, pair, tr)
         return
 
     if "take_profits" in order:
@@ -503,6 +593,31 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
     fills.append(tr)
 
 
+def breakeven_net(state, pair, pru):
+    return round(pru * (1 + state["fees"]["taker"] + 0.002),
+                 state["pairs"][pair]["pair_decimals"])
+
+
+def rearm_deferred_breakeven(state, pair, close):
+    events = []
+    pru = state["positions"].get(pair, {}).get("avg_cost")
+    if not pru or any(o["pair"] == pair and o["side"] == "buy" and o["price"] < pru
+                      for o in state["open_orders"]):
+        return events
+    net = breakeven_net(state, pair, pru)
+    if close < net * 1.005:
+        return events
+    for order in state["open_orders"]:
+        if (order["pair"] != pair or not order.get("breakeven_deferred")
+                or order.get("tp_filled", 0) < 1 or order.get("stop_loss") is None):
+            continue
+        order["stop_loss"] = max(order["stop_loss"], net)
+        order.pop("breakeven_deferred")
+        events.append({"type": "breakeven_rearmed", "pair": pair,
+                       "order_id": order["id"], "stop": order["stop_loss"], "pru": pru})
+    return events
+
+
 def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hour_open=None):
     """Exécute les niveaux dans l'ordre des 5 min ; stop prioritaire à égalité."""
     meta = state["pairs"][pair]
@@ -532,7 +647,18 @@ def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hou
             order["qty"] = round(order["qty"] - qty, meta["lot_decimals"])
             order["tp_filled"] = tr["tp_index"]
             if tr["tp_index"] == 1 and order.get("breakeven_after_tp1") and stop is not None:
-                order["stop_loss"] = max(stop, order["entry_price"])
+                pru = state["positions"].get(pair, {}).get("avg_cost", order["entry_price"])
+                pending_buys = [o["id"] for o in state["open_orders"]
+                                if o["pair"] == pair and o["side"] == "buy"
+                                and o["price"] < pru]
+                if pending_buys:
+                    order["breakeven_deferred"] = {"since": ts, "pru": pru, "order_ids": pending_buys}
+                    tr["breakeven_skipped"] = {"reason": "pending_buy_below_pru",
+                                               "order_ids": pending_buys,
+                                               "pru": pru, "stop_loss": stop}
+                else:
+                    order["stop_loss"] = max(stop, breakeven_net(state, pair, pru))
+                    order.pop("breakeven_deferred", None)
             if order["qty"] <= EPS:
                 state["open_orders"].remove(order)
                 return
@@ -747,10 +873,21 @@ def apply_action(state, a, ctx, now, decision_id):
     levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
     tr = execute_fill(state, pair, side, qty, price, "taker", "market", now)
     if side == "buy":
-        attach_exit(state, pair, qty, sl, tp, now, tr["id"],
-                    take_profits=levels if levels else None,
-                    breakeven_after_tp1=a.get("breakeven_after_tp1", False),
-                    entry_price=state["positions"][pair]["avg_cost"])
+        previous = [o for o in state["open_orders"] if o["pair"] == pair
+                    and o["side"] == "sell" and o.get("parent")]
+        old_id = previous[0]["id"] if len(previous) == 1 else None
+        previous_qty = previous[0]["qty"] if old_id else None
+        merged = merge_purchase_exits(state, pair, qty, now, tr["id"],
+                                      stop_loss=sl, take_profit=tp,
+                                      take_profits=levels if levels else None,
+                                      breakeven_after_tp1=a.get("breakeven_after_tp1", False), trade=tr)
+        if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
+            tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
+                                "new_qty": merged["qty"], "added_qty": qty,
+                                "stop_loss": merged.get("stop_loss"),
+                                "ignored_stop_loss": sl, "ignored_take_profits": a.get("take_profits") or tp,
+                                "new_entry_price": state["positions"][pair]["avg_cost"]}
+        audit_buy_protection(state, pair, tr)
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 
@@ -893,6 +1030,87 @@ def replay_candles(state, market, now):
     return events, fills, errors
 
 
+def latest_grok_session_id(decisions, state, now):
+    """Derniere session valide, y compris heartbeat, sans changer apply_decisions."""
+    selected = None
+    for item in decisions:
+        if not isinstance(item, dict) or not item.get("id"):
+            continue
+        if item.get("type") == "heartbeat":
+            if item.get("actions") != [] or not str(item.get("note", "")).strip():
+                continue
+        elif item["id"] not in state.get("processed_decisions", []):
+            continue
+        stamp = item.get("timestamp")
+        try:
+            dt = datetime.fromisoformat(stamp)
+            if dt.tzinfo is None or dt.utcoffset() is None:
+                continue
+            ts = dt.timestamp()
+        except (TypeError, ValueError):
+            continue
+        if ts > now:
+            continue
+        if selected is None or ts > selected[0]:
+            selected = (ts, item["id"])
+    if selected:
+        return selected[1]
+    return (state.get("last_decision") or {}).get("id")
+
+
+PRICE_MOVE_THRESHOLDS = {"BTC": 0.05, "ETH": 0.05, "other": 0.07}
+
+
+def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR,
+                      session_id=None):
+    """Prepare des reveils a partir des derniers cours connus, sans reseau.
+
+    L'etat est sauvegarde avant l'envoi du webhook par le workflow. Un
+    heartbeat de Grok ou une decision constitue une nouvelle session.
+    """
+    thresholds = thresholds or PRICE_MOVE_THRESHOLDS
+    watch = state.setdefault("price_move_watch", {})
+    followed = set(state["positions"]) | {o["pair"] for o in state["open_orders"]
+                                          if o.get("side") == "buy"}
+    for pair in set(watch) - followed:
+        del watch[pair]
+    if session_id is None:
+        session_id = (state.get("last_decision") or {}).get("id")
+    notifications = []
+    for pair in sorted(followed):
+        price = state.get("last_prices", {}).get(pair)
+        if not isinstance(price, (int, float)) or not math.isfinite(price) or price <= 0:
+            continue
+        meta = state.get("pairs", {}).get(pair, {})
+        base = meta.get("base", pair.removesuffix("USDC"))
+        threshold = thresholds.get(base, thresholds["other"])
+        if not isinstance(threshold, (int, float)) or not 0 < threshold < 1:
+            continue
+        entry = watch.setdefault(pair, {"reference_price": price, "reference_ts": int(now),
+                                         "last_session_id": session_id})
+        # Nouvelle session Grok : rebaser la reference, meme en l'absence de
+        # trade. Un heartbeat sera aussi traite par le workflow.
+        if session_id and entry.get("last_session_id") != session_id:
+            entry.pop("last_wakeup_ts", None)
+            entry.update(reference_price=price, reference_ts=int(now),
+                         last_session_id=session_id)
+            continue
+        ref = entry.get("reference_price")
+        if not isinstance(ref, (int, float)) or not math.isfinite(ref) or ref <= 0:
+            entry.update(reference_price=price, reference_ts=int(now))
+            continue
+        change = (price / ref - 1)
+        if abs(change) + EPS < threshold:
+            continue
+        if abs(change) + EPS < 2 * threshold and int(now) - int(entry.get("last_wakeup_ts", -10**12)) < cooldown:
+            continue
+        entry.update(reference_price=price, reference_ts=int(now),
+                     last_wakeup_ts=int(now))
+        notifications.append({"type": "price_move", "crypto": base, "pair": pair,
+                              "change_pct": round(change * 100, 4), "price": price})
+    return notifications
+
+
 def snapshot(state, market, now):
     errors = []
     pairs = sorted(set(state["positions"]) | {BENCH} | {o["pair"] for o in state["open_orders"]})
@@ -967,9 +1185,28 @@ def run_cycle(state, decisions, market, now, notifier=None):
     state["last_cycle"] = iso(now)
     state["last_cycle_ts"] = int(now)
     state["last_cycle_errors"] = errors
+    session = latest_grok_session_id(decisions, state, now)
+    for alert in price_move_alerts(state, now, session_id=session):
+        events.append(alert)
     if notifier:
         for tr in fills:
             notifier.send(fill_message(tr))
+    # Audit explicite des fusions réussies. Ne journaliser aucun groupe
+    # supposé fusionné si un ancien état incohérent a bloqué la fusion.
+    merged_events = []
+    for ev in events:
+        trade = ev.get("trade") if ev.get("type") == "fill" else None
+        if trade and trade.get("unprotected_qty"):
+            merged_events.append({"type": "unprotected_qty", "pair": trade["pair"],
+                                  "trade_id": trade["id"], **trade["unprotected_qty"]})
+        if trade and trade.get("exit_merge_skipped"):
+            merged_events.append({"type": "exit_merge_skipped", "pair": trade["pair"],
+                                  "trade_id": trade["id"], **trade["exit_merge_skipped"]})
+        if trade and trade.get("exit_merge"):
+            merged_events.append({"type": "exit_groups_merged",
+                                  "pair": trade["pair"], "trade_id": trade["id"],
+                                  **trade["exit_merge"]})
+    events.extend(merged_events)
     for ev in events:
         ev["engine_version"] = ENGINE_VERSION
     return events, row, errors

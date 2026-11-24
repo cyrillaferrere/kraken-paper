@@ -1,3 +1,10 @@
+## Recette moteur 0.2.1 — 24/11/2026
+1. Exécuter les tests Python/Node offline sur integration/engine-0.2.1 et vérifier guard-state et quality-gates.
+2. Contrôler le point mort différé/réarmé, la fusion et les avertissements de couverture, la conservation des stops/TP existants.
+3. Simuler une nouvelle session heartbeat via decisions/ (fixture uniquement), un réveil immédiat après réinitialisation, et le contournement du délai au double seuil. Webhook mocké, jamais de notification réelle pendant les tests.
+4. Aucun cycle moteur sur main pour la recette. Le dashboard préprod lit l'état live ; la version moteur affichée doit rester celle de l'état réellement produit.
+5. Revue Grok et GO explicite avant production. Les compartiments relèvent de 0.2.2, hors recette 0.2.1.
+
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
    aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.
