@@ -610,3 +610,15 @@ html { scroll-behavior: smooth; }
   #b-versions { order: -2; width: 100%; flex-wrap: nowrap; font-size: 12px; }
   #b-fee-tier { order: -1; width: 100%; font-size: 11px; }
 }
+
+
+/* Trois jauges compactes, sans interpolation de valeurs financieres. */
+.risk-gauges { display:grid; gap:11px; min-width:0; padding:10px 0; }
+.risk-gauge { display:grid; gap:5px; min-width:0; }
+.risk-gauge>div:first-child { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.risk-gauge strong,.risk-allocation>strong { font-size:12px; font-weight:650; }
+.risk-gauge span,.risk-gauge small,.risk-allocation>div { font-size:12px; color:var(--mu); line-height:1.45; }
+.gauge-track { height:7px; border-radius:99px; overflow:hidden; background:var(--line); }
+.gauge-track>span { display:block; height:100%; width:0; background:#22d3ee; border-radius:inherit; }
+.gauge-track>span.gauge-exceeded { background:#f87171; }
+.risk-allocation { display:grid; gap:5px; border-top:1px solid var(--line); padding-top:10px; }

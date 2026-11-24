@@ -1,3 +1,7 @@
+## ADR-45 : jauges risque et allocation (24/11/2026)
+- Réutiliser les chiffres réels et seuils 8 %/−8 % ; calcul d allocation seulement sur classifications explicites.
+- Voir [ADR-45-RISK-ALLOCATION-GAUGES.md](ADR-45-RISK-ALLOCATION-GAUGES.md). Pas de trading automatisé.
+
 ## ADR-35 : moteur PAPER 0.2.0, exécutions 5 min et conditions de remplissage (18/11/2026)
 - Contexte : moteur 0.1 trop optimiste pour les limites et trop lent pour les stops.
 - Décision : implémentation documentée dans [ADR-35-ENGINE-EXECUTION.md](ADR-35-ENGINE-EXECUTION.md), toujours PAPER et sans réécrire les données anciennes.

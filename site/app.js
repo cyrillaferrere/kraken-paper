@@ -296,6 +296,40 @@ function flashLiveValue(el, value) {
     }
 
 
+    // Jauges : la valeur affichée reste exacte ; seule la largeur indique
+    // la proportion de la limite, sans interpolation des cours.
+    const setGauge = (id, value, limit, label) => {
+      const track = $(id + "-track"), fill = $(id + "-fill");
+      put(id + "-text", label);
+      const valid = value != null && Number.isFinite(value);
+      if (fill) fill.style.width = valid ? Math.max(0, Math.min(100, value / limit * 100)) + "%" : "0%";
+      if (track) {
+        if (valid) track.setAttribute("aria-valuenow", String(Math.max(0, Math.min(limit, value))));
+        else track.removeAttribute("aria-valuenow");
+        track.setAttribute("aria-valuetext", valid ? label : "Indisponible");
+      }
+      if (fill) {
+        fill.classList.toggle("gauge-exceeded", valid && value >= limit);
+        fill.classList.toggle("gauge-warning", valid && value >= 6 && value < limit);
+      }
+    };
+    const risk = window.KPLib?.stopRisk(S, price);
+    if (risk && !risk.missing && !risk.unprotected.length && !risk.buysNoStop) {
+      setGauge("g-risk", risk.riskPct * 100, 8, usdc(risk.risk) + " · " + pct(risk.riskPct) + " / 8 %");
+      put("g-risk-note", "Perte potentielle depuis le cours courant, frais et glissement inclus.");
+    } else {
+      setGauge("g-risk", null, 8, "Risque global non chiffrable");
+      put("g-risk-note", "Protections ou cours manquants : " + (risk?.unprotected || []).join(", ") +
+        " · " + (risk?.buysNoStop || 0) + " achat(s) sans stop effectif.");
+    }
+    const week = perfWindow(168);
+    // Une perte est positive sur la jauge, un gain correspond à zéro perte.
+    setGauge("g-week", week ? Math.max(0, -week.pct * 100) : null, 8,
+             week ? signed(week.pnl) + " USDC · " + pct(week.pct) : "Historique 7 j insuffisant");
+    put("g-week-note", week ? "Seuil de perte : −8 % sur 7 jours." :
+        "Aucune performance estimée sans référence historique à 7 jours.");
+    put("g-risk-warnings", (risk?.warnings || []).join(" · "));
+
     if (window.KPFocus) window.KPFocus.onPortfolio({ equity });
     if (window.KPV035) window.KPV035.onPortfolio({ equity, journal });
     if (liveOnly) {

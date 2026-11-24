@@ -1,3 +1,8 @@
+## [Unreleased] — dashboard v0.4.0, risque et allocation (24/11/2026)
+- Jauges de risque global 8 %, performance 7 jours / seuil −8 %, allocation 40/25/35.
+- Chiffres issus de l'exposition et de l'historique disponibles ; indicateur inconnu si protection ou classification absente.
+- Tests Node, ADR-45, calculs sans modification du moteur ou des données.
+
 ### Revue Grok Bot — correctifs PR #73 (18/11/2026)
 - Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
 - Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour

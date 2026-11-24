@@ -1,3 +1,11 @@
+## Recette PR 05 — risque et allocation (24/11/2026)
+1. Contrôler risque brut/net avec stop, TP et ordres d'achat, frais et glissement ; éviter les doubles réservations.
+2. Stop ou prix absent : afficher une indisponibilité, pas une fausse certitude de risque faible.
+3. Comparer 7 jours aux points historiques réels ; sans point de référence, afficher historique insuffisant.
+4. Vérifier cibles 40/25/35 et écart uniquement quand compartment explicite sur tous les postes concernés.
+5. Desktop/mobile (320/390/768/1440), focus ARIA, actualisation live et valeurs non animées artificiellement.
+6. Tests Python et Node, CI, revue Grok Bot, aucune modification de state/, decisions/ ou main.
+
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
    aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.
