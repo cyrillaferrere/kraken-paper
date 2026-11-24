@@ -412,8 +412,6 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
         if new:
             new["active_from"] = pending["active_from"]
             new["tp_filled"] = old.get("tp_filled", 0)
-            if old.get("compartment"):
-                new["compartment"] = old["compartment"]
     for order in list(state["open_orders"]):
         if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
             continue
@@ -424,7 +422,6 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
             if rejects is not None:
                 rejects.append({"type": "cancel", "order_id": order["id"], "pair": pair,
                                 "reason": f"annule par le moteur : {e}"})
-    refresh_compartment(state, pair)
     state["last_prices"][pair] = close
     if m5_override is not None:
         state.setdefault("last_m5", {})[pair] = t
@@ -451,14 +448,11 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
             tr["time_source"] = source
             state["open_orders"].remove(order)
             fills.append(tr)
-            group = attach_exit(state, pair, order["qty"], order.get("stop_loss"),
+            attach_exit(state, pair, order["qty"], order.get("stop_loss"),
                         order.get("take_profit"), ts, order["id"],
                         take_profits=order.get("take_profits"),
                         breakeven_after_tp1=order.get("breakeven_after_tp1", False),
                         entry_price=state["positions"][pair]["avg_cost"])
-            if group and order.get("compartment"):
-                group["compartment"] = order["compartment"]
-            refresh_compartment(state, pair)
         return
 
     if "take_profits" in order:
@@ -619,67 +613,15 @@ class Ctx:
         raise APIError("ticker: paire absente")
 
 
-def validate_compartment(value):
-    if value not in (None, "medium", "short"):
-        raise Rejected("compartment doit valoir medium ou short")
-    return value
-
-
-def refresh_compartment(state, pair):
-    """Expose uniquement une classification certaine; aucun classement implicite."""
-    pos = state["positions"].get(pair)
-    if not pos:
-        return
-    groups = [o for o in state["open_orders"] if o["pair"] == pair
-              and o["side"] == "sell" and o.get("parent")]
-    totals = {"medium": 0.0, "short": 0.0}
-    remaining = pos["qty"]
-    for group in groups:
-        qty = min(remaining, group["qty"])
-        parts = group.get("compartments")
-        if parts is not None:
-            unallocated = qty
-            for compartment in totals:
-                part = min(unallocated, max(0.0, parts.get(compartment, 0.0)))
-                totals[compartment] += part
-                unallocated -= part
-        elif group.get("compartment") in totals:
-            totals[group["compartment"]] += qty
-        remaining -= qty
-    pos["compartments"] = totals
-    pos["compartment"] = next((k for k, v in totals.items()
-                               if abs(v - pos["qty"]) <= EPS), None)
-
-
 def apply_action(state, a, ctx, now, decision_id):
     typ = a.get("type")
     if typ == "note":
         return {"type": "note", "text": a.get("text", "")}, []
-    if typ == "set_compartment":
-        compartment = validate_compartment(a.get("compartment"))
-        if compartment is None:
-            raise Rejected("compartment requis")
-        oid = a.get("order_id")
-        pair = ctx.meta(state, a["pair"])["altname"] if a.get("pair") else None
-        if bool(oid) == bool(pair):
-            raise Rejected("indiquer order_id ou pair, exclusivement")
-        matches = [o for o in state["open_orders"]
-                   if (o["id"] == oid if oid else o["pair"] == pair)
-                   and (o["side"] == "buy" or o.get("parent"))]
-        if not matches:
-            raise Rejected("aucun ordre classable")
-        for order in matches:
-            order["compartment"] = compartment
-            order.pop("compartments", None)
-            refresh_compartment(state, order["pair"])
-        return {"type": "compartment_updated", "order_ids": [o["id"] for o in matches],
-                "compartment": compartment}, []
     if typ == "cancel":
         oid = a.get("order_id") or a.get("id")
         for o in state["open_orders"]:
             if o["id"] == oid:
                 state["open_orders"].remove(o)
-                refresh_compartment(state, o["pair"])
                 return {"type": "cancel", "order_id": oid, "pair": o["pair"]}, []
         raise Rejected(f"ordre {oid} introuvable ou deja execute")
     if typ == "update_exits":
@@ -751,7 +693,6 @@ def apply_action(state, a, ctx, now, decision_id):
     if a.get("breakeven_after_tp1") is True and sl is None and (typ == "market_buy" or (typ == "place_limit" and a.get("side") == "buy")):
         raise Rejected("breakeven_after_tp1 exige stop_loss")
 
-    compartment = validate_compartment(a.get("compartment"))
     if typ == "place_limit":
         side = a.get("side")
         if side not in ("buy", "sell"):
@@ -788,8 +729,6 @@ def apply_action(state, a, ctx, now, decision_id):
         if levels:
             o["take_profits"] = levels
             o["breakeven_after_tp1"] = a.get("breakeven_after_tp1", False)
-        if side == "buy" and compartment:
-            o["compartment"] = compartment
         state["open_orders"].append(o)
         return {"type": "order_placed", "order": dict(o)}, []
 
@@ -808,13 +747,10 @@ def apply_action(state, a, ctx, now, decision_id):
     levels = normalize_take_profits(meta, a, price, qty) if side == "buy" else []
     tr = execute_fill(state, pair, side, qty, price, "taker", "market", now)
     if side == "buy":
-        group = attach_exit(state, pair, qty, sl, tp, now, tr["id"],
+        attach_exit(state, pair, qty, sl, tp, now, tr["id"],
                     take_profits=levels if levels else None,
                     breakeven_after_tp1=a.get("breakeven_after_tp1", False),
                     entry_price=state["positions"][pair]["avg_cost"])
-        if group and compartment:
-            group["compartment"] = compartment
-    refresh_compartment(state, pair)
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 
