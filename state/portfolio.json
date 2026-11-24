@@ -966,16 +966,16 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795474800,
-    "ETHUSDC": 1795474800,
-    "SOLUSDC": 1795474800,
-    "XRPUSDC": 1795474800
+    "XBTUSDC": 1795478400,
+    "ETHUSDC": 1795478400,
+    "SOLUSDC": 1795478400,
+    "XRPUSDC": 1795478400
   },
   "last_prices": {
-    "XBTUSDC": 61100.67,
-    "ETHUSDC": 1706.27,
-    "SOLUSDC": 71.81,
-    "XRPUSDC": 0.93819
+    "XBTUSDC": 61463.98,
+    "ETHUSDC": 1716.4,
+    "SOLUSDC": 72.37,
+    "XRPUSDC": 0.94647
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -989,8 +989,8 @@
     "order": 59,
     "trade": 32
   },
-  "last_cycle": "2026-11-24T01:09:18+01:00",
-  "last_cycle_ts": 1795478958,
+  "last_cycle": "2026-11-24T02:09:14+01:00",
+  "last_cycle_ts": 1795482554,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -998,10 +998,10 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795478400,
-    "SOLUSDC": 1795478400,
-    "XBTUSDC": 1795478400,
-    "XRPUSDC": 1795478400
+    "ETHUSDC": 1795482000,
+    "SOLUSDC": 1795482000,
+    "XBTUSDC": 1795482000,
+    "XRPUSDC": 1795482000
   },
   "engine_version": "0.2.0"
 }
