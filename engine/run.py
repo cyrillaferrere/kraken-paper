@@ -636,9 +636,15 @@ def refresh_compartment(state, pair):
     remaining = pos["qty"]
     for group in groups:
         qty = min(remaining, group["qty"])
-        compartment = group.get("compartment")
-        if compartment in totals:
-            totals[compartment] += qty
+        parts = group.get("compartments")
+        if parts is not None:
+            unallocated = qty
+            for compartment in totals:
+                part = min(unallocated, max(0.0, parts.get(compartment, 0.0)))
+                totals[compartment] += part
+                unallocated -= part
+        elif group.get("compartment") in totals:
+            totals[group["compartment"]] += qty
         remaining -= qty
     pos["compartments"] = totals
     pos["compartment"] = next((k for k, v in totals.items()
@@ -664,6 +670,7 @@ def apply_action(state, a, ctx, now, decision_id):
             raise Rejected("aucun ordre classable")
         for order in matches:
             order["compartment"] = compartment
+            order.pop("compartments", None)
             refresh_compartment(state, order["pair"])
         return {"type": "compartment_updated", "order_ids": [o["id"] for o in matches],
                 "compartment": compartment}, []
