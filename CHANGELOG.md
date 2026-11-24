@@ -1,3 +1,15 @@
+## [0.4.0] — dashboard (24/11/2026)
+- #79 : niveaux PAPER, stops et TP hérités, prévisualisation des achats, point mort suspendu.
+- #80 limitée à stopRisk, risque global et perte sur 7 jours ; vigilance 6 %, alerte 8 %, avertissements sur les stops et le point mort.
+- Compartiments et allocation 40/25/35 reportés à 0.2.2 ; aucun changement moteur propre au dashboard.
+
+## [Moteur 0.2.1] — moteur (24/11/2026)
+- #76 : actions GitHub compatibles Node 24, recette sur branches integration/**.
+- #75 : point mort net différé si achat sous PRU, réarmement lorsque les conditions sont réunies.
+- #77 : fusion des achats dans le groupe de sorties existant, audit des protections et replis.
+- #78 : alertes BTC/ETH 5 %, autres 7 %, délai 6 h par paire, nouvelle session réinitialisant le délai, double seuil prioritaire ; webhook versionné avec alertes et avertissements après push réussi.
+- Compartiments reportés au moteur 0.2.2 ; dashboard 0.4.0 séparé.
+
 ### Revue Grok Bot — correctifs PR #73 (18/11/2026)
 - Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
 - Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour

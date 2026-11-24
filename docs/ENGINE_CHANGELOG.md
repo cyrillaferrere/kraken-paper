@@ -1,5 +1,12 @@
 # Historique du moteur PAPER (independant du site)
 
+## 0.2.1 — candidat préproduction (24/11/2026)
+- Point mort net conditionnel et réarmement (#75, ADR-36).
+- Fusion des sorties et avertissements sur protection insuffisante (#77, ADR-42).
+- Réveil sur variation, heartbeat via decisions/, remise à zéro du délai à chaque session, dérogation au double seuil, webhook versionné après push (#78, ADR-43).
+- Aucun changement des compartiments : report à 0.2.2.
+
+
 ## 0.2.0 — en developpement (site 0.3.7)
 - Traitement des bougies 5 minutes cloturees a chaque passage, sans attendre la fin d'heure.
 - Repli explicite sur 1 h lorsque les 5 minutes manquent pour une heure cloturee : evenement execution_fallback.

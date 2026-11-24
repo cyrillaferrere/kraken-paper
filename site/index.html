@@ -84,6 +84,11 @@
         <div><span>Ordres ouverts</span><strong id="ov-order-count">—</strong></div>
         <div><span>Exposition totale</span><strong id="ov-exposure">—</strong></div>
       </div>
+      <section class="risk-gauges" aria-label="Seuils de risque">
+        <div class="risk-gauge"><div><strong>Risque global</strong><span id="g-risk-text">—</span></div><div id="g-risk-track" class="gauge-track" role="progressbar" aria-label="Risque global par rapport à la limite de 8 %" aria-valuemin="0" aria-valuemax="8"><span id="g-risk-fill"></span></div><small id="g-risk-note">Positions et achats en attente, stops inclus</small></div>
+        <div class="risk-gauge"><div><strong>Performance 7 jours</strong><span id="g-week-text">—</span></div><div id="g-week-track" class="gauge-track" role="progressbar" aria-label="Perte sur 7 jours par rapport à la limite de 8 %" aria-valuemin="0" aria-valuemax="8"><span id="g-week-fill"></span></div><small id="g-week-note">Historique disponible uniquement</small></div>
+        <p id="g-risk-warnings" class="gauge-warning-text" aria-live="polite"></p>
+      </section>
       <section class="risk-block" aria-label="Risque du portefeuille">
         <div class="section-eyebrow">RISQUE SI STOPS TOUCHÉS</div>
         <p id="exp-risk" class="exp-risk"></p>
@@ -134,6 +139,14 @@
     <div class="legend mkeys">
       <span class="lg ma20">MA20</span><span class="lg ma50">MA50</span><span class="lg vol">Volume</span><span class="lg rsi">RSI 14 (30 / 70)</span>
       <span class="key">▲ achat exécuté</span><span class="key">▼ vente exécutée</span><span class="key">┄ ordre, stop ou objectif</span>
+    </div>
+    <div class="crypto-level-legend" aria-label="Légende des niveaux du graphique">
+      <span class="crypto-legend-price">Cours (bougies)</span>
+      <span class="crypto-legend-pru">PRU</span>
+      <span class="crypto-legend-buy">Achat en attente</span>
+      <span class="crypto-legend-stop">Stop actif</span>
+      <span class="crypto-legend-tp">Objectifs TP</span>
+      <span class="crypto-legend-conditional">Conditionnel (inactif)</span>
     </div>
     <p id="moverlay-note" class="hint"></p>
     <p class="hint">Bougies réelles de l'API publique Kraken, la dernière est encore en cours. Heures de Paris. Rien n'est lissé ni interpolé.</p>

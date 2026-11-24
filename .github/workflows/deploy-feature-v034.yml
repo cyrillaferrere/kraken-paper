@@ -1,0 +1,63 @@
+name: deploy-feature-v034
+
+# Aperçu isolé de feature/v0.3.4 ; aucun déploiement production.
+on:
+  push:
+    branches:
+      - feature/v0.3.4
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kraken-paper-feature-v034-deploy
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    if: github.ref == 'refs/heads/feature/v0.3.4'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: preprod
+    steps:
+      - name: Checkout commit de la feature
+        uses: actions/checkout@v5
+        with:
+          ref: feature/v0.3.4
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verifier la branche et les droits de previsualisation
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/feature/v0.3.4"
+          test -n "$NETLIFY_AUTH_TOKEN" || { echo "::error::Jeton de preview absent"; exit 1; }
+      - name: Installer Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Publier uniquement l'alias feature
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          CI: 'true'
+        run: bash scripts/deploy.sh feature feature/v0.3.4
+      - name: Verifier le commit de l'aperçu
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(git rev-parse HEAD)"
+          url="https://feature-v0-3-4--kraken-paper.netlify.app/version.json"
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS --max-time 15 -H 'Cache-Control: no-cache' "$url?check=$GITHUB_RUN_ID-$i" -o /tmp/feature-version.json; then
+              if EXPECTED="$expected" python3 -c 'import json,os; v=json.load(open("/tmp/feature-version.json")); assert v["commit"] == os.environ["EXPECTED"] and v["env"] == "feature" and v["branch"] == "feature/v0.3.4"'; then
+                echo "Apercu feature verifie: ${expected:0:7}"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "::error::Apercu Netlify non verifie"
+          exit 1
