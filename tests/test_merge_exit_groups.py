@@ -82,6 +82,36 @@ class MergeExitGroupsTests(unittest.TestCase):
         self.assertAlmostEqual(audit[0]["added_qty"], .01)
         self.assertEqual(audit[0]["stop_loss"], 62000)
 
+    def test_multiple_groups_fallback_without_buy_stop(self):
+        old = self.state["open_orders"][0]
+        old["qty"] = .01
+        old["take_profits"] = [{"price": 72000, "fraction": 1, "qty": .01}]
+        run.attach_exit(self.state, PAIR, .01, 61000, None, T0, "historical")
+        events, _, _ = run.run_cycle(self.state, [decision("fallback", {
+            "type": "market_buy", "pair": PAIR, "qty": .01,
+        })], FakeMarket(last=65000), T0 + 60)
+        self.assertEqual(len(self.state["open_orders"]), 3)
+        self.assertEqual(self.state["open_orders"][-1]["stop_loss"], 61000)
+        self.assertAlmostEqual(run.available_qty(self.state, PAIR), 0)
+        self.assertTrue(any(e.get("type") == "exit_merge_skipped" and
+                            e.get("reason") == "multiple_groups" for e in events))
+
+    def test_unprotected_quantity_audit(self):
+        self.state["open_orders"].clear()
+        events, _, _ = run.run_cycle(self.state, [decision("bare", {
+            "type": "market_buy", "pair": PAIR, "qty": .01,
+        })], FakeMarket(last=65000), T0 + 60)
+        warnings = [e for e in events if e.get("type") == "unprotected_qty"]
+        self.assertEqual(len(warnings), 1)
+        self.assertAlmostEqual(warnings[0]["held"], .03)
+        self.assertEqual(warnings[0]["covered"], 0)
+
+    def test_merge_preserves_deferred_breakeven(self):
+        self.state["open_orders"][0]["breakeven_deferred"] = {"since": T0, "pru": 65000, "order_ids": ["pending"]}
+        self.buy_market("deferred", T0 + 60)
+        self.assertIn("breakeven_deferred", self.state["open_orders"][0])
+        self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
+
     def test_no_extra_exit_when_unprotected_buy(self):
         run.run_cycle(self.state, [decision("unprotected", {
             "type": "market_buy", "pair": PAIR, "qty": .01,
