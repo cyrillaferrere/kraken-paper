@@ -1,0 +1,7 @@
+{
+ "id": "heartbeat-20261124-0405",
+ "type": "heartbeat",
+ "timestamp": "2026-11-24T04:05:00+01:00",
+ "note": "Session vérifiée : aucun fill depuis 18h, repli vers BTC 60 000, ETH 1 686, SOL 70,8, XRP 0,942 sans plancher confirmé ni signal d'achat, ordres cohérents par crypto (stops sous les paliers en attente), aucune modification ; portefeuille environ 6 418 USDC contre environ 5 775 pour BTC gardé.",
+ "actions": []
+}
