@@ -1,3 +1,9 @@
+## Dashboard 0.4.0 — revue Grok du 24/11
+- Branche integration/dashboard-0.4.0 basée sur intégration moteur 0.2.1 ; #79 puis jauges #80 sans code moteur spécifique.
+- VERSION=0.4.0 ; affichage du moteur selon état live, pas selon la branche.
+- stopRisk : perte potentielle depuis le cours courant, frais et glissement ; couverture manquante signalée, seuils 6/8 %, historique réel 7 j.
+- Compartiments reportés à 0.2.2, pas d'allocation automatique. Recette et revue avant promotion.
+
 ## Intégration moteur 0.2.1 — revue Grok Bot du 24/11/2026
 - Branche `integration/engine-0.2.1` depuis preprod : #76, #75, #77, #78. `ENGINE_VERSION=0.2.1`.
 - Tests offline : point mort, fusion, réveil par prix, webhook ; CI et revue avant promotion.

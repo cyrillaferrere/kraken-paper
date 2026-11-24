@@ -1,3 +1,8 @@
+## Recette dashboard 0.4.0
+- Vérifier jauges 6/8 %, gain hebdomadaire sans perte affichée, historique insuffisant, alertes stop supérieur à un achat et point mort suspendu.
+- Contrôler niveaux hérités, changement de paire, zoom, survol, streaming, mobile 320/390 px ; aucune allocation 40/25/35.
+- Vérifier versions réelles, CI, revue Grok ; déploiement préprod uniquement, production sous GO explicite.
+
 ## Recette moteur 0.2.1 — 24/11/2026
 1. Exécuter les tests Python/Node offline sur integration/engine-0.2.1 et vérifier guard-state et quality-gates.
 2. Contrôler le point mort différé/réarmé, la fusion et les avertissements de couverture, la conservation des stops/TP existants.
