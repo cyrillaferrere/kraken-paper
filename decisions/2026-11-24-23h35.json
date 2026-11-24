@@ -1,0 +1,127 @@
+{
+ "id": "2026-11-24-23h35",
+ "timestamp": "2026-11-24T23:35:00+01:00",
+ "rationale": "Ce que je vois : portefeuille 6 416 USDC (−2,9 % depuis le départ), 87 % en cash, poche moyen terme à 13 % (837 USDC) au lieu de 40 % (2 566 USDC). BTC 59 934, position 0,01131 (PRU 57 366, stop 50 000, sortie 68 000), paliers encore à 55 000 et 53 500. ETH 1 683, position 0,0949 (PRU 1 578, stop 1 350, sortie 1 950), paliers 1 500 et 1 430. SOL 69,55 avec paliers 63 / 60 / 57 stop 53 ; XRP 0,923 avec 0,82 / 0,78 stop 0,72. Le palier SOL à 63 n'offre que 0,84 net vers 72, sous la règle de 1,5. Tendance encore baissière, pas de confirmation de reprise en 4 h. Ce que je fais : poche moyen terme, j'annule et je remplace les paliers BTC et ETH pour rapprocher les entrées, sans courir après le prix. Budget manquant 1 730 USDC, réparti 1 210 BTC / 520 ETH. BTC : 400 USDC à 56 800, 405 à 55 000, 405 à 53 500, stop commun 50 000 inchangé, sortie 68 000. ETH : 175 USDC à 1 580, 175 à 1 500, 170 à 1 430, stop 1 350 inchangé, sortie 1 950. J'annule le palier SOL à 63 ; je garde 60 et 57 (R net 1,59 et 3,36 vers 72). Tous ces ordres sont en compartiment medium, sans point mort automatique tant que des achats plus bas restent ouverts. Pas de trade court terme. Réserve intacte. Pourquoi : un palier à 57 500 ou 1 600, proposé en première approche, ne fait que 1,30 net vers 68 000 / 1 950 ; 56 800 et 1 580 tiennent 1,5 net de frais et de glissement, encore sous le cours. Je ne remets pas 63 000 / 1 800 : déjà pris le 23, et le palier proche n'aurait pas 1,5 vers ces anciens premiers objectifs. Si tous les nouveaux paliers se remplissent, la poche BTC+ETH revient à 40 %, PRU attendu 55 926 / 1 521, risque net d'environ 283 USDC (4,4 %). Ce que j'apprends : après les sorties du 23, laisser les paliers trop loin sous le cours laisse la poche à 13 % et fait rater un rebond ; les rapprocher sous le cours, en gardant le même stop, reconstruit l'exposition sans acheter dans la baisse en cours.",
+ "actions": [
+  {
+   "type": "cancel",
+   "order_id": "O0035"
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0036"
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0039"
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0040"
+  },
+  {
+   "type": "cancel",
+   "order_id": "O0042"
+  },
+  {
+   "type": "place_limit",
+   "pair": "XBTUSDC",
+   "side": "buy",
+   "quote_amount": 400,
+   "price": 56800,
+   "stop_loss": 50000,
+   "take_profits": [
+    {
+     "price": 68000,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false,
+   "compartment": "medium"
+  },
+  {
+   "type": "place_limit",
+   "pair": "XBTUSDC",
+   "side": "buy",
+   "quote_amount": 405,
+   "price": 55000,
+   "stop_loss": 50000,
+   "take_profits": [
+    {
+     "price": 68000,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false,
+   "compartment": "medium"
+  },
+  {
+   "type": "place_limit",
+   "pair": "XBTUSDC",
+   "side": "buy",
+   "quote_amount": 405,
+   "price": 53500,
+   "stop_loss": 50000,
+   "take_profits": [
+    {
+     "price": 68000,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false,
+   "compartment": "medium"
+  },
+  {
+   "type": "place_limit",
+   "pair": "ETHUSDC",
+   "side": "buy",
+   "quote_amount": 175,
+   "price": 1580,
+   "stop_loss": 1350,
+   "take_profits": [
+    {
+     "price": 1950,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false,
+   "compartment": "medium"
+  },
+  {
+   "type": "place_limit",
+   "pair": "ETHUSDC",
+   "side": "buy",
+   "quote_amount": 175,
+   "price": 1500,
+   "stop_loss": 1350,
+   "take_profits": [
+    {
+     "price": 1950,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false,
+   "compartment": "medium"
+  },
+  {
+   "type": "place_limit",
+   "pair": "ETHUSDC",
+   "side": "buy",
+   "quote_amount": 170,
+   "price": 1430,
+   "stop_loss": 1350,
+   "take_profits": [
+    {
+     "price": 1950,
+     "fraction": 1
+    }
+   ],
+   "breakeven_after_tp1": false,
+   "compartment": "medium"
+  },
+  {
+   "type": "note",
+   "text": "23h35 : poche moyen terme, paliers BTC et ETH annulés et remplacés pour rapprocher les entrées. BTC 400 USDC à 56 800, 405 à 55 000, 405 à 53 500, stop 50 000, sortie 68 000. ETH 175 USDC à 1 580, 175 à 1 500, 170 à 1 430, stop 1 350, sortie 1 950. Palier SOL à 63 annulé, 60 et 57 conservés. Compartiment medium, pas de point mort automatique. Pas de court terme. Si tout se remplit, poche BTC+ETH à 40 %, réserve encore d'environ 52 %."
+  }
+ ]
+}
