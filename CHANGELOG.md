@@ -1,3 +1,10 @@
+## [Moteur 0.2.2] — compartiments medium / short (24/11/2026)
+- Positions : l'agrégat par paire (qty, avg_cost, fees_paid, base) est conservé ; ajout de `by_compartment` pour le PRU et les frais de chaque poche. Migration : agrégat fait foi. Écart positif en medium (PRU recalculé). Écart négatif retiré de medium puis short. `compartment_resync` émis comme événement de cycle et relayé au webhook.
+- Ordres et trades : champ `compartment` (medium par défaut). Groupe de sorties unique par paire et par compartiment. Un achat short ne fusionne jamais dans le groupe medium. Une vente medium ne touche pas la quantité short. `update_exits` mémorise et conserve le compartiment.
+- Point mort après TP1 et réarmement utilisent le PRU du compartiment et uniquement les achats en attente du même compartiment.
+- TP bloqués dans la même bougie 5 min que l'achat d'origine ; le stop reste actif. Achats traités avant les sorties dans une bougie.
+- Warning non bloquant `cross_compartment_conflict` quand un stop short est au-dessus d'un achat medium en attente. Webhook porte `compartment` et relaie le warning dédoublonné entre cycles. Événement quand un conflit disparaît.
+
 ## [0.4.0] — dashboard (24/11/2026)
 - #79 : niveaux PAPER, stops et TP hérités, prévisualisation des achats, point mort suspendu.
 - #80 limitée à stopRisk, risque global et perte sur 7 jours ; vigilance 6 %, alerte 8 %, avertissements sur les stops et le point mort.
