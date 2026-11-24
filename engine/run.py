@@ -345,6 +345,15 @@ def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
     state["open_orders"].append(o)
     return o
 
+def audit_buy_protection(state, pair, trade):
+    held = state["positions"].get(pair, {}).get("qty", 0)
+    covered = sum(o["qty"] for o in state["open_orders"]
+                  if o["pair"] == pair and o["side"] == "sell" and o.get("stop_loss"))
+    if covered + EPS < held:
+        trade["unprotected_qty"] = {"held": held, "covered": covered,
+                                    "qty": held - covered}
+
+
 def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
                          take_profit=None, take_profits=None,
                          breakeven_after_tp1=False, trade=None):
@@ -525,7 +534,11 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
             if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
                 tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
                                     "new_qty": merged["qty"], "added_qty": order["qty"],
-                                    "stop_loss": merged.get("stop_loss")}
+                                    "stop_loss": merged.get("stop_loss"),
+                                    "ignored_stop_loss": order.get("stop_loss"),
+                                    "ignored_take_profits": order.get("take_profits") or order.get("take_profit"),
+                                    "new_entry_price": state["positions"][pair]["avg_cost"]}
+            audit_buy_protection(state, pair, tr)
         return
 
     if "take_profits" in order:
@@ -831,7 +844,10 @@ def apply_action(state, a, ctx, now, decision_id):
         if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
             tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
                                 "new_qty": merged["qty"], "added_qty": qty,
-                                "stop_loss": merged.get("stop_loss")}
+                                "stop_loss": merged.get("stop_loss"),
+                                "ignored_stop_loss": sl, "ignored_take_profits": a.get("take_profits") or tp,
+                                "new_entry_price": state["positions"][pair]["avg_cost"]}
+        audit_buy_protection(state, pair, tr)
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 
@@ -1056,6 +1072,9 @@ def run_cycle(state, decisions, market, now, notifier=None):
     merged_events = []
     for ev in events:
         trade = ev.get("trade") if ev.get("type") == "fill" else None
+        if trade and trade.get("unprotected_qty"):
+            merged_events.append({"type": "unprotected_qty", "pair": trade["pair"],
+                                  "trade_id": trade["id"], **trade["unprotected_qty"]})
         if trade and trade.get("exit_merge_skipped"):
             merged_events.append({"type": "exit_merge_skipped", "pair": trade["pair"],
                                   "trade_id": trade["id"], **trade["exit_merge_skipped"]})
