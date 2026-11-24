@@ -1,3 +1,10 @@
+## PR 03 — Réveil Grok Bot sur cours (24/11/2026)
+- Branche feature/engine-021-price-move-wakeup, issue de preprod. Ne pas fusionner avant revue Grok Bot.
+- engine/run.py : price_move_alerts ; scripts/notify_grokbot.py : payload sur variation sans secret dans les journaux.
+- Prix de référence stocké dans price_move_watch ; cooldown indépendant par crypto.
+- Tests : tests/test_price_move_wakeup.py, tests/test_grokbot_webhook.py ; commande Python/Node et qualité GitHub.
+- Limite avant validation : prise en compte explicite des heartbeats de session, granularité des événements multiples et conformité du contrat Grok Bot.
+
 ## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
 - Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
   Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,
