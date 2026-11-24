@@ -41,13 +41,35 @@ def cycle_trades(journal_path, offset):
 def notify_cycle(journal_path, offset, url, key):
     """Retourne un statut explicite, sans jamais exposer l'URL ni la clé."""
     cycle_time, trades = cycle_trades(journal_path, offset)
-    if not trades:
+    alerts = []
+    try:
+        with open(journal_path, "rb") as journal:
+            journal.seek(max(0, int(offset)))
+            for line in journal:
+                try:
+                    item = json.loads(line)
+                except (ValueError, UnicodeDecodeError):
+                    continue
+                if item.get("type") == "price_move":
+                    alerts.append({k: item[k] for k in
+                                   ("type", "crypto", "pair", "change_pct", "price")
+                                   if k in item})
+    except OSError:
+        pass
+    if not trades and not alerts:
         return "aucune exécution"
     if not url or not key:
         return "échec d'envoi"
 
+    payload_body = {"cycle_time": cycle_time, "trades": trades}
+    if alerts:
+        # Un webhook par variation et par crypto, à partir de l'état
+        # effectivement sauvegardé et poussé sur GitHub.
+        payload_body["price_moves"] = alerts
+        if not trades and len(alerts) == 1:
+            payload_body.update(alerts[0])
     payload = json.dumps(
-        {"cycle_time": cycle_time, "trades": trades},
+        payload_body,
         ensure_ascii=False,
         separators=(",", ":"),
     ).encode("utf-8")
