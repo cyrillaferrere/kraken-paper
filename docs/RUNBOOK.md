@@ -1,3 +1,10 @@
+## Recette PR 04 — niveaux par paire (24/11/2026)
+1. Vérifier BTC/ETH/SOL/XRP, prix actuel, PRU, achat en attente, stop, TP1/TP2 et niveaux conditionnels.
+2. Vérifier légende texte/couleur et protection non active tant qu'un achat limite n'est pas exécuté.
+3. Changer de crypto en conservant 1h par défaut puis 5m, 4h et 1j ; échelle automatique et hover stable pendant le streaming.
+4. Contrôler 320, 390, 768, 1440 px, focus clavier et prefers-reduced-motion.
+5. Exécuter python -m unittest -v, les deux suites Node et CI ; ne rien fusionner en prod.
+
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
    aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.

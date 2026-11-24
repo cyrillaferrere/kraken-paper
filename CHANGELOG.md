@@ -1,3 +1,8 @@
+## [Unreleased] — dashboard v0.4.0, lignes de niveaux par crypto (24/11/2026)
+- PRU bleu, achats cyan, stop rouge, TP vert et protections différées gris pointillé ; légende explicite.
+- Tous les objectifs encore actifs numérotés ; graphique existant et gestion des échelles préservés.
+- Tests de régression Node et ADR-44 ; aucun changement moteur, état ou décisions.
+
 ### Revue Grok Bot — correctifs PR #73 (18/11/2026)
 - Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
 - Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour
