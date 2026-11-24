@@ -66,6 +66,7 @@ class TieredExitTests(unittest.TestCase):
 
     def test_deferred_rearm_after_cancel(self):
         self.test_tp1_keeps_stop_with_pending_buy_below_pru()
+        self.order = next(o for o in self.state["open_orders"] if o["side"] == "sell")
         self.assertIn("breakeven_deferred", self.order)
         self.state["open_orders"][:] = [self.order]
         net = run.breakeven_net(self.state, self.pair, self.state["positions"][self.pair]["avg_cost"])
