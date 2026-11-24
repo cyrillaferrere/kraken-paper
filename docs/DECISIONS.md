@@ -1,3 +1,6 @@
+## ADR-44 : niveaux crypto (24/11/2026)
+- Lignes déjà intégrées aux graphiques existants, couleurs sémantiques et protections conditionnelles visibles comme telles ; voir [ADR-44-CRYPTO-LEVEL-CHARTS.md](ADR-44-CRYPTO-LEVEL-CHARTS.md).
+
 ## ADR-35 : moteur PAPER 0.2.0, exécutions 5 min et conditions de remplissage (18/11/2026)
 - Contexte : moteur 0.1 trop optimiste pour les limites et trop lent pour les stops.
 - Décision : implémentation documentée dans [ADR-35-ENGINE-EXECUTION.md](ADR-35-ENGINE-EXECUTION.md), toujours PAPER et sans réécrire les données anciennes.
