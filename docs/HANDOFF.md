@@ -1,3 +1,8 @@
+## PR 04 — lignes par crypto sur le graphique (24/11/2026)
+- Branche feature/dashboard-040-crypto-levels depuis preprod ; aucun moteur, state/ ou decisions/ modifié.
+- site/markets.js : extension buildOrderLines et overlays (sans changer l'API chart); site/market-v035.js : niveaux et TP actifs ; site/index.html et style.css : légende visible et responsive.
+- Tests : tests/site/crypto-levels.test.js, suite Node et CI. Validation visuelle sur préprod et revue Grok Bot requises.
+
 ## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
 - Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
   Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,
