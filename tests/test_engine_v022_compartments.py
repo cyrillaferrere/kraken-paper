@@ -255,3 +255,32 @@ class CompartmentTests(unittest.TestCase):
             self.assertEqual(captured["auth"], "Bearer secret-key")
             body = json.loads(captured["data"])
             self.assertEqual(len(body["warnings"]), 1)
+
+    def test_main_emits_compartment_resync_to_journal(self):
+        import tempfile, os, json, shutil
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as d:
+            # État avec écart pour forcer une resync
+            state = run.new_state(T0)
+            state["positions"][PAIR] = {
+                "base": "XBT", "qty": 0.015, "avg_cost": 65000, "fees_paid": 0,
+                "by_compartment": {
+                    "medium": {"qty": 0.005, "avg_cost": 64000, "fees_paid": 0},
+                    "short": {"qty": 0.020, "avg_cost": 66000, "fees_paid": 0},
+                }
+            }
+            portfolio = os.path.join(d, "portfolio.json")
+            journal = os.path.join(d, "journal.jsonl")
+            with open(portfolio, "w") as f:
+                json.dump(state, f)
+            # Patch les chemins
+            with patch.object(run, "PORTFOLIO", portfolio), \
+                 patch.object(run, "JOURNAL", journal), \
+                 patch.object(run, "STATE_DIR", d), \
+                 patch.object(run, "EQUITY", os.path.join(d, "equity.csv")), \
+                 patch.object(run, "DECISIONS_DIR", os.path.join(d, "decisions")):
+                os.makedirs(os.path.join(d, "decisions"), exist_ok=True)
+                run.main()
+            with open(journal) as f:
+                lines = [json.loads(l) for l in f]
+            self.assertTrue(any(l.get("type") == "compartment_resync" for l in lines))

@@ -1382,11 +1382,17 @@ def run_cycle(state, decisions, market, now, notifier=None):
     # Dédoublonnage des conflits entre cycles
     previous = set(tuple(x) for x in state.get("signaled_conflicts", []))
     current = []
+    current_keys = set()
     for w in cross_compartment_warnings(state):
         key = (w["pair"], w["stop_order"], w["buy_order"])
         current.append(key)
+        current_keys.add(key)
         if key not in previous:
             events.append(w)
+    # Conflits disparus
+    for key in previous - current_keys:
+        events.append({"type": "cross_compartment_conflict_resolved",
+                       "pair": key[0], "stop_order": key[1], "buy_order": key[2]})
     state["signaled_conflicts"] = current
     if notifier:
         for tr in fills:
@@ -1426,7 +1432,6 @@ def main():
     if os.path.exists(PORTFOLIO):
         with open(PORTFOLIO, encoding="utf-8") as f:
             state = json.load(f)
-        migration_warnings = migrate_state(state)
         first = False
     else:
         state = new_state(now)

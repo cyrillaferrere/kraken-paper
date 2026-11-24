@@ -58,7 +58,8 @@ def notify_cycle(journal_path, offset, url, key):
                     continue
                 if cycle_time is None:
                     cycle_time = item.get("time")
-                if item.get("type") in ("exit_merge_skipped", "unprotected_qty", "breakeven_rearmed"):
+                if item.get("type") in ("exit_merge_skipped", "unprotected_qty", "breakeven_rearmed",
+                                        "compartment_resync"):
                     warnings.append(item)
                 if item.get("type") == "cross_compartment_conflict":
                     conflict_key = (item.get("pair"), item.get("stop_order"), item.get("buy_order"))
