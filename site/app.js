@@ -310,22 +310,14 @@ function flashLiveValue(el, value) {
       }
       if (fill) fill.classList.toggle("gauge-exceeded", valid && value >= limit);
     };
-    const missingStop = (S.open_orders || []).some(o => {
-      if (o.side === "buy") return o.stop_loss == null;
-      if (o.side !== "sell") return false;
-      return o.stop_loss == null && o.parent;
-    });
-    if (ex && !ex.missing && !ex.unprotected.length && !ex.buysNoStop && !missingStop) {
-      setGauge("g-risk", ex.riskPct * 100, 8,
-               usdc(ex.risk) + " · " + pct(ex.riskPct) + " / 8 %");
-      put("g-risk-note", "Frais et glissement estimés, achats en attente compris.");
+    const risk = window.KPLib?.stopRisk(S, price);
+    if (risk && !risk.missing && !risk.unprotected.length && !risk.buysNoStop) {
+      setGauge("g-risk", risk.riskPct * 100, 8, usdc(risk.risk) + " · " + pct(risk.riskPct) + " / 8 %");
+      put("g-risk-note", "Perte potentielle depuis le cours courant, frais et glissement inclus.");
     } else {
       setGauge("g-risk", null, 8, "Risque global non chiffrable");
-      put("g-risk-note", ex?.unprotected.length || ex?.buysNoStop || missingStop ?
-        "Protections manquantes : " + [...(ex?.unprotected || [])].join(", ") +
-          (ex?.buysNoStop ? " · " + ex.buysNoStop + " achat(s) sans stop" : "") +
-          (missingStop ? " · sorties ou achats sans stop actif" : "") :
-        "Cours ou exposition indisponibles.");
+      put("g-risk-note", "Protections ou cours manquants : " + (risk?.unprotected || []).join(", ") +
+        " · " + (risk?.buysNoStop || 0) + " achat(s) sans stop effectif.");
     }
     const week = perfWindow(168);
     // Une perte est positive sur la jauge, un gain correspond à zéro perte.
