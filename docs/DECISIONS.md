@@ -1,9 +1,6 @@
-## ADR moteur 0.2.1 — 24/11/2026
-- [ADR-36 : point mort conditionnel](ADR-36-BREAKEVEN-PENDING-BUYS.md)
-- [ADR-41 : Node 24](ADR-41-NODE24.md)
-- [ADR-42 : fusion des sorties](ADR-42-EXIT-GROUP-MERGE.md)
-- [ADR-43 : réveil Grok](ADR-43-PRICE-MOVE-WAKEUP.md)
-- Compartiments reportés à 0.2.2, avec groupes distincts par paire et compartiment ; la PR #81 ne constitue pas une validation de cette règle.
+## ADR-45 : jauges risque et allocation (24/11/2026)
+- Réutiliser les chiffres réels et seuils 8 %/−8 % ; calcul d allocation seulement sur classifications explicites.
+- Voir [ADR-45-RISK-ALLOCATION-GAUGES.md](ADR-45-RISK-ALLOCATION-GAUGES.md). Pas de trading automatisé.
 
 ## ADR-35 : moteur PAPER 0.2.0, exécutions 5 min et conditions de remplissage (18/11/2026)
 - Contexte : moteur 0.1 trop optimiste pour les limites et trop lent pour les stops.

@@ -84,10 +84,10 @@
         <div><span>Ordres ouverts</span><strong id="ov-order-count">—</strong></div>
         <div><span>Exposition totale</span><strong id="ov-exposure">—</strong></div>
       </div>
-      <section class="risk-gauges" aria-label="Seuils de risque">
+      <section class="risk-gauges" aria-label="Seuils de risque et allocation cible">
         <div class="risk-gauge"><div><strong>Risque global</strong><span id="g-risk-text">—</span></div><div id="g-risk-track" class="gauge-track" role="progressbar" aria-label="Risque global par rapport à la limite de 8 %" aria-valuemin="0" aria-valuemax="8"><span id="g-risk-fill"></span></div><small id="g-risk-note">Positions et achats en attente, stops inclus</small></div>
         <div class="risk-gauge"><div><strong>Performance 7 jours</strong><span id="g-week-text">—</span></div><div id="g-week-track" class="gauge-track" role="progressbar" aria-label="Perte sur 7 jours par rapport à la limite de 8 %" aria-valuemin="0" aria-valuemax="8"><span id="g-week-fill"></span></div><small id="g-week-note">Historique disponible uniquement</small></div>
-        <p id="g-risk-warnings" class="gauge-warning-text" aria-live="polite"></p>
+        <div class="risk-allocation"><strong>Allocation 40 / 25 / 35</strong><div id="g-allocation" aria-live="polite">Classification moyen/court terme inconnue.</div></div>
       </section>
       <section class="risk-block" aria-label="Risque du portefeuille">
         <div class="section-eyebrow">RISQUE SI STOPS TOUCHÉS</div>
@@ -148,6 +148,7 @@
       <span class="crypto-legend-tp">Objectifs TP</span>
       <span class="crypto-legend-conditional">Conditionnel (inactif)</span>
     </div>
+
     <p id="moverlay-note" class="hint"></p>
     <p class="hint">Bougies réelles de l'API publique Kraken, la dernière est encore en cours. Heures de Paris. Rien n'est lissé ni interpolé.</p>
     <section class="v036-market-analysis" aria-label="Analyse de la paire sélectionnée">
