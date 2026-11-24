@@ -119,6 +119,37 @@
 
   // ---------- exposition et risque ----------
   // orderMath : la même fonction que le tableau des ordres (règles du moteur, nettes de frais).
+  function stopRisk(st, price) {
+    const orders = st.open_orders || [], fees = st.fees || {};
+    const taker = fees.taker ?? .004, maker = fees.maker ?? .0025;
+    const slip = st.risk_config?.slippage ?? .002;
+    const net = stop => stop * (1 - slip) * (1 - taker);
+    let total = st.cash, risk = 0, missing = false, buysNoStop = 0;
+    const unprotected = [];
+    for (const [pair, pos] of Object.entries(st.positions || {})) {
+      const px = price(pair);
+      if (!Number.isFinite(px) || px <= 0) { missing = true; continue; }
+      total += pos.qty * px;
+      let remaining = pos.qty;
+      const stops = orders.filter(o => o.pair === pair && o.side === "sell" && o.stop_loss > 0)
+        .sort((a,b) => a.stop_loss - b.stop_loss);
+      for (const o of stops) {
+        const qty = Math.min(remaining, o.qty);
+        risk += qty * Math.max(0, px - net(o.stop_loss));
+        remaining -= qty;
+      }
+      if (remaining > 1e-12) unprotected.push(base(pair));
+    }
+    for (const o of orders.filter(o => o.side === "buy")) {
+      const groups = orders.filter(g => g.pair === o.pair && g.side === "sell" && g.parent);
+      const stop = groups.length === 1 ? groups[0].stop_loss : o.stop_loss ??
+        (groups.some(g => g.stop_loss > 0) ? Math.min(...groups.filter(g => g.stop_loss > 0).map(g => g.stop_loss)) : null);
+      if (!(stop > 0)) { buysNoStop++; continue; }
+      risk += o.qty * Math.max(0, o.price * (1 + maker) - net(stop));
+    }
+    return { risk, riskPct: total > 0 ? risk / total : 0, missing: missing || !(total > 0), unprotected, buysNoStop };
+  }
+
   function exposure(st, price, orderMath) {
     let invested = 0, missing = false;
     const unprotected = [];
@@ -237,7 +268,7 @@
     return Math.floor((hit ? hit.t : hourStart) / iv) * iv;
   }
 
-  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, latestSession, duration, exposure, allocationTargets, cashBreakdown, proximity, unrealizedPnl, pruLabel, fillMarkerTs, fillTouches };
+  const api = { md, esc, summarizeAction, dailyPerf, dayKey, nextCycle, nextSession, latestSession, duration, stopRisk, exposure, allocationTargets, cashBreakdown, proximity, unrealizedPnl, pruLabel, fillMarkerTs, fillTouches };
 
   if (typeof window !== "undefined") window.KPLib = api;
   if (typeof module !== "undefined") module.exports = api;
