@@ -894,7 +894,36 @@ def replay_candles(state, market, now):
     return events, fills, errors
 
 
-def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR):
+def latest_grok_session_id(decisions, state, now):
+    """Derniere session valide, y compris heartbeat, sans changer apply_decisions."""
+    selected = None
+    for item in decisions:
+        if not isinstance(item, dict) or not item.get("id"):
+            continue
+        if item.get("type") == "heartbeat":
+            if item.get("actions") != [] or not str(item.get("note", "")).strip():
+                continue
+        elif item["id"] not in state.get("processed_decisions", []):
+            continue
+        stamp = item.get("timestamp")
+        try:
+            dt = datetime.fromisoformat(stamp)
+            if dt.tzinfo is None or dt.utcoffset() is None:
+                continue
+            ts = dt.timestamp()
+        except (TypeError, ValueError):
+            continue
+        if ts > now:
+            continue
+        if selected is None or ts > selected[0]:
+            selected = (ts, item["id"])
+    if selected:
+        return selected[1]
+    return (state.get("last_decision") or {}).get("id")
+
+
+def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR,
+                      session_id=None):
     """Prepare des reveils a partir des derniers cours connus, sans reseau.
 
     L'etat est sauvegarde avant l'envoi du webhook par le workflow. Un
@@ -904,7 +933,8 @@ def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR):
     watch = state.setdefault("price_move_watch", {})
     followed = set(state["positions"]) | {o["pair"] for o in state["open_orders"]
                                           if o.get("side") == "buy"}
-    session_id = (state.get("last_decision") or {}).get("id")
+    if session_id is None:
+        session_id = (state.get("last_decision") or {}).get("id")
     notifications = []
     for pair in sorted(followed):
         price = state.get("last_prices", {}).get(pair)
@@ -1013,7 +1043,8 @@ def run_cycle(state, decisions, market, now, notifier=None):
     state["last_cycle"] = iso(now)
     state["last_cycle_ts"] = int(now)
     state["last_cycle_errors"] = errors
-    for alert in price_move_alerts(state, now):
+    session = latest_grok_session_id(decisions, state, now)
+    for alert in price_move_alerts(state, now, session_id=session):
         events.append(alert)
     if notifier:
         for tr in fills:
