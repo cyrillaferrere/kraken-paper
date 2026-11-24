@@ -1,8 +1,9 @@
 ## [Moteur 0.2.2] — compartiments medium / short (24/11/2026)
-- Positions : l'agrégat par paire (qty, avg_cost, fees_paid, base) est conservé ; ajout de `by_compartment` pour le PRU et les frais de chaque poche. Migration additive et idempotente : un état sans compartiment devient medium. Un moteur 0.2.1 relit un état 0.2.2 sans erreur.
-- Ordres et trades : champ `compartment` (medium par défaut). Groupe de sorties unique par paire et par compartiment. Un achat short ne fusionne jamais dans le groupe medium. Une vente medium ne touche pas la quantité short.
-- TP bloqués dans la même bougie 5 min que l'achat d'origine ; le stop reste actif.
-- Warning non bloquant `cross_compartment_conflict` quand un stop short est au-dessus d'un achat medium en attente sur la même paire.
+- Positions : l'agrégat par paire (qty, avg_cost, fees_paid, base) est conservé ; ajout de `by_compartment` pour le PRU et les frais de chaque poche. Migration additive et idempotente : un état sans compartiment devient medium. Si l'agrégat et les compartiments divergent, l'agrégat fait foi et l'écart va en medium avec un warning `compartment_resync`. Un moteur 0.2.1 relit un état 0.2.2 sans erreur.
+- Ordres et trades : champ `compartment` (medium par défaut). Groupe de sorties unique par paire et par compartiment. Un achat short ne fusionne jamais dans le groupe medium. Une vente medium ne touche pas la quantité short. `update_exits` mémorise et conserve le compartiment à l'activation.
+- Point mort après TP1 et réarmement utilisent le PRU du compartiment et uniquement les achats en attente du même compartiment.
+- TP bloqués dans la même bougie 5 min que l'achat d'origine ; le stop reste actif. Achats traités avant les sorties dans une bougie.
+- Warning non bloquant `cross_compartment_conflict` quand un stop short est au-dessus d'un achat medium en attente sur la même paire. Webhook porte `compartment` et relaie le warning dédoublonné.
 - Tests : `tests/test_engine_v022_compartments.py`.
 
 ## [Unreleased] — dashboard 0.4.0 (24/11/2026)

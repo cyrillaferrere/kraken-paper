@@ -226,19 +226,30 @@ def ensure_by_compartment(pos):
 
 
 def migrate_state(state):
-    """Migration additive 0.2.2. Idempotente. Un moteur 0.2.1 ignore by_compartment."""
+    """Migration additive 0.2.2. Idempotente. Un moteur 0.2.1 ignore by_compartment.
+    Si l'agrégat et by_compartment divergent, l'agrégat fait foi : l'écart va en medium
+    et un warning compartment_resync est émis."""
+    warnings = state.setdefault("_migration_warnings", [])
     for pair, pos in list(state.get("positions", {}).items()):
         if not isinstance(pos, dict):
             continue
         ensure_by_compartment(pos)
-        # Invariant : somme des qty par compartiment == qty agrégée
         bc = pos.get("by_compartment", {})
         total = sum(float(c.get("qty", 0)) for c in bc.values())
-        if abs(total - float(pos.get("qty", 0))) > EPS and total > EPS:
-            # Recalcule l'agrégat depuis les compartiments si cohérent
-            pos["qty"] = round(total, 8)
-            cost = sum(float(c.get("qty", 0)) * float(c.get("avg_cost", 0)) for c in bc.values())
-            pos["avg_cost"] = cost / total if total > EPS else 0.0
+        agg = float(pos.get("qty", 0))
+        if abs(total - agg) > EPS:
+            # Agrégat fait foi. L'écart va en medium.
+            medium = bc.setdefault("medium", {"qty": 0.0, "avg_cost": pos.get("avg_cost", 0.0), "fees_paid": 0.0})
+            delta = agg - total
+            medium["qty"] = round(medium.get("qty", 0) + delta, 8)
+            if medium["qty"] <= EPS:
+                bc.pop("medium", None)
+            warnings.append({"type": "compartment_resync", "pair": pair,
+                             "aggregate": agg, "sum_compartments": total, "delta": delta})
+        # Nettoie les compartiments vides
+        for cname in list(bc.keys()):
+            if bc[cname].get("qty", 0) <= EPS:
+                bc.pop(cname, None)
     for o in state.get("open_orders", []):
         if "compartment" not in o:
             o["compartment"] = "medium"
@@ -309,40 +320,43 @@ def execute_fill(state, pair, side, qty, price, liquidity, reason, ts, order_id=
     rate = maker_rate if liquidity == "maker" else taker_rate
     gross = qty * price
     fee = money(gross * rate)
+    is_new = pair not in state["positions"]
     pos = state["positions"].setdefault(pair, {"base": meta["base"], "qty": 0.0,
                                                 "avg_cost": 0.0, "fees_paid": 0.0})
-    ensure_by_compartment(pos)
+    if is_new:
+        # Premier achat : crée uniquement le compartiment concerné, pas de medium fantôme.
+        pos["by_compartment"] = {}
+    else:
+        ensure_by_compartment(pos)
     bc = pos["by_compartment"]
+    # Contrôle de qty avant de créer un compartiment vide pour une vente
+    if side == "sell":
+        existing = bc.get(compartment, {}).get("qty", 0.0)
+        if qty > existing + EPS:
+            raise Rejected(f"quantite insuffisante dans le compartiment {compartment} "
+                           f"({existing} {meta['base']})")
+        if qty > pos["qty"] + EPS:
+            raise Rejected(f"quantite insuffisante ({pos['qty']} {meta['base']})")
     comp = bc.setdefault(compartment, {"qty": 0.0, "avg_cost": 0.0, "fees_paid": 0.0})
     pnl = None
     if side == "buy":
         cost = gross + fee
         if cost > state["cash"] + EPS:
             raise Rejected(f"cash insuffisant ({fr(state['cash'], 2)} USDC) pour {fr(cost, 2)} USDC")
-        # Agrégat
         new_qty = pos["qty"] + qty
         pos["avg_cost"] = (pos["qty"] * pos["avg_cost"] + cost) / new_qty if new_qty > EPS else 0.0
         pos["qty"] = round(new_qty, meta["lot_decimals"])
-        # Compartiment
         new_c = comp["qty"] + qty
         comp["avg_cost"] = (comp["qty"] * comp["avg_cost"] + cost) / new_c if new_c > EPS else 0.0
         comp["qty"] = round(new_c, meta["lot_decimals"])
         state["cash"] = money(state["cash"] - cost)
     else:
-        # Vente uniquement dans le compartiment de l'ordre
-        if qty > comp["qty"] + EPS:
-            raise Rejected(f"quantite insuffisante dans le compartiment {compartment} "
-                           f"({comp['qty']} {meta['base']})")
-        if qty > pos["qty"] + EPS:
-            raise Rejected(f"quantite insuffisante ({pos['qty']} {meta['base']})")
         proceeds = gross - fee
-        # PnL sur le PRU du compartiment
         pnl = money(proceeds - qty * comp["avg_cost"])
         pos["qty"] = round(pos["qty"] - qty, meta["lot_decimals"])
         comp["qty"] = round(comp["qty"] - qty, meta["lot_decimals"])
         state["cash"] = money(state["cash"] + proceeds)
         state["realized_pnl"] = money(state["realized_pnl"] + pnl)
-        # Recalcule l'agrégat avg_cost si la position reste
         if pos["qty"] > EPS:
             remaining_cost = sum(c["qty"] * c["avg_cost"] for c in bc.values() if c["qty"] > EPS)
             pos["avg_cost"] = remaining_cost / pos["qty"]
@@ -404,11 +418,13 @@ def normalize_take_profits(meta, action, entry_price, qty):
 
 def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
                 take_profits=None, breakeven_after_tp1=False, entry_price=None,
-                compartment="medium"):
+                compartment="medium", block_tp=True):
     if not stop_loss and not take_profit and not take_profits:
         return None
     meta = state["pairs"][pair]
-    entry = entry_price or state["positions"].get(pair, {}).get("avg_cost", 0)
+    pos = state["positions"].get(pair, {})
+    bc = pos.get("by_compartment", {}).get(compartment, {})
+    entry = entry_price if entry_price is not None else (bc.get("avg_cost") or pos.get("avg_cost", 0))
     levels = (take_profits if take_profits is not None else
               normalize_take_profits(meta, {"take_profit": take_profit}, entry, qty))
     o = {"id": next_id(state, "order"), "pair": pair, "side": "sell", "qty": qty,
@@ -421,18 +437,21 @@ def attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
         o["entry_price"] = entry
         o["breakeven_after_tp1"] = bool(breakeven_after_tp1)
         o["tp_filled"] = 0
-    # TP bloqués jusqu'à la bougie 5 min suivante après un achat
-    o["tp_blocked_until"] = next_5m(ts)
+    if block_tp:
+        o["tp_blocked_until"] = next_5m(ts)
     state["open_orders"].append(o)
     return o
 
 def audit_buy_protection(state, pair, trade):
-    held = state["positions"].get(pair, {}).get("qty", 0)
+    comp = trade.get("compartment", "medium")
+    pos = state["positions"].get(pair, {})
+    held = pos.get("by_compartment", {}).get(comp, {}).get("qty", 0)
     covered = sum(o["qty"] for o in state["open_orders"]
-                  if o["pair"] == pair and o["side"] == "sell" and o.get("stop_loss"))
+                  if o["pair"] == pair and o["side"] == "sell" and o.get("stop_loss")
+                  and compartment_of(o) == comp)
     if covered + EPS < held:
         trade["unprotected_qty"] = {"held": held, "covered": covered,
-                                    "qty": held - covered}
+                                    "qty": held - covered, "compartment": comp}
 
 
 def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
@@ -448,11 +467,13 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
              if o["pair"] == pair and o["side"] == "sell" and o.get("parent")
              and compartment_of(o) == compartment]
     if not exits:
+        pos = state["positions"].get(pair, {})
+        bc = pos.get("by_compartment", {}).get(compartment, {})
+        entry = bc.get("avg_cost") or pos.get("avg_cost")
         return attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
                            take_profits=take_profits,
                            breakeven_after_tp1=breakeven_after_tp1,
-                           entry_price=state["positions"].get(pair, {}).get("avg_cost"),
-                           compartment=compartment)
+                           entry_price=entry, compartment=compartment)
     def fallback(reason):
         if trade is not None:
             trade["exit_merge_skipped"] = {"reason": reason, "qty": qty, "compartment": compartment}
@@ -544,9 +565,10 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
         pending = old.get("pending_exits")
         if not pending or old["pair"] != pair or t < pending["active_from"]:
             continue
-        # Le groupe ne peut reserver que son propre solde, pas les achats
-        # intervenus depuis la demande de modification.
-        remaining = min(old["qty"], state["positions"].get(pair, {}).get("qty", 0))
+        comp = pending.get("compartment") or compartment_of(old)
+        pos = state["positions"].get(pair, {})
+        bc = pos.get("by_compartment", {}).get(comp, {})
+        remaining = min(old["qty"], bc.get("qty", 0))
         if remaining <= EPS:
             state["open_orders"].remove(old)
             continue
@@ -554,7 +576,6 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
             levels = normalize_take_profits(state["pairs"][pair], pending["action"],
                                              pending["entry_price"], remaining)
         except Rejected as exc:
-            # Echec sans perte de protection : l'ancien stop et ses TP restent actifs.
             old.pop("pending_exits", None)
             if rejects is not None:
                 rejects.append({"type": "note", "pair": pair, "order_id": old["id"],
@@ -565,16 +586,22 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
                           pending["active_from"], pending["parent"],
                           take_profits=levels,
                           breakeven_after_tp1=pending["breakeven_after_tp1"],
-                          entry_price=pending["entry_price"])
+                          entry_price=pending["entry_price"], compartment=comp,
+                          block_tp=False)
         if new:
             new["active_from"] = pending["active_from"]
             new["tp_filled"] = old.get("tp_filled", 0)
-    for order in list(state["open_orders"]):
-        if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
+    # Achats d'abord, pour que le blocage TP de la même bougie soit pris en compte
+    buys = [o for o in state["open_orders"] if o["pair"] == pair and o["side"] == "buy"
+            and o["active_from"] <= t]
+    sells = [o for o in state["open_orders"] if o["pair"] == pair and o["side"] == "sell"
+             and o["active_from"] <= t]
+    for order in buys + sells:
+        if order not in state["open_orders"]:
             continue
         try:
             _check_order(state, pair, order, t, high, low, fills, m5, o_)
-        except Rejected as e:   # ne devrait pas arriver (fonds reserves), on annule proprement
+        except Rejected as e:
             state["open_orders"].remove(order)
             if rejects is not None:
                 rejects.append({"type": "cancel", "order_id": order["id"], "pair": pair,
@@ -626,7 +653,7 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
                                     "stop_loss": merged.get("stop_loss"),
                                     "ignored_stop_loss": order.get("stop_loss"),
                                     "ignored_take_profits": order.get("take_profits") or order.get("take_profit"),
-                                    "new_entry_price": state["positions"][pair]["avg_cost"],
+                                    "new_entry_price": state["positions"].get(pair, {}).get("by_compartment", {}).get(comp, {}).get("avg_cost"),
                                     "compartment": comp}
             audit_buy_protection(state, pair, tr)
         return
@@ -690,20 +717,26 @@ def breakeven_net(state, pair, pru):
 
 def rearm_deferred_breakeven(state, pair, close):
     events = []
-    pru = state["positions"].get(pair, {}).get("avg_cost")
-    if not pru or any(o["pair"] == pair and o["side"] == "buy" and o["price"] < pru
-                      for o in state["open_orders"]):
-        return events
-    net = breakeven_net(state, pair, pru)
-    if close < net * 1.005:
-        return events
     for order in state["open_orders"]:
         if (order["pair"] != pair or not order.get("breakeven_deferred")
                 or order.get("tp_filled", 0) < 1 or order.get("stop_loss") is None):
             continue
+        comp = compartment_of(order)
+        pos = state["positions"].get(pair, {})
+        pru = (pos.get("by_compartment", {}).get(comp, {}).get("avg_cost")
+               or order.get("entry_price") or pos.get("avg_cost"))
+        if not pru:
+            continue
+        # Achats en attente du même compartiment seulement
+        if any(o["pair"] == pair and o["side"] == "buy" and compartment_of(o) == comp
+               and o["price"] < pru for o in state["open_orders"]):
+            continue
+        net = breakeven_net(state, pair, pru)
+        if close < net * 1.005:
+            continue
         order["stop_loss"] = max(order["stop_loss"], net)
         order.pop("breakeven_deferred")
-        events.append({"type": "breakeven_rearmed", "pair": pair,
+        events.append({"type": "breakeven_rearmed", "pair": pair, "compartment": comp,
                        "order_id": order["id"], "stop": order["stop_loss"], "pru": pru})
     return events
 
@@ -742,15 +775,17 @@ def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hou
             order["qty"] = round(order["qty"] - qty, meta["lot_decimals"])
             order["tp_filled"] = tr["tp_index"]
             if tr["tp_index"] == 1 and order.get("breakeven_after_tp1") and stop is not None:
-                pru = state["positions"].get(pair, {}).get("avg_cost", order.get("entry_price"))
+                pos = state["positions"].get(pair, {})
+                pru = (pos.get("by_compartment", {}).get(comp, {}).get("avg_cost")
+                       or order.get("entry_price") or pos.get("avg_cost"))
                 pending_buys = [o["id"] for o in state["open_orders"]
                                 if o["pair"] == pair and o["side"] == "buy"
-                                and o["price"] < pru]
+                                and compartment_of(o) == comp and o["price"] < pru]
                 if pending_buys:
                     order["breakeven_deferred"] = {"since": ts, "pru": pru, "order_ids": pending_buys}
                     tr["breakeven_skipped"] = {"reason": "pending_buy_below_pru",
                                                "order_ids": pending_buys,
-                                               "pru": pru, "stop_loss": stop}
+                                               "pru": pru, "stop_loss": stop, "compartment": comp}
                 else:
                     order["stop_loss"] = max(stop, breakeven_net(state, pair, pru))
                     order.pop("breakeven_deferred", None)
@@ -891,7 +926,8 @@ def apply_action(state, a, ctx, now, decision_id):
                     {"price": level["price"], "fraction": level["fraction"]}
                     for level in levels]},
                 "stop_loss": stop, "breakeven_after_tp1": be,
-                "entry_price": entry, "parent": decision_id}
+                "entry_price": entry, "parent": decision_id,
+                "compartment": comp}
             return {"type": "exits_update_scheduled", "pair": pair, "compartment": comp,
                     "active_from": old["pending_exits"]["active_from"],
                     "order_id": old["id"]}, []
@@ -991,7 +1027,7 @@ def apply_action(state, a, ctx, now, decision_id):
                                 "new_qty": merged["qty"], "added_qty": qty,
                                 "stop_loss": merged.get("stop_loss"),
                                 "ignored_stop_loss": sl, "ignored_take_profits": a.get("take_profits") or tp,
-                                "new_entry_price": state["positions"][pair]["avg_cost"],
+                                "new_entry_price": state["positions"].get(pair, {}).get("by_compartment", {}).get(comp, {}).get("avg_cost"),
                                 "compartment": comp}
         audit_buy_protection(state, pair, tr)
     return {"type": "market", "trade_id": tr["id"], "compartment": comp}, [tr]

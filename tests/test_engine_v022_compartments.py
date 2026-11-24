@@ -137,5 +137,80 @@ class CompartmentTests(unittest.TestCase):
         self.assertAlmostEqual(st["positions"][PAIR]["qty"], 0.03)
 
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_update_exits_short_stays_short(self):
+        run.run_cycle(self.state, [decision("sh", {
+            "type": "market_buy", "pair": PAIR, "qty": .01,
+            "stop_loss": 64000, "take_profit": 70000, "compartment": "short",
+        })], FakeMarket(last=65000), T0 - 10)
+        run.run_cycle(self.state, [decision("upd", {
+            "type": "update_exits", "pair": PAIR, "compartment": "short",
+            "stop_loss": 63000, "take_profits": [{"price": 72000, "fraction": 1}],
+        })], FakeMarket(last=65000), T0)
+        # Active the pending update
+        run.process_candle(self.state, PAIR, (T0 + 300, 65000, 65500, 64000, 65000),
+                           market=FakeMarket(fail5=True))
+        groups = [o for o in self.state["open_orders"] if o["side"] == "sell"]
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(run.compartment_of(groups[0]), "short")
+        self.assertEqual(groups[0]["stop_loss"], 63000)
+
+    def test_breakeven_short_uses_own_pru(self):
+        # Achat short à un prix différent, TP partiel
+        run.run_cycle(self.state, [decision("sh", {
+            "type": "market_buy", "pair": PAIR, "qty": .02,
+            "stop_loss": 66000,
+            "take_profits": [{"price": 75000, "fraction": .5}, {"price": 80000, "fraction": .5}],
+            "breakeven_after_tp1": True, "compartment": "short",
+        })], FakeMarket(last=70000), T0 - 10)
+        pos = self.state["positions"][PAIR]
+        short_pru = pos["by_compartment"]["short"]["avg_cost"]
+        self.assertGreater(short_pru, 70000)
+        # TP1 touché dans une bougie ultérieure
+        run.process_candle(self.state, PAIR, (T0 + 300, 70000, 76000, 69000, 74000),
+                           market=FakeMarket(fail5=True))
+        order = next(o for o in self.state["open_orders"] if o["side"] == "sell")
+        # Le stop doit avoir été remonté vers le PRU short
+        self.assertGreater(order["stop_loss"], 66000)
+
+    def test_rollback_021_then_sell_then_022_keeps_qty(self):
+        # État 0.2.2 avec short
+        run.run_cycle(self.state, [decision("sh", {
+            "type": "market_buy", "pair": PAIR, "qty": .025,
+            "compartment": "short",
+        })], FakeMarket(last=65000), T0 - 10)
+        self.assertAlmostEqual(self.state["positions"][PAIR]["qty"], .025)
+        # Simule un rollback 0.2.1 : on retire by_compartment
+        self.state["positions"][PAIR].pop("by_compartment", None)
+        # Une vente en 0.2.1 style (sans compartment) réduit l'agrégat
+        run.execute_fill(self.state, PAIR, "sell", .01, 66000, "taker", "market", T0,
+                         compartment="medium")  # default
+        # Retour 0.2.2 : migration doit respecter l'agrégat
+        run.migrate_state(self.state)
+        pos = self.state["positions"][PAIR]
+        self.assertAlmostEqual(pos["qty"], .015)
+        self.assertAlmostEqual(pos["by_compartment"]["medium"]["qty"], .015)
+
+    def test_tp_blocked_regardless_of_order(self):
+        # Place un ordre de sortie d'abord, puis un achat qui se remplit dans la même bougie
+        run.run_cycle(self.state, [decision("buy", {
+            "type": "market_buy", "pair": PAIR, "qty": .01,
+            "stop_loss": 60000, "take_profit": 66000,
+        })], FakeMarket(last=65000), T0)
+        # Force l'ordre de sortie à être listé après un achat fictif dans la même bougie
+        fills = run.process_candle(self.state, PAIR, (T0, 65000, 67000, 64000, 65500),
+                                    market=FakeMarket(fail5=True))
+        self.assertFalse(any(f.get("reason") == "take_profit" for f in fills))
+
+    def test_webhook_carries_compartment_and_warning(self):
+        # Juste vérifie que le trade a le champ et que le warning est émis
+        run.run_cycle(self.state, [decision("sh", {
+            "type": "market_buy", "pair": PAIR, "qty": .01,
+            "stop_loss": 64000, "take_profit": 70000, "compartment": "short",
+        })], FakeMarket(last=65000), T0 - 10)
+        self.assertEqual(self.state["closed_trades"][0]["compartment"], "short")
+        run.run_cycle(self.state, [decision("medbuy", {
+            "type": "place_limit", "pair": PAIR, "side": "buy", "qty": .01,
+            "price": 60000, "compartment": "medium",
+        })], FakeMarket(last=65000), T0)
+        events, _, _ = run.run_cycle(self.state, [], FakeMarket(), T0 + 60)
+        self.assertTrue(any(e.get("type") == "cross_compartment_conflict" for e in events))
