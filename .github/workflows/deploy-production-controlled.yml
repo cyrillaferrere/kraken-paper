@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Read approved deployment request
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.sha }}
           fetch-depth: 1
@@ -45,7 +45,7 @@ jobs:
               out.write('RELEASE_VERSION=' + p['version'] + '\n')
           PY
       - name: Checkout latest main (source of truth)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main
           fetch-depth: 0
@@ -64,12 +64,13 @@ jobs:
           fi
           test "$(tr -d '[:space:]' < VERSION)" = "$RELEASE_VERSION"
           test -z "$(git status --porcelain)"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '24'
+          package-manager-cache: false
       - name: Offline tests and shell syntax
         run: |
           set -euo pipefail
