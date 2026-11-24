@@ -11,13 +11,27 @@
       "base": "ETH",
       "qty": 0.09488256,
       "avg_cost": 1578.067299722942,
-      "fees_paid": 1.033105
+      "fees_paid": 1.033105,
+      "by_compartment": {
+        "medium": {
+          "qty": 0.09488256,
+          "avg_cost": 1578.067299722942,
+          "fees_paid": 1.033105
+        }
+      }
     },
     "XBTUSDC": {
       "base": "BTC",
       "qty": 0.01131042,
       "avg_cost": 57366.1028353071,
-      "fees_paid": 4.416228
+      "fees_paid": 4.416228,
+      "by_compartment": {
+        "medium": {
+          "qty": 0.01131042,
+          "avg_cost": 57366.1028353071,
+          "fees_paid": 4.416228
+        }
+      }
     }
   },
   "open_orders": [
@@ -45,7 +59,8 @@
           "qty": 0.00588555
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0036",
@@ -71,7 +86,8 @@
           "qty": 0.00605056
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0039",
@@ -97,7 +113,8 @@
           "qty": 0.0498008
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0040",
@@ -123,7 +140,8 @@
           "qty": 0.0522386
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0042",
@@ -149,7 +167,8 @@
           "qty": 1.18573326
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0043",
@@ -175,7 +194,8 @@
           "qty": 1.24501992
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0044",
@@ -201,7 +221,8 @@
           "qty": 1.31054728
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0046",
@@ -227,7 +248,8 @@
           "qty": 60.73267904
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0047",
@@ -253,7 +275,8 @@
           "qty": 63.8471754
         }
       ],
-      "breakeven_after_tp1": true
+      "breakeven_after_tp1": true,
+      "compartment": "medium"
     },
     {
       "id": "O0057",
@@ -276,7 +299,8 @@
       ],
       "entry_price": 1578.067299722942,
       "breakeven_after_tp1": false,
-      "tp_filled": 1
+      "tp_filled": 1,
+      "compartment": "medium"
     },
     {
       "id": "O0058",
@@ -299,7 +323,8 @@
       ],
       "entry_price": 57366.1028353071,
       "breakeven_after_tp1": false,
-      "tp_filled": 1
+      "tp_filled": 1,
+      "compartment": "medium"
     }
   ],
   "closed_trades": [
@@ -316,7 +341,8 @@
       "reason": "limit",
       "time": "2026-11-14T04:00:00+01:00",
       "ts": 1794625200,
-      "realized_pnl": null
+      "realized_pnl": null,
+      "compartment": "medium"
     },
     {
       "id": "T0002",
@@ -331,7 +357,8 @@
       "reason": "limit",
       "time": "2026-11-14T05:00:00+01:00",
       "ts": 1794628800,
-      "realized_pnl": null
+      "realized_pnl": null,
+      "compartment": "medium"
     },
     {
       "id": "T0003",
@@ -347,7 +374,8 @@
       "time": "2026-11-14T15:00:00+01:00",
       "ts": 1794664800,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0004",
@@ -363,7 +391,8 @@
       "time": "2026-11-14T21:50:00+01:00",
       "ts": 1794689400,
       "realized_pnl": -39.150946,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0005",
@@ -379,7 +408,8 @@
       "time": "2026-11-14T22:15:00+01:00",
       "ts": 1794690900,
       "realized_pnl": -51.551093,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0006",
@@ -395,7 +425,8 @@
       "time": "2026-11-14T22:15:00+01:00",
       "ts": 1794690900,
       "realized_pnl": -54.313972,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0007",
@@ -411,7 +442,8 @@
       "time": "2026-11-15T02:05:00+01:00",
       "ts": 1794704700,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0008",
@@ -428,7 +460,8 @@
       "ts": 1794711300,
       "realized_pnl": 4.017672,
       "time_source": "m5",
-      "tp_index": 1
+      "tp_index": 1,
+      "compartment": "medium"
     },
     {
       "id": "T0009",
@@ -444,7 +477,8 @@
       "time": "2026-11-15T16:00:00+01:00",
       "ts": 1794754800,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0010",
@@ -460,7 +494,8 @@
       "time": "2026-11-16T02:55:00+01:00",
       "ts": 1794794100,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0011",
@@ -476,7 +511,8 @@
       "time": "2026-11-16T13:25:00+01:00",
       "ts": 1794831900,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0012",
@@ -492,7 +528,8 @@
       "time": "2026-11-17T16:50:00+01:00",
       "ts": 1794930600,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0013",
@@ -508,7 +545,8 @@
       "time": "2026-11-17T16:45:00+01:00",
       "ts": 1794930300,
       "realized_pnl": -8.336605,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0014",
@@ -527,7 +565,8 @@
       "time": "2026-11-18T15:35:00+01:00",
       "ts": 1795012500,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0015",
@@ -546,7 +585,8 @@
       "time": "2026-11-18T17:15:00+01:00",
       "ts": 1795018500,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0016",
@@ -565,7 +605,8 @@
       "time": "2026-11-18T17:20:00+01:00",
       "ts": 1795018800,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0017",
@@ -585,7 +626,8 @@
       "ts": 1795187400,
       "realized_pnl": -19.926439,
       "time_source": "m5",
-      "slippage_rate": 0.002
+      "slippage_rate": 0.002,
+      "compartment": "medium"
     },
     {
       "id": "T0018",
@@ -605,7 +647,8 @@
       "ts": 1795187700,
       "realized_pnl": -28.915367,
       "time_source": "m5",
-      "slippage_rate": 0.0016029937009515887
+      "slippage_rate": 0.0016029937009515887,
+      "compartment": "medium"
     },
     {
       "id": "T0019",
@@ -625,7 +668,8 @@
       "ts": 1795187700,
       "realized_pnl": -27.774739,
       "time_source": "m5",
-      "slippage_rate": 0.0017333140178546244
+      "slippage_rate": 0.0017333140178546244,
+      "compartment": "medium"
     },
     {
       "id": "T0020",
@@ -645,7 +689,8 @@
       "ts": 1795187700,
       "realized_pnl": -119.056602,
       "time_source": "m5",
-      "slippage_rate": 0.0011793939392828992
+      "slippage_rate": 0.0011793939392828992,
+      "compartment": "medium"
     },
     {
       "id": "T0021",
@@ -664,7 +709,8 @@
       "time": "2026-11-20T20:10:00+01:00",
       "ts": 1795201800,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0022",
@@ -683,7 +729,8 @@
       "time": "2026-11-20T20:10:00+01:00",
       "ts": 1795201800,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0023",
@@ -702,7 +749,8 @@
       "time": "2026-11-21T04:30:00+01:00",
       "ts": 1795231800,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0024",
@@ -721,7 +769,8 @@
       "time": "2026-11-21T04:55:00+01:00",
       "ts": 1795233300,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0025",
@@ -740,7 +789,8 @@
       "time": "2026-11-21T05:05:00+01:00",
       "ts": 1795233900,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0026",
@@ -759,7 +809,8 @@
       "time": "2026-11-21T07:15:00+01:00",
       "ts": 1795241700,
       "realized_pnl": null,
-      "time_source": "m5"
+      "time_source": "m5",
+      "compartment": "medium"
     },
     {
       "id": "T0027",
@@ -779,7 +830,8 @@
       "ts": 1795412700,
       "realized_pnl": 6.447392,
       "time_source": "m5",
-      "tp_index": 1
+      "tp_index": 1,
+      "compartment": "medium"
     },
     {
       "id": "T0028",
@@ -799,7 +851,8 @@
       "ts": 1795442100,
       "realized_pnl": 20.681808,
       "time_source": "m5",
-      "tp_index": 1
+      "tp_index": 1,
+      "compartment": "medium"
     },
     {
       "id": "T0029",
@@ -819,7 +872,8 @@
       "ts": 1795442100,
       "realized_pnl": 62.154064,
       "time_source": "m5",
-      "tp_index": 1
+      "tp_index": 1,
+      "compartment": "medium"
     },
     {
       "id": "T0030",
@@ -839,7 +893,8 @@
       "ts": 1795442100,
       "realized_pnl": 4.981121,
       "time_source": "m5",
-      "tp_index": 1
+      "tp_index": 1,
+      "compartment": "medium"
     },
     {
       "id": "T0031",
@@ -859,7 +914,8 @@
       "ts": 1795443900,
       "realized_pnl": 13.22347,
       "time_source": "m5",
-      "tp_index": 2
+      "tp_index": 2,
+      "compartment": "medium"
     },
     {
       "id": "T0032",
@@ -879,7 +935,8 @@
       "ts": 1795443900,
       "realized_pnl": 9.025758,
       "time_source": "m5",
-      "tp_index": 2
+      "tp_index": 2,
+      "compartment": "medium"
     }
   ],
   "processed_decisions": [
@@ -967,16 +1024,16 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795550400,
-    "ETHUSDC": 1795550400,
-    "SOLUSDC": 1795550400,
-    "XRPUSDC": 1795550400
+    "XBTUSDC": 1795554000,
+    "ETHUSDC": 1795554000,
+    "SOLUSDC": 1795554000,
+    "XRPUSDC": 1795554000
   },
   "last_prices": {
-    "XBTUSDC": 59718.63,
-    "ETHUSDC": 1672.93,
-    "SOLUSDC": 69.25,
-    "XRPUSDC": 0.91953
+    "XBTUSDC": 59882.61,
+    "ETHUSDC": 1683.85,
+    "SOLUSDC": 69.52,
+    "XRPUSDC": 0.92349
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -990,8 +1047,8 @@
     "order": 59,
     "trade": 32
   },
-  "last_cycle": "2026-11-24T22:09:15+01:00",
-  "last_cycle_ts": 1795554555,
+  "last_cycle": "2026-11-24T23:09:18+01:00",
+  "last_cycle_ts": 1795558158,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -999,12 +1056,12 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795554000,
-    "SOLUSDC": 1795554000,
-    "XBTUSDC": 1795554000,
-    "XRPUSDC": 1795554000
+    "ETHUSDC": 1795557600,
+    "SOLUSDC": 1795557600,
+    "XBTUSDC": 1795557600,
+    "XRPUSDC": 1795557600
   },
-  "engine_version": "0.2.1",
+  "engine_version": "0.2.2",
   "price_move_watch": {
     "ETHUSDC": {
       "reference_price": 1672.93,
@@ -1026,5 +1083,6 @@
       "reference_ts": 1795554555,
       "last_session_id": "2026-11-24-19h10"
     }
-  }
+  },
+  "signaled_conflicts": []
 }
