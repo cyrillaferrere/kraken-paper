@@ -365,11 +365,18 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
                            breakeven_after_tp1=breakeven_after_tp1,
                            entry_price=state["positions"][pair]["avg_cost"])
     if len(exits) != 1:
-        raise Rejected("plusieurs groupes de sorties existants : fusion manuelle requise")
+        # Des groupes historiques multiples restent intactes : ne pas annuler
+        # retrospectivement un fill deja comptabilise.
+        return attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
+                           take_profits=take_profits,
+                           breakeven_after_tp1=breakeven_after_tp1,
+                           entry_price=state["positions"][pair]["avg_cost"])
     old = exits[0]
     free = max(0.0, available_qty(state, pair))
     if free + EPS < qty:
-        raise Rejected("quantite non disponible pour fusion des sorties")
+        # Un ordre de vente independant peut reserver une part de l'achat.
+        # Ne pas toucher aux reserves existantes; ne pas surestimer le bracket.
+        return old
     addition = round(qty, meta["lot_decimals"])
     total = round(old["qty"] + addition, meta["lot_decimals"])
     # Aucune nouvelle protection n'est inventee si le groupe a deja un stop
@@ -380,7 +387,7 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
         if remaining:
             previous = sum(tier["qty"] for tier in remaining)
             if previous <= EPS:
-                raise Rejected("fusion : fractions de sorties invalides")
+                return old
             revised = [dict(tier) for tier in remaining]
             for tier in revised[:-1]:
                 tier["qty"] = floor_dec(target * tier["qty"] / previous, meta["lot_decimals"])
@@ -389,7 +396,7 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
             for tier in revised:
                 if (tier["qty"] + EPS < meta["ordermin"]
                         or tier["qty"] * tier["price"] + EPS < meta["costmin"]):
-                    raise Rejected("fusion : palier de sortie sous le minimum Kraken")
+                    return old
             old["take_profits"] = revised
         # Stop et niveaux, TP deja touches et pending_exits restent intacts.
         old["entry_price"] = state["positions"][pair]["avg_cost"]
