@@ -422,6 +422,9 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
             if rejects is not None:
                 rejects.append({"type": "cancel", "order_id": order["id"], "pair": pair,
                                 "reason": f"annule par le moteur : {e}"})
+    rearmed = rearm_deferred_breakeven(state, pair, close)
+    if rejects is not None:
+        rejects.extend(rearmed)
     state["last_prices"][pair] = close
     if m5_override is not None:
         state.setdefault("last_m5", {})[pair] = t
@@ -503,6 +506,31 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
     fills.append(tr)
 
 
+def breakeven_net(state, pair, pru):
+    return round(pru * (1 + state["fees"]["taker"] + 0.002),
+                 state["pairs"][pair]["pair_decimals"])
+
+
+def rearm_deferred_breakeven(state, pair, close):
+    events = []
+    pru = state["positions"].get(pair, {}).get("avg_cost")
+    if not pru or any(o["pair"] == pair and o["side"] == "buy" and o["price"] < pru
+                      for o in state["open_orders"]):
+        return events
+    net = breakeven_net(state, pair, pru)
+    if close < net * 1.005:
+        return events
+    for order in state["open_orders"]:
+        if (order["pair"] != pair or not order.get("breakeven_deferred")
+                or order.get("tp_filled", 0) < 1 or order.get("stop_loss") is None):
+            continue
+        order["stop_loss"] = max(order["stop_loss"], net)
+        order.pop("breakeven_deferred")
+        events.append({"type": "breakeven_rearmed", "pair": pair,
+                       "order_id": order["id"], "stop": order["stop_loss"], "pru": pru})
+    return events
+
+
 def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hour_open=None):
     """Exécute les niveaux dans l'ordre des 5 min ; stop prioritaire à égalité."""
     meta = state["pairs"][pair]
@@ -532,7 +560,18 @@ def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hou
             order["qty"] = round(order["qty"] - qty, meta["lot_decimals"])
             order["tp_filled"] = tr["tp_index"]
             if tr["tp_index"] == 1 and order.get("breakeven_after_tp1") and stop is not None:
-                order["stop_loss"] = max(stop, order["entry_price"])
+                pru = state["positions"].get(pair, {}).get("avg_cost", order["entry_price"])
+                pending_buys = [o["id"] for o in state["open_orders"]
+                                if o["pair"] == pair and o["side"] == "buy"
+                                and o["price"] < pru]
+                if pending_buys:
+                    order["breakeven_deferred"] = {"since": ts, "pru": pru, "order_ids": pending_buys}
+                    tr["breakeven_skipped"] = {"reason": "pending_buy_below_pru",
+                                               "order_ids": pending_buys,
+                                               "pru": pru, "stop_loss": stop}
+                else:
+                    order["stop_loss"] = max(stop, breakeven_net(state, pair, pru))
+                    order.pop("breakeven_deferred", None)
             if order["qty"] <= EPS:
                 state["open_orders"].remove(order)
                 return

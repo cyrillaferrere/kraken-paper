@@ -1,3 +1,6 @@
+## Recette point mort conditionnel
+Exécuter `python -m unittest tests.test_tp_paliers -v` puis la CI complète. Vérifier le champ `breakeven_skipped` du fill journalisé. Ne pas lancer le moteur sur l'état vivant.
+
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
    aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.

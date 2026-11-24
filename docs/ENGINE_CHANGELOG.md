@@ -1,3 +1,6 @@
+## [Unreleased] — 0.2.1
+- Point mort TP1 : conserver le stop si un achat ouvert de la même paire est sous le PRU courant ; motif et IDs journalisés dans le fill. Aucun report automatique du point mort.
+
 # Historique du moteur PAPER (independant du site)
 
 ## 0.2.0 — en developpement (site 0.3.7)
