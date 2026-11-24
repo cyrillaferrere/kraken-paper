@@ -1,3 +1,6 @@
+## Migration Node 24
+CI : Node.js 24 pour les workflows utilisant Node 22 ; versions des actions inchangées. Recette complète Python/Node et contrôle des déploiements avant fusion.
+
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
    aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.

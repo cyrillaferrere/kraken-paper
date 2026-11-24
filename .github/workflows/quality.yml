@@ -23,7 +23,7 @@ jobs:
           python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
       - name: Validate branch scope and documentation
         env:
           EVENT_NAME: ${{ github.event_name }}

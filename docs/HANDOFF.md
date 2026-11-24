@@ -1,3 +1,6 @@
+## Migration Node 24
+CI : Node.js 24 pour les workflows utilisant Node 22 ; versions des actions inchangées. Recette complète Python/Node et contrôle des déploiements avant fusion.
+
 ## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
 - Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
   Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,
