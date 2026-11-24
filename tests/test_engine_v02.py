@@ -23,6 +23,13 @@ class EngineV02Tests(unittest.TestCase):
         self.assertEqual({x["id"] for x in old_orders}, expected)
         run.run_cycle(st, [], FakeMarket(), st["last_cycle_ts"] + 60)
         self.assertEqual(st["engine_version"], run.ENGINE_VERSION)
+        # Migration additive : compartment et by_compartment apparaissent
+        for o in st["open_orders"]:
+            o.pop("compartment", None)
+        for pos in st["positions"].values():
+            pos.pop("by_compartment", None)
+        for tr in st["closed_trades"]:
+            tr.pop("compartment", None)
         self.assertEqual(st["open_orders"], old_orders)
         self.assertEqual(st["positions"], old_positions)
         self.assertEqual(st["closed_trades"], old_trades)
@@ -39,6 +46,9 @@ class EngineV02Tests(unittest.TestCase):
         original = copy.deepcopy(order)
         events, row, _ = run.run_cycle(state, [], FakeMarket(), T0 + 60)
         self.assertEqual(state["engine_version"], run.ENGINE_VERSION)
+        # Migration additive
+        self.assertEqual(state["open_orders"][0].get("compartment"), "medium")
+        state["open_orders"][0].pop("compartment", None)
         self.assertEqual(state["open_orders"][0], original)
         self.assertEqual(row["engine_version"], run.ENGINE_VERSION)
         self.assertTrue(all(e["engine_version"] == run.ENGINE_VERSION for e in events))
