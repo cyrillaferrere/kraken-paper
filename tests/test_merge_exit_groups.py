@@ -72,6 +72,16 @@ class MergeExitGroupsTests(unittest.TestCase):
         self.assertEqual(len(self.state["open_orders"]), 1)
         self.assertAlmostEqual(self.state["open_orders"][0]["qty"], .03)
 
+    def test_merge_emits_auditable_event(self):
+        events, _, _ = self.buy_market("audit-merge", T0 + 60)
+        audit = [e for e in events if e.get("type") == "exit_groups_merged"]
+        self.assertEqual(len(audit), 1)
+        self.assertEqual(audit[0]["order_id"], self.original["id"])
+        self.assertAlmostEqual(audit[0]["previous_qty"], .02)
+        self.assertAlmostEqual(audit[0]["new_qty"], .03)
+        self.assertAlmostEqual(audit[0]["added_qty"], .01)
+        self.assertEqual(audit[0]["stop_loss"], 62000)
+
     def test_no_extra_exit_when_unprotected_buy(self):
         run.run_cycle(self.state, [decision("unprotected", {
             "type": "market_buy", "pair": PAIR, "qty": .01,
