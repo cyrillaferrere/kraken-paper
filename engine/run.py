@@ -412,6 +412,8 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
         if new:
             new["active_from"] = pending["active_from"]
             new["tp_filled"] = old.get("tp_filled", 0)
+            if old.get("compartment"):
+                new["compartment"] = old["compartment"]
     for order in list(state["open_orders"]):
         if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
             continue
@@ -422,6 +424,7 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
             if rejects is not None:
                 rejects.append({"type": "cancel", "order_id": order["id"], "pair": pair,
                                 "reason": f"annule par le moteur : {e}"})
+    refresh_compartment(state, pair)
     state["last_prices"][pair] = close
     if m5_override is not None:
         state.setdefault("last_m5", {})[pair] = t
@@ -669,6 +672,7 @@ def apply_action(state, a, ctx, now, decision_id):
         for o in state["open_orders"]:
             if o["id"] == oid:
                 state["open_orders"].remove(o)
+                refresh_compartment(state, o["pair"])
                 return {"type": "cancel", "order_id": oid, "pair": o["pair"]}, []
         raise Rejected(f"ordre {oid} introuvable ou deja execute")
     if typ == "update_exits":
