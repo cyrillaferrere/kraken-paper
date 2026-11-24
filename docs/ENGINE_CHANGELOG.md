@@ -1,5 +1,12 @@
 # Historique du moteur PAPER (independant du site)
 
+## 0.2.2 — compartiments medium / short (24/11/2026)
+- Agrégat de position par paire conservé ; `by_compartment` pour qty, PRU et frais de chaque poche. Migration additive et idempotente : état sans compartiment → medium. Un moteur 0.2.1 relit un état 0.2.2 sans erreur.
+- Ordres, trades et webhooks portent `compartment`. Groupe de sorties unique par paire et compartiment. Achat short ne fusionne jamais dans medium. Vente medium ne vend pas la qty short.
+- TP interdits dans la même bougie 5 min que l'achat d'origine ; stop reste actif.
+- Warning non bloquant `cross_compartment_conflict` si stop short au-dessus d'un achat medium en attente.
+- Tests hors réseau dans `tests/test_engine_v022_compartments.py`.
+
 ## 0.2.1 — candidat préproduction (24/11/2026)
 - Point mort net conditionnel et réarmement (#75, ADR-36).
 - Fusion des sorties et avertissements sur protection insuffisante (#77, ADR-42).

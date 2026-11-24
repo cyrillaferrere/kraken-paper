@@ -1,3 +1,10 @@
+## [Moteur 0.2.2] — compartiments medium / short (24/11/2026)
+- Positions : l'agrégat par paire (qty, avg_cost, fees_paid, base) est conservé ; ajout de `by_compartment` pour le PRU et les frais de chaque poche. Migration additive et idempotente : un état sans compartiment devient medium. Un moteur 0.2.1 relit un état 0.2.2 sans erreur.
+- Ordres et trades : champ `compartment` (medium par défaut). Groupe de sorties unique par paire et par compartiment. Un achat short ne fusionne jamais dans le groupe medium. Une vente medium ne touche pas la quantité short.
+- TP bloqués dans la même bougie 5 min que l'achat d'origine ; le stop reste actif.
+- Warning non bloquant `cross_compartment_conflict` quand un stop short est au-dessus d'un achat medium en attente sur la même paire.
+- Tests : `tests/test_engine_v022_compartments.py`.
+
 ## [Unreleased] — dashboard 0.4.0 (24/11/2026)
 - #79 : niveaux PAPER, stops et TP hérités, prévisualisation des achats, point mort suspendu.
 - #80 limitée à stopRisk, risque global et perte sur 7 jours ; vigilance 6 %, alerte 8 %, avertissements sur les stops et le point mort.
