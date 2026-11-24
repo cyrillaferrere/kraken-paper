@@ -296,6 +296,57 @@ function flashLiveValue(el, value) {
     }
 
 
+    // Jauges : la valeur affichée reste exacte ; seule la largeur indique
+    // la proportion de la limite, sans interpolation des cours.
+    const setGauge = (id, value, limit, label) => {
+      const track = $(id + "-track"), fill = $(id + "-fill");
+      put(id + "-text", label);
+      const valid = value != null && Number.isFinite(value);
+      if (fill) fill.style.width = valid ? Math.max(0, Math.min(100, value / limit * 100)) + "%" : "0%";
+      if (track) {
+        if (valid) track.setAttribute("aria-valuenow", String(Math.max(0, Math.min(limit, value))));
+        else track.removeAttribute("aria-valuenow");
+        track.setAttribute("aria-valuetext", valid ? label : "Indisponible");
+      }
+      if (fill) fill.classList.toggle("gauge-exceeded", valid && value >= limit);
+    };
+    if (ex && !ex.missing && !ex.unprotected.length && !ex.buysNoStop) {
+      setGauge("g-risk", ex.riskPct * 100, 8,
+               usdc(ex.risk) + " · " + pct(ex.riskPct) + " / 8 %");
+      put("g-risk-note", "Frais et glissement estimés, achats en attente compris.");
+    } else {
+      setGauge("g-risk", null, 8, "Risque global non chiffrable");
+      put("g-risk-note", ex?.unprotected.length || ex?.buysNoStop ?
+        "Protections manquantes : " + [...(ex?.unprotected || [])].join(", ") +
+          (ex?.buysNoStop ? " · " + ex.buysNoStop + " achat(s) sans stop" : "") :
+        "Cours ou exposition indisponibles.");
+    }
+    const week = perfWindow(168);
+    // Une perte est positive sur la jauge, un gain correspond à zéro perte.
+    setGauge("g-week", week ? Math.max(0, -week.pct * 100) : null, 8,
+             week ? signed(week.pnl) + " USDC · " + pct(week.pct) : "Historique 7 j insuffisant");
+    put("g-week-note", week ? "Seuil de perte : −8 % sur 7 jours." :
+        "Aucune performance estimée sans référence historique à 7 jours.");
+    if (window.KPLib?.allocationTargets) {
+      const allocation = window.KPLib.allocationTargets(S, price, orderMath);
+      const el = $("g-allocation");
+      if (el) {
+        if (!allocation.complete) {
+          el.textContent = "Classification inconnue : " + usdc(allocation.unknown) +
+            " non répartis en moyen/court terme. Réserve connue : " +
+            usdc(allocation.totals.reserve) + ".";
+        } else {
+          el.textContent = [["medium", "Moyen terme"], ["short", "Court terme"],
+                            ["reserve", "Réserve"]].map(([key, name]) => {
+            const actual = allocation.totals[key] / allocation.total;
+            return name + " : " + pct(actual) + " / cible " +
+              pct(allocation.targets[key]) + " (écart " +
+              signed((actual - allocation.targets[key]) * 100) + " points)";
+          }).join(" · ");
+        }
+      }
+    }
+
     if (window.KPFocus) window.KPFocus.onPortfolio({ equity });
     if (window.KPV035) window.KPV035.onPortfolio({ equity, journal });
     if (liveOnly) {
