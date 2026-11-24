@@ -179,7 +179,15 @@
     for (const [pair, pos] of Object.entries(st.positions || {})) {
       const px = price(pair);
       if (!Number.isFinite(px) || px <= 0) { missing = true; continue; }
-      if (pos.compartment === "medium" || pos.compartment === "short") {
+      if (pos.compartments && typeof pos.compartments === "object") {
+        let remaining = pos.qty;
+        for (const key of ["medium", "short"]) {
+          const qty = Math.min(remaining, Math.max(0, Number(pos.compartments[key]) || 0));
+          totals[key] += qty * px;
+          remaining -= qty;
+        }
+        unknown += remaining * px;
+      } else if (pos.compartment === "medium" || pos.compartment === "short") {
         totals[pos.compartment] += pos.qty * px;
       } else unknown += pos.qty * px;
     }
