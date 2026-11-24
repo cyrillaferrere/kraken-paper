@@ -1,4 +1,4 @@
-"""Vérifie le contrat des lignes PAPER : niveaux et légende en lecture seule."""
+// Vérifie le contrat des lignes PAPER : niveaux et légende en lecture seule.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
