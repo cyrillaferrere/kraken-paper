@@ -1,3 +1,7 @@
+## Moteur 0.2.1 — PR point mort
+Point mort TP1 : conserver le stop si un achat ouvert de la même paire est sous le PRU courant ; motif et IDs journalisés dans le fill. Aucun report automatique du point mort.
+Revue Grok Bot et CI requises.
+
 ## Correctifs apres revue Grok Bot — PR #73 (18/11/2026)
 - Panne API OHLC 5 min ou absence temporaire des barres : ne pas basculer en 1 h.
   Reprise au cycle suivant sans mouvement des curseurs. Au-dela de 60 h,

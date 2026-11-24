@@ -532,7 +532,16 @@ def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hou
             order["qty"] = round(order["qty"] - qty, meta["lot_decimals"])
             order["tp_filled"] = tr["tp_index"]
             if tr["tp_index"] == 1 and order.get("breakeven_after_tp1") and stop is not None:
-                order["stop_loss"] = max(stop, order["entry_price"])
+                pru = state["positions"].get(pair, {}).get("avg_cost", order["entry_price"])
+                pending_buys = [o["id"] for o in state["open_orders"]
+                                if o["pair"] == pair and o["side"] == "buy"
+                                and o["price"] < pru]
+                if pending_buys:
+                    tr["breakeven_skipped"] = {"reason": "pending_buy_below_pru",
+                                               "order_ids": pending_buys,
+                                               "pru": pru, "stop_loss": stop}
+                else:
+                    order["stop_loss"] = max(stop, pru)
             if order["qty"] <= EPS:
                 state["open_orders"].remove(order)
                 return

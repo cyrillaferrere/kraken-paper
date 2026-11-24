@@ -1,3 +1,6 @@
+## [Unreleased] — moteur 0.2.1
+- Point mort TP1 : conserver le stop si un achat ouvert de la même paire est sous le PRU courant ; motif et IDs journalisés dans le fill. Aucun report automatique du point mort.
+
 ### Revue Grok Bot — correctifs PR #73 (18/11/2026)
 - Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
 - Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour

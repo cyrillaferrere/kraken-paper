@@ -52,6 +52,19 @@ class TieredExitTests(unittest.TestCase):
         self.assertEqual(self.state["open_orders"], [])
         self.assertLess(fills[0]["realized_pnl"], 0)
 
+    def test_tp1_keeps_stop_with_pending_buy_below_pru(self):
+        self.order["breakeven_after_tp1"] = True
+        action = {"type": "place_limit", "side": "buy", "pair": self.pair,
+                  "price": 63000, "qty": 0.01}
+        events, _, errors = run.apply_decisions(
+            self.state, [decision("pending-buy", action)], FakeMarket(last=65000), T0 - 5)
+        self.assertFalse(errors)
+        self.assertTrue(any(e["type"] == "order_placed" for e in events))
+        fills = self.candle(T0, 70000, 64000)
+        self.assertEqual(self.order["stop_loss"], 62000)
+        self.assertEqual(fills[0]["breakeven_skipped"]["reason"], "pending_buy_below_pru")
+        self.assertEqual(fills[0]["breakeven_skipped"]["stop_loss"], 62000)
+
     def test_stop_before_tp1(self):
         fills = self.candle(T0, 70000, 61000)
         self.assertEqual(len(fills), 1)
