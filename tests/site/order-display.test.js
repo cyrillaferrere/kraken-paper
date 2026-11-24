@@ -49,10 +49,20 @@ test("order_placed conserve le TP unique historique", () => {
   assert.doesNotMatch(text, /TP1/);
 });
 
-test("le graphique distingue le stop réellement remonté après TP1", () => {
+test("le graphique distingue le point mort actif et suspendu et les sorties héritées", () => {
   const market = fs.readFileSync(path.join(__dirname, "../../site/markets.js"), "utf8");
-  assert.match(market, /o\.breakeven_after_tp1 === true && Number\(o\.tp_filled\) > 0/);
-  assert.match(market, /Number\(o\.stop_loss\) >= Number\(o\.entry_price\)/);
-  assert.match(market, /stop remonté au prix d’achat après TP1/);
-  assert.match(market, /stopLabel = breakevenActive \?/);
+  const start = market.indexOf("function buildOrderLines(");
+  const end = market.indexOf("window.KPMarketOrderLines",start);
+  const chart = vm.createContext({C:{dn:"#ef4444"}});
+  vm.runInContext(market.slice(start,end),chart);
+  const group={id:"S1",pair:"XBTUSDC",side:"sell",parent:"B1",stop_loss:101,entry_price:100,breakeven_after_tp1:true,tp_filled:1,take_profits:[{price:120}]};
+  const buy={id:"B2",pair:"XBTUSDC",side:"buy",price:98,stop_loss:90,take_profits:[{price:110}]};
+  const levels=chart.buildOrderLines([group,buy],"XBTUSDC","B2");
+  assert.ok(levels.some(l=>l.label.includes("stop remonté")));
+  assert.ok(levels.some(l=>l.conditional && l.price===101 && l.label.includes("S1")));
+  assert.ok(!levels.some(l=>l.conditional && l.price===90));
+  group.breakeven_deferred={since:1};
+  const suspended=chart.buildOrderLines([group],"XBTUSDC");
+  assert.ok(suspended.some(l=>l.label.includes("point mort suspendu")));
+  assert.ok(!suspended.some(l=>l.label.includes("stop remonté")));
 });
