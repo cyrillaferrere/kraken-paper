@@ -1,8 +1,8 @@
 {
   "environment": "production",
   "approved_by": "Cyril",
-  "version": "0.3.7",
-  "approved_commit": "133e173d729f02231e21f084b832f75c5a542cc4",
-  "reason": "GO production explicite de Cyril le 18/11/2026 pour Dash v0.3.7 et moteur PAPER v0.2.0. PR #73 revue Grok Bot, corrections API m5 et affichage des versions testees. PR release ciblee #74 fusionnee dans main au commit 133e173. CI quality-gates et guard-state vertes. Aucun changement manuel sous state/ ou decisions/. Deploiement via workflow controle uniquement.",
-  "request_sequence": 7
+  "version": "0.4.0",
+  "approved_commit": "089603c5c088c11a4237b3a275557bc01c2b3cb4",
+  "reason": "GO production explicite de Cyril le 24/11/2026, réitéré pour la release 0.4.0 / moteur 0.2.1. Revue Grok GO préprod, PR #82 et #83 intégrées et déployées en préprod, PR #84 validée guard-state et quality-gates et fusionnée dans main. Branche release issue de main, aucun changement state/, decisions/ ou docs/LESSONS.md.",
+  "request_sequence": 8
 }
