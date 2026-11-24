@@ -1022,16 +1022,16 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795554000,
-    "ETHUSDC": 1795554000,
-    "SOLUSDC": 1795554000,
-    "XRPUSDC": 1795554000
+    "XBTUSDC": 1795557600,
+    "ETHUSDC": 1795557600,
+    "SOLUSDC": 1795557600,
+    "XRPUSDC": 1795557600
   },
   "last_prices": {
-    "XBTUSDC": 59926.91,
-    "ETHUSDC": 1682.55,
-    "SOLUSDC": 69.68,
-    "XRPUSDC": 0.9227
+    "XBTUSDC": 59973.3,
+    "ETHUSDC": 1682.01,
+    "SOLUSDC": 70.0,
+    "XRPUSDC": 0.92486
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -1045,8 +1045,8 @@
     "order": 65,
     "trade": 32
   },
-  "last_cycle": "2026-11-24T23:32:16+01:00",
-  "last_cycle_ts": 1795559536,
+  "last_cycle": "2026-11-25T00:05:48+01:00",
+  "last_cycle_ts": 1795561548,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -1054,32 +1054,32 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795559100,
-    "SOLUSDC": 1795559100,
-    "XBTUSDC": 1795559100,
-    "XRPUSDC": 1795559100
+    "ETHUSDC": 1795561200,
+    "SOLUSDC": 1795561200,
+    "XBTUSDC": 1795561200,
+    "XRPUSDC": 1795561200
   },
   "engine_version": "0.2.2",
   "price_move_watch": {
     "ETHUSDC": {
-      "reference_price": 1672.93,
-      "reference_ts": 1795554555,
-      "last_session_id": "2026-11-24-19h10"
+      "reference_price": 1682.01,
+      "reference_ts": 1795561548,
+      "last_session_id": "2026-11-24-23h35"
     },
     "SOLUSDC": {
-      "reference_price": 69.25,
-      "reference_ts": 1795554555,
-      "last_session_id": "2026-11-24-19h10"
+      "reference_price": 70.0,
+      "reference_ts": 1795561548,
+      "last_session_id": "2026-11-24-23h35"
     },
     "XBTUSDC": {
-      "reference_price": 59718.63,
-      "reference_ts": 1795554555,
-      "last_session_id": "2026-11-24-19h10"
+      "reference_price": 59973.3,
+      "reference_ts": 1795561548,
+      "last_session_id": "2026-11-24-23h35"
     },
     "XRPUSDC": {
-      "reference_price": 0.91953,
-      "reference_ts": 1795554555,
-      "last_session_id": "2026-11-24-19h10"
+      "reference_price": 0.92486,
+      "reference_ts": 1795561548,
+      "last_session_id": "2026-11-24-23h35"
     }
   },
   "signaled_conflicts": []
