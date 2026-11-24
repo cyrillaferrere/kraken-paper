@@ -922,6 +922,9 @@ def latest_grok_session_id(decisions, state, now):
     return (state.get("last_decision") or {}).get("id")
 
 
+PRICE_MOVE_THRESHOLDS = {"BTC": 0.05, "ETH": 0.05, "other": 0.07}
+
+
 def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR,
                       session_id=None):
     """Prepare des reveils a partir des derniers cours connus, sans reseau.
@@ -929,10 +932,12 @@ def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR,
     L'etat est sauvegarde avant l'envoi du webhook par le workflow. Un
     heartbeat de Grok ou une decision constitue une nouvelle session.
     """
-    thresholds = thresholds or {"BTC": 0.05, "ETH": 0.05, "other": 0.07}
+    thresholds = thresholds or PRICE_MOVE_THRESHOLDS
     watch = state.setdefault("price_move_watch", {})
     followed = set(state["positions"]) | {o["pair"] for o in state["open_orders"]
                                           if o.get("side") == "buy"}
+    for pair in set(watch) - followed:
+        del watch[pair]
     if session_id is None:
         session_id = (state.get("last_decision") or {}).get("id")
     notifications = []
@@ -950,6 +955,7 @@ def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR,
         # Nouvelle session Grok : rebaser la reference, meme en l'absence de
         # trade. Un heartbeat sera aussi traite par le workflow.
         if session_id and entry.get("last_session_id") != session_id:
+            entry.pop("last_wakeup_ts", None)
             entry.update(reference_price=price, reference_ts=int(now),
                          last_session_id=session_id)
             continue
@@ -960,7 +966,7 @@ def price_move_alerts(state, now, thresholds=None, cooldown=6 * HOUR,
         change = (price / ref - 1)
         if abs(change) + EPS < threshold:
             continue
-        if int(now) - int(entry.get("last_wakeup_ts", -10**12)) < cooldown:
+        if abs(change) + EPS < 2 * threshold and int(now) - int(entry.get("last_wakeup_ts", -10**12)) < cooldown:
             continue
         entry.update(reference_price=price, reference_ts=int(now),
                      last_wakeup_ts=int(now))
