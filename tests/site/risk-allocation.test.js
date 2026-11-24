@@ -30,8 +30,19 @@ test("allocation complète : réserve hors fonds réservés", () => {
 });
 test("gauge risque et perte hebdomadaire sans reference fabriquee", () => {
   for(const id of ["g-risk-track", "g-week-track", "g-allocation"]) assert.ok(page.includes(id));
-  assert.match(app, /!ex\.unprotected\.length && !ex\.buysNoStop && !missingStop/);
+  assert.match(app, /!risk\.unprotected\.length && !risk\.buysNoStop/);
   assert.match(app, /Historique 7 j insuffisant/);
   assert.match(app, /allocation\.complete/);
   assert.match(app, /aria-valuetext/);
+});
+
+test("risque courant plafonne la couverture et utilise le stop du groupe", () => {
+ const st={cash:900,fees:{maker:0,taker:0},risk_config:{slippage:0},positions:{XBTUSDC:{qty:1,avg_cost:50}},open_orders:[
+ {pair:"XBTUSDC",side:"sell",parent:"T1",qty:1,stop_loss:80},
+ {pair:"XBTUSDC",side:"sell",qty:1,stop_loss:90},
+ {pair:"XBTUSDC",side:"buy",qty:1,price:90,stop_loss:60}]};
+ const risk=KPLib.stopRisk(st,()=>100);
+ assert.equal(risk.risk,30);
+ assert.equal(risk.riskPct,.03);
+ assert.equal(risk.buysNoStop,0);
 });
