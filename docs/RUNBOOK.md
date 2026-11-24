@@ -1,3 +1,11 @@
+## Recette PR 03 — mouvements de prix (24/11/2026)
+1. Tester variation BTC/ETH 5 % et autre 7 %, hausse/baisse, 6 h de cooldown indépendant et réarmement de référence.
+2. Tester sauvegarde/chargement du champ price_move_watch, cours manquant et nouvelle décision Grok.
+3. Inspecter payload price_move du webhook avec urllib mocké, sans aucun POST réel.
+4. Contrôler que notify_grokbot.py n'est invoqué qu'après commit/push réussi dans engine.yml.
+5. Vérifier heartbeat Grok Bot, absence de doubles notifications et historique avant GO.
+6. Exécuter trois suites de tests et CI ; ne jamais lancer le moteur sur les fichiers state/ vivants.
+
 ## Revue Grok Bot — correctifs bloquants 5 min et versions (18/11/2026)
 1. Simuler `APIError` sur OHLC 5 min avec bougie 1 h disponible : aucun repli,
    aucun fill, aucun mouvement des curseurs, message de reprise au prochain cycle.

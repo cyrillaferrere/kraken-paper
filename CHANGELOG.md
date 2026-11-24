@@ -1,3 +1,8 @@
+## [Unreleased] — PR 03, réveil Grok sur variations (24/11/2026)
+- Seuils de mouvement BTC/ETH 5 %, autres 7 %, cooldown 6 h par actif ; suivi des positions et achats en attente.
+- Référence persistée par le moteur ; événements price_move notifiés par le webhook existant après push réussi.
+- Tests hors réseau, ADR-43 ; aucune action de trading automatique.
+
 ### Revue Grok Bot — correctifs PR #73 (18/11/2026)
 - Une panne OHLC 5 min conserve les curseurs et interdit le repli horaire.
 - Repli 1 h seulement sur donnees 5 min hors retention (~60 h), jamais pour
