@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [preprod, main]
   push:
-    branches: [preprod, 'feature/**', 'fix/**', 'integration/**'
+    branches: [preprod, 'feature/**', 'fix/**', 'integration/**']
   workflow_dispatch:
 
 permissions:
