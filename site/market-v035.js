@@ -158,11 +158,14 @@
     const orders = Array.isArray(state?.open_orders) ? state.open_orders.filter(o=>o.pair===pair) : [];
     for (const order of orders.slice(0,8)) {
       const pendingBuy = order.side === "buy";
-      push(pendingBuy ? "Achat limite" : "Vente limite", order.price, pendingBuy ? "entry" : "target", false, order.id);
+      if (pendingBuy) push("Achat limite", order.price, "entry", false, order.id);
+      else if (!Array.isArray(order.take_profits) || !order.take_profits.length) push("Vente limite", order.price, "target", false, order.id);
       push("Stop", order.stop_loss, "stop", pendingBuy, order.id);
       if (Array.isArray(order.take_profits) && order.take_profits.length) {
-        order.take_profits.slice(0,3).forEach((tp,i)=>push("TP"+(i+1),tp.price,"target",pendingBuy,order.id));
+        order.take_profits.forEach((tp,i)=>push("TP"+((pendingBuy?0:(order.tp_filled||0))+i+1),tp.price,"target",pendingBuy,order.id));
       } else push("Objectif",order.take_profit,"target",pendingBuy,order.id);
+      if (order.side === "sell" && order.pending_exits?.stop_loss != null)
+        push("Futur stop",order.pending_exits.stop_loss,"stop",true,order.id);
     }
     return rows;
   }
