@@ -354,9 +354,28 @@ def audit_buy_protection(state, pair, trade):
                                     "qty": held - covered}
 
 
+def add_group_compartment(group, previous_qty, added_qty, compartment):
+    if not group:
+        return
+    parts = dict(group.get("compartments", {}))
+    if not parts and group.get("compartment") in ("medium", "short"):
+        parts[group["compartment"]] = previous_qty
+    if compartment in ("medium", "short"):
+        parts[compartment] = parts.get(compartment, 0.0) + added_qty
+    group["compartments"] = parts
+    group["compartment"] = next((k for k, v in parts.items()
+                                if abs(v - group["qty"]) <= EPS), None)
+
+
+def reduce_group_compartments(group, old_qty):
+    if group.get("compartments") is not None and old_qty > EPS:
+        factor = group["qty"] / old_qty
+        group["compartments"] = {k: v * factor for k, v in group["compartments"].items()}
+
+
 def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
                          take_profit=None, take_profits=None,
-                         breakeven_after_tp1=False, trade=None):
+                         breakeven_after_tp1=False, trade=None, compartment=None):
     """Integre un achat a l'unique bracket existant, sans doubler la reservation.
 
     Les niveaux existants font autorite. Une sortie sans niveaux preexistants
@@ -369,10 +388,12 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
     if not exits:
         # Aucun groupe ne preexistait : une nouvelle protection ne reserve
         # que la nouvelle acquisition, meme si d'anciens avoirs sont nus.
-        return attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
+        group = attach_exit(state, pair, qty, stop_loss, take_profit, ts, parent,
                            take_profits=take_profits,
                            breakeven_after_tp1=breakeven_after_tp1,
                            entry_price=state["positions"][pair]["avg_cost"])
+        add_group_compartment(group, 0, qty, compartment)
+        return group
     def fallback(reason):
         if trade is not None:
             trade["exit_merge_skipped"] = {"reason": reason, "qty": qty}
@@ -383,7 +404,9 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
         if safe_qty <= EPS or safe_qty + EPS < meta["ordermin"] or not stop:
             return None
         # Une protection stop seule évite un palier invalide et ne double pas les réservations.
-        return attach_exit(state, pair, safe_qty, stop, None, ts, parent)
+        group = attach_exit(state, pair, safe_qty, stop, None, ts, parent)
+        add_group_compartment(group, 0, safe_qty, compartment)
+        return group
 
     if len(exits) != 1:
         return fallback("multiple_groups")
@@ -416,7 +439,9 @@ def merge_purchase_exits(state, pair, qty, ts, parent, stop_loss=None,
         old["entry_price"] = state["positions"][pair]["avg_cost"]
     if old.get("pending_exits"):
         old["pending_exits"]["entry_price"] = state["positions"][pair]["avg_cost"]
+    previous_qty = old["qty"]
     old["qty"] = total
+    add_group_compartment(old, previous_qty, addition, compartment)
     return old
 
 
@@ -486,6 +511,9 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
         if new:
             new["active_from"] = pending["active_from"]
             new["tp_filled"] = old.get("tp_filled", 0)
+            for key in ("compartment", "compartments"):
+                if key in old:
+                    new[key] = copy.deepcopy(old[key])
     for order in list(state["open_orders"]):
         if order["pair"] != pair or order["active_from"] > t or order not in state["open_orders"]:
             continue
@@ -496,6 +524,7 @@ def process_candle(state, pair, candle, rejects=None, market=None, m5_override=N
             if rejects is not None:
                 rejects.append({"type": "cancel", "order_id": order["id"], "pair": pair,
                                 "reason": f"annule par le moteur : {e}"})
+    refresh_compartment(state, pair)
     state["last_prices"][pair] = close
     if m5_override is not None:
         state.setdefault("last_m5", {})[pair] = t
@@ -530,7 +559,8 @@ def _check_order(state, pair, order, t, high, low, fills, m5=None, hour_open=Non
                                           stop_loss=order.get("stop_loss"),
                                           take_profit=order.get("take_profit"),
                                           take_profits=order.get("take_profits"),
-                                          breakeven_after_tp1=order.get("breakeven_after_tp1", False), trade=tr)
+                                          breakeven_after_tp1=order.get("breakeven_after_tp1", False), trade=tr,
+                                          compartment=order.get("compartment"))
             if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
                 tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
                                     "new_qty": merged["qty"], "added_qty": order["qty"],
@@ -615,7 +645,9 @@ def _check_tiered_exit(state, pair, order, hour_start, high, low, fills, m5, hou
             tr["time_source"] = "m5" if m5 is not None else "hour_open"
             tr["tp_index"] = order.get("tp_filled", 0) + 1
             fills.append(tr)
+            previous_qty = order["qty"]
             order["qty"] = round(order["qty"] - qty, meta["lot_decimals"])
+            reduce_group_compartments(order, previous_qty)
             order["tp_filled"] = tr["tp_index"]
             if tr["tp_index"] == 1 and order.get("breakeven_after_tp1") and stop is not None:
                 order["stop_loss"] = max(stop, order["entry_price"])
@@ -699,15 +731,67 @@ class Ctx:
         raise APIError("ticker: paire absente")
 
 
+def validate_compartment(value):
+    if value not in (None, "medium", "short"):
+        raise Rejected("compartment doit valoir medium ou short")
+    return value
+
+
+def refresh_compartment(state, pair):
+    """Expose uniquement une classification certaine; aucun classement implicite."""
+    pos = state["positions"].get(pair)
+    if not pos:
+        return
+    groups = [o for o in state["open_orders"] if o["pair"] == pair
+              and o["side"] == "sell" and o.get("parent")]
+    totals = {"medium": 0.0, "short": 0.0}
+    remaining = pos["qty"]
+    for group in groups:
+        qty = min(remaining, group["qty"])
+        parts = group.get("compartments")
+        if parts is not None:
+            unallocated = qty
+            for compartment in totals:
+                part = min(unallocated, max(0.0, parts.get(compartment, 0.0)))
+                totals[compartment] += part
+                unallocated -= part
+        elif group.get("compartment") in totals:
+            totals[group["compartment"]] += qty
+        remaining -= qty
+    pos["compartments"] = totals
+    pos["compartment"] = next((k for k, v in totals.items()
+                               if abs(v - pos["qty"]) <= EPS), None)
+
+
 def apply_action(state, a, ctx, now, decision_id):
     typ = a.get("type")
     if typ == "note":
         return {"type": "note", "text": a.get("text", "")}, []
+    if typ == "set_compartment":
+        compartment = validate_compartment(a.get("compartment"))
+        if compartment is None:
+            raise Rejected("compartment requis")
+        oid = a.get("order_id")
+        pair = ctx.meta(state, a["pair"])["altname"] if a.get("pair") else None
+        if bool(oid) == bool(pair):
+            raise Rejected("indiquer order_id ou pair, exclusivement")
+        matches = [o for o in state["open_orders"]
+                   if (o["id"] == oid if oid else o["pair"] == pair)
+                   and (o["side"] == "buy" or o.get("parent"))]
+        if not matches:
+            raise Rejected("aucun ordre classable")
+        for order in matches:
+            order["compartment"] = compartment
+            order.pop("compartments", None)
+            refresh_compartment(state, order["pair"])
+        return {"type": "compartment_updated", "order_ids": [o["id"] for o in matches],
+                "compartment": compartment}, []
     if typ == "cancel":
         oid = a.get("order_id") or a.get("id")
         for o in state["open_orders"]:
             if o["id"] == oid:
                 state["open_orders"].remove(o)
+                refresh_compartment(state, o["pair"])
                 return {"type": "cancel", "order_id": oid, "pair": o["pair"]}, []
         raise Rejected(f"ordre {oid} introuvable ou deja execute")
     if typ == "update_exits":
@@ -779,6 +863,7 @@ def apply_action(state, a, ctx, now, decision_id):
     if a.get("breakeven_after_tp1") is True and sl is None and (typ == "market_buy" or (typ == "place_limit" and a.get("side") == "buy")):
         raise Rejected("breakeven_after_tp1 exige stop_loss")
 
+    compartment = validate_compartment(a.get("compartment"))
     if typ == "place_limit":
         side = a.get("side")
         if side not in ("buy", "sell"):
@@ -815,6 +900,8 @@ def apply_action(state, a, ctx, now, decision_id):
         if levels:
             o["take_profits"] = levels
             o["breakeven_after_tp1"] = a.get("breakeven_after_tp1", False)
+        if side == "buy" and compartment:
+            o["compartment"] = compartment
         state["open_orders"].append(o)
         return {"type": "order_placed", "order": dict(o)}, []
 
@@ -840,7 +927,8 @@ def apply_action(state, a, ctx, now, decision_id):
         merged = merge_purchase_exits(state, pair, qty, now, tr["id"],
                                       stop_loss=sl, take_profit=tp,
                                       take_profits=levels if levels else None,
-                                      breakeven_after_tp1=a.get("breakeven_after_tp1", False), trade=tr)
+                                      breakeven_after_tp1=a.get("breakeven_after_tp1", False), trade=tr,
+                                      compartment=compartment)
         if merged and merged["id"] == old_id and merged["qty"] > previous_qty + EPS:
             tr["exit_merge"] = {"order_id": old_id, "previous_qty": previous_qty,
                                 "new_qty": merged["qty"], "added_qty": qty,
@@ -848,6 +936,7 @@ def apply_action(state, a, ctx, now, decision_id):
                                 "ignored_stop_loss": sl, "ignored_take_profits": a.get("take_profits") or tp,
                                 "new_entry_price": state["positions"][pair]["avg_cost"]}
         audit_buy_protection(state, pair, tr)
+    refresh_compartment(state, pair)
     return {"type": "market", "trade_id": tr["id"]}, [tr]
 
 
