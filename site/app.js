@@ -308,7 +308,10 @@ function flashLiveValue(el, value) {
         else track.removeAttribute("aria-valuenow");
         track.setAttribute("aria-valuetext", valid ? label : "Indisponible");
       }
-      if (fill) fill.classList.toggle("gauge-exceeded", valid && value >= limit);
+      if (fill) {
+        fill.classList.toggle("gauge-exceeded", valid && value >= limit);
+        fill.classList.toggle("gauge-warning", valid && value >= 6 && value < limit);
+      }
     };
     const risk = window.KPLib?.stopRisk(S, price);
     if (risk && !risk.missing && !risk.unprotected.length && !risk.buysNoStop) {
@@ -325,25 +328,7 @@ function flashLiveValue(el, value) {
              week ? signed(week.pnl) + " USDC · " + pct(week.pct) : "Historique 7 j insuffisant");
     put("g-week-note", week ? "Seuil de perte : −8 % sur 7 jours." :
         "Aucune performance estimée sans référence historique à 7 jours.");
-    if (window.KPLib?.allocationTargets) {
-      const allocation = window.KPLib.allocationTargets(S, price, orderMath);
-      const el = $("g-allocation");
-      if (el) {
-        if (!allocation.complete) {
-          el.textContent = "Classification inconnue : " + usdc(allocation.unknown) +
-            " non répartis en moyen/court terme. Réserve connue : " +
-            usdc(allocation.totals.reserve) + ".";
-        } else {
-          el.textContent = [["medium", "Moyen terme"], ["short", "Court terme"],
-                            ["reserve", "Réserve"]].map(([key, name]) => {
-            const actual = allocation.totals[key] / allocation.total;
-            return name + " : " + pct(actual) + " / cible " +
-              pct(allocation.targets[key]) + " (écart " +
-              signed((actual - allocation.targets[key]) * 100) + " points)";
-          }).join(" · ");
-        }
-      }
-    }
+    put("g-risk-warnings", (risk?.warnings || []).join(" · "));
 
     if (window.KPFocus) window.KPFocus.onPortfolio({ equity });
     if (window.KPV035) window.KPV035.onPortfolio({ equity, journal });
