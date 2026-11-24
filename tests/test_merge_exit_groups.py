@@ -77,7 +77,7 @@ class MergeExitGroupsTests(unittest.TestCase):
             "type": "market_buy", "pair": PAIR, "qty": .01,
         })], FakeMarket(last=65000), T0 + 60)
         self.assertEqual(len(self.state["open_orders"]), 1)
-        self.assertAlmostEqual(self.original["qty"], .03)
+        self.assertAlmostEqual(self.state["open_orders"][0]["qty"], .03)
 
 
 if __name__ == "__main__":
