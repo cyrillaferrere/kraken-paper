@@ -27,7 +27,7 @@ class MergeExitGroupsTests(unittest.TestCase):
         self.buy_market("second", T0 + 60)
         orders = self.state["open_orders"]
         self.assertEqual(len(orders), 1)
-        self.assertIs(orders[0], self.original)
+        self.assertEqual(orders[0]["id"], self.original["id"])
         self.assertAlmostEqual(orders[0]["qty"], .03)
         self.assertEqual(orders[0]["stop_loss"], 62000)
         self.assertEqual([x["price"] for x in orders[0]["take_profits"]], [69000, 72000])
@@ -37,23 +37,24 @@ class MergeExitGroupsTests(unittest.TestCase):
     def test_buy_after_tp1_preserves_counter_and_stop(self):
         run.process_candle(self.state, PAIR, (T0, 65000, 70000, 64000, 65000),
                            market=FakeMarket(fail5=True))
-        self.assertEqual(self.original["tp_filled"], 1)
+        self.assertEqual(self.state["open_orders"][0]["tp_filled"], 1)
         self.buy_market("after-tp1", T0 + 60)
         self.assertEqual(len(self.state["open_orders"]), 1)
-        self.assertEqual(self.original["tp_filled"], 1)
-        self.assertEqual(len(self.original["take_profits"]), 1)
-        self.assertAlmostEqual(self.original["qty"], .02)
-        self.assertAlmostEqual(self.original["take_profits"][0]["qty"], .02)
+        order = self.state["open_orders"][0]
+        self.assertEqual(order["tp_filled"], 1)
+        self.assertEqual(len(order["take_profits"]), 1)
+        self.assertAlmostEqual(order["qty"], .02)
+        self.assertAlmostEqual(order["take_profits"][0]["qty"], .02)
 
     def test_pending_update_remains_and_reserves_new_purchase(self):
         run.run_cycle(self.state, [decision("update", {
             "type": "update_exits", "pair": PAIR, "stop_loss": 61000,
             "take_profits": [{"price": 75000, "fraction": 1.0}],
         })], FakeMarket(last=65000), T0 + 60)
-        self.assertIn("pending_exits", self.original)
+        self.assertIn("pending_exits", self.state["open_orders"][0])
         self.buy_market("during-pending", T0 + 120)
-        self.assertAlmostEqual(self.original["qty"], .03)
-        self.assertEqual(self.original["stop_loss"], 62000)
+        self.assertAlmostEqual(self.state["open_orders"][0]["qty"], .03)
+        self.assertEqual(self.state["open_orders"][0]["stop_loss"], 62000)
         run.process_candle(self.state, PAIR,
                            (T0 + 300, 65000, 68000, 64000, 65000),
                            market=FakeMarket(fail5=True))
@@ -69,7 +70,7 @@ class MergeExitGroupsTests(unittest.TestCase):
         buy = next(o for o in self.state["open_orders"] if o["side"] == "buy")
         run._check_order(self.state, PAIR, buy, T0, 66000, 63000, [], None, 65000)
         self.assertEqual(len(self.state["open_orders"]), 1)
-        self.assertAlmostEqual(self.original["qty"], .03)
+        self.assertAlmostEqual(self.state["open_orders"][0]["qty"], .03)
 
     def test_no_extra_exit_when_unprotected_buy(self):
         run.run_cycle(self.state, [decision("unprotected", {
