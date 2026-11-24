@@ -41,7 +41,7 @@ class EngineV02Tests(unittest.TestCase):
         self.assertEqual(state["engine_version"], run.ENGINE_VERSION)
         self.assertEqual(state["open_orders"][0], original)
         self.assertEqual(row["engine_version"], run.ENGINE_VERSION)
-        self.assertTrue(all(e["engine_version"] == "0.2.0" for e in events))
+        self.assertTrue(all(e["engine_version"] == run.ENGINE_VERSION for e in events))
 
     def test_limit_requires_penetration_on_both_sides(self):
         st = run.new_state(T0 - 10)
