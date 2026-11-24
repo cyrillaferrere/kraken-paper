@@ -430,6 +430,13 @@
         const planned = (price, name) => {
           if (price != null) push({ price, color: "#9299a9", lineStyle: 3, label: `${o.id} ${name} si l'achat passe`, conditional: true });
         };
+        const groups = orders.filter(g => g.pair === pair && g.side === "sell" && g.parent);
+        if (groups.length === 1) {
+          const g = groups[0];
+          planned(g.stop_loss, "rejoindra " + g.id + " : stop");
+          (g.take_profits || []).forEach((tp,i) => planned(tp.price, "rejoindra " + g.id + " : TP" + ((g.tp_filled || 0)+i+1)));
+          continue;
+        }
         planned(o.stop_loss, "stop");
         planned(o.take_profit, "objectif");
         if (Array.isArray(o.take_profits)) o.take_profits.forEach((tp, i) => planned(tp.price, `TP${i + 1}`));
@@ -443,12 +450,13 @@
         if (o.pending_exits) {
           // Une mise a jour differée est un projet, pas un stop actif.
           const pending = o.pending_exits;
+          (pending.action?.take_profits || []).forEach((tp,i) => push({price:tp.price,color:"#9299a9",lineStyle:3,label:`${o.id} futur TP${i+1} (inactif)`,conditional:true}));
           if (pending.stop_loss != null) push({ price: pending.stop_loss, color: "#9299a9", lineStyle: 3, label: `${o.id} futur stop (inactif)`, conditional: true });
         }
         if (o.stop_loss) {
-          const breakevenActive = o.breakeven_after_tp1 === true && Number(o.tp_filled) > 0 &&
+          const breakevenActive = !o.breakeven_deferred && o.breakeven_after_tp1 === true && Number(o.tp_filled) > 0 &&
             Number.isFinite(Number(o.entry_price)) && Number(o.stop_loss) >= Number(o.entry_price) - 1e-8;
-          const stopLabel = breakevenActive ? "stop remonté au prix d’achat après TP1" : "stop";
+          const stopLabel = o.breakeven_deferred ? "stop · point mort suspendu" : breakevenActive ? "stop remonté au prix d’achat après TP1" : "stop";
           push({ price: o.stop_loss, color: C.dn, lineStyle: 2, label: `${o.id} ${stopLabel}` });
         }
       }
