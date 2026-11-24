@@ -3,6 +3,7 @@
 
 import json
 import os
+import time
 import urllib.request
 
 
@@ -34,6 +35,7 @@ def cycle_trades(journal_path, offset):
             "side": trade.get("side"),
             "price": trade.get("price"),
             "reason": trade.get("reason"),
+            **{k: trade[k] for k in ("exit_merge", "breakeven_skipped") if k in trade},
         })
     return cycle_time, trades
 
@@ -42,6 +44,8 @@ def notify_cycle(journal_path, offset, url, key):
     """Retourne un statut explicite, sans jamais exposer l'URL ni la clé."""
     cycle_time, trades = cycle_trades(journal_path, offset)
     alerts = []
+    warnings = []
+    cycle_time = None
     try:
         with open(journal_path, "rb") as journal:
             journal.seek(max(0, int(offset)))
@@ -50,45 +54,41 @@ def notify_cycle(journal_path, offset, url, key):
                     item = json.loads(line)
                 except (ValueError, UnicodeDecodeError):
                     continue
+                if cycle_time is None:
+                    cycle_time = item.get("time")
+                if item.get("type") in ("exit_merge_skipped", "unprotected_qty", "breakeven_rearmed"):
+                    warnings.append(item)
                 if item.get("type") == "price_move":
                     alerts.append({k: item[k] for k in
                                    ("type", "crypto", "pair", "change_pct", "price")
                                    if k in item})
     except OSError:
         pass
-    if not trades and not alerts:
+    if not trades and not alerts and not warnings:
         return "aucune exécution"
     if not url or not key:
         return "échec d'envoi"
 
-    payload_body = {"cycle_time": cycle_time, "trades": trades}
-    if alerts:
-        # Un webhook par variation et par crypto, à partir de l'état
-        # effectivement sauvegardé et poussé sur GitHub.
-        payload_body["price_moves"] = alerts
-        if not trades and len(alerts) == 1:
-            payload_body.update(alerts[0])
+    payload_body = {"version": 1, "cycle_time": cycle_time, "trades": trades,
+                    "price_moves": alerts, "warnings": warnings}
     payload = json.dumps(
         payload_body,
         ensure_ascii=False,
         separators=(",", ":"),
     ).encode("utf-8")
-    try:
-        request = urllib.request.Request(
-            url,
-            data=payload,
-            headers={
-                "Authorization": "Bearer " + key,
-                "Content-Type": "application/json",
-            },
-            method="POST",
-        )
-        with urllib.request.urlopen(request, timeout=10):
-            pass
-    except Exception:
-        # Le webhook est externe au moteur : son indisponibilité ne bloque pas le cycle.
-        return "échec d'envoi"
-    return "webhook envoyé"
+    for attempt in range(2):
+        try:
+            request = urllib.request.Request(
+                url, data=payload,
+                headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
+                method="POST")
+            with urllib.request.urlopen(request, timeout=10):
+                pass
+            return "webhook envoyé"
+        except Exception:
+            if attempt == 0:
+                time.sleep(5)
+    return "échec d'envoi"
 
 
 def main():
