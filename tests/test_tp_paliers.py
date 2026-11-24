@@ -45,12 +45,11 @@ class TieredExitTests(unittest.TestCase):
     def test_tp1_then_breakeven_stop(self):
         self.order["breakeven_after_tp1"] = True
         self.candle(T0, 70000, 64000)
-        self.assertAlmostEqual(self.order["stop_loss"], self.order["entry_price"])
+        self.assertAlmostEqual(self.order["stop_loss"], run.breakeven_net(self.state, self.pair, self.state["positions"][self.pair]["avg_cost"]))
         fills = self.candle(T0 + H, 67000, 64000)
         self.assertEqual(fills[0]["reason"], "stop_loss")
         self.assertEqual(fills[0]["qty"], 0.01)
         self.assertEqual(self.state["open_orders"], [])
-        self.assertLess(fills[0]["realized_pnl"], 0)
 
     def test_tp1_keeps_stop_with_pending_buy_below_pru(self):
         self.order["breakeven_after_tp1"] = True
@@ -64,6 +63,18 @@ class TieredExitTests(unittest.TestCase):
         self.assertEqual(self.order["stop_loss"], 62000)
         self.assertEqual(fills[0]["breakeven_skipped"]["reason"], "pending_buy_below_pru")
         self.assertEqual(fills[0]["breakeven_skipped"]["stop_loss"], 62000)
+
+    def test_deferred_rearm_after_cancel(self):
+        self.test_tp1_keeps_stop_with_pending_buy_below_pru()
+        self.assertIn("breakeven_deferred", self.order)
+        self.state["open_orders"][:] = [self.order]
+        net = run.breakeven_net(self.state, self.pair, self.state["positions"][self.pair]["avg_cost"])
+        self.assertEqual(run.rearm_deferred_breakeven(self.state, self.pair, net), [])
+        self.assertEqual(self.order["stop_loss"], 62000)
+        events = run.rearm_deferred_breakeven(self.state, self.pair, net * 1.006)
+        self.assertEqual(events[0]["type"], "breakeven_rearmed")
+        self.assertEqual(self.order["stop_loss"], net)
+        self.assertNotIn("breakeven_deferred", self.order)
 
     def test_stop_before_tp1(self):
         fills = self.candle(T0, 70000, 61000)
