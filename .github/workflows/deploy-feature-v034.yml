@@ -21,7 +21,7 @@ jobs:
     environment: preprod
     steps:
       - name: Checkout commit de la feature
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: feature/v0.3.4
           fetch-depth: 1
@@ -35,9 +35,10 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/feature/v0.3.4"
           test -n "$NETLIFY_AUTH_TOKEN" || { echo "::error::Jeton de preview absent"; exit 1; }
       - name: Installer Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '24'
+          package-manager-cache: false
       - name: Publier uniquement l'alias feature
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
