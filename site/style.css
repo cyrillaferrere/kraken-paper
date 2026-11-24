@@ -610,3 +610,30 @@ html { scroll-behavior: smooth; }
   #b-versions { order: -2; width: 100%; flex-wrap: nowrap; font-size: 12px; }
   #b-fee-tier { order: -1; width: 100%; font-size: 11px; }
 }
+
+
+/* Niveaux PAPER — legend compacte et accessible, sans animation des cours. */
+.crypto-level-legend { display:flex; flex-wrap:wrap; gap:7px 15px; padding:7px 2px; font-size:12px; color:var(--mu); }
+.crypto-level-legend span { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.crypto-level-legend span::before { content:""; width:18px; border-top:2px solid currentColor; }
+.crypto-legend-price { color:#e8ecf6; }
+.crypto-legend-pru { color:#60a5fa; }
+.crypto-legend-buy { color:#22d3ee; }
+.crypto-legend-stop { color:#f87171; }
+.crypto-legend-tp { color:#34d399; }
+.crypto-legend-conditional { color:#9299a9; }
+.crypto-level-legend .crypto-legend-conditional::before { border-top-style:dashed; }
+@media (max-width:420px) { .crypto-level-legend { gap:6px 10px; font-size:11px; } }
+
+/* Deux jauges compactes, sans interpolation de valeurs financieres. */
+.risk-gauges { display:grid; gap:11px; min-width:0; padding:10px 0; }
+.risk-gauge { display:grid; gap:5px; min-width:0; }
+.risk-gauge>div:first-child { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.risk-gauge strong { font-size:12px; font-weight:650; }
+.risk-gauge span,.risk-gauge small { font-size:12px; color:var(--mu); line-height:1.45; }
+.gauge-track { height:7px; border-radius:99px; overflow:hidden; background:var(--line); }
+.gauge-track>span { display:block; height:100%; width:0; background:#22d3ee; border-radius:inherit; }
+.gauge-track>span.gauge-exceeded { background:#f87171; }
+
+.gauge-track>span.gauge-warning { background:#f59e0b; }
+.gauge-warning-text { color:#f59e0b; font-size:12px; margin:0; }

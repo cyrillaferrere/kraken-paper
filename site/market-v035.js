@@ -156,13 +156,23 @@
     const pos = state?.positions?.[pair];
     if (pos) push("Prix de revient", pos.avg_cost, "pru");
     const orders = Array.isArray(state?.open_orders) ? state.open_orders.filter(o=>o.pair===pair) : [];
-    for (const order of orders.slice(0,8)) {
+    for (const order of orders) {
       const pendingBuy = order.side === "buy";
-      push(pendingBuy ? "Achat limite" : "Vente limite", order.price, pendingBuy ? "entry" : "target", false, order.id);
-      push("Stop", order.stop_loss, "stop", pendingBuy, order.id);
+      if (pendingBuy) push("Achat limite", order.price, "entry", false, order.id);
+      else if (!Array.isArray(order.take_profits) || !order.take_profits.length) push("Vente limite", order.price, "target", false, order.id);
+      const groups = orders.filter(g=>g.side==="sell" && g.parent);
+      if (pendingBuy && groups.length === 1) {
+        const g=groups[0];
+        push("Rejoindra "+g.id+" : stop",g.stop_loss,"stop",true,order.id);
+        (g.take_profits||[]).forEach((tp,i)=>push("Rejoindra "+g.id+" : TP"+((g.tp_filled||0)+i+1),tp.price,"target",true,order.id));
+        continue;
+      }
+      push(order.breakeven_deferred?"Stop · point mort suspendu":"Stop", order.stop_loss, "stop", pendingBuy, order.id);
       if (Array.isArray(order.take_profits) && order.take_profits.length) {
-        order.take_profits.slice(0,3).forEach((tp,i)=>push("TP"+(i+1),tp.price,"target",pendingBuy,order.id));
+        order.take_profits.forEach((tp,i)=>push("TP"+((pendingBuy?0:(order.tp_filled||0))+i+1),tp.price,"target",pendingBuy,order.id));
       } else push("Objectif",order.take_profit,"target",pendingBuy,order.id);
+      if (order.side === "sell" && order.pending_exits?.stop_loss != null)
+        push("Futur stop",order.pending_exits.stop_loss,"stop",true,order.id);
     }
     return rows;
   }

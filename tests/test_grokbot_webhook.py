@@ -79,12 +79,27 @@ class GrokBotWebhookTests(unittest.TestCase):
 
     def test_network_error_returns_explicit_failure_without_raising(self):
         self.fill("T0001", "O0001")
-        with patch.object(notify_grokbot.urllib.request, "urlopen", side_effect=OSError("offline")) as post:
+        with patch.object(notify_grokbot.time, "sleep"), patch.object(notify_grokbot.urllib.request, "urlopen", side_effect=OSError("offline")) as post:
             status = notify_grokbot.notify_cycle(
                 self.journal, len(self.prefix), "https://example.test/hook", "secret-key"
             )
         self.assertEqual(status, "échec d'envoi")
+        self.assertEqual(post.call_count, 2)
+
+    def test_alerts_and_fills_share_one_versioned_payload(self):
+        self.fill("T0001", "O0001")
+        for pair in ("XBTUSDC", "ETHUSDC"):
+            self.append({"type": "price_move", "pair": pair, "change_pct": 6})
+        self.append({"type": "unprotected_qty", "pair": "XBTUSDC", "qty": .01})
+        with patch.object(notify_grokbot.urllib.request, "urlopen") as post:
+            status = notify_grokbot.notify_cycle(self.journal, len(self.prefix), "https://example.test/hook", "key")
+        self.assertEqual(status, "webhook envoyé")
         post.assert_called_once()
+        payload = json.loads(post.call_args.args[0].data)
+        self.assertEqual(payload["version"], 1)
+        self.assertEqual(len(payload["price_moves"]), 2)
+        self.assertEqual(len(payload["warnings"]), 1)
+        self.assertEqual(len(payload["trades"]), 1)
 
     def test_missing_credentials_returns_explicit_failure_without_request(self):
         self.fill("T0001", "O0001")
