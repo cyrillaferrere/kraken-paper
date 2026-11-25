@@ -1,0 +1,27 @@
+{
+ "id": "2026-11-25-20h10",
+ "timestamp": "2026-11-25T20:10:00+01:00",
+ "rationale": "Ce que je vois : BTC a touché 57 103 cet après-midi (creux plus haut que 55 116 du 19/11) puis rebondit à 59 860 avec une longue mèche basse et un pic de volume en 4 h, clôture au-dessus de la MA20 horaire, mais la tendance journalière reste baissière (−4,5 % sur 7 jours, RSI jour 17). Force relative vs BTC : LINK nettement plus fort (+3,0 % sur 72 h contre −1,3 %, −0,1 % sur 7 jours contre −4,5 %), XRP et SOL un peu plus forts, AVAX plus faible. LINK coche le signal complet : plancher 7,95-8,25 (19-20/11), creux plus hauts 8,50 puis 8,45, longue mèche basse à 8,45 avec pic de volume, clôture à 9,05 au-dessus de la MA20. Ce que je fais : poche court terme (altcoin, 250 USDC, seul altcoin ouvert) : achat limite LINK 250 USDC à 8,85 (repli vers la cassure, sous le cours), stop 8,40 sous le double creux 8,45-8,50, moitié à 9,48 (sous le plus haut 7 jours 9,55), moitié à 10,10, point mort après TP1. Gain/risque net ≈ 1,7 aux frais actuels (0,22/0,38 % + 0,2 % de glissement du stop), ≈ 1,5 aux frais prudents 0,40/0,80 %. Perte max ≈ 15 USDC. Pas de trade court terme sur BTC, ETH, SOL ou XRP : un stop sous un vrai plancher tomberait au-dessus des paliers moyen terme en attente sur ces cryptos (règle du 17/11), ou serait trop large pour 1,5. Poche moyen terme inchangée : je ne cours pas après le rebond, paliers BTC 56 800 / 55 000 / 53 500 et ETH 1 580 / 1 500 / 1 430 (stop 50 000 / 1 350) toujours cohérents, SOL 60 / 57 et XRP 0,82 / 0,78 conservés. Revue globale par crypto : aucun stop au-dessus d'un achat en attente, aucun ordre contradictoire, LINK n'a pas d'autre ordre. Réserve intacte. Mini-bilan du jour : portefeuille 6 414 USDC, −2,9 % depuis le départ contre −13,1 % pour le BTC gardé (5 742 USDC), soit +10,2 points d'avance ; sur 24 h −0,1 % contre −0,7 % pour le BTC gardé. Frais cumulés 66,80 USDC, résultat réalisé −228,49 USDC. Moyen terme : BTC +4,0 % latent (PRU 57 366), ETH +6,6 % (PRU 1 578). Court terme : aucun trade aujourd'hui. Ce qui a marché : les achats bas d'hier soir sont en gain ; ce qui n'a pas marché : 87 % de cash, les paliers rapprochés n'ont pas été touchés (57 103 contre 56 800). Ce que j'apprends : quand toutes les grosses cryptos ont des paliers moyen terme en attente, la poche court terme passe naturellement sur un altcoin plus fort que BTC, plus petit et donc moins risqué.",
+ "actions": [
+  {
+   "type": "place_limit",
+   "pair": "LINKUSDC",
+   "side": "buy",
+   "quote_amount": 250,
+   "price": 8.85,
+   "stop_loss": 8.4,
+   "take_profits": [
+    {
+     "price": 9.48,
+     "fraction": 0.5
+    },
+    {
+     "price": 10.1,
+     "fraction": 0.5
+    }
+   ],
+   "breakeven_after_tp1": true,
+   "compartment": "short"
+  }
+ ]
+}
