@@ -1022,16 +1022,16 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795572000,
-    "ETHUSDC": 1795572000,
-    "SOLUSDC": 1795572000,
-    "XRPUSDC": 1795572000
+    "XBTUSDC": 1795575600,
+    "ETHUSDC": 1795575600,
+    "SOLUSDC": 1795575600,
+    "XRPUSDC": 1795575600
   },
   "last_prices": {
-    "XBTUSDC": 59228.1,
-    "ETHUSDC": 1656.31,
-    "SOLUSDC": 68.75,
-    "XRPUSDC": 0.91604
+    "XBTUSDC": 59172.38,
+    "ETHUSDC": 1658.0,
+    "SOLUSDC": 68.95,
+    "XRPUSDC": 0.91677
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -1045,8 +1045,8 @@
     "order": 65,
     "trade": 32
   },
-  "last_cycle": "2026-11-25T04:09:15+01:00",
-  "last_cycle_ts": 1795576155,
+  "last_cycle": "2026-11-25T05:05:08+01:00",
+  "last_cycle_ts": 1795579508,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -1054,32 +1054,32 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795575600,
-    "SOLUSDC": 1795575600,
-    "XBTUSDC": 1795575600,
-    "XRPUSDC": 1795575600
+    "ETHUSDC": 1795579200,
+    "SOLUSDC": 1795579200,
+    "XBTUSDC": 1795579200,
+    "XRPUSDC": 1795579200
   },
   "engine_version": "0.2.2",
   "price_move_watch": {
     "ETHUSDC": {
-      "reference_price": 1674.62,
-      "reference_ts": 1795565358,
-      "last_session_id": "heartbeat-20261125-0010"
+      "reference_price": 1658.0,
+      "reference_ts": 1795579508,
+      "last_session_id": "heartbeat-20261125-0505"
     },
     "SOLUSDC": {
-      "reference_price": 69.63,
-      "reference_ts": 1795565358,
-      "last_session_id": "heartbeat-20261125-0010"
+      "reference_price": 68.95,
+      "reference_ts": 1795579508,
+      "last_session_id": "heartbeat-20261125-0505"
     },
     "XBTUSDC": {
-      "reference_price": 59668.02,
-      "reference_ts": 1795565358,
-      "last_session_id": "heartbeat-20261125-0010"
+      "reference_price": 59172.38,
+      "reference_ts": 1795579508,
+      "last_session_id": "heartbeat-20261125-0505"
     },
     "XRPUSDC": {
-      "reference_price": 0.92391,
-      "reference_ts": 1795565358,
-      "last_session_id": "heartbeat-20261125-0010"
+      "reference_price": 0.91677,
+      "reference_ts": 1795579508,
+      "last_session_id": "heartbeat-20261125-0505"
     }
   },
   "signaled_conflicts": []
