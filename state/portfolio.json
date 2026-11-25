@@ -322,6 +322,33 @@
         }
       ],
       "breakeven_after_tp1": false
+    },
+    {
+      "id": "O0066",
+      "pair": "LINKUSDC",
+      "side": "buy",
+      "qty": 28.13604339,
+      "price": 8.85,
+      "stop_loss": 8.4,
+      "take_profit": null,
+      "created": "2026-11-25T20:07:04+01:00",
+      "active_from": 1795633800,
+      "parent": null,
+      "decision_id": "2026-11-25-20h10",
+      "compartment": "short",
+      "take_profits": [
+        {
+          "price": 9.48,
+          "fraction": 0.5,
+          "qty": 14.06802169
+        },
+        {
+          "price": 10.1,
+          "fraction": 0.5,
+          "qty": 14.0680217
+        }
+      ],
+      "breakeven_after_tp1": true
     }
   ],
   "closed_trades": [
@@ -971,13 +998,14 @@
     "2026-11-23-15h15",
     "2026-11-23-18h05",
     "2026-11-24-19h10",
-    "2026-11-24-23h35"
+    "2026-11-24-23h35",
+    "2026-11-25-20h10"
   ],
   "last_decision": {
-    "id": "2026-11-24-23h35",
-    "timestamp": "2026-11-24T23:35:00+01:00",
-    "rationale": "Ce que je vois : portefeuille 6 416 USDC (−2,9 % depuis le départ), 87 % en cash, poche moyen terme à 13 % (837 USDC) au lieu de 40 % (2 566 USDC). BTC 59 934, position 0,01131 (PRU 57 366, stop 50 000, sortie 68 000), paliers encore à 55 000 et 53 500. ETH 1 683, position 0,0949 (PRU 1 578, stop 1 350, sortie 1 950), paliers 1 500 et 1 430. SOL 69,55 avec paliers 63 / 60 / 57 stop 53 ; XRP 0,923 avec 0,82 / 0,78 stop 0,72. Le palier SOL à 63 n'offre que 0,84 net vers 72, sous la règle de 1,5. Tendance encore baissière, pas de confirmation de reprise en 4 h. Ce que je fais : poche moyen terme, j'annule et je remplace les paliers BTC et ETH pour rapprocher les entrées, sans courir après le prix. Budget manquant 1 730 USDC, réparti 1 210 BTC / 520 ETH. BTC : 400 USDC à 56 800, 405 à 55 000, 405 à 53 500, stop commun 50 000 inchangé, sortie 68 000. ETH : 175 USDC à 1 580, 175 à 1 500, 170 à 1 430, stop 1 350 inchangé, sortie 1 950. J'annule le palier SOL à 63 ; je garde 60 et 57 (R net 1,59 et 3,36 vers 72). Tous ces ordres sont en compartiment medium, sans point mort automatique tant que des achats plus bas restent ouverts. Pas de trade court terme. Réserve intacte. Pourquoi : un palier à 57 500 ou 1 600, proposé en première approche, ne fait que 1,30 net vers 68 000 / 1 950 ; 56 800 et 1 580 tiennent 1,5 net de frais et de glissement, encore sous le cours. Je ne remets pas 63 000 / 1 800 : déjà pris le 23, et le palier proche n'aurait pas 1,5 vers ces anciens premiers objectifs. Si tous les nouveaux paliers se remplissent, la poche BTC+ETH revient à 40 %, PRU attendu 55 926 / 1 521, risque net d'environ 283 USDC (4,4 %). Ce que j'apprends : après les sorties du 23, laisser les paliers trop loin sous le cours laisse la poche à 13 % et fait rater un rebond ; les rapprocher sous le cours, en gardant le même stop, reconstruit l'exposition sans acheter dans la baisse en cours.",
-    "applied": "2026-11-24T23:32:16+01:00"
+    "id": "2026-11-25-20h10",
+    "timestamp": "2026-11-25T20:10:00+01:00",
+    "rationale": "Ce que je vois : BTC a touché 57 103 cet après-midi (creux plus haut que 55 116 du 19/11) puis rebondit à 59 860 avec une longue mèche basse et un pic de volume en 4 h, clôture au-dessus de la MA20 horaire, mais la tendance journalière reste baissière (−4,5 % sur 7 jours, RSI jour 17). Force relative vs BTC : LINK nettement plus fort (+3,0 % sur 72 h contre −1,3 %, −0,1 % sur 7 jours contre −4,5 %), XRP et SOL un peu plus forts, AVAX plus faible. LINK coche le signal complet : plancher 7,95-8,25 (19-20/11), creux plus hauts 8,50 puis 8,45, longue mèche basse à 8,45 avec pic de volume, clôture à 9,05 au-dessus de la MA20. Ce que je fais : poche court terme (altcoin, 250 USDC, seul altcoin ouvert) : achat limite LINK 250 USDC à 8,85 (repli vers la cassure, sous le cours), stop 8,40 sous le double creux 8,45-8,50, moitié à 9,48 (sous le plus haut 7 jours 9,55), moitié à 10,10, point mort après TP1. Gain/risque net ≈ 1,7 aux frais actuels (0,22/0,38 % + 0,2 % de glissement du stop), ≈ 1,5 aux frais prudents 0,40/0,80 %. Perte max ≈ 15 USDC. Pas de trade court terme sur BTC, ETH, SOL ou XRP : un stop sous un vrai plancher tomberait au-dessus des paliers moyen terme en attente sur ces cryptos (règle du 17/11), ou serait trop large pour 1,5. Poche moyen terme inchangée : je ne cours pas après le rebond, paliers BTC 56 800 / 55 000 / 53 500 et ETH 1 580 / 1 500 / 1 430 (stop 50 000 / 1 350) toujours cohérents, SOL 60 / 57 et XRP 0,82 / 0,78 conservés. Revue globale par crypto : aucun stop au-dessus d'un achat en attente, aucun ordre contradictoire, LINK n'a pas d'autre ordre. Réserve intacte. Mini-bilan du jour : portefeuille 6 414 USDC, −2,9 % depuis le départ contre −13,1 % pour le BTC gardé (5 742 USDC), soit +10,2 points d'avance ; sur 24 h −0,1 % contre −0,7 % pour le BTC gardé. Frais cumulés 66,80 USDC, résultat réalisé −228,49 USDC. Moyen terme : BTC +4,0 % latent (PRU 57 366), ETH +6,6 % (PRU 1 578). Court terme : aucun trade aujourd'hui. Ce qui a marché : les achats bas d'hier soir sont en gain ; ce qui n'a pas marché : 87 % de cash, les paliers rapprochés n'ont pas été touchés (57 103 contre 56 800). Ce que j'apprends : quand toutes les grosses cryptos ont des paliers moyen terme en attente, la poche court terme passe naturellement sur un altcoin plus fort que BTC, plus petit et donc moins risqué.",
+    "applied": "2026-11-25T20:07:04+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -1019,19 +1047,30 @@
       "pair_decimals": 5,
       "ordermin": 4.0,
       "costmin": 0.5
+    },
+    "LINKUSDC": {
+      "key": "LINKUSDC",
+      "altname": "LINKUSDC",
+      "wsname": "LINK/USDC",
+      "base": "LINK",
+      "lot_decimals": 8,
+      "pair_decimals": 5,
+      "ordermin": 0.35,
+      "costmin": 0.5
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795626000,
-    "ETHUSDC": 1795626000,
-    "SOLUSDC": 1795626000,
-    "XRPUSDC": 1795626000
+    "XBTUSDC": 1795629600,
+    "ETHUSDC": 1795629600,
+    "SOLUSDC": 1795629600,
+    "XRPUSDC": 1795629600
   },
   "last_prices": {
-    "XBTUSDC": 59652.56,
-    "ETHUSDC": 1681.83,
-    "SOLUSDC": 69.61,
-    "XRPUSDC": 0.92426
+    "XBTUSDC": 59850.0,
+    "ETHUSDC": 1685.4,
+    "SOLUSDC": 70.03,
+    "XRPUSDC": 0.93466,
+    "LINKUSDC": 9.04836
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -1042,11 +1081,11 @@
   "fees_total": 66.802322,
   "realized_pnl": -228.494478,
   "seq": {
-    "order": 65,
+    "order": 66,
     "trade": 32
   },
-  "last_cycle": "2026-11-25T19:09:19+01:00",
-  "last_cycle_ts": 1795630159,
+  "last_cycle": "2026-11-25T20:07:04+01:00",
+  "last_cycle_ts": 1795633624,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -1054,10 +1093,11 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795629600,
-    "SOLUSDC": 1795629600,
-    "XBTUSDC": 1795629600,
-    "XRPUSDC": 1795629600
+    "ETHUSDC": 1795633200,
+    "SOLUSDC": 1795633200,
+    "XBTUSDC": 1795633200,
+    "XRPUSDC": 1795633200,
+    "LINKUSDC": 1795633200
   },
   "engine_version": "0.2.2",
   "price_move_watch": {
@@ -1079,6 +1119,11 @@
     "XRPUSDC": {
       "reference_price": 0.89351,
       "reference_ts": 1795615675,
+      "last_session_id": "heartbeat-20261125-1505"
+    },
+    "LINKUSDC": {
+      "reference_price": 9.04836,
+      "reference_ts": 1795633624,
       "last_session_id": "heartbeat-20261125-1505"
     }
   },
