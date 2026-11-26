@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-26-21h05",
+ "timestamp": "2026-11-26T21:05:00+01:00",
+ "rationale": "Ce que je vois : marché calme en range, BTC 60 657 (+0,8 % sur 24 h, −2,3 % sur 7 jours) collé à sa MA20 horaire, plus bas du jour 59 866, tendance journalière toujours baissière, plancher 3 et 6 mois 55 116. Force relative vs BTC : LINK reste le plus fort (+2,9 % sur 7 jours, +3,1 % sur 72 h), XRP un peu plus fort (+1,9 % sur 72 h), ETH et SOL légèrement plus faibles. Aucun signal d'achat complet sur BTC, ETH, SOL ou XRP (pas de nouveau plancher testé ni de pic de volume de confirmation). Ce que je fais : rien. LINK à 9,25 n'est pas redescendu à 8,85 (plus bas 24 h 9,00) ; remonter l'entrée vers 9,05 avec le stop 8,40 sous le vrai plancher donnerait un gain/risque net d'environ 1,0, sous le seuil de 1,5, donc je garde 8,85. Pas de trade court terme XRP : un stop sous le palier moyen terme 0,78 serait trop large pour 1,5 (règle du 17/11). Poche moyen terme inchangée (BTC 56 800 / 55 000 / 53 500 stop 50 000 sortie 68 000 ; ETH 1 580 / 1 500 / 1 430 stop 1 350 sortie 1 950 ; SOL 60 / 57 ; XRP 0,82 / 0,78). Revue globale par crypto : aucun stop au-dessus d'un achat en attente, aucun ordre contradictoire. Réserve intacte, garde-fou 8 % loin (portefeuille stable sur 7 jours).",
+ "actions": [
+  {
+   "type": "note",
+   "text": "Mini-bilan du 26/11 : portefeuille 6 424 USDC, −2,8 % depuis le départ contre −11,9 % pour le BTC gardé (5 820 USDC), soit +9,2 points d'avance ; sur 24 h +0,1 % contre +1,0 % pour le BTC gardé (on rend un peu d'avance car 87 % de cash pendant le rebond). Frais cumulés 66,80 USDC, résultat réalisé −228,49 USDC, aucun trade aujourd'hui. Moyen terme : BTC +5,7 % latent (PRU 57 366), ETH +7,9 % (PRU 1 578). Court terme : achat LINK 8,85 en attente. Ce qui a marché : les positions moyen terme achetées bas restent en gain ; ce qui n'a pas marché : l'entrée LINK placée sur un repli qui n'est pas venu. Ce que j'apprends : sur un altcoin en force relative, un repli vers la cassure n'arrive pas toujours ; mieux vaut accepter de rater le trade que de remonter l'entrée et casser le gain/risque."
+  }
+ ]
+}
