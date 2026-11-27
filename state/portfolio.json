@@ -1062,18 +1062,18 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795809600,
-    "ETHUSDC": 1795809600,
-    "SOLUSDC": 1795809600,
-    "XRPUSDC": 1795809600,
-    "LINKUSDC": 1795809600
+    "XBTUSDC": 1795813200,
+    "ETHUSDC": 1795813200,
+    "SOLUSDC": 1795813200,
+    "XRPUSDC": 1795813200,
+    "LINKUSDC": 1795813200
   },
   "last_prices": {
-    "XBTUSDC": 59785.75,
-    "ETHUSDC": 1666.8,
-    "SOLUSDC": 72.01,
-    "XRPUSDC": 0.94887,
-    "LINKUSDC": 9.38421
+    "XBTUSDC": 59678.92,
+    "ETHUSDC": 1658.33,
+    "SOLUSDC": 71.6,
+    "XRPUSDC": 0.9458,
+    "LINKUSDC": 9.29695
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -1087,8 +1087,8 @@
     "order": 66,
     "trade": 32
   },
-  "last_cycle": "2026-11-27T22:09:22+01:00",
-  "last_cycle_ts": 1795813762,
+  "last_cycle": "2026-11-27T23:09:19+01:00",
+  "last_cycle_ts": 1795817359,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -1096,38 +1096,38 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795813200,
-    "SOLUSDC": 1795813200,
-    "XBTUSDC": 1795813200,
-    "XRPUSDC": 1795813200,
-    "LINKUSDC": 1795813200
+    "ETHUSDC": 1795816800,
+    "SOLUSDC": 1795816800,
+    "XBTUSDC": 1795816800,
+    "XRPUSDC": 1795816800,
+    "LINKUSDC": 1795816800
   },
   "engine_version": "0.2.2",
   "price_move_watch": {
     "ETHUSDC": {
-      "reference_price": 1667.71,
-      "reference_ts": 1795799360,
-      "last_session_id": "heartbeat-20261127-1710"
+      "reference_price": 1658.33,
+      "reference_ts": 1795817359,
+      "last_session_id": "2026-11-27-22h10"
     },
     "SOLUSDC": {
-      "reference_price": 71.93,
-      "reference_ts": 1795799360,
-      "last_session_id": "heartbeat-20261127-1710"
+      "reference_price": 71.6,
+      "reference_ts": 1795817359,
+      "last_session_id": "2026-11-27-22h10"
     },
     "XBTUSDC": {
-      "reference_price": 59886.55,
-      "reference_ts": 1795799360,
-      "last_session_id": "heartbeat-20261127-1710"
+      "reference_price": 59678.92,
+      "reference_ts": 1795817359,
+      "last_session_id": "2026-11-27-22h10"
     },
     "XRPUSDC": {
-      "reference_price": 0.94694,
-      "reference_ts": 1795799360,
-      "last_session_id": "heartbeat-20261127-1710"
+      "reference_price": 0.9458,
+      "reference_ts": 1795817359,
+      "last_session_id": "2026-11-27-22h10"
     },
     "LINKUSDC": {
-      "reference_price": 9.33307,
-      "reference_ts": 1795799360,
-      "last_session_id": "heartbeat-20261127-1710"
+      "reference_price": 9.29695,
+      "reference_ts": 1795817359,
+      "last_session_id": "2026-11-27-22h10"
     }
   },
   "signaled_conflicts": []
