@@ -1000,13 +1000,14 @@
     "2026-11-24-19h10",
     "2026-11-24-23h35",
     "2026-11-25-20h10",
-    "2026-11-26-21h05"
+    "2026-11-26-21h05",
+    "2026-11-27-22h10"
   ],
   "last_decision": {
-    "id": "2026-11-26-21h05",
-    "timestamp": "2026-11-26T21:05:00+01:00",
-    "rationale": "Ce que je vois : marché calme en range, BTC 60 657 (+0,8 % sur 24 h, −2,3 % sur 7 jours) collé à sa MA20 horaire, plus bas du jour 59 866, tendance journalière toujours baissière, plancher 3 et 6 mois 55 116. Force relative vs BTC : LINK reste le plus fort (+2,9 % sur 7 jours, +3,1 % sur 72 h), XRP un peu plus fort (+1,9 % sur 72 h), ETH et SOL légèrement plus faibles. Aucun signal d'achat complet sur BTC, ETH, SOL ou XRP (pas de nouveau plancher testé ni de pic de volume de confirmation). Ce que je fais : rien. LINK à 9,25 n'est pas redescendu à 8,85 (plus bas 24 h 9,00) ; remonter l'entrée vers 9,05 avec le stop 8,40 sous le vrai plancher donnerait un gain/risque net d'environ 1,0, sous le seuil de 1,5, donc je garde 8,85. Pas de trade court terme XRP : un stop sous le palier moyen terme 0,78 serait trop large pour 1,5 (règle du 17/11). Poche moyen terme inchangée (BTC 56 800 / 55 000 / 53 500 stop 50 000 sortie 68 000 ; ETH 1 580 / 1 500 / 1 430 stop 1 350 sortie 1 950 ; SOL 60 / 57 ; XRP 0,82 / 0,78). Revue globale par crypto : aucun stop au-dessus d'un achat en attente, aucun ordre contradictoire. Réserve intacte, garde-fou 8 % loin (portefeuille stable sur 7 jours).",
-    "applied": "2026-11-26T21:06:31+01:00"
+    "id": "2026-11-27-22h10",
+    "timestamp": "2026-11-27T22:10:00+01:00",
+    "rationale": "Ce que je vois : BTC 59 750 (−1,7 % sur 24 h, +1,2 % sur 7 jours), sous sa MA20 horaire (60 830) après la mèche à 58 730 de l'après-midi, RSI horaire 26, volume qui ne s'assèche pas ; tendance journalière toujours baissière, plancher 3 et 6 mois 55 116 intact. Force relative vs BTC sur 72 h et 7 jours : LINK nettement le plus fort (+6,7 et +9,1 points), puis XRP, SOL et ADA (+3 à +4 points), ETH proche de BTC. Aucun signal d'achat complet : pas de test d'un vrai plancher, pas de creux plus haut confirmé, aucune clôture au-dessus de la MA20 avec pic de volume. Ce que je fais : rien. LINK à 9,38 reste loin de l'entrée 8,85 ; remonter l'entrée avec le stop 8,40 sous le vrai plancher casserait le gain/risque 1,5, je garde l'ordre. Pas de trade court terme SOL ou XRP : un stop sous les paliers moyen terme (SOL 57, XRP 0,78) serait trop large pour 400 USDC à gain/risque 1,5 (règle du 17/11). Revue globale par crypto : BTC stop 50 000 sous les paliers 56 800 / 55 000 / 53 500, ETH stop 1 350 sous 1 580 / 1 500 / 1 430, SOL et XRP sans position, aucun ordre contradictoire. Réserve intacte, garde-fou 8 % loin. Ce que j'apprends : dans une baisse lente sans capitulation, attendre le plancher coûte un peu de rebond mais évite les stops en série du 14/11 et du 20/11.",
+    "applied": "2026-11-27T22:07:59+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -1061,18 +1062,18 @@
     }
   },
   "last_candle": {
-    "XBTUSDC": 1795806000,
-    "ETHUSDC": 1795806000,
-    "SOLUSDC": 1795806000,
-    "XRPUSDC": 1795806000,
-    "LINKUSDC": 1795806000
+    "XBTUSDC": 1795809600,
+    "ETHUSDC": 1795809600,
+    "SOLUSDC": 1795809600,
+    "XRPUSDC": 1795809600,
+    "LINKUSDC": 1795809600
   },
   "last_prices": {
-    "XBTUSDC": 59783.17,
-    "ETHUSDC": 1669.45,
-    "SOLUSDC": 72.02,
-    "XRPUSDC": 0.94885,
-    "LINKUSDC": 9.419
+    "XBTUSDC": 59745.85,
+    "ETHUSDC": 1665.0,
+    "SOLUSDC": 71.98,
+    "XRPUSDC": 0.94887,
+    "LINKUSDC": 9.38421
   },
   "benchmark": {
     "pair": "XBTUSDC",
@@ -1086,8 +1087,8 @@
     "order": 66,
     "trade": 32
   },
-  "last_cycle": "2026-11-27T21:09:19+01:00",
-  "last_cycle_ts": 1795810159,
+  "last_cycle": "2026-11-27T22:07:59+01:00",
+  "last_cycle_ts": 1795813679,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -1095,11 +1096,11 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795809600,
-    "SOLUSDC": 1795809600,
-    "XBTUSDC": 1795809600,
-    "XRPUSDC": 1795809600,
-    "LINKUSDC": 1795809600
+    "ETHUSDC": 1795813200,
+    "SOLUSDC": 1795813200,
+    "XBTUSDC": 1795813200,
+    "XRPUSDC": 1795813200,
+    "LINKUSDC": 1795813200
   },
   "engine_version": "0.2.2",
   "price_move_watch": {
