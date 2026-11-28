@@ -1001,13 +1001,14 @@
     "2026-11-24-23h35",
     "2026-11-25-20h10",
     "2026-11-26-21h05",
-    "2026-11-27-22h10"
+    "2026-11-27-22h10",
+    "2026-11-28-18h10"
   ],
   "last_decision": {
-    "id": "2026-11-27-22h10",
-    "timestamp": "2026-11-27T22:10:00+01:00",
-    "rationale": "Ce que je vois : BTC 59 750 (−1,7 % sur 24 h, +1,2 % sur 7 jours), sous sa MA20 horaire (60 830) après la mèche à 58 730 de l'après-midi, RSI horaire 26, volume qui ne s'assèche pas ; tendance journalière toujours baissière, plancher 3 et 6 mois 55 116 intact. Force relative vs BTC sur 72 h et 7 jours : LINK nettement le plus fort (+6,7 et +9,1 points), puis XRP, SOL et ADA (+3 à +4 points), ETH proche de BTC. Aucun signal d'achat complet : pas de test d'un vrai plancher, pas de creux plus haut confirmé, aucune clôture au-dessus de la MA20 avec pic de volume. Ce que je fais : rien. LINK à 9,38 reste loin de l'entrée 8,85 ; remonter l'entrée avec le stop 8,40 sous le vrai plancher casserait le gain/risque 1,5, je garde l'ordre. Pas de trade court terme SOL ou XRP : un stop sous les paliers moyen terme (SOL 57, XRP 0,78) serait trop large pour 400 USDC à gain/risque 1,5 (règle du 17/11). Revue globale par crypto : BTC stop 50 000 sous les paliers 56 800 / 55 000 / 53 500, ETH stop 1 350 sous 1 580 / 1 500 / 1 430, SOL et XRP sans position, aucun ordre contradictoire. Réserve intacte, garde-fou 8 % loin. Ce que j'apprends : dans une baisse lente sans capitulation, attendre le plancher coûte un peu de rebond mais évite les stops en série du 14/11 et du 20/11.",
-    "applied": "2026-11-27T22:07:59+01:00"
+    "id": "2026-11-28-18h10",
+    "timestamp": "2026-11-28T18:10:00+01:00",
+    "rationale": "Ce que je vois : samedi soir calme, BTC 59 560 (−0,5 % sur 24 h, −0,7 % sur 7 jours), collé à sa MA20 horaire (59 610), RSI horaire 38 et journalier 33, toujours sous la MA20 journalière (64 400) donc tendance de fond baissière ; plancher 3 et 6 mois 55 116 intact, plus bas 7 jours 57 103. Volume très faible (environ 0,3 fois la moyenne horaire sur 6 h). Force relative vs BTC sur 72 h et 7 jours : LINK toujours le plus fort (+2,8 et +7,2 points), XRP et SOL légèrement devant (+1 à +2 points), ADA à peine devant, ETH et AVAX plus faibles. Aucun signal d'achat complet : pas de test d'un vrai plancher, pas de pic de volume, pas de clôture au-dessus de la MA20 avec confirmation. Ce que je fais : rien. LINK à 9,13 reste au-dessus de l'entrée 8,85 (poche court terme), je garde l'ordre plutôt que de remonter l'entrée et casser le gain/risque. Revue globale par crypto : BTC stop 50 000 sous les paliers 56 800 / 55 000 / 53 500, ETH stop 1 350 sous 1 580 / 1 500 / 1 430, SOL paliers 60 / 57 stop 53, XRP paliers 0,82 / 0,78 stop 0,72, LINK 8,85 stop 8,40 ; aucun stop au-dessus d'un achat en attente, aucun ordre contradictoire. Réserve intacte, garde-fou 8 % loin. Ce que j'apprends : un week-end sans volume ne donne pas de confirmation fiable, mieux vaut laisser les ordres limites travailler.",
+    "applied": "2026-11-28T18:11:05+01:00"
   },
   "pairs": {
     "XBTUSDC": {
@@ -1069,9 +1070,9 @@
     "LINKUSDC": 1795881600
   },
   "last_prices": {
-    "XBTUSDC": 59536.14,
-    "ETHUSDC": 1653.6,
-    "SOLUSDC": 70.64,
+    "XBTUSDC": 59561.38,
+    "ETHUSDC": 1653.46,
+    "SOLUSDC": 70.62,
     "XRPUSDC": 0.94132,
     "LINKUSDC": 9.13052
   },
@@ -1087,8 +1088,8 @@
     "order": 66,
     "trade": 32
   },
-  "last_cycle": "2026-11-28T18:09:19+01:00",
-  "last_cycle_ts": 1795885759,
+  "last_cycle": "2026-11-28T18:11:05+01:00",
+  "last_cycle_ts": 1795885865,
   "last_cycle_errors": [],
   "fees": {
     "maker": 0.0022,
@@ -1096,38 +1097,38 @@
     "slippage": 0.001
   },
   "last_m5": {
-    "ETHUSDC": 1795885200,
-    "SOLUSDC": 1795885200,
-    "XBTUSDC": 1795885200,
-    "XRPUSDC": 1795885200,
-    "LINKUSDC": 1795885200
+    "ETHUSDC": 1795885500,
+    "SOLUSDC": 1795885500,
+    "XBTUSDC": 1795885500,
+    "XRPUSDC": 1795885500,
+    "LINKUSDC": 1795885500
   },
   "engine_version": "0.2.2",
   "price_move_watch": {
     "ETHUSDC": {
-      "reference_price": 1651.21,
-      "reference_ts": 1795867833,
-      "last_session_id": "heartbeat-20261128-1310"
+      "reference_price": 1653.46,
+      "reference_ts": 1795885865,
+      "last_session_id": "2026-11-28-18h10"
     },
     "SOLUSDC": {
-      "reference_price": 70.94,
-      "reference_ts": 1795867833,
-      "last_session_id": "heartbeat-20261128-1310"
+      "reference_price": 70.62,
+      "reference_ts": 1795885865,
+      "last_session_id": "2026-11-28-18h10"
     },
     "XBTUSDC": {
-      "reference_price": 59242.17,
-      "reference_ts": 1795867833,
-      "last_session_id": "heartbeat-20261128-1310"
+      "reference_price": 59561.38,
+      "reference_ts": 1795885865,
+      "last_session_id": "2026-11-28-18h10"
     },
     "XRPUSDC": {
-      "reference_price": 0.94165,
-      "reference_ts": 1795867833,
-      "last_session_id": "heartbeat-20261128-1310"
+      "reference_price": 0.94132,
+      "reference_ts": 1795885865,
+      "last_session_id": "2026-11-28-18h10"
     },
     "LINKUSDC": {
-      "reference_price": 9.15813,
-      "reference_ts": 1795867833,
-      "last_session_id": "heartbeat-20261128-1310"
+      "reference_price": 9.13052,
+      "reference_ts": 1795885865,
+      "last_session_id": "2026-11-28-18h10"
     }
   },
   "signaled_conflicts": []
