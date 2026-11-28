@@ -1,0 +1,11 @@
+{
+ "id": "2026-11-28-18h10",
+ "timestamp": "2026-11-28T18:10:00+01:00",
+ "rationale": "Ce que je vois : samedi soir calme, BTC 59 560 (−0,5 % sur 24 h, −0,7 % sur 7 jours), collé à sa MA20 horaire (59 610), RSI horaire 38 et journalier 33, toujours sous la MA20 journalière (64 400) donc tendance de fond baissière ; plancher 3 et 6 mois 55 116 intact, plus bas 7 jours 57 103. Volume très faible (environ 0,3 fois la moyenne horaire sur 6 h). Force relative vs BTC sur 72 h et 7 jours : LINK toujours le plus fort (+2,8 et +7,2 points), XRP et SOL légèrement devant (+1 à +2 points), ADA à peine devant, ETH et AVAX plus faibles. Aucun signal d'achat complet : pas de test d'un vrai plancher, pas de pic de volume, pas de clôture au-dessus de la MA20 avec confirmation. Ce que je fais : rien. LINK à 9,13 reste au-dessus de l'entrée 8,85 (poche court terme), je garde l'ordre plutôt que de remonter l'entrée et casser le gain/risque. Revue globale par crypto : BTC stop 50 000 sous les paliers 56 800 / 55 000 / 53 500, ETH stop 1 350 sous 1 580 / 1 500 / 1 430, SOL paliers 60 / 57 stop 53, XRP paliers 0,82 / 0,78 stop 0,72, LINK 8,85 stop 8,40 ; aucun stop au-dessus d'un achat en attente, aucun ordre contradictoire. Réserve intacte, garde-fou 8 % loin. Ce que j'apprends : un week-end sans volume ne donne pas de confirmation fiable, mieux vaut laisser les ordres limites travailler.",
+ "actions": [
+  {
+   "type": "note",
+   "text": "Mini-bilan du 28/11 : portefeuille 6 410 USDC, −3,0 % depuis le départ contre −13,3 % pour le BTC gardé (5 731 USDC), soit +10,3 points d'avance ; sur 24 h −0,1 % contre −0,4 % pour le BTC gardé. Frais cumulés 66,80 USDC, résultat réalisé −228,49 USDC, aucun trade aujourd'hui. Moyen terme : BTC +3,8 % latent (PRU 57 366), ETH +4,8 % (PRU 1 578), paliers en attente plus bas. Court terme : achat LINK 8,85 toujours en attente. Ce qui a marché : la patience évite de payer des frais dans un marché sans direction. Ce qui n'a pas marché : l'exposition reste faible (environ 13 %), on ne capte pas la force relative de LINK."
+  }
+ ]
+}
